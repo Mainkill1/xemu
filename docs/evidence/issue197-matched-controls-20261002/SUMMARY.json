@@ -1,0 +1,239 @@
+{
+  "phase": "controls",
+  "identitySha256": "3f7e12b5268518cd9ec7a62cf5c95fc8e757644514be1bdf2fc0412e1c0ccf66",
+  "physicalOrder": "AA",
+  "runs": [
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-controls-20261002-01-a",
+      "runId": "20261002-122829377-4ddd79f0ab21484a822ed87d0a14cf11",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-controls-20261002-01-a",
+        "runId": "20261002-122829377-4ddd79f0ab21484a822ed87d0a14cf11",
+        "fileCount": 868,
+        "bytes": 7600160,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-controls/01-A/collected/20261002-122829377-4ddd79f0ab21484a822ed87d0a14cf11",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 604,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 604,
+            "Mean": 245.4417350993377,
+            "Median": 245.965,
+            "Min": 220.365,
+            "Max": 284.248,
+            "P95": 252.05425,
+            "P99": 254.21005
+          },
+          "CollectorDuty": {
+            "Count": 604,
+            "Mean": 0.4060728476821195,
+            "Median": 0.377,
+            "Min": 0.3,
+            "Max": 0.846,
+            "P95": 0.6112500000000001,
+            "P99": 0.69194
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 19,
+          "ElapsedUs": 33756003,
+          "CadenceFps": 0.5628628484243232
+        },
+        "Frames": {
+          "WindowStartUs": 199165307537,
+          "WindowEndUs": 199465307537,
+          "FirstSampleUs": 199166003576,
+          "LastSampleUs": 199465307537,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 179,
+            "Mean": 1676.7248715083806,
+            "Median": 1665.136,
+            "Min": 791.333,
+            "Max": 2825.613,
+            "P95": 2333.7875999999997,
+            "P99": 2567.27324
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 187626,
+            "Sha256": "4cc3404f19776d7a0618536b05a7d75c5e75ce0d001b674e2835976673154c5e",
+            "Records": 982,
+            "IgnoredRecords": 377
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3282,
+            "Sha256": "403ebac150d5151273aa7d93f6229336537d0c09c901cca6fd6d5e7960421096",
+            "Records": 85,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 200481,
+            "Sha256": "c1b1133754100478b53ecab597ebf04abc0662b48faf3aacf7c3656081af4df5",
+            "Records": 3868,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-controls-20261002-02-a",
+      "runId": "20261002-123703133-827da75722204890b7115604f641f5db",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-controls-20261002-02-a",
+        "runId": "20261002-123703133-827da75722204890b7115604f641f5db",
+        "fileCount": 868,
+        "bytes": 7595889,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-controls/02-A/collected/20261002-123703133-827da75722204890b7115604f641f5db",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 240.9660199004976,
+            "Median": 241.611,
+            "Min": 218.176,
+            "Max": 280.218,
+            "P95": 247.94899999999998,
+            "P99": 252.28816
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.4104676616915421,
+            "Median": 0.376,
+            "Min": 0.3,
+            "Max": 0.833,
+            "P95": 0.6257999999999999,
+            "P99": 0.7208800000000001
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 18,
+          "ElapsedUs": 33151805,
+          "CadenceFps": 0.5429568616248799
+        },
+        "Frames": {
+          "WindowStartUs": 199679218824,
+          "WindowEndUs": 199979218824,
+          "FirstSampleUs": 199679337944,
+          "LastSampleUs": 199979218824,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 178,
+            "Mean": 1691.8789044943821,
+            "Median": 1685.0904999999998,
+            "Min": 682.951,
+            "Max": 2596.623,
+            "P95": 2314.4543999999996,
+            "P99": 2464.75672
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186383,
+            "Sha256": "c1e73f0a94526735a97dfcb81d8345b64de34165758083c6f56b10bafee956d2",
+            "Records": 983,
+            "IgnoredRecords": 379
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3282,
+            "Sha256": "6a697c42e7344e46dc6713d47e8c5490f188597db78470b8f4807ed0c8827a4e",
+            "Records": 85,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 200682,
+            "Sha256": "67556ced4575b6ac3cdb67e26ef2fc0fa4af201ce7e785d4fbf7a8a1e55ade93",
+            "Records": 3872,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      }
+    }
+  ],
+  "originalMeanIntervalSpreadPercentOfMedian": 0.8997219022287951,
+  "controlsQualified": true,
+  "scope": "Two original-only controls; no candidate game measurement or speedup.",
+  "remaining": "Physical ABBA then BAAB after original control scene/repeatability review; native audio and affected/control XISO parity/timings remain separate gates."
+}

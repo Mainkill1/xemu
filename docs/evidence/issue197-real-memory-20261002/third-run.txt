@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02S2aa22566996dba1196edd357f27d7654
+1..1
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+
+Exit: -11

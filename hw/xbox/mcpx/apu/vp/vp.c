@@ -22,6 +22,7 @@
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
 #include "resample.h"
+#include "sample-memory.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1030,14 +1031,9 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                            block_size); // FIXME: Use idiomatic DMA function
                 } else {
                     linear_addr += ba;
-                    for (unsigned int word_index = 0;
-                         word_index < (9 * samples_per_block); word_index++) {
-                        hwaddr addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR],
-                                                   0xFFFFFFFF, linear_addr);
-                        adpcm_block[word_index] =
-                            ldl_le_phys(&address_space_memory, addr);
-                        linear_addr += 4;
-                    }
+                    mcpx_apu_read_adpcm_block(&d->regs[NV_PAPU_VPSGEADDR],
+                                             linear_addr, adpcm_block,
+                                             9 * samples_per_block);
                 }
                 adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
                                    block_size, channels);

@@ -1,0 +1,6 @@
+ninja: Entering directory `build-sample-memory'
+[1/8] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/5] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/5] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.o
+[4/5] Linking target tests/unit/test-xbox-mcpx-apu-sample-memory
+[5/5] Linking target test-xbox-mcpx-apu-real-memory

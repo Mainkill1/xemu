@@ -1,0 +1,1072 @@
+{
+  "phase": "balanced",
+  "identitySha256": "3f7e12b5268518cd9ec7a62cf5c95fc8e757644514be1bdf2fc0412e1c0ccf66",
+  "physicalOrder": "ABBABAAB",
+  "runs": [
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-01-a",
+      "runId": "20261002-124653752-b0deef076f4b487882b6aeef70c071a5",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-01-a",
+        "runId": "20261002-124653752-b0deef076f4b487882b6aeef70c071a5",
+        "fileCount": 868,
+        "bytes": 7601062,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/01-A/collected/20261002-124653752-b0deef076f4b487882b6aeef70c071a5",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 246.24421558872302,
+            "Median": 246.315,
+            "Min": 144.138,
+            "Max": 280.345,
+            "P95": 253.9337,
+            "P99": 258.52012
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.4049436152570482,
+            "Median": 0.375,
+            "Min": 0.297,
+            "Max": 2.288,
+            "P95": 0.5974999999999998,
+            "P99": 0.7337600000000002
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 19,
+          "ElapsedUs": 33579046,
+          "CadenceFps": 0.5658290589911339
+        },
+        "Frames": {
+          "WindowStartUs": 200270412228,
+          "WindowEndUs": 200570412228,
+          "FirstSampleUs": 200270945660,
+          "LastSampleUs": 200570412228,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 185,
+            "Mean": 1623.1190594594598,
+            "Median": 1611.739,
+            "Min": 88.317,
+            "Max": 2991.676,
+            "P95": 2258.0873999999994,
+            "P99": 2459.31844
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186459,
+            "Sha256": "1e7442f794e281b002bccd8d7d95eebfef2b8c49da42517a4009659a58f15750",
+            "Records": 983,
+            "IgnoredRecords": 379
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3245,
+            "Sha256": "56a4370bc17cd15f8377d23ee9fb5d76a5d8880000255ab9920ca643d47ed82c",
+            "Records": 84,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 203513,
+            "Sha256": "c8a5e133bad6ad67aed7752423f4cc1d2ea1884127ff1140a7fc631ef7f2191b",
+            "Records": 3926,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-02-b",
+      "runId": "20261002-125526959-20e312b66b884ef7978a49c72bf82efd",
+      "mode": "B",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-02-b",
+        "runId": "20261002-125526959-20e312b66b884ef7978a49c72bf82efd",
+        "fileCount": 868,
+        "bytes": 7587100,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/02-B/collected/20261002-125526959-20e312b66b884ef7978a49c72bf82efd",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 245.0965107794359,
+            "Median": 245.773,
+            "Min": 200.455,
+            "Max": 281.758,
+            "P95": 252.348,
+            "P99": 254.5554
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.40322719734660023,
+            "Median": 0.375,
+            "Min": 0.301,
+            "Max": 0.752,
+            "P95": 0.606,
+            "P99": 0.6898200000000001
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 19,
+          "ElapsedUs": 34604814,
+          "CadenceFps": 0.5490565561196197
+        },
+        "Frames": {
+          "WindowStartUs": 200783498831,
+          "WindowEndUs": 201083498831,
+          "FirstSampleUs": 200784256282,
+          "LastSampleUs": 201083498831,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 177,
+            "Mean": 1702.6654519774015,
+            "Median": 1677.395,
+            "Min": 474.183,
+            "Max": 2642.815,
+            "P95": 2279.0281999999997,
+            "P99": 2477.5660000000003
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186168,
+            "Sha256": "88fc44a3946a8ba17fc43217ffbbe871ea2c27e38dab88f12006b48feed2d8d3",
+            "Records": 982,
+            "IgnoredRecords": 378
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3284,
+            "Sha256": "81877c639543fe611fcc2f2d69f11a1c024e78696d2310a455aaac298154f3cf",
+            "Records": 85,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 197748,
+            "Sha256": "60635c1d92310ddd074356c57f3f47b840c368e131eb8b098f69dabd0e277efe",
+            "Records": 3815,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-03-b",
+      "runId": "20261002-130400428-104c3e1df62a4648a9f392ce97306f42",
+      "mode": "B",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-03-b",
+        "runId": "20261002-130400428-104c3e1df62a4648a9f392ce97306f42",
+        "fileCount": 868,
+        "bytes": 7602589,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/03-B/collected/20261002-130400428-104c3e1df62a4648a9f392ce97306f42",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 604,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 604,
+            "Mean": 248.69418874172172,
+            "Median": 248.3175,
+            "Min": 224.243,
+            "Max": 290.191,
+            "P95": 256.2293,
+            "P99": 258.47396
+          },
+          "CollectorDuty": {
+            "Count": 604,
+            "Mean": 0.41183443708609324,
+            "Median": 0.373,
+            "Min": 0.298,
+            "Max": 0.87,
+            "P95": 0.6396500000000002,
+            "P99": 0.7614900000000004
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 24,
+          "ElapsedUs": 34329174,
+          "CadenceFps": 0.6991138207986012
+        },
+        "Frames": {
+          "WindowStartUs": 201296863139,
+          "WindowEndUs": 201596863139,
+          "FirstSampleUs": 201297550803,
+          "LastSampleUs": 201596863139,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 230,
+            "Mean": 1305.7228304347823,
+            "Median": 1285.0505,
+            "Min": 400.088,
+            "Max": 1954.598,
+            "P95": 1747.14195,
+            "P99": 1855.17701
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186847,
+            "Sha256": "91479bcec6595032f243d82b7e4e0fd675bed844b42d10c209cb55a890fabf25",
+            "Records": 983,
+            "IgnoredRecords": 378
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3358,
+            "Sha256": "83b76be1953050f9b76a342fd89b2e54320ab3b88682feea34ea0553bc56c82f",
+            "Records": 87,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 204632,
+            "Sha256": "a4f2a040eb8dbd4c8bd418ee5741b2a6efde4398602bf67093abf7de431edf02",
+            "Records": 3946,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-04-a",
+      "runId": "20261002-131234310-f45cd6fd3c5748f4990440aaf1e56c9a",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-04-a",
+        "runId": "20261002-131234310-f45cd6fd3c5748f4990440aaf1e56c9a",
+        "fileCount": 868,
+        "bytes": 7592636,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/04-A/collected/20261002-131234310-f45cd6fd3c5748f4990440aaf1e56c9a",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 242.90889883913772,
+            "Median": 242.496,
+            "Min": 216.311,
+            "Max": 282.094,
+            "P95": 248.80689999999998,
+            "P99": 253.49212
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.39582752902155877,
+            "Median": 0.367,
+            "Min": 0.305,
+            "Max": 0.827,
+            "P95": 0.5616,
+            "P99": 0.68198
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 17,
+          "ElapsedUs": 38835992,
+          "CadenceFps": 0.43773827124076037
+        },
+        "Frames": {
+          "WindowStartUs": 201810930580,
+          "WindowEndUs": 202110930580,
+          "FirstSampleUs": 201811489099,
+          "LastSampleUs": 202110930580,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 156,
+            "Mean": 1926.1658012820517,
+            "Median": 1931.8175,
+            "Min": 171.59,
+            "Max": 3139.287,
+            "P95": 2871.40375,
+            "P99": 3086.027399999999
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186181,
+            "Sha256": "7d1abc8c92c04e0a3480a91ba01e936659154ad855c408715095ba0054a3fa26",
+            "Records": 982,
+            "IgnoredRecords": 378
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3168,
+            "Sha256": "bff734b3a7879b19a6dfd86cdc0b15614a889f959741b8bd5f84b343b329eb3e",
+            "Records": 82,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 198351,
+            "Sha256": "9ce98e079ca937c798d5bf103ec6020335781c144a13e6754f11a32d281d8071",
+            "Records": 3828,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-05-b",
+      "runId": "20261002-132107870-4ae56be644144148bc4708f2131d6cb7",
+      "mode": "B",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-05-b",
+        "runId": "20261002-132107870-4ae56be644144148bc4708f2131d6cb7",
+        "fileCount": 868,
+        "bytes": 7595100,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/05-B/collected/20261002-132107870-4ae56be644144148bc4708f2131d6cb7",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 245.0059386401325,
+            "Median": 245.738,
+            "Min": 230.144,
+            "Max": 276.136,
+            "P95": 250.7279,
+            "P99": 252.84611999999998
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.40865505804311814,
+            "Median": 0.375,
+            "Min": 0.297,
+            "Max": 0.827,
+            "P95": 0.629,
+            "P99": 0.7008000000000001
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 18,
+          "ElapsedUs": 34046541,
+          "CadenceFps": 0.5286880684883671
+        },
+        "Frames": {
+          "WindowStartUs": 202324956097,
+          "WindowEndUs": 202624956097,
+          "FirstSampleUs": 202325289283,
+          "LastSampleUs": 202624956097,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 172,
+            "Mean": 1753.728168604652,
+            "Median": 1698.6715,
+            "Min": 895.174,
+            "Max": 2587.938,
+            "P95": 2346.3355,
+            "P99": 2452.6253499999993
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186235,
+            "Sha256": "e5befb181b893d6f72e539f8e80b4fc22ce213a66b29e8f93119e13104a6c09f",
+            "Records": 982,
+            "IgnoredRecords": 378
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3321,
+            "Sha256": "630371d962d86473f44413db8f5a9b79d519e3084051ecedbd80f3e617365cad",
+            "Records": 86,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 198434,
+            "Sha256": "3c3291fcbb4fe489f7b716b9cc3321f7445bcf0fcdf2561a682bec796778c8f6",
+            "Records": 3829,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-06-a",
+      "runId": "20261002-132941689-17dfa344dfb8483596a484e444beb0ce",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-06-a",
+        "runId": "20261002-132941689-17dfa344dfb8483596a484e444beb0ce",
+        "fileCount": 868,
+        "bytes": 7597501,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/06-A/collected/20261002-132941689-17dfa344dfb8483596a484e444beb0ce",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 603,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 603,
+            "Mean": 246.21453897180774,
+            "Median": 246.154,
+            "Min": 229.972,
+            "Max": 276.134,
+            "P95": 252.39659999999998,
+            "P99": 256.22616
+          },
+          "CollectorDuty": {
+            "Count": 603,
+            "Mean": 0.39920398009950286,
+            "Median": 0.368,
+            "Min": 0.293,
+            "Max": 0.731,
+            "P95": 0.5887999999999999,
+            "P99": 0.65698
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 20,
+          "ElapsedUs": 36173159,
+          "CadenceFps": 0.5528961404780821
+        },
+        "Frames": {
+          "WindowStartUs": 202837838119,
+          "WindowEndUs": 203137838119,
+          "FirstSampleUs": 202837937841,
+          "LastSampleUs": 203137838119,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 180,
+            "Mean": 1672.652377777778,
+            "Median": 1649.056,
+            "Min": 793.728,
+            "Max": 2499.874,
+            "P95": 2288.8659,
+            "P99": 2413.7691600000003
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 185987,
+            "Sha256": "166198af26f6c744341ea5d037a74f0ae70472f7db11ab9a52018bcc93d99570",
+            "Records": 981,
+            "IgnoredRecords": 377
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3282,
+            "Sha256": "f00662af70404ed1825208e4df2e4ab69e0a6632b7dab39d90ca60d9d27dc752",
+            "Records": 85,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 201466,
+            "Sha256": "2cd1cd9892f118bd8ecee2b0ac811b9e70d3afccd79da1dd5a8a8b19424f7546",
+            "Records": 3887,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-07-a",
+      "runId": "20261002-133814761-7da14003b75045b1adefa063d3c1a917",
+      "mode": "A",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-07-a",
+        "runId": "20261002-133814761-7da14003b75045b1adefa063d3c1a917",
+        "fileCount": 868,
+        "bytes": 7594596,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/07-A/collected/20261002-133814761-7da14003b75045b1adefa063d3c1a917",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 604,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 604,
+            "Mean": 243.11201821192057,
+            "Median": 242.7005,
+            "Min": 221.963,
+            "Max": 276.095,
+            "P95": 250.1464,
+            "P99": 254.59056000000004
+          },
+          "CollectorDuty": {
+            "Count": 604,
+            "Mean": 0.39620198675496715,
+            "Median": 0.3635,
+            "Min": 0.298,
+            "Max": 0.826,
+            "P95": 0.6037,
+            "P99": 0.7207000000000002
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 16,
+          "ElapsedUs": 35104973,
+          "CadenceFps": 0.4557758810980997
+        },
+        "Frames": {
+          "WindowStartUs": 203351674888,
+          "WindowEndUs": 203651674888,
+          "FirstSampleUs": 203351848794,
+          "LastSampleUs": 203651674888,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 145,
+            "Mean": 2081.03848275862,
+            "Median": 2054.473,
+            "Min": 1149.882,
+            "Max": 3217.463,
+            "P95": 2796.591,
+            "P99": 3056.06716
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186211,
+            "Sha256": "89a30b1ac76fd358482793daa431d5e01659673a823e42676c78c9d521ea033d",
+            "Records": 982,
+            "IgnoredRecords": 377
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3208,
+            "Sha256": "6a3732566e3aaf44bba8641f4b1daeb45cfaadf1915951ccec82cf694300ec39",
+            "Records": 83,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 194813,
+            "Sha256": "894cb91067905c067ddab05f589230713a28a6d2bcf86aa05208db925045fd02",
+            "Records": 3760,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    },
+    {
+      "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-08-b",
+      "runId": "20261002-134648336-d961aa405ccc4c7ead0825b987f0330f",
+      "mode": "B",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "collection": {
+        "ok": true,
+        "jobId": "issue197-deck-pgr2-matched-warm60-abba-baab-20261002-08-b",
+        "runId": "20261002-134648336-d961aa405ccc4c7ead0825b987f0330f",
+        "fileCount": 868,
+        "bytes": 7595919,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/remaining-gates/matched-game-abba-baab/08-B/collected/20261002-134648336-d961aa405ccc4c7ead0825b987f0330f",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "performance": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "3c3d4269e74947df19527e866d21987fba0a3a57069290d03717bf871c1ea5e4",
+        "Profile": {
+          "Segment": "stationary",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 6,
+          "FrameTailSeconds": 300,
+          "MinimumCpuSamples": 100,
+          "MinimumFrameSamples": 100
+        },
+        "Monitoring": {
+          "Segment": "stationary",
+          "Rows": 604,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 604,
+            "Mean": 243.63843377483462,
+            "Median": 243.978,
+            "Min": 214.128,
+            "Max": 284.225,
+            "P95": 250.22795000000002,
+            "P99": 254.85037000000003
+          },
+          "CollectorDuty": {
+            "Count": 604,
+            "Mean": 0.41325496688741664,
+            "Median": 0.377,
+            "Min": 0.241,
+            "Max": 2.132,
+            "P95": 0.63585,
+            "P99": 0.7148500000000001
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 6,
+          "Frames": 18,
+          "ElapsedUs": 34135957,
+          "CadenceFps": 0.5273032187145068
+        },
+        "Frames": {
+          "WindowStartUs": 203865079821,
+          "WindowEndUs": 204165079821,
+          "FirstSampleUs": 203865194664,
+          "LastSampleUs": 204165079821,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 185,
+            "Mean": 1622.2649837837846,
+            "Median": 1691.251,
+            "Min": 70.069,
+            "Max": 2769.524,
+            "P95": 2347.669999999999,
+            "P99": 2474.81236
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 186426,
+            "Sha256": "bb8a332c79053c10a74fa96f5977e0594e77e9473ef11cdc3ce04bd70e6228e5",
+            "Records": 983,
+            "IgnoredRecords": 378
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 3244,
+            "Sha256": "54b0e082f8ea7158f695149b0b363275eab1b910f3006d480a17d26be561aee2",
+            "Records": 84,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 197651,
+            "Sha256": "74a964ac0b25f92914b3b8e18e33894cc51bea9318108b82c78c9c6b6935272d",
+            "Records": 3814,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "mesa": {
+        "DriverNamespaceVerified": true,
+        "DriverQualification": "mesa_private_disk_writes_observed",
+        "ComparisonReady": true,
+        "AllowUncontrolledDriverCache": false
+      },
+      "stderrReview": {
+        "sharedGlibAssertionPresent": true,
+        "exitZero": true,
+        "cause": "Unclassified; preserved, not attributed to this patch."
+      }
+    }
+  ],
+  "statistics": {
+    "meanGuestFrameIntervalMs": {
+      "referenceMedian": 1799.4090895299148,
+      "candidateMedian": 1662.4652178805932,
+      "saved": 136.94387164932164,
+      "improvementPercent": 7.610491268836339,
+      "nReference": 4,
+      "nCandidate": 4
+    },
+    "p95GuestFrameIntervalMs": {
+      "referenceMedian": 2542.7284499999996,
+      "candidateMedian": 2312.68185,
+      "saved": 230.04659999999967,
+      "improvementPercent": 9.047234280955157,
+      "nReference": 4,
+      "nCandidate": 4
+    },
+    "p99GuestFrameIntervalMs": {
+      "referenceMedian": 2757.6928,
+      "candidateMedian": 2463.7188549999996,
+      "saved": 293.9739450000002,
+      "improvementPercent": 10.660141151327668,
+      "nReference": 4,
+      "nCandidate": 4
+    },
+    "meanProcessCpuPercent": {
+      "referenceMedian": 244.66327859186416,
+      "candidateMedian": 245.0512247097842,
+      "saved": -0.38794611792005185,
+      "improvementPercent": -0.1585632793579969,
+      "nReference": 4,
+      "nCandidate": 4
+    }
+  },
+  "interpretation": "Descriptive game measures only; inspect scenes, paired order and variation before claiming a gain. Does not qualify audio or affected XISO parity.",
+  "orderChecks": {
+    "ABBA": {
+      "referenceMedianMs": 1774.6424303707558,
+      "candidateMedianMs": 1504.194141206092,
+      "savedMs": 270.44828916466395,
+      "improvementPercent": 15.239593313914074,
+      "referenceRangePercentOfMedian": 17.076495897783747,
+      "candidateRangePercentOfMedian": 26.38905515376778
+    },
+    "BAAB": {
+      "referenceMedianMs": 1876.845430268199,
+      "candidateMedianMs": 1687.9965761942183,
+      "savedMs": 188.84885407398065,
+      "improvementPercent": 10.062035531982747,
+      "referenceRangePercentOfMedian": 21.75917624300495,
+      "candidateRangePercentOfMedian": 7.788119162970471
+    },
+    "combined": {
+      "referenceMedianMs": 1799.4090895299148,
+      "candidateMedianMs": 1662.4652178805932,
+      "savedMs": 136.94387164932164,
+      "improvementPercent": 7.610491268836339,
+      "referenceRangePercentOfMedian": 25.448322227759164,
+      "candidateRangePercentOfMedian": 26.94825331389566
+    }
+  },
+  "adjacentPairs": [
+    {
+      "positions": [
+        1,
+        2
+      ],
+      "referenceMedianMs": 1623.1190594594598,
+      "candidateMedianMs": 1702.6654519774015,
+      "savedMs": -79.54639251794174,
+      "improvementPercent": -4.900835342567706,
+      "referenceRangePercentOfMedian": 0.0,
+      "candidateRangePercentOfMedian": 0.0
+    },
+    {
+      "positions": [
+        3,
+        4
+      ],
+      "referenceMedianMs": 1926.1658012820517,
+      "candidateMedianMs": 1305.7228304347823,
+      "savedMs": 620.4429708472694,
+      "improvementPercent": 32.21129616330556,
+      "referenceRangePercentOfMedian": 0.0,
+      "candidateRangePercentOfMedian": 0.0
+    },
+    {
+      "positions": [
+        5,
+        6
+      ],
+      "referenceMedianMs": 1672.652377777778,
+      "candidateMedianMs": 1753.728168604652,
+      "savedMs": -81.07579082687403,
+      "improvementPercent": -4.84713930425808,
+      "referenceRangePercentOfMedian": 0.0,
+      "candidateRangePercentOfMedian": 0.0
+    },
+    {
+      "positions": [
+        7,
+        8
+      ],
+      "referenceMedianMs": 2081.03848275862,
+      "candidateMedianMs": 1622.2649837837846,
+      "savedMs": 458.7734989748353,
+      "improvementPercent": 22.045411595017033,
+      "referenceRangePercentOfMedian": 0.0,
+      "candidateRangePercentOfMedian": 0.0
+    }
+  ],
+  "decision": "HOLD: apparent combined 7.61% reduction is inconclusive because within-build variation is large and adjacent pairs disagree in sign. No game speedup or audio parity claimed.",
+  "remaining": "Native affected ADPCM/PCM control correctness; valid fixed-work affected/control XISO timings or explicit NOT COMPARABLE contract; audio parity; arbitrary backing lifetime coverage."
+}

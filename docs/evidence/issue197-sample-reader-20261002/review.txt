@@ -1,0 +1,3 @@
+Reviewer inspected uncommitted diff against 37684948536fb0dac4beb6bd1c48b0f3127b1850.
+Initial important finding: extracted translator used uint32_t sge_base, wrapping descriptor addition at 4 GiB. Corrected to hwaddr and covered by an independent red/green fixture.
+Follow-up: no remaining introduced critical/important issues found. Deterministic API doubles do not establish concurrent-register visibility, actual QEMU mapping lifecycle, native performance, or affected XISO parity. HOLD.

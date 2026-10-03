@@ -1,0 +1,5 @@
+TAP version 14
+# random seed: R02S6006c21c70a8a46275ead615af5fc2d6
+test-real-memory: ../hw/core/qdev.c:865: machine_get_container: Assertion `object_dynamic_cast(container, TYPE_CONTAINER)' failed.
+
+Exit: -6

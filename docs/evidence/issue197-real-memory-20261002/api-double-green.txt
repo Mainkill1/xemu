@@ -1,0 +1,16 @@
+TAP version 14
+# random seed: R02Sdad3259ea796ba39dae0ad5a38d6e618
+1..9
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/sge-page-chunk
+ok 2 /mcpx-apu/sample-memory/cached-word-eligibility
+ok 3 /mcpx-apu/sample-memory/table-base-changes-between-words
+ok 4 /mcpx-apu/sample-memory/descriptor-changes-between-words
+ok 5 /mcpx-apu/sample-memory/noncontiguous-sge-pages
+ok 6 /mcpx-apu/sample-memory/unaligned-word-crosses-sge-page
+ok 7 /mcpx-apu/sample-memory/short-or-unavailable-mapping
+ok 8 /mcpx-apu/sample-memory/descriptor-address-does-not-wrap
+ok 9 /mcpx-apu/sample-memory/mono-and-stereo-encoded-blocks
+# End of sample-memory tests
+# End of mcpx-apu tests

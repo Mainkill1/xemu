@@ -1,0 +1,826 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "bytes": 419625,
+  "sha256": "c099a0f066ee7656a9c9f6f1fa642219403581f86c48d91c9989075489e2f144",
+  "payloads": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 2642,
+      "sha256": "36174426dc3b6351d3bfeecd07ab0bd06f6153fc6254936cbeaac5d10e4d4cbb"
+    },
+    {
+      "path": "local-meson/lifetime-unit-excluding-known-failure.json",
+      "bytes": 896611,
+      "sha256": "c3b1e7ef27cf1269464ecd9722ad4f8e2fc2cc0d2e1dc0952e6462cd655fef9a"
+    },
+    {
+      "path": "local-meson/lifetime-unit-excluding-known-failure.txt",
+      "bytes": 308013,
+      "sha256": "c893b6fbd6108b4c78b216be1cb6d4d9c6e6b99c847e8f477a82046464d9ce77"
+    },
+    {
+      "path": "local-meson/testlog.json",
+      "bytes": 16728,
+      "sha256": "e98df1cb2127a40331544517199213dd177046ca6cb99c1d5da796392aae5376"
+    },
+    {
+      "path": "local-meson/testlog.txt",
+      "bytes": 9073,
+      "sha256": "74f9679e05670d815f94982cf216975da7ed1088dc20ad3f53a7f4d9e785a781"
+    },
+    {
+      "path": "package-evidence.py",
+      "bytes": 12725,
+      "sha256": "1002dc111a09cb723033ac9940b8c86677da895f647c3b3b0582e0611662d39a"
+    },
+    {
+      "path": "raw/broader-initial-attempts.txt",
+      "bytes": 164,
+      "sha256": "4077654c643171a18416e6f3dce548c9d313ed7654a488ce025a5dc22edbb2a7"
+    },
+    {
+      "path": "raw/build-negative-control.py",
+      "bytes": 2801,
+      "sha256": "c1c5dbfc79f9c635121092e269276f9f758af10bbe5389e8e41e21765b7700e0"
+    },
+    {
+      "path": "raw/candidate-formatted.log",
+      "bytes": 926,
+      "sha256": "02d45172e7bc816087849d88dcaee3f7fc450d15137b59e47b4217017ae3c07b"
+    },
+    {
+      "path": "raw/candidate-local-exit.json",
+      "bytes": 171,
+      "sha256": "4e73b79c0dd83982b53dac7401468676d1385a776dcc220b517b6d01b3ca33e0"
+    },
+    {
+      "path": "raw/candidate-local.log",
+      "bytes": 851,
+      "sha256": "2c4c8d416f90f29bac8beb128eeca4a9177148e9af3cc685bb7880ffaabcaf95"
+    },
+    {
+      "path": "raw/ci-current.json",
+      "bytes": 27716,
+      "sha256": "7951da72d84d98cb66fb19896576311913a142619db3af305082db1ddff2ed3d"
+    },
+    {
+      "path": "raw/ci-final.json",
+      "bytes": 27716,
+      "sha256": "7951da72d84d98cb66fb19896576311913a142619db3af305082db1ddff2ed3d"
+    },
+    {
+      "path": "raw/ci-linux-release.log",
+      "bytes": 1643185,
+      "sha256": "45974727a3e457510ec63a4daaecaef7b3e465d33746182639e70b3dcdad7a05"
+    },
+    {
+      "path": "raw/ci-source-equivalence.json",
+      "bytes": 533,
+      "sha256": "cdc2d2fd963ee12bafc4c5608fff14a42ae430f9e58bf143af12dd88e891c775"
+    },
+    {
+      "path": "raw/ci-unit.log",
+      "bytes": 453055,
+      "sha256": "e8547d6be68b49949bddd95c6dabbd019316e0123ef2162e3bf48b1d0a43ef69"
+    },
+    {
+      "path": "raw/deck-native/SUMMARY.json",
+      "bytes": 1065,
+      "sha256": "05ee164b7bc31140d6266af06b56f6e1621b85d1964fa5d8fd37bcc576578526"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/assessment.json",
+      "bytes": 740,
+      "sha256": "fb445e15137f7b8cafbff7d222477c02bdc18f4f25a536ddbb2c693ac596f39e"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/crash/native/exit-native.json",
+      "bytes": 139,
+      "sha256": "ec34285a3ad2f660ad2c89727fb0bb2f047ebae9a7fd087e96ec0a900549b4e8"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/crash/native/ready.json",
+      "bytes": 59,
+      "sha256": "61b9f89da6c536effbe9fc770e6275e538470ef8973133b16924367a043c9b71"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/crash/native/start",
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/crash/report.json",
+      "bytes": 425,
+      "sha256": "fa7c55f5963fd041e1a5db824f43891adde6947a3027b7610cbd9249e9ab45e8"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/crash/report.txt",
+      "bytes": 198,
+      "sha256": "0e9703122726359b9493721a9dea46e61c2919606c0729c08700083d93a7bd49"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/diagnostic-bundle.json",
+      "bytes": 369,
+      "sha256": "97bd44ef436548ffb6fcbfde0816c75c4cfce06d941d075ae5e8b6b92641faaf"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/diagnostics.zip",
+      "bytes": 11741,
+      "sha256": "613a961c515babd82a14ebddc655a6a2dd3e3f09baced3e928c2e4c22606876e"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/diagnostics/run-state/report.json",
+      "bytes": 1281,
+      "sha256": "678e110a760b7c41f1829d0fb38588d04c0a408a2ef8ef2faf96164a45618d0f"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/host-inventory.json",
+      "bytes": 465,
+      "sha256": "f42792a4a7bc851950806a5088204d84a570a2bf2efab0751cb7be76525e0686"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/input-manifest.json",
+      "bytes": 459,
+      "sha256": "ad9e1753fb071b574104e5671f00a66f16b14f827b0b7c6a1ba67f6dfb427d2e"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/job.json",
+      "bytes": 2714,
+      "sha256": "ff7e738e19d07f2a0a82cebe1db0e619df26a0c9f410e233539a7f3eda397cf4"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/launch.json",
+      "bytes": 1550,
+      "sha256": "56933c91882969ead745c9214cfb762d3ac0a3102a46fef3511a3b237323aeb3"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/metrics.csv",
+      "bytes": 682,
+      "sha256": "c83e809586dc28e9bc7944a1d99197871d8b625bc6017dd07fe9537b92d0a43c"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/operator-events.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/pre-run-environment.json",
+      "bytes": 1563,
+      "sha256": "90dd0ae25a444cf30b1f91ade66129ac9ebdcdb33718c877aaa76233b809ae23"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/preflight.json",
+      "bytes": 1101,
+      "sha256": "0f58e9ae97fdf70479cd1f20c41dd62dc5f3df5f6d17a1c159ba9e702082f883"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/result.json",
+      "bytes": 5784,
+      "sha256": "805af648a86bfbc3e6f99ba3115e8e72232a576338eb2166505c59c803f89544"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/runtime-state.json",
+      "bytes": 58,
+      "sha256": "84a3230f7043fd79213906fbf46592e64d8eada284b1bd51100e9347363934ef"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/candidate/collected/20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9/stdout.log",
+      "bytes": 836,
+      "sha256": "0291d7e9e45d8578d2146dcc067468b9b9c5211ea5860c94fed976b020563722"
+    },
+    {
+      "path": "raw/deck-native/candidate/collection.json",
+      "bytes": 450,
+      "sha256": "33f1b3afabae68622c66a66ad619664f8c82b9653f4b4be36a8143b9ed0ba396"
+    },
+    {
+      "path": "raw/deck-native/candidate/definition.json",
+      "bytes": 1962,
+      "sha256": "8885c452c5fe60821d77603f280188bb85be6b3a1bba29e518d8ee97f52844f4"
+    },
+    {
+      "path": "raw/deck-native/candidate/result-summary.json",
+      "bytes": 638,
+      "sha256": "0e3348ae2bb07dd4289c752e5b7b6c5146a03904c7d53f775cc298e10f395436"
+    },
+    {
+      "path": "raw/deck-native/candidate/submit.json",
+      "bytes": 569,
+      "sha256": "64a917b4fa9bfaedd100db71a6f8df22135b951d3d2b3176b4a2305734d8efa5"
+    },
+    {
+      "path": "raw/deck-native/candidate/wait.json",
+      "bytes": 939,
+      "sha256": "ada53a1dd0488d4a98e2e001331e8b0eecc2147b638d5d51e8835c25364014ac"
+    },
+    {
+      "path": "raw/deck-native/elf-notes.txt",
+      "bytes": 6926,
+      "sha256": "28512c8589b0024b658ad930ccd721a1566b481d1207d883582e2507778fa05a"
+    },
+    {
+      "path": "raw/deck-native/mcpx-adpcm-real-memory-candidate-correctness-v3.json",
+      "bytes": 614,
+      "sha256": "59e754837013f6560d4aec6b7f286a379a1f262b4da46cd48105e7d6c0569c82"
+    },
+    {
+      "path": "raw/deck-native/mcpx-adpcm-real-memory-original-correctness-v3.json",
+      "bytes": 611,
+      "sha256": "98b581dbe84ebce732507fc43661f15cbfb882845f38320f3e0d2d2c2d48e1e4"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/assessment.json",
+      "bytes": 740,
+      "sha256": "fb445e15137f7b8cafbff7d222477c02bdc18f4f25a536ddbb2c693ac596f39e"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/crash/native/exit-native.json",
+      "bytes": 139,
+      "sha256": "617ee273d589911cdaa791b0e251881f3ad0eba0860435c960078e543f7a8566"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/crash/native/ready.json",
+      "bytes": 59,
+      "sha256": "fd6ed4eb5f68a54a92c166970eeb437855da2dd1faf3b35bfacb1359a0dd91f0"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/crash/native/start",
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/crash/report.json",
+      "bytes": 425,
+      "sha256": "a61d50ba0a4665e6b3f1aad8278db44f935e21b5d0acf49df1e398d19010cc4d"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/crash/report.txt",
+      "bytes": 198,
+      "sha256": "0e9703122726359b9493721a9dea46e61c2919606c0729c08700083d93a7bd49"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/diagnostic-bundle.json",
+      "bytes": 369,
+      "sha256": "378f7495b9046965a28a5d406c70dfca3978829e3a72d41a69c43f8e30cb7e96"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/diagnostics.zip",
+      "bytes": 11763,
+      "sha256": "d26de08e2035c6b8ca8610f6e25b36d9ab784b905b269c6cd72168d1109a06f8"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/diagnostics/run-state/report.json",
+      "bytes": 1281,
+      "sha256": "678e110a760b7c41f1829d0fb38588d04c0a408a2ef8ef2faf96164a45618d0f"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/host-inventory.json",
+      "bytes": 466,
+      "sha256": "a441fde8dbb732c814e002fe469ccf276a322817c3894e83bec9c7b4e35f3204"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/input-manifest.json",
+      "bytes": 458,
+      "sha256": "1e29aa1591092c52da798a008c53dd96cf686f1ec3dc7a3b36c0b0a8404bcccd"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/job.json",
+      "bytes": 2730,
+      "sha256": "d5ac80e6c0d8fbb4e4b3225474da9e1205b8da10b8657cf5e7e02b44c7f74eb1"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/launch.json",
+      "bytes": 1566,
+      "sha256": "ddb0f2b459e7f07a4bce14611358d97dc75da45121731e9c7c459e56051444d3"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/metrics.csv",
+      "bytes": 683,
+      "sha256": "9b4fad0705490f98b5428e37ee153d12cb1894b0f24dd0adbdec7109157a12b2"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/operator-events.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/pre-run-environment.json",
+      "bytes": 1563,
+      "sha256": "ce6465e1fbc1d2b527427a9361e25f117a684214b8ea8b85e1a54ab5b8e05c2c"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/preflight.json",
+      "bytes": 1100,
+      "sha256": "2c8c50801a240cbb413d46ae158ea5d2c9a821cc7e18db701a275b4c0effd34a"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/result.json",
+      "bytes": 5787,
+      "sha256": "d88c86782f655d758c163e95679b633cf32f6e7df4f609888e3af05ed0006d1b"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/runtime-state.json",
+      "bytes": 58,
+      "sha256": "84a3230f7043fd79213906fbf46592e64d8eada284b1bd51100e9347363934ef"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/original/collected/20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e/stdout.log",
+      "bytes": 836,
+      "sha256": "68b8c7609a4e6de32e751723edd9459bd187694b59aac87021ad2562c169ce48"
+    },
+    {
+      "path": "raw/deck-native/original/collection.json",
+      "bytes": 448,
+      "sha256": "2311e9ce7d14e5c57df039c1fc662dc875661b077e4af32f2fcea5e9e7e9cabb"
+    },
+    {
+      "path": "raw/deck-native/original/definition.json",
+      "bytes": 1978,
+      "sha256": "9517c9653b87a23c4b61b89f4870117d460f577ba3ade9596935f8454099e3e9"
+    },
+    {
+      "path": "raw/deck-native/original/result-summary.json",
+      "bytes": 637,
+      "sha256": "03bac268818745353216bcc593dae81a3ee4666dd92339652f6784e50125b9f3"
+    },
+    {
+      "path": "raw/deck-native/original/submit.json",
+      "bytes": 567,
+      "sha256": "d0702086e7f177d625d71d865b83c7d4609f0fe2fdabac461353f2aafea6baba"
+    },
+    {
+      "path": "raw/deck-native/original/wait.json",
+      "bytes": 938,
+      "sha256": "6ae9d0915748792a41bd4ecfe0e815a5cfa07a855b03bc394cd0c53fcfb2db69"
+    },
+    {
+      "path": "raw/deck-native/payload-manifest.json",
+      "bytes": 12414,
+      "sha256": "2362a7183d6085da52063ac2c32b4a70cb1ba26cd920d612975d64206902b3dd"
+    },
+    {
+      "path": "raw/deck-native/post-controls-status.json",
+      "bytes": 1654,
+      "sha256": "5042b654e81c12b817fbac73ebbf10ea82ce9d847eaf596d504e117b33f62f08"
+    },
+    {
+      "path": "raw/deck-native/preflight.json",
+      "bytes": 2537,
+      "sha256": "434909cfd4aa9f78dcbc3f24b3affad9740c6853a9fc4fd0ad8f48436ec55661"
+    },
+    {
+      "path": "raw/issue197-before.json",
+      "bytes": 18304,
+      "sha256": "8d9df8867f20700be50c780c00bbb8319751442dc297235bb4f9faa2592e0dae"
+    },
+    {
+      "path": "raw/native-observer.log",
+      "bytes": 2996,
+      "sha256": "9bc21424e8cef124a0a9f9e4bda5e4c80ebef7a7d4f73e5c15be6c1fb0918724"
+    },
+    {
+      "path": "raw/negative-build-commands.json",
+      "bytes": 40980,
+      "sha256": "6a42d8003ae7291861a23c12dc9eb6598ac13593f6a2092ad06cc40152aa243a"
+    },
+    {
+      "path": "raw/negative-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/negative-link.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/negative-test-memory.c",
+      "bytes": 23259,
+      "sha256": "5446e0b0cecf1b0d23e376854d9592ef7a12bb3b36da264545e56e1643711642"
+    },
+    {
+      "path": "raw/original-formatted.log",
+      "bytes": 851,
+      "sha256": "b4e2a3be4fbd2ae1f501c466f079cc9f5add471f29efb5e56971003e0a2500e9"
+    },
+    {
+      "path": "raw/original-local-exit.json",
+      "bytes": 189,
+      "sha256": "a4aa00aa8b85b2a1854da4e17d5ca4271eb82711c57eb4eec2039e847cc217c1"
+    },
+    {
+      "path": "raw/original-local.log",
+      "bytes": 851,
+      "sha256": "16bc44de554b01038cd5c3437af6df6caf4da4644a520538017b675d943cb8c6"
+    },
+    {
+      "path": "raw/owned-ram-resize-original-exit.json",
+      "bytes": 242,
+      "sha256": "fad26a22f9c8d907af2c32b792ccaa061a0579c3f047cb145a57dacad6108289"
+    },
+    {
+      "path": "raw/owned-ram-resize-original.log",
+      "bytes": 228,
+      "sha256": "1eb2ca6d7609f490e59434153d47de79cd660f8a47875d91760662a69e43ecd5"
+    },
+    {
+      "path": "raw/owned-ram-resize-unguarded-exit.json",
+      "bytes": 230,
+      "sha256": "6599060e0a5e233a9ff3407daca0a7b0bd61a105fc8ddcaa1ac611fab00663c1"
+    },
+    {
+      "path": "raw/owned-ram-resize-unguarded.log",
+      "bytes": 669,
+      "sha256": "421e088981ebd4b6e1ebe292a84d1d6913495bdc8657b353ecc925cdd457eef9"
+    },
+    {
+      "path": "raw/owned-ram-retirement-original-exit.json",
+      "bytes": 246,
+      "sha256": "117884e1894fcf8040311e8373ea6fcba3f1d82309bd07c0524deb5760e3fef3"
+    },
+    {
+      "path": "raw/owned-ram-retirement-original.log",
+      "bytes": 232,
+      "sha256": "a6bc374bb42e33f607801cad153a785e145758ffbb9617eef46d92909cf0a6c1"
+    },
+    {
+      "path": "raw/owned-ram-retirement-unguarded-exit.json",
+      "bytes": 234,
+      "sha256": "0677afdc1a143e4d7045285cc4c6d0cbc410a9da9dc2961a94808f60d5909fdf"
+    },
+    {
+      "path": "raw/owned-ram-retirement-unguarded.log",
+      "bytes": 655,
+      "sha256": "67f2260d161de44ac52254c89ec35071b075f07774c220504d3147f72a824d86"
+    },
+    {
+      "path": "raw/pr275-before.json",
+      "bytes": 9522,
+      "sha256": "a8a444c7ca1cf6502bf917e91e4ddc59ca89cfb4c0014284796145b936d50bb9"
+    },
+    {
+      "path": "raw/pr275-current-pending.json",
+      "bytes": 10267,
+      "sha256": "fda447d202c2ad6cd4cf4d2df68389912099a0b785f8b5687d4ddb69c6768a49"
+    },
+    {
+      "path": "raw/pr275-current-pending.md",
+      "bytes": 10154,
+      "sha256": "a936e47278fca83670afef243275d7b42ed25faa5b187958635cfefd42982c9e"
+    },
+    {
+      "path": "raw/registration-recovery.json",
+      "bytes": 746,
+      "sha256": "6453a603f3e4f3e2f41ca9038ac510f01335ac98444b1740520cea28c6734cdc"
+    },
+    {
+      "path": "raw/review.json",
+      "bytes": 416,
+      "sha256": "d3b71b8dacd72e3593d704629787ebae2a1fd0ec5993bce3a17956d1cbdf4684"
+    },
+    {
+      "path": "raw/run-native-lifetime-rejected-description.py",
+      "bytes": 5726,
+      "sha256": "630977cf0e0c70111dabd4b1cde82c39c38da2b99b1b1285734d1d148fd4dda2"
+    },
+    {
+      "path": "raw/run-native-lifetime.py",
+      "bytes": 5642,
+      "sha256": "f126c8874d2451f52ed1902f75f3df6d97b1e1d98638802d395d87fc8bca8bf1"
+    },
+    {
+      "path": "raw/source-identity.json",
+      "bytes": 487,
+      "sha256": "72c35a7c81ce28199500aff1337cdeac0f62adab64d9e717f7e1e7bbb311d660"
+    },
+    {
+      "path": "raw/unguarded-reader.h",
+      "bytes": 3629,
+      "sha256": "be0e009fc19d9f7e44e8c520816e7591613f5487c31755509be49416cc484c43"
+    },
+    {
+      "path": "raw/unit-build-excluding-known-failure-exit.json",
+      "bytes": 5896,
+      "sha256": "2bbe09fac13d50510a007e6dd5a597dddbfce12206559c00c5981d9b2909087a"
+    },
+    {
+      "path": "raw/unit-build-excluding-known-failure.log",
+      "bytes": 16243,
+      "sha256": "8e5275a69b308cedc85f217914622481e792123f6daf82bf6164134a75cc1cb9"
+    },
+    {
+      "path": "raw/unit-build.log",
+      "bytes": 11775,
+      "sha256": "5fb46b71b68af521c5b0cb014a74b8a9e227ecd099893f21013710ede272c05e"
+    },
+    {
+      "path": "raw/unit-failures.json",
+      "bytes": 22454,
+      "sha256": "096312770c58a9fc784611fa3c4555ffde7a346541c0358cacd113e64186535e"
+    },
+    {
+      "path": "raw/unit-missing-targets.json",
+      "bytes": 5464,
+      "sha256": "2d8c706e79c30d496bc66cd64d4034f133801b0121eaac8a20daf02ddcfa31f6"
+    },
+    {
+      "path": "raw/unit-run-excluding-known-failure-exit.json",
+      "bytes": 4605,
+      "sha256": "171c784836b61960adcfab4da30dca2b198ba8807d5d3489f765d4d2cc9e01c6"
+    },
+    {
+      "path": "raw/unit-run-excluding-known-failure.log",
+      "bytes": 21548,
+      "sha256": "e8282073a8dfe4570667221dbf1ce6ac27cc046e175ad11d9ec2ea1ad1ba1166"
+    },
+    {
+      "path": "review-and-rulings.md",
+      "bytes": 1901,
+      "sha256": "7e5241f9e6310ee5fb025c10f829733546cb1d0db74382a61f3ede23105d1a47"
+    },
+    {
+      "path": "source/docs/superpowers/plans/2026-10-02-adpcm-memory-lifetime.md",
+      "bytes": 2522,
+      "sha256": "99e3907a5b446e4b0a01837fb1e3542cb298de184d6f552735d5891fc25eb5ea"
+    },
+    {
+      "path": "source/task.patch",
+      "bytes": 10452,
+      "sha256": "55572e2107f3a1d53e75b1565e2686e55e01baffe9bfd94608d54f959eca3347"
+    },
+    {
+      "path": "source/tests/xbox/mcpx-apu/README.md",
+      "bytes": 3965,
+      "sha256": "cd783adfb39f70d08fb99eea3bf3f564fab8678be81f64780df0595da9341061"
+    },
+    {
+      "path": "source/tests/xbox/mcpx-apu/test-sample-memory.c",
+      "bytes": 23276,
+      "sha256": "249c8bfdfb3f31848b90d5fe8c6c94d7cc6cc5b0905c9ebe7569f78b054a1c41"
+    }
+  ],
+  "omissions": [
+    {
+      "path": "deck-native/package/job.json",
+      "bytes": 1978,
+      "sha256": "9517c9653b87a23c4b61b89f4870117d460f577ba3ade9596935f8454099e3e9",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libbrotlicommon.so.1",
+      "bytes": 140592,
+      "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libbrotlidec.so.1",
+      "bytes": 55376,
+      "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libcap.so.2",
+      "bytes": 43336,
+      "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libcrypto.so.3",
+      "bytes": 4611672,
+      "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libcurl-gnutls.so.4",
+      "bytes": 669480,
+      "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libdbus-1.so.3",
+      "bytes": 336328,
+      "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libepoxy.so.0",
+      "bytes": 1390520,
+      "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libffi.so.8",
+      "bytes": 51360,
+      "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libgcrypt.so.20",
+      "bytes": 1313912,
+      "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libglib-2.0.so.0",
+      "bytes": 1335888,
+      "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libgnutls.so.30",
+      "bytes": 2071960,
+      "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libgssapi_krb5.so.2",
+      "bytes": 351720,
+      "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libhogweed.so.6",
+      "bytes": 303152,
+      "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libidn2.so.0",
+      "bytes": 132848,
+      "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libk5crypto.so.3",
+      "bytes": 188760,
+      "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libkeyutils.so.1",
+      "bytes": 26928,
+      "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libkrb5.so.3",
+      "bytes": 856536,
+      "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libkrb5support.so.0",
+      "bytes": 57512,
+      "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/liblber-2.5.so.0",
+      "bytes": 69792,
+      "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libldap-2.5.so.0",
+      "bytes": 403000,
+      "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/liblz4.so.1",
+      "bytes": 130848,
+      "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/liblzma.so.5",
+      "bytes": 176296,
+      "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libnettle.so.8",
+      "bytes": 299128,
+      "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libnghttp2.so.14",
+      "bytes": 175504,
+      "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libp11-kit.so.0",
+      "bytes": 1291592,
+      "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libpcap.so.0.8",
+      "bytes": 315728,
+      "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libpcre.so.3",
+      "bytes": 481040,
+      "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libpsl.so.5",
+      "bytes": 79528,
+      "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/librtmp.so.1",
+      "bytes": 128056,
+      "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libsamplerate.so.0",
+      "bytes": 1500560,
+      "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libsasl2.so.2",
+      "bytes": 109664,
+      "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libslirp.so.0",
+      "bytes": 133360,
+      "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libssh.so.4",
+      "bytes": 465064,
+      "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libsystemd.so.0",
+      "bytes": 834768,
+      "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libtasn1.so.6",
+      "bytes": 96480,
+      "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libudev.so.1",
+      "bytes": 173424,
+      "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libunistring.so.2",
+      "bytes": 1766104,
+      "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/lib/libzstd.so.1",
+      "bytes": 863128,
+      "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "deck-native/package/test-xbox-mcpx-apu-real-memory",
+      "bytes": 136325048,
+      "sha256": "26ad98da1159c0a33c1e2cc09a14df59090da2ee71324612d205db344d2959cd",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "negative-test-memory.o",
+      "bytes": 198168,
+      "sha256": "b33fa8baade21e4ac588f6c0a01f9da5be33e7952a4f8a85c92a3f4c219022b8",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    },
+    {
+      "path": "test-negative-memory",
+      "bytes": 136420048,
+      "sha256": "6a79141b9a33273f7ad8c24d83b78e69fa7f2f6263dc7bc9cab510b6aa6f032d",
+      "reason": "large executable/library/object retained locally and on runner; rebuild/download using retained source and CI identity"
+    }
+  ]
+}

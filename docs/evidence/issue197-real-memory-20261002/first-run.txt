@@ -1,0 +1,5 @@
+TAP version 14
+# random seed: R02S484cb57565a5913ca452e9ffb67ceab0
+test-real-memory: ../hw/core/qdev.c:853: qdev_get_machine: Assertion `dev' failed.
+
+Exit: -6

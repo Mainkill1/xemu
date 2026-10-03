@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Sb1e86a9df8059687a0e7871038d3c0b8
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+not ok /mcpx-apu/sample-memory/table-base-changes-between-words - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:80:test_table_base_changes_between_words: assertion failed (words[1] == 0x55667788): (0xdeadbeef == 0x55667788)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:80:test_table_base_changes_between_words: assertion failed (words[1] == 0x55667788): (0xdeadbeef == 0x55667788)
+
+Exit: -6

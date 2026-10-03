@@ -1,0 +1,138 @@
+{
+  "scope": "same executable runtime-mode component experiment, not cross-build matched game gain",
+  "formula": "Improvement%=100*(median original us-median candidate us)/median original us; positive better",
+  "rows": [
+    {
+      "words": 9,
+      "phase": "abba",
+      "nBaseline": 2,
+      "nCandidate": 2,
+      "baselineMedianUs": 5017404.0,
+      "candidateMedianUs": 2606707.0,
+      "savedUs": 2410697.0,
+      "improvementPercent": 48.046699049946945,
+      "baselineRangeUs": [
+        5014869,
+        5019939
+      ],
+      "candidateRangeUs": [
+        2604954,
+        2608460
+      ]
+    },
+    {
+      "words": 9,
+      "phase": "baab",
+      "nBaseline": 2,
+      "nCandidate": 2,
+      "baselineMedianUs": 5024713.5,
+      "candidateMedianUs": 2610685.5,
+      "savedUs": 2414028.0,
+      "improvementPercent": 48.04309738256718,
+      "baselineRangeUs": [
+        5021049,
+        5028378
+      ],
+      "candidateRangeUs": [
+        2608921,
+        2612450
+      ]
+    },
+    {
+      "words": 9,
+      "phase": "combined",
+      "nBaseline": 4,
+      "nCandidate": 4,
+      "baselineMedianUs": 5020494.0,
+      "candidateMedianUs": 2608690.5,
+      "savedUs": 2411803.5,
+      "improvementPercent": 48.03916706204608,
+      "baselineRangeUs": [
+        5014869,
+        5028378
+      ],
+      "candidateRangeUs": [
+        2604954,
+        2612450
+      ]
+    },
+    {
+      "words": 18,
+      "phase": "abba",
+      "nBaseline": 2,
+      "nCandidate": 2,
+      "baselineMedianUs": 9686212.0,
+      "candidateMedianUs": 4426940.0,
+      "savedUs": 5259272.0,
+      "improvementPercent": 54.296478334358156,
+      "baselineRangeUs": [
+        9685948,
+        9686476
+      ],
+      "candidateRangeUs": [
+        4420659,
+        4433221
+      ]
+    },
+    {
+      "words": 18,
+      "phase": "baab",
+      "nBaseline": 2,
+      "nCandidate": 2,
+      "baselineMedianUs": 9671860.5,
+      "candidateMedianUs": 4417348.5,
+      "savedUs": 5254512.0,
+      "improvementPercent": 54.32783072088353,
+      "baselineRangeUs": [
+        9657608,
+        9686113
+      ],
+      "candidateRangeUs": [
+        4411315,
+        4423382
+      ]
+    },
+    {
+      "words": 18,
+      "phase": "combined",
+      "nBaseline": 4,
+      "nCandidate": 4,
+      "baselineMedianUs": 9686030.5,
+      "candidateMedianUs": 4422020.5,
+      "savedUs": 5264010.0,
+      "improvementPercent": 54.34641156663713,
+      "baselineRangeUs": [
+        9657608,
+        9686476
+      ],
+      "candidateRangeUs": [
+        4411315,
+        4433221
+      ]
+    }
+  ],
+  "baselineControls": [
+    {
+      "words": 9,
+      "n": 4,
+      "medianUs": 5019536.5,
+      "minUs": 5010003,
+      "maxUs": 5034504,
+      "spreadPercent": 0.48811279686879455
+    },
+    {
+      "words": 18,
+      "n": 4,
+      "medianUs": 9678548.0,
+      "minUs": 9650575,
+      "maxUs": 9695922,
+      "spreadPercent": 0.46853102345517117
+    }
+  ],
+  "timingAttempts": 24,
+  "correctnessControlProcesses": 2,
+  "checksumOracles": {
+    "9": 191790886280000000,
+    "18": 386189776490000000
+  }
+}
