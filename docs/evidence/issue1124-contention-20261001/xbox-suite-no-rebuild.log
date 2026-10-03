@@ -1,0 +1,9 @@
+1/4 qemu:unit+xbox / test-pfifo-flip               OK              0.01s   2 subtests passed
+2/4 qemu:unit+xbox / test-pgraph-control           OK              0.01s   16 subtests passed
+3/4 qemu:xbox / test-nv2a-ptimer                   OK              0.04s   20 subtests passed
+4/4 qemu:unit+xbox / test-pgraph-ptimer-contention OK              0.21s   3 subtests passed
+
+Ok:                4   
+Fail:              0   
+
+Full log written to /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/build-native/meson-logs/testlog.txt

@@ -1,0 +1,10 @@
+{
+  "pairedMedianAdditionalNsPerReadWrite": 38.32436,
+  "minimumAdditionalNs": 37.99876,
+  "maximumAdditionalNs": 38.78654,
+  "fixedMmioMedianNs": 3853076,
+  "emptyLoopMedianNs": 20640,
+  "hypotheticalCpuPercentAt60PairsPerSecond": 0.00022994616,
+  "retained": false,
+  "reason": "Initial exploratory raw output was overwritten by an intentional replay to the same directory before the immutable-output guard was added. Aggregate values recovered from the initial tool output; raw observations unavailable, excluded from final arithmetic."
+}

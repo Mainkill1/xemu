@@ -1,0 +1,68 @@
+TAP version 14
+# random seed: R02Se1cf35cd23c24ab0f5ae804e13ea9d69
+1..1
+# Start of nv2a tests
+# Start of contention tests
+# cost pair=0 position=0 mmio=0 iterations=100000 cpu_ns=21451
+# cost pair=0 position=1 mmio=1 iterations=100000 cpu_ns=3894066
+# cost pair=1 position=0 mmio=1 iterations=100000 cpu_ns=3878196
+# cost pair=1 position=1 mmio=0 iterations=100000 cpu_ns=20770
+# cost pair=2 position=0 mmio=0 iterations=100000 cpu_ns=20751
+# cost pair=2 position=1 mmio=1 iterations=100000 cpu_ns=3862486
+# cost pair=3 position=0 mmio=1 iterations=100000 cpu_ns=3864826
+# cost pair=3 position=1 mmio=0 iterations=100000 cpu_ns=20790
+# cost pair=4 position=0 mmio=0 iterations=100000 cpu_ns=20770
+# cost pair=4 position=1 mmio=1 iterations=100000 cpu_ns=3860996
+# cost pair=5 position=0 mmio=1 iterations=100000 cpu_ns=3866066
+# cost pair=5 position=1 mmio=0 iterations=100000 cpu_ns=20771
+# cost pair=6 position=0 mmio=0 iterations=100000 cpu_ns=20770
+# cost pair=6 position=1 mmio=1 iterations=100000 cpu_ns=3861556
+# cost pair=7 position=0 mmio=1 iterations=100000 cpu_ns=3877586
+# cost pair=7 position=1 mmio=0 iterations=100000 cpu_ns=20730
+# cost pair=8 position=0 mmio=0 iterations=100000 cpu_ns=20761
+# cost pair=8 position=1 mmio=1 iterations=100000 cpu_ns=3863766
+# cost pair=9 position=0 mmio=1 iterations=100000 cpu_ns=3862556
+# cost pair=9 position=1 mmio=0 iterations=100000 cpu_ns=20740
+# cost pair=10 position=0 mmio=0 iterations=100000 cpu_ns=20750
+# cost pair=10 position=1 mmio=1 iterations=100000 cpu_ns=3877216
+# cost pair=11 position=0 mmio=1 iterations=100000 cpu_ns=3879757
+# cost pair=11 position=1 mmio=0 iterations=100000 cpu_ns=20750
+# cost pair=12 position=0 mmio=0 iterations=100000 cpu_ns=20750
+# cost pair=12 position=1 mmio=1 iterations=100000 cpu_ns=3878586
+# cost pair=13 position=0 mmio=1 iterations=100000 cpu_ns=3876217
+# cost pair=13 position=1 mmio=0 iterations=100000 cpu_ns=20760
+# cost pair=14 position=0 mmio=0 iterations=100000 cpu_ns=20720
+# cost pair=14 position=1 mmio=1 iterations=100000 cpu_ns=3873606
+# cost pair=15 position=0 mmio=1 iterations=100000 cpu_ns=3863796
+# cost pair=15 position=1 mmio=0 iterations=100000 cpu_ns=20720
+# cost pair=16 position=0 mmio=0 iterations=100000 cpu_ns=20721
+# cost pair=16 position=1 mmio=1 iterations=100000 cpu_ns=3885726
+# cost pair=17 position=0 mmio=1 iterations=100000 cpu_ns=3903826
+# cost pair=17 position=1 mmio=0 iterations=100000 cpu_ns=20961
+# cost pair=18 position=0 mmio=0 iterations=100000 cpu_ns=20960
+# cost pair=18 position=1 mmio=1 iterations=100000 cpu_ns=3917656
+# cost pair=19 position=0 mmio=1 iterations=100000 cpu_ns=3922627
+# cost pair=19 position=1 mmio=0 iterations=100000 cpu_ns=21020
+# cost pair=20 position=0 mmio=0 iterations=100000 cpu_ns=21020
+# cost pair=20 position=1 mmio=1 iterations=100000 cpu_ns=3918316
+# cost pair=21 position=0 mmio=1 iterations=100000 cpu_ns=3931067
+# cost pair=21 position=1 mmio=0 iterations=100000 cpu_ns=21060
+# cost pair=22 position=0 mmio=0 iterations=100000 cpu_ns=21060
+# cost pair=22 position=1 mmio=1 iterations=100000 cpu_ns=3925897
+# cost pair=23 position=0 mmio=1 iterations=100000 cpu_ns=3933327
+# cost pair=23 position=1 mmio=0 iterations=100000 cpu_ns=21030
+# cost pair=24 position=0 mmio=0 iterations=100000 cpu_ns=21030
+# cost pair=24 position=1 mmio=1 iterations=100000 cpu_ns=3938727
+# cost pair=25 position=0 mmio=1 iterations=100000 cpu_ns=3918446
+# cost pair=25 position=1 mmio=0 iterations=100000 cpu_ns=21011
+# cost pair=26 position=0 mmio=0 iterations=100000 cpu_ns=21010
+# cost pair=26 position=1 mmio=1 iterations=100000 cpu_ns=3937667
+# cost pair=27 position=0 mmio=1 iterations=100000 cpu_ns=3928606
+# cost pair=27 position=1 mmio=0 iterations=100000 cpu_ns=21070
+# cost pair=28 position=0 mmio=0 iterations=100000 cpu_ns=21071
+# cost pair=28 position=1 mmio=1 iterations=100000 cpu_ns=3937176
+# cost pair=29 position=0 mmio=1 iterations=100000 cpu_ns=3937827
+# cost pair=29 position=1 mmio=0 iterations=100000 cpu_ns=21070
+ok 1 /nv2a/contention/control-cost
+# End of contention tests
+# End of nv2a tests

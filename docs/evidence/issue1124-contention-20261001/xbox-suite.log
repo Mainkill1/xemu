@@ -1,0 +1,397 @@
+ninja: Entering directory `/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/build-native'
+[1/1864] Compiling C++ object subprojects/glslang/libGenericCodeGen.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_glslang_stub.cpp.o
+[2/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/2e5216a9a54ad4fb0f03026b7e299df01c40f428_glslang_glslang_OSDependent_Unix_ossource.cpp.o
+[3/1864] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[4/1864] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[5/1864] Generating tests/Test QAPI files with a custom command
+[6/1864] Generating tests/include/QAPI test (include) with a custom command
+[7/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/e1a3254f67e0a9ab95cedcac37a2d1aaecd8b829_subprojects_glslang_glslang_MachineIndependent_PoolAlloc.cpp.o
+[8/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/cb0af30df5e40813be96885cfaee7e9d0902c09f_subprojects_glslang_glslang_GenericCodeGen_CodeGen.cpp.o
+[9/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/346c1c1af8bc15ed03706c6de32b7f5c9e764344_subprojects_glslang_glslang_GenericCodeGen_Link.cpp.o
+[10/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/4db9d85c0951fa459a1ca22f5846b981fda037c8_subprojects_glslang_glslang_MachineIndependent_InfoSink.cpp.o
+[11/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvTools.cpp.o
+[12/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_Logger.cpp.o
+[13/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/99d5a740a61e96abe508076db24cd029aa1186a9_subprojects_glslang_glslang_MachineIndependent_RemoveTree.cpp.o
+[14/1864] Compiling C++ object subprojects/glslang/libMachineIndependent.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_glslang_stub.cpp.o
+[15/1864] Compiling C++ object subprojects/glslang/libSPIRV.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_glslang_stub.cpp.o
+[16/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_InReadableOrder.cpp.o
+[17/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/a9afb35030e32305f9879311f6206c9c2259fee7_subprojects_glslang_SPIRV_CInterface_spirv_c_interface.cpp.o
+[18/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/e1f1ae628a23d7a01e7c78ee276e579fae36044b_subprojects_glslang_glslang_MachineIndependent_IntermTraverse.cpp.o
+[19/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/misc_cpp_imgui_stdlib.cpp.o
+[20/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/3d619ce0d8b982188e1b7dc2fd988df4a52f793d_subprojects_glslang_glslang_MachineIndependent_limits.cpp.o
+[21/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/be3ab3a3cf0f4bcefa5bd184c3fdb1ad0129c210_subprojects_glslang_glslang_MachineIndependent_parseConst.cpp.o
+[22/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/b99bd2dd754d98c003243a6e04c9966e657f2d2f_subprojects_glslang_glslang_MachineIndependent_attribute.cpp.o
+[23/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/914f752328cf7a75b6ae8d322ca0bd3a519fb95f_glslang_glslang_MachineIndependent_preprocessor_PpTokens.cpp.o
+[24/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/0c50bfee688a7dd7a425d3211424cde4b90e9bd1_glslang_glslang_MachineIndependent_preprocessor_PpContext.cpp.o
+[25/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_disassemble.cpp.o
+[26/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/backends_imgui_impl_opengl3.cpp.o
+[27/1864] Compiling C object subprojects/volk/libvolk.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_volk_volk.c.o
+[28/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/backends_imgui_impl_sdl3.cpp.o
+[29/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/c04f9000dbc5e170c143d1847d1ec6c898c8aaf1_glslang_glslang_MachineIndependent_preprocessor_PpAtom.cpp.o
+[30/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/7f7f54559c2027b48cb7a425ad2d66a32607b78e_subprojects_glslang_glslang_CInterface_glslang_c_interface.cpp.o
+[31/1864] Compiling C object subprojects/SPIRV-Reflect/libspirv_reflect_static.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_SPIRV-Reflect_spirv_reflect.c.o
+[32/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/8392cece037c40ef9a24af1cb3c18335d503eb41_glslang_glslang_MachineIndependent_preprocessor_PpScanner.cpp.o
+[33/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/bfa2174574b6a71592e1eddd925e05811b528070_subprojects_glslang_glslang_MachineIndependent_propagateNoContraction.cpp.o
+[34/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._controller_mask.png.c.o
+[35/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._controller_mask_s.png.c.o
+[36/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvPostProcess.cpp.o
+[37/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._xmu_mask.png.c.o
+[38/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._logo_sdf.png.c.o
+[39/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._xemu_64x64.png.c.o
+[40/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._abxy.ttf.c.o
+[41/1864] Compiling C object ui/thirdparty/libfatx.a.p/fatx_fatx.c.o
+[42/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._Roboto-Medium.ttf.c.o
+[43/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._font_awesome_6_1_1_solid.min.otf.c.o
+[44/1864] Compiling C object data/libpdata.fa.p/meson-generated_.._RobotoCondensed-Regular.ttf.c.o
+[45/1864] Generating block/module_block.h with a custom command
+[46/1864] Generating block/block-gen.c with a custom command
+[47/1864] Generating 'libcommon.a.p/decode-insns.c.inc'
+[48/1864] Compiling C object hw/xbox/nv2a/pgraph/thirdparty/liblibgloffscreen.a.p/gloffscreen_common.c.o
+[49/1864] Compiling C object hw/xbox/nv2a/pgraph/thirdparty/liblibgloffscreen.a.p/gloffscreen_sdl.c.o
+[50/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._qapi-builtin-types.c.o
+[51/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/a6d2035a90787cc576a63ec06fd2f67819ac1315_subprojects_glslang_glslang_MachineIndependent_Versions.cpp.o
+[52/1864] Generating i386-softmmu-gdbstub-xml.c with a custom command (wrapped by meson to capture output)
+[53/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/a81464f637ded3b6ecc0ed083deabf78ea3e6b35_subprojects_glslang_glslang_MachineIndependent_intermOut.cpp.o
+[54/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._qapi-builtin-visit.c.o
+[55/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/7ecf308ec1a8ed1c3c08683016607c970716c232_subprojects_glslang_glslang_MachineIndependent_Scan.cpp.o
+[56/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-commands-sub-sub-module.c.o
+[57/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-features.c.o
+[58/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-emit-events.c.o
+[59/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-events-sub-sub-module.c.o
+[60/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-introspect.c.o
+[61/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-types-sub-sub-module.c.o
+[62/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-events.c.o
+[63/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit-sub-sub-module.c.o
+[64/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-commands.c.o
+[65/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-init-commands.c.o
+[66/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-commands-sub-module.c.o
+[67/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_eq128.c.o
+[68/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_le128.c.o
+[69/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_lt128.c.o
+[70/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRight128.c.o
+[71/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftLeft128.c.o
+[72/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-events-sub-module.c.o
+[73/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-types.c.o
+[74/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam64.c.o
+[75/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-visit-sub-module.c.o
+[76/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam128Extra.c.o
+[77/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam64Extra.c.o
+[78/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam32.c.o
+[79/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam128.c.o
+[80/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam64.c.o
+[81/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam128.c.o
+[82/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros8.c.o
+[83/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam256M.c.o
+[84/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam64Extra.c.o
+[85/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam128Extra.c.o
+[86/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros16.c.o
+[87/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_add128.c.o
+[88/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros32.c.o
+[89/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros64.c.o
+[90/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_add256M.c.o
+[91/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_sub128.c.o
+[92/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_sub256M.c.o
+[93/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-types-sub-module.c.o
+[94/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul64ByShifted32To128.c.o
+[95/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul64To128.c.o
+[96/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul128By32.c.o
+[97/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/8bc7b167f6b7fd0dfc3ca8f86eeaa1828eb7d356_subprojects_glslang_glslang_MachineIndependent_Constant.cpp.o
+[98/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecip_1Ks.c.o
+[99/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecipSqrt_1Ks.c.o
+[100/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecip32_1.c.o
+[101/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul128To256M.c.o
+[102/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecipSqrt32_1.c.o
+[103/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToUI64.c.o
+[104/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF16Sig.c.o
+[105/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToI32.c.o
+[106/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF16.c.o
+[107/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF16.c.o
+[108/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToI64.c.o
+[109/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToUI32.c.o
+[110/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF16.c.o
+[111/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF16.c.o
+[112/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF32.c.o
+[113/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF32Sig.c.o
+[114/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_doc.cpp.o
+[115/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF32.c.o
+[116/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF16.c.o
+[117/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF64.c.o
+[118/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF32.c.o
+[119/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF64Sig.c.o
+[120/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF64.c.o
+[121/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalExtF80Sig.c.o
+[122/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF32.c.o
+[123/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF64.c.o
+[124/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF32.c.o
+[125/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF64.c.o
+[126/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToExtF80.c.o
+[127/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF128Sig.c.o
+[128/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o -c ../subprojects/berkeley-softfloat-3/source/s_subMagsExtF80.c
+../subprojects/berkeley-softfloat-3/source/s_subMagsExtF80.c:157:1: fatal error: error writing to /tmp/cco1nYgd.s: No space left on device
+  157 | }
+      | ^
+compilation terminated.
+[129/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o -c ../subprojects/berkeley-softfloat-3/source/s_normRoundPackToF128.c
+../subprojects/berkeley-softfloat-3/source/s_normRoundPackToF128.c:80:1: fatal error: error writing to /tmp/ccvjaQoz.s: No space left on device
+   80 | }
+      | ^
+compilation terminated.
+[130/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o -c ../subprojects/berkeley-softfloat-3/source/s_mulAddF64.c
+../subprojects/berkeley-softfloat-3/source/s_mulAddF64.c:242:1: fatal error: error writing to /tmp/cc3a1bqe.s: No space left on device
+  242 | }
+      | ^
+compilation terminated.
+[131/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o -c ../subprojects/berkeley-softfloat-3/source/s_addMagsExtF80.c
+../subprojects/berkeley-softfloat-3/source/s_addMagsExtF80.c:155:1: fatal error: error writing to /tmp/ccspBYWU.s: No space left on device
+  155 | }
+      | ^
+compilation terminated.
+[132/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o -c ../subprojects/berkeley-softfloat-3/source/s_roundPackToF128.c
+../subprojects/berkeley-softfloat-3/source/s_roundPackToF128.c:170:1: fatal error: error writing to /tmp/ccYcQpXN.s: No space left on device
+  170 | }
+      | ^
+compilation terminated.
+[133/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o -c ../subprojects/berkeley-softfloat-3/source/s_roundPackToExtF80.c
+../subprojects/berkeley-softfloat-3/source/s_roundPackToExtF80.c:255:1: fatal error: error writing to /tmp/cctSSrQG.s: No space left on device
+  255 | }
+      | ^
+compilation terminated.
+[134/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o -c ../subprojects/berkeley-softfloat-3/source/s_addMagsF128.c
+../subprojects/berkeley-softfloat-3/source/s_addMagsF128.c:153:1: fatal error: error writing to /tmp/ccXFk2jN.s: No space left on device
+  153 | }
+      | ^
+compilation terminated.
+[135/1864] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o
+FAILED: subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o 
+cc -m64 -Isubprojects/berkeley-softfloat-3/libsoftfloat.a.p -Isubprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3 -I../subprojects/berkeley-softfloat-3/source/include -I../subprojects/berkeley-softfloat-3/source/8086-SSE -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu99 -O2 -g -Wno-implicit-fallthrough -Wno-missing-prototypes -Wno-redundant-decls -Wno-return-type -Wno-error -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -DSOFTFLOAT_FAST_INT64 -MD -MQ subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o -MF subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o.d -o subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o -c ../subprojects/berkeley-softfloat-3/source/s_subMagsF128.c
+../subprojects/berkeley-softfloat-3/source/s_subMagsF128.c:138:1: fatal error: error writing to /tmp/ccSXn9Ny.s: No space left on device
+  138 | }
+      | ^
+compilation terminated.
+[136/1864] Compiling C++ object ui/thirdparty/libfpng.a.p/fpng_fpng.cpp.o
+FAILED: ui/thirdparty/libfpng.a.p/fpng_fpng.cpp.o 
+c++ -m64 -Iui/thirdparty/libfpng.a.p -Iui/thirdparty -I../ui/thirdparty -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wredundant-decls -Wshadow=local -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/include -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DFPNG_NO_SSE=0 -msse4.1 -mpclmul -MD -MQ ui/thirdparty/libfpng.a.p/fpng_fpng.cpp.o -MF ui/thirdparty/libfpng.a.p/fpng_fpng.cpp.o.d -o ui/thirdparty/libfpng.a.p/fpng_fpng.cpp.o -c ../ui/thirdparty/fpng/fpng.cpp
+In file included from ../ui/thirdparty/fpng/fpng.cpp:17:
+../ui/thirdparty/fpng/fpng.cpp: In function ‘uint32_t fpng::pixel_deflate_dyn_3_rle(const uint8_t*, uint32_t, uint32_t, uint8_t*, uint32_t)’:
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1002:17: note: in expansion of macro ‘PUT_BITS’
+ 1002 |                 PUT_BITS(0x78, 8);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1003:17: note: in expansion of macro ‘PUT_BITS’
+ 1003 |                 PUT_BITS(0x01, 8);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1006:17: note: in expansion of macro ‘PUT_BITS’
+ 1006 |                 PUT_BITS(1, 1);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1135:33: note: in expansion of macro ‘PUT_BITS’
+ 1135 |                                 PUT_BITS(adj_match_len & g_bitmasks[g_defl_len_extra[adj_match_len]], g_defl_len_extra[adj_match_len] + 1); // up to 6 bits, +1 for the match distance Huff code which is always 0
+      |                                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp: In function ‘uint32_t fpng::pixel_deflate_dyn_3_rle_one_pass(const uint8_t*, uint32_t, uint32_t, uint8_t*, uint32_t)’:
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1224:41: note: in expansion of macro ‘PUT_BITS’
+ 1224 |                                         PUT_BITS(adj_match_len & g_bitmasks[g_defl_len_extra[adj_match_len]], g_defl_len_extra[adj_match_len] + 1); // up to 6 bits, +1 for the match distance Huff code which is always 0
+      |                                         ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp: In function ‘uint32_t fpng::pixel_deflate_dyn_4_rle(const uint8_t*, uint32_t, uint32_t, uint8_t*, uint32_t)’:
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1279:17: note: in expansion of macro ‘PUT_BITS’
+ 1279 |                 PUT_BITS(0x78, 8);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1280:17: note: in expansion of macro ‘PUT_BITS’
+ 1280 |                 PUT_BITS(0x01, 8);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1283:17: note: in expansion of macro ‘PUT_BITS’
+ 1283 |                 PUT_BITS(1, 1);
+      |                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1422:33: note: in expansion of macro ‘PUT_BITS’
+ 1422 |                                 PUT_BITS(adj_match_len & g_bitmasks[g_defl_len_extra[adj_match_len]], g_defl_len_extra[adj_match_len] + 1); // up to 6 bits, +1 for the match distance Huff code which is always 0
+      |                                 ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp: In function ‘uint32_t fpng::pixel_deflate_dyn_4_rle_one_pass(const uint8_t*, uint32_t, uint32_t, uint8_t*, uint32_t)’:
+../ui/thirdparty/fpng/fpng.cpp:564:67: warning: comparison of unsigned expression in ‘>= 0’ is always true [-Wtype-limits]
+  564 | #define PUT_BITS(bb, ll) do { uint32_t b = bb, l = ll; assert((l) >= 0 && (l) <= 16); assert((b) < (1ULL << (l))); bit_buf |= (((uint64_t)(b)) << bit_buf_size); bit_buf_size += (l); assert(bit_buf_size <= 64); } while(0)
+      |                                                               ~~~~^~~~
+../ui/thirdparty/fpng/fpng.cpp:1531:41: note: in expansion of macro ‘PUT_BITS’
+ 1531 |                                         PUT_BITS(adj_match_len & g_bitmasks[g_defl_len_extra[adj_match_len]], len_extra_bits + 1); // up to 6 bits, +1 for the match distance Huff code which is always 0
+      |                                         ^~~~~~~~
+../ui/thirdparty/fpng/fpng.cpp: At global scope:
+../ui/thirdparty/fpng/fpng.cpp:3192:1: fatal error: error writing to /tmp/cca29tMZ.s: No space left on device
+ 3192 | } // namespace fpng
+      | ^
+compilation terminated.
+[137/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/7e9e6f6968a83691141181556808dbbb98d0a5d6_glslang_glslang_MachineIndependent_preprocessor_Pp.cpp.o
+[138/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui_tables.cpp.o
+FAILED: subprojects/imgui/libimgui.a.p/imgui_tables.cpp.o 
+c++ -m64 -Isubprojects/imgui/libimgui.a.p -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -I/usr/include/pipewire-0.3 -I/usr/include/spa-0.2 -I/usr/include/libdrm -I/usr/include/libdecor-0 -fvisibility=hidden -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -D_REENTRANT '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/imgui/libimgui.a.p/imgui_tables.cpp.o -MF subprojects/imgui/libimgui.a.p/imgui_tables.cpp.o.d -o subprojects/imgui/libimgui.a.p/imgui_tables.cpp.o -c ../subprojects/imgui/imgui_tables.cpp
+../subprojects/imgui/imgui_tables.cpp:4497:1: fatal error: error writing to /tmp/ccEZpyig.s: No space left on device
+ 4497 | }
+      | ^
+compilation terminated.
+[139/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/578dea0b48727e3911c0a68d2ac40a8dff35dc06_subprojects_glslang_glslang_MachineIndependent_reflection.cpp.o
+[140/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/764b63519500944cf84f915e6ada461df243142e_subprojects_glslang_glslang_MachineIndependent_SymbolTable.cpp.o
+[141/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/f32cbfba0909bfd08fbf11e3c26f18b27aa598b0_subprojects_glslang_glslang_MachineIndependent_SpirvIntrinsics.cpp.o
+[142/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/c9b83be1ff004206a8991eaa5f09494bed744c68_subprojects_glslang_glslang_MachineIndependent_ParseContextBase.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/c9b83be1ff004206a8991eaa5f09494bed744c68_subprojects_glslang_glslang_MachineIndependent_ParseContextBase.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/c9b83be1ff004206a8991eaa5f09494bed744c68_subprojects_glslang_glslang_MachineIndependent_ParseContextBase.cpp.o -MF subprojects/glslang/libglslang.a.p/c9b83be1ff004206a8991eaa5f09494bed744c68_subprojects_glslang_glslang_MachineIndependent_ParseContextBase.cpp.o.d -o subprojects/glslang/libglslang.a.p/c9b83be1ff004206a8991eaa5f09494bed744c68_subprojects_glslang_glslang_MachineIndependent_ParseContextBase.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ParseContextBase.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ParseContextBase.cpp:783:1: fatal error: error writing to /tmp/cchT9c70.s: No space left on device
+  783 | } // end namespace glslang
+      | ^
+compilation terminated.
+[143/1864] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o
+FAILED: tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o 
+cc -m64 -Itests/libtestqapi.a.p -Itests -I../tests -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -Itests/include -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/include -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -MD -MQ tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o -MF tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o.d -o tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o -c tests/test-qapi-visit.c
+tests/test-qapi-visit.c:2765:1: fatal error: error writing to /tmp/ccqJbyAl.s: No space left on device
+ 2765 | char qapi_dummy_test_qapi_visit_c;
+      | ^~~~
+compilation terminated.
+[144/1864] Compiling C object ui/thirdparty/libstb_image.a.p/stb_image_stb_image_impl.c.o
+In file included from ../ui/thirdparty/stb_image/stb_image_impl.c:2:
+../ui/thirdparty/stb_image/stb_image.h:4958:14: warning: no previous prototype for ‘stbi__unpremultiply_on_load_thread’ [-Wmissing-prototypes]
+ 4958 | STBIDEF void stbi__unpremultiply_on_load_thread(int flag_true_if_should_unpremultiply)
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[145/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/ed251b5ddd9008c123b9d73a2c0b1ebfcd1135e9_subprojects_glslang_glslang_MachineIndependent_ShaderLang.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/ed251b5ddd9008c123b9d73a2c0b1ebfcd1135e9_subprojects_glslang_glslang_MachineIndependent_ShaderLang.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/ed251b5ddd9008c123b9d73a2c0b1ebfcd1135e9_subprojects_glslang_glslang_MachineIndependent_ShaderLang.cpp.o -MF subprojects/glslang/libglslang.a.p/ed251b5ddd9008c123b9d73a2c0b1ebfcd1135e9_subprojects_glslang_glslang_MachineIndependent_ShaderLang.cpp.o.d -o subprojects/glslang/libglslang.a.p/ed251b5ddd9008c123b9d73a2c0b1ebfcd1135e9_subprojects_glslang_glslang_MachineIndependent_ShaderLang.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ShaderLang.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ShaderLang.cpp:2285:1: fatal error: error writing to /tmp/ccOz8ACp.s: No space left on device
+ 2285 | } // end namespace glslang
+      | ^
+compilation terminated.
+[146/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui_draw.cpp.o
+FAILED: subprojects/imgui/libimgui.a.p/imgui_draw.cpp.o 
+c++ -m64 -Isubprojects/imgui/libimgui.a.p -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -I/usr/include/pipewire-0.3 -I/usr/include/spa-0.2 -I/usr/include/libdrm -I/usr/include/libdecor-0 -fvisibility=hidden -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -D_REENTRANT '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/imgui/libimgui.a.p/imgui_draw.cpp.o -MF subprojects/imgui/libimgui.a.p/imgui_draw.cpp.o.d -o subprojects/imgui/libimgui.a.p/imgui_draw.cpp.o -c ../subprojects/imgui/imgui_draw.cpp
+../subprojects/imgui/imgui_draw.cpp:4837:1: fatal error: error writing to /tmp/ccZXYbUu.s: No space left on device
+ 4837 | }
+      | ^
+compilation terminated.
+[147/1864] Compiling C++ object thirdparty/libvma.a.p/vma.cc.o
+FAILED: thirdparty/libvma.a.p/vma.cc.o 
+c++ -m64 -Ithirdparty/libvma.a.p -Ithirdparty -I../thirdparty -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator/include -Isubprojects/VulkanMemoryAllocator -I../subprojects/VulkanMemoryAllocator -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/volk -I/usr/include -Isubprojects/volk -I../subprojects/volk -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wredundant-decls -Wshadow=local -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/include -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DVK_NO_PROTOTYPES -DVMA_STATIC_VULKAN_FUNCTIONS=0 -DVMA_DYNAMIC_VULKAN_FUNCTIONS=0 -MD -MQ thirdparty/libvma.a.p/vma.cc.o -MF thirdparty/libvma.a.p/vma.cc.o.d -o thirdparty/libvma.a.p/vma.cc.o -c ../thirdparty/vma.cc
+In file included from ../thirdparty/vma.cc:3:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator/include/vk_mem_alloc.h: In member function ‘void VmaBlockMetadata::DebugLogAllocation(VkDeviceSize, VkDeviceSize, void*) const’:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator/include/vk_mem_alloc.h:7104:21: warning: unused variable ‘name’ [-Wunused-variable]
+ 7104 |         const char* name = allocation->GetName();
+      |                     ^~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator/include/vk_mem_alloc.h: At global scope:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator/include/vk_mem_alloc.h:17237:1: fatal error: error writing to /tmp/ccfqZX5X.s: No space left on device
+17237 | }
+      | ^
+compilation terminated.
+[148/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui_demo.cpp.o
+[149/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/8dcd2a156e6e30f81bf7cecbd7b2110e4d20597b_subprojects_glslang_glslang_MachineIndependent_iomapper.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/8dcd2a156e6e30f81bf7cecbd7b2110e4d20597b_subprojects_glslang_glslang_MachineIndependent_iomapper.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/8dcd2a156e6e30f81bf7cecbd7b2110e4d20597b_subprojects_glslang_glslang_MachineIndependent_iomapper.cpp.o -MF subprojects/glslang/libglslang.a.p/8dcd2a156e6e30f81bf7cecbd7b2110e4d20597b_subprojects_glslang_glslang_MachineIndependent_iomapper.cpp.o.d -o subprojects/glslang/libglslang.a.p/8dcd2a156e6e30f81bf7cecbd7b2110e4d20597b_subprojects_glslang_glslang_MachineIndependent_iomapper.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/iomapper.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/iomapper.cpp:1858:1: fatal error: error writing to /tmp/ccR872l2.s: No space left on device
+ 1858 | } // end namespace glslang
+      | ^
+compilation terminated.
+[150/1864] Compiling C++ object subprojects/implot/libimplot.a.p/implot.cpp.o
+FAILED: subprojects/implot/libimplot.a.p/implot.cpp.o 
+c++ -m64 -Isubprojects/implot/libimplot.a.p -Isubprojects/implot -I../subprojects/implot -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/implot/libimplot.a.p/implot.cpp.o -MF subprojects/implot/libimplot.a.p/implot.cpp.o.d -o subprojects/implot/libimplot.a.p/implot.cpp.o -c ../subprojects/implot/implot.cpp
+../subprojects/implot/implot.cpp:5761:1: fatal error: error writing to /tmp/cct7scja.s: No space left on device
+ 5761 | }  // namespace ImPlot
+      | ^
+compilation terminated.
+[151/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/f948c990bce5e08ec88c5934fd611354ab82cc01_subprojects_glslang_glslang_MachineIndependent_Intermediate.cpp.o
+[152/1864] Compiling C++ object subprojects/tomlplusplus/src/libtomlplusplus.a.p/toml.cpp.o
+FAILED: subprojects/tomlplusplus/src/libtomlplusplus.a.p/toml.cpp.o 
+c++ -m64 -Isubprojects/tomlplusplus/src/libtomlplusplus.a.p -Isubprojects/tomlplusplus/src -I../subprojects/tomlplusplus/src -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -fdiagnostics-color=auto -DNDEBUG -Wall -Winvalid-pch -std=c++17 -O3 -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -fmax-errors=5 -Wno-init-list-lifetime -fchar8_t -D_HAS_EXCEPTIONS=1 -Wno-switch-enum -Wno-padded -Wno-float-equal -DTOML_HEADER_ONLY=0 -MD -MQ subprojects/tomlplusplus/src/libtomlplusplus.a.p/toml.cpp.o -MF subprojects/tomlplusplus/src/libtomlplusplus.a.p/toml.cpp.o.d -o subprojects/tomlplusplus/src/libtomlplusplus.a.p/toml.cpp.o -c ../subprojects/tomlplusplus/src/toml.cpp
+In file included from ../subprojects/tomlplusplus/src/toml.cpp:13:
+../subprojects/tomlplusplus/include/toml++/toml.hpp:78:18: fatal error: error writing to /tmp/ccQn3GLM.s: No space left on device
+   78 | TOML_POP_WARNINGS;
+      |                  ^
+compilation terminated.
+[153/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui_widgets.cpp.o
+FAILED: subprojects/imgui/libimgui.a.p/imgui_widgets.cpp.o 
+c++ -m64 -Isubprojects/imgui/libimgui.a.p -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -I/usr/include/pipewire-0.3 -I/usr/include/spa-0.2 -I/usr/include/libdrm -I/usr/include/libdecor-0 -fvisibility=hidden -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -D_REENTRANT '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/imgui/libimgui.a.p/imgui_widgets.cpp.o -MF subprojects/imgui/libimgui.a.p/imgui_widgets.cpp.o.d -o subprojects/imgui/libimgui.a.p/imgui_widgets.cpp.o -c ../subprojects/imgui/imgui_widgets.cpp
+../subprojects/imgui/imgui_widgets.cpp:10401:1: fatal error: error writing to /tmp/ccMojXMN.s: No space left on device
+10401 | }
+      | ^
+compilation terminated.
+[154/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/5ce886cbd328c9142a43b96d701cae79cfb0a328_subprojects_glslang_glslang_MachineIndependent_linkValidate.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/5ce886cbd328c9142a43b96d701cae79cfb0a328_subprojects_glslang_glslang_MachineIndependent_linkValidate.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/5ce886cbd328c9142a43b96d701cae79cfb0a328_subprojects_glslang_glslang_MachineIndependent_linkValidate.cpp.o -MF subprojects/glslang/libglslang.a.p/5ce886cbd328c9142a43b96d701cae79cfb0a328_subprojects_glslang_glslang_MachineIndependent_linkValidate.cpp.o.d -o subprojects/glslang/libglslang.a.p/5ce886cbd328c9142a43b96d701cae79cfb0a328_subprojects_glslang_glslang_MachineIndependent_linkValidate.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/linkValidate.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/linkValidate.cpp:2796:1: fatal error: error writing to /tmp/ccJTrkzZ.s: No space left on device
+ 2796 | } // end namespace glslang
+      | ^
+compilation terminated.
+[155/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/6c226cceeb92db34754375c857db269f15a935b2_subprojects_glslang_glslang_MachineIndependent_Initialize.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/6c226cceeb92db34754375c857db269f15a935b2_subprojects_glslang_glslang_MachineIndependent_Initialize.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/6c226cceeb92db34754375c857db269f15a935b2_subprojects_glslang_glslang_MachineIndependent_Initialize.cpp.o -MF subprojects/glslang/libglslang.a.p/6c226cceeb92db34754375c857db269f15a935b2_subprojects_glslang_glslang_MachineIndependent_Initialize.cpp.o.d -o subprojects/glslang/libglslang.a.p/6c226cceeb92db34754375c857db269f15a935b2_subprojects_glslang_glslang_MachineIndependent_Initialize.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/Initialize.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/Initialize.cpp:12578:1: fatal error: error writing to /tmp/ccc3f93B.s: No space left on device
+12578 | } // end namespace glslang
+      | ^
+compilation terminated.
+[156/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvBuilder.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvBuilder.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvBuilder.cpp.o -MF subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvBuilder.cpp.o.d -o subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_SpvBuilder.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/SPIRV/SpvBuilder.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/SPIRV/SpvBuilder.cpp:5350:1: fatal error: error writing to /tmp/ccm0TjjZ.s: No space left on device
+ 5350 | } // end spv namespace
+      | ^
+compilation terminated.
+[157/1864] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui.cpp.o
+FAILED: subprojects/imgui/libimgui.a.p/imgui.cpp.o 
+c++ -m64 -Isubprojects/imgui/libimgui.a.p -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -I/usr/include/pipewire-0.3 -I/usr/include/spa-0.2 -I/usr/include/libdrm -I/usr/include/libdecor-0 -fvisibility=hidden -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -D_REENTRANT '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/imgui/libimgui.a.p/imgui.cpp.o -MF subprojects/imgui/libimgui.a.p/imgui.cpp.o.d -o subprojects/imgui/libimgui.a.p/imgui.cpp.o -c ../subprojects/imgui/imgui.cpp
+../subprojects/imgui/imgui.cpp:16931:1: fatal error: error writing to /tmp/ccH4Q0rW.s: No space left on device
+16931 | }
+      | ^
+compilation terminated.
+[158/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_GlslangToSpv.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_GlslangToSpv.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_GlslangToSpv.cpp.o -MF subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_GlslangToSpv.cpp.o.d -o subprojects/glslang/libglslang.a.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_subprojects_glslang_SPIRV_GlslangToSpv.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/SPIRV/GlslangToSpv.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/SPIRV/GlslangToSpv.cpp:12962:1: fatal error: error writing to /tmp/ccYTVbBq.s: No space left on device
+12962 | } // end namespace glslang
+      | ^
+compilation terminated.
+[159/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/84d99312467164d5e0b209f29e2d995c4bfc2eb1_subprojects_glslang_glslang_MachineIndependent_ParseHelper.cpp.o
+FAILED: subprojects/glslang/libglslang.a.p/84d99312467164d5e0b209f29e2d995c4bfc2eb1_subprojects_glslang_glslang_MachineIndependent_ParseHelper.cpp.o 
+c++ -m64 -Isubprojects/glslang/libglslang.a.p -Isubprojects/glslang -I../subprojects/glslang -I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang -Isubprojects/glslang/__CMake_build/include -I../subprojects/glslang/__CMake_build/include -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIC -g -Wmaybe-uninitialized -Wuninitialized -Wunused -Wunused-local-typedefs -Wimplicit-fallthrough -Wunused-parameter -Wunused-value -Wunused-variable -Wunused-but-set-parameter -Wunused-but-set-variable -fno-rtti -fno-exceptions -Werror=deprecated-copy -DENABLE_OPT=0 -DENABLE_SPIRV -DGLSLANG_OSINCLUDE_UNIX -Wno-unused-but-set-variable -MD -MQ subprojects/glslang/libglslang.a.p/84d99312467164d5e0b209f29e2d995c4bfc2eb1_subprojects_glslang_glslang_MachineIndependent_ParseHelper.cpp.o -MF subprojects/glslang/libglslang.a.p/84d99312467164d5e0b209f29e2d995c4bfc2eb1_subprojects_glslang_glslang_MachineIndependent_ParseHelper.cpp.o.d -o subprojects/glslang/libglslang.a.p/84d99312467164d5e0b209f29e2d995c4bfc2eb1_subprojects_glslang_glslang_MachineIndependent_ParseHelper.cpp.o -c /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ParseHelper.cpp
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang/glslang/MachineIndependent/ParseHelper.cpp:12531:1: fatal error: error writing to /tmp/ccOIcuox.s: No space left on device
+12531 | } // end namespace glslang
+      | ^
+compilation terminated.
+[160/1864] Compiling C++ object subprojects/glslang/libglslang.a.p/b2b379f4a8b3b752b16342349cecded1988899d4_subprojects_glslang_glslang_MachineIndependent_glslang_tab.cpp.o
+[161/1864] Compiling C++ object subprojects/implot/libimplot.a.p/implot_items.cpp.o
+FAILED: subprojects/implot/libimplot.a.p/implot_items.cpp.o 
+c++ -m64 -Isubprojects/implot/libimplot.a.p -Isubprojects/implot -I../subprojects/implot -Isubprojects/imgui -I../subprojects/imgui -I../subprojects/imgui/backends -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE '-DIMGUI_API=__attribute__((visibility("default")))' -MD -MQ subprojects/implot/libimplot.a.p/implot_items.cpp.o -MF subprojects/implot/libimplot.a.p/implot_items.cpp.o.d -o subprojects/implot/libimplot.a.p/implot_items.cpp.o -c ../subprojects/implot/implot_items.cpp
+../subprojects/implot/implot_items.cpp:2692:1: fatal error: error writing to /tmp/cc8byAWb.s: No space left on device
+ 2692 | } // namespace ImPlot
+      | ^
+compilation terminated.
+ninja: build stopped: subcommand failed.
+Could not rebuild /home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/build-native

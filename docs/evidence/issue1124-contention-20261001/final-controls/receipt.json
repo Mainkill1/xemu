@@ -1,0 +1,248 @@
+{
+  "candidateCommit": "45f63931c6077d987533863320af4b5e611534c9",
+  "referenceCommit": "2b21ca0126b4a6a622bbe63cf38f8951e06d4957",
+  "commands": [
+    {
+      "stage": "compile",
+      "argv": [
+        "cc",
+        "-m64",
+        "-Itests/xbox/ptimer/test-pgraph-ptimer-contention.p",
+        "-Itests/xbox/ptimer",
+        "-I/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/tests/xbox/ptimer",
+        "-Itarget/i386",
+        "-I/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/target/i386",
+        "-I/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/nv2a_vsh_cpu/src",
+        "-Isubprojects/nv2a_vsh_cpu",
+        "-I/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/subprojects/nv2a_vsh_cpu",
+        "-I.",
+        "-Iqapi",
+        "-Itrace",
+        "-Iui",
+        "-Iui/shader",
+        "-Idata",
+        "-I/usr/include/glib-2.0",
+        "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+        "-I/usr/include/sysprof-6",
+        "-fdiagnostics-color=auto",
+        "-Wall",
+        "-Winvalid-pch",
+        "-std=gnu11",
+        "-O2",
+        "-g",
+        "-Wempty-body",
+        "-Wendif-labels",
+        "-Wexpansion-to-defined",
+        "-Wformat-security",
+        "-Wformat-y2k",
+        "-Wignored-qualifiers",
+        "-Wimplicit-fallthrough=2",
+        "-Winit-self",
+        "-Wmissing-format-attribute",
+        "-Wmissing-prototypes",
+        "-Wnested-externs",
+        "-Wold-style-declaration",
+        "-Wold-style-definition",
+        "-Wredundant-decls",
+        "-Wshadow=local",
+        "-Wstrict-prototypes",
+        "-Wtype-limits",
+        "-Wwrite-strings",
+        "-Wno-missing-include-dirs",
+        "-Wno-psabi",
+        "-Wno-shift-negative-value",
+        "-isystem",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/linux-headers",
+        "-isystem",
+        "linux-headers",
+        "-iquote",
+        ".",
+        "-iquote",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control",
+        "-iquote",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/include",
+        "-iquote",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/host/include/x86_64",
+        "-iquote",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/host/include/generic",
+        "-iquote",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-prefip-control/tcg/i386",
+        "-pthread",
+        "-mcx16",
+        "-msse2",
+        "-D_GNU_SOURCE",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_LARGEFILE_SOURCE",
+        "-fno-strict-aliasing",
+        "-fno-common",
+        "-fwrapv",
+        "-ftrivial-auto-var-init=zero",
+        "-fzero-call-used-regs=used-gpr",
+        "-DXBOX",
+        "-fPIE",
+        "-DCOMPILING_PER_TARGET",
+        "-DCONFIG_TARGET=\"i386-softmmu-config-target.h\"",
+        "-DCONFIG_DEVICES=\"i386-softmmu-config-devices.h\"",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-o",
+        "/home/codex/src/steamdeck-xemu/artifacts/issue1124-contention/final-controls/reference.o",
+        "-c",
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tests/xbox/ptimer/test-pgraph-ptimer-contention.c",
+        "-DNV2A_CONTENTION_PRE_FLIP=1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "stage": "link",
+      "argv": [
+        "cc",
+        "-m64",
+        "-o",
+        "/home/codex/src/steamdeck-xemu/artifacts/issue1124-contention/final-controls/reference-control",
+        "libevent-loop-base.a.p/event-loop-base.c.o",
+        "libqom.a.p/qom_container.c.o",
+        "libqom.a.p/qom_object.c.o",
+        "libqom.a.p/qom_object_interfaces.c.o",
+        "libqom.a.p/qom_qom-qobject.c.o",
+        "/home/codex/src/steamdeck-xemu/artifacts/issue1124-contention/final-controls/reference.o",
+        "tests/xbox/ptimer/test-pgraph-ptimer-contention.p/_home_codex_src_steamdeck-xemu_worktrees_issue1124-contention_hw_xbox_nv2a_ptimer.c.o",
+        "tests/xbox/ptimer/test-pgraph-ptimer-contention.p/_home_codex_src_steamdeck-xemu_worktrees_issue1124-contention_hw_xbox_nv2a_ptimer_core.c.o",
+        "-Wl,--as-needed",
+        "-Wl,--no-undefined",
+        "-pie",
+        "-Wl,-z,relro",
+        "-Wl,-z,now",
+        "-DXBOX",
+        "-Wl,--start-group",
+        "libqemuutil.a",
+        "subprojects/xxHash-0.8.3/libxxhash.a",
+        "subprojects/nv2a_vsh_cpu/libnv2a_vsh_emulator.a",
+        "subprojects/nv2a_vsh_cpu/libnv2a_vsh_cpu.a",
+        "subprojects/nv2a_vsh_cpu/libnv2a_vsh_disassembler.a",
+        "-Wl,--gc-sections",
+        "/usr/lib/x86_64-linux-gnu/libcurl.so",
+        "-lm",
+        "-pthread",
+        "/usr/lib/x86_64-linux-gnu/libglib-2.0.so",
+        "-Wl,--end-group"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "runs": [
+    {
+      "name": "current",
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/build-native/tests/xbox/ptimer/test-pgraph-ptimer-contention",
+        "--tap"
+      ],
+      "exitCode": 0,
+      "timedOut": false,
+      "elapsedHostNs": 214241886,
+      "executableSha256": "a82ff79ed9121bbc5c653a0c3cdbfab4b7375e9f560f61cf1ec97b5bb2929589"
+    },
+    {
+      "name": "reference-negative",
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/artifacts/issue1124-contention/final-controls/reference-control",
+        "--negative-control",
+        "--tap"
+      ],
+      "exitCode": 0,
+      "timedOut": false,
+      "elapsedHostNs": 3897704,
+      "executableSha256": "c7d43a7ca59b26e54ad8f246d518614afd6a716c8c9ae172315b700e4d7528bd"
+    },
+    {
+      "name": "reference-hard-gate",
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/artifacts/issue1124-contention/final-controls/reference-control",
+        "--tap",
+        "-p",
+        "/nv2a/contention/recurring-chain"
+      ],
+      "exitCode": -6,
+      "timedOut": false,
+      "elapsedHostNs": 3947183,
+      "executableSha256": "c7d43a7ca59b26e54ad8f246d518614afd6a716c8c9ae172315b700e4d7528bd"
+    }
+  ],
+  "inputs": [
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/ptimer.c",
+      "sha256": "2b4de977065888e3c5150349e0c5d696a307c4586e5d417e6efdbb7fd4d3b16e"
+    },
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/ptimer_core.c",
+      "sha256": "c1cb2c06cad33d32c34b71bb068cdf9468a2be71769f74dccca2080c64785e1d"
+    },
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/ptimer_core.h",
+      "sha256": "8d56ea389a838e3eb5dccb701369a79c8e21cdc5a1669f959936b48711e9801e"
+    },
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/pgraph/pgraph.c",
+      "sha256": "d818b68ea3e9fdfdf6e533a2e3684778ccfccb556b815c99fd5eafcfee3f0060"
+    },
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/pgraph/pgraph.h",
+      "sha256": "095c3a5617e074addb8e2454bdb5b1bce3f0221fbbdd4a1ee020dfb2af408071"
+    },
+    {
+      "tree": "candidate",
+      "path": "hw/xbox/nv2a/pfifo.c",
+      "sha256": "b77267c0ddf2ec0e58d4252245ffd28f1c6c51ca8a739cb8b6d47a1b29ed2086"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/ptimer.c",
+      "sha256": "2b4de977065888e3c5150349e0c5d696a307c4586e5d417e6efdbb7fd4d3b16e"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/ptimer_core.c",
+      "sha256": "c1cb2c06cad33d32c34b71bb068cdf9468a2be71769f74dccca2080c64785e1d"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/ptimer_core.h",
+      "sha256": "8d56ea389a838e3eb5dccb701369a79c8e21cdc5a1669f959936b48711e9801e"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/pgraph/pgraph.c",
+      "sha256": "46ef4b0ba912f6afac54c9f2cbf8625ca4727f6ac14d63c54140beb04d831053"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/pgraph/pgraph.h",
+      "sha256": "22d647b40ad34a4ed7537dbb6bda823b075c2c5c83d02cafb6607ce32ef54ba1"
+    },
+    {
+      "tree": "reference",
+      "path": "hw/xbox/nv2a/pfifo.c",
+      "sha256": "48e6bfb79c977f0babb50f751815402082059ac598ea95680dce7821ebc9e235"
+    },
+    {
+      "tree": "fixture",
+      "path": "run-contention-control.py",
+      "sha256": "a1a1c9ba92f52027e56074f28e4d2dc37789cf1c651fd7a5d6a631e346c2cc0e"
+    },
+    {
+      "tree": "fixture",
+      "path": "test-pgraph-ptimer-contention.c",
+      "sha256": "85a3e1eb1fe39066f5c13c0990f42680fe454002b013a4adbe8ae7fddd7b9456"
+    },
+    {
+      "tree": "fixture",
+      "path": "contention-hooks.h",
+      "sha256": "771447a6bf0d654f4b83568b0860d4acd8df195e9084851fb7a1de5400679f21"
+    }
+  ]
+}

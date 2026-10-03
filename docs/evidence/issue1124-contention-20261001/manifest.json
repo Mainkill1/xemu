@@ -1,0 +1,46 @@
+{
+  "testedFixtureCommit": "45f63931c6077d987533863320af4b5e611534c9",
+  "productionBaseline": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+  "historicalReference": "2b21ca0126b4a6a622bbe63cf38f8951e06d4957",
+  "runtimeChanges": false,
+  "runtimeCandidate": false,
+  "acceptedPerformanceImprovementPercent": null,
+  "performanceInvestigation": "Closed: no additional optimization justified; game/contended PFIFO performance unqualified",
+  "testPr": "Draft reusable test coverage only",
+  "costRuns": 2,
+  "pairedCostObservations": 60,
+  "xboxSubtests": 41,
+  "sourceFiles": [
+    {
+      "path": "hw/xbox/nv2a/pgraph/pgraph.c",
+      "sha256": "d818b68ea3e9fdfdf6e533a2e3684778ccfccb556b815c99fd5eafcfee3f0060"
+    },
+    {
+      "path": "hw/xbox/nv2a/pgraph/pgraph.h",
+      "sha256": "095c3a5617e074addb8e2454bdb5b1bce3f0221fbbdd4a1ee020dfb2af408071"
+    },
+    {
+      "path": "hw/xbox/nv2a/pfifo.c",
+      "sha256": "b77267c0ddf2ec0e58d4252245ffd28f1c6c51ca8a739cb8b6d47a1b29ed2086"
+    },
+    {
+      "path": "hw/xbox/nv2a/pgraph/profile.c",
+      "sha256": "1bec1bd22fa6209bbc74ce7d1ea774a55cc09b481339a2449ab33827a4b5cca5"
+    },
+    {
+      "path": "hw/xbox/nv2a/ptimer.c",
+      "sha256": "2b4de977065888e3c5150349e0c5d696a307c4586e5d417e6efdbb7fd4d3b16e"
+    },
+    {
+      "path": "hw/xbox/nv2a/ptimer_core.c",
+      "sha256": "c1cb2c06cad33d32c34b71bb068cdf9468a2be71769f74dccca2080c64785e1d"
+    },
+    {
+      "path": "hw/xbox/nv2a/ptimer_core.h",
+      "sha256": "8d56ea389a838e3eb5dccb701369a79c8e21cdc5a1669f959936b48711e9801e"
+    }
+  ],
+  "verificationFixtureCommit": "0fe631f8893e017b05c1f0795eba5bcb4a0add1f",
+  "publicationBase": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "equivalence": "Rebased onto documentation-only main update. Compiled fixture C/header, Meson definition, original replay and all production sources match tested input bytes; replay/cost scripts subsequently gained output preservation guards."
+}
