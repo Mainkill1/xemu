@@ -1113,7 +1113,8 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
         }
     }
 
-    if (cbo >= ebo) {
+    /* EBO is inclusive; cbo == ebo still names one unread sample. */
+    if (cbo > ebo) {
         if (stream) {
             d->vp.ssl[v].ssl_seg += 1;
             cbo = 0;

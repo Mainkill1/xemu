@@ -481,6 +481,18 @@ if host_os == 'linux' and have_system
        args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'], timeout: 30)
 endif
 
+# Exercise the private voice reader against the real QEMU memory engine.
+if host_os == 'linux' and have_system
+  voice_samples_test = executable('test-xbox-mcpx-apu-voice-samples',
+    files('test-xbox-mcpx-apu-voice-samples.c',
+          '../../system/memory.c', '../../system/physmem.c'), genh,
+    dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
+    c_args: ['-ffunction-sections', '-fdata-sections'],
+    link_args: ['-Wl,--gc-sections'])
+  test('test-xbox-mcpx-apu-voice-samples', voice_samples_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+endif
+
 if host_os == 'linux' and epoxy.found()
   gl_upload_test = executable('test-xbox-gl-texture-upload',
     files('test-xbox-gl-texture-upload.c',
