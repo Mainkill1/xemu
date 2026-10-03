@@ -36,30 +36,47 @@ static inline void mcpx_apu_pack_mono_samples(const float stereo[][2],
     }
 }
 
-typedef int (*MCPXAPUResamplerFetchSamples)(void *opaque,
-                                             float samples[][2],
-                                             int requested);
+typedef struct MCPXAPUResamplerFetchResult {
+    int frames;
+    bool end_of_input;
+} MCPXAPUResamplerFetchResult;
+
+typedef MCPXAPUResamplerFetchResult (*MCPXAPUResamplerFetchSamples)(
+    void *opaque, float samples[][2], int requested);
 
 static inline long mcpx_apu_resampler_fill_input_block(
     int channels, int frames, MCPXAPUResamplerFetchSamples fetch,
-    void *opaque, float stereo[][2], float mono[], float **data)
+    void *opaque, float stereo[][2], float mono[], float **data,
+    bool *end_of_input)
 {
     assert(channels == 1 || channels == 2);
     assert(frames > 0);
 
     int sample_count = 0;
+    *end_of_input = false;
     while (sample_count < frames) {
         int remaining = frames - sample_count;
-        int count = fetch(opaque, &stereo[sample_count], remaining);
-        if (count <= 0) {
+        MCPXAPUResamplerFetchResult result =
+            fetch(opaque, &stereo[sample_count], remaining);
+        if (result.frames <= 0) {
+            *end_of_input = result.end_of_input;
             break;
         }
-        assert(count <= remaining);
+        assert(result.frames <= remaining);
         if (channels == 1) {
             mcpx_apu_pack_mono_samples(&stereo[sample_count],
-                                       &mono[sample_count], count);
+                                       &mono[sample_count], result.frames);
         }
-        sample_count += count;
+        sample_count += result.frames;
+        if (result.end_of_input) {
+            *end_of_input = true;
+            break;
+        }
+    }
+
+    if (*end_of_input) {
+        *data = channels == 1 ? mono : (float *)stereo;
+        return sample_count;
     }
 
     if (sample_count < frames) {

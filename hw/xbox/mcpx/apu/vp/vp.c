@@ -57,6 +57,8 @@ static void voice_destroy_resampler(MCPXAPUVoiceFilter *filter)
 {
     mcpx_apu_resampler_destroy(&filter->resampler,
                                &filter->resampler_channels);
+    filter->resampler_source_finished = false;
+    filter->resampler_deactivate_after_mix = false;
 }
 
 static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
@@ -843,9 +845,10 @@ static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
 }
 
 static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
-                       int num_samples_requested)
+                             int num_samples_requested, bool *end_of_input)
 {
     assert(v < MCPX_HW_MAX_VOICES);
+    *end_of_input = false;
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
                                  NV_PAVS_VOICE_CFG_FMT_STEREO);
     unsigned int channels = stereo ? 2 : 1;
@@ -954,7 +957,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             d->vp.ssl[v].ssl_seg = 0;
             if (!persist) {
                 d->vp.ssl[v].ssl_index = 0;
-                voice_off(d, v);
+                *end_of_input = true;
             } else {
                 set_notify_status(
                     d, v, MCPX_HW_NOTIFIER_SSLA_DONE + d->vp.ssl[v].ssl_index,
@@ -1129,7 +1132,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                 cbo = lbo;
             } else {
                 cbo = ebo;
-                voice_off(d, v);
+                *end_of_input = true;
                 DPRINTF("end of buffer!\n");
             }
         }
@@ -1149,8 +1152,8 @@ adpcm_invalid:
     return -1;
 }
 
-static int voice_resample_fetch(void *opaque, float samples[][2],
-                                int requested)
+static MCPXAPUResamplerFetchResult voice_resample_fetch(
+    void *opaque, float samples[][2], int requested)
 {
     MCPXAPUVoiceFilter *filter = opaque;
     uint16_t v = filter->voice;
@@ -1160,24 +1163,42 @@ static int voice_resample_fetch(void *opaque, float samples[][2],
     int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                 NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
     if (!active) {
-        return -1;
+        return (MCPXAPUResamplerFetchResult) { .frames = -1 };
     }
-    return voice_get_samples(d, v, samples, requested);
+    bool end_of_input;
+    int frames =
+        voice_get_samples(d, v, samples, requested, &end_of_input);
+    return (MCPXAPUResamplerFetchResult) {
+        .frames = frames,
+        .end_of_input = end_of_input,
+    };
 }
 
 static long voice_resample_callback(void *cb_data, float **data)
 {
     MCPXAPUVoiceFilter *filter = cb_data;
 
+    if (filter->resampler_source_finished) {
+        /*
+         * libsamplerate 0.2.2 needs a valid pointer on the zero-frame callback
+         * to flush all converter history instead of truncating the tail.
+         */
+        *data = filter->resampler_channels == 1 ?
+                    filter->mono_resample_buf : filter->resample_buf;
+        return 0;
+    }
+
     /*
-     * Starvation causes SRC hang on repeated short callbacks. Always return
-     * the production 32-frame block and pad any unavailable tail with
-     * silence.
+     * Pad temporary starvation with silence, but expose finite input ends so
+     * libsamplerate can drain its converter history before the voice stops.
      */
-    return mcpx_apu_resampler_fill_input_block(
+    bool end_of_input;
+    long frames = mcpx_apu_resampler_fill_input_block(
         filter->resampler_channels, NUM_SAMPLES_PER_FRAME,
         voice_resample_fetch, filter, (float(*)[2])filter->resample_buf,
-        filter->mono_resample_buf, data);
+        filter->mono_resample_buf, data, &end_of_input);
+    filter->resampler_source_finished = end_of_input;
+    return frames;
 }
 
 static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
@@ -1220,6 +1241,10 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
             return -1;
         }
         if (count == 0) {
+            if (filter->resampler_source_finished) {
+                filter->resampler_deactivate_after_mix = true;
+                return 0;
+            }
             return -1;
         }
     }
@@ -1391,6 +1416,9 @@ static void voice_process(MCPXAPUState *d,
             if (count < 0) {
                 break;
             }
+            if (count == 0) {
+                break;
+            }
             sample_count += count;
         }
     }
@@ -1462,6 +1490,10 @@ static void voice_process(MCPXAPUState *d,
     }
 
     if (voice_should_mute(v)) {
+        if (d->vp.filters[v].resampler_deactivate_after_mix) {
+            d->vp.filters[v].resampler_deactivate_after_mix = false;
+            voice_off(d, v);
+        }
         return;
     }
 
@@ -1561,6 +1593,11 @@ static void voice_process(MCPXAPUState *d,
             sample_buf[i][0] += g*samples[i][0];
             sample_buf[i][1] += g*samples[i][1];
         }
+    }
+
+    if (d->vp.filters[v].resampler_deactivate_after_mix) {
+        d->vp.filters[v].resampler_deactivate_after_mix = false;
+        voice_off(d, v);
     }
 }
 
