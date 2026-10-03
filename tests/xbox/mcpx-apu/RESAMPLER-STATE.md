@@ -20,9 +20,11 @@ build directory inside a checkout with the usual build dependencies:
 ```sh
 ../configure --target-list=i386-softmmu --extra-cflags=-DXBOX --extra-cxxflags=-DXBOX
 ninja test-xbox-mcpx-apu-resampler-state tests/unit/test-xbox-mcpx-apu-resampler
-meson test --no-rebuild --print-errorlogs test-xbox-mcpx-apu-resampler-state test-xbox-mcpx-apu-resampler
+meson test --no-rebuild --print-errorlogs test-xbox-mcpx-apu-resampler-state test-xbox-mcpx-apu-resampler-throughput test-xbox-mcpx-apu-resampler
 ./test-xbox-mcpx-apu-resampler-state --matrix > state-matrix.jsonl
 ./test-xbox-mcpx-apu-resampler-state --trace > state-trace.jsonl
+./test-xbox-mcpx-apu-resampler-throughput --benchmark sinc mono-adpcm 20000 8
+./test-xbox-mcpx-apu-resampler-throughput --benchmark linear mono-adpcm 20000 8
 ```
 
 The Meson fixture is currently Linux-only because it uses GNU linker wrapping.
@@ -97,6 +99,22 @@ for libsamplerate 0.2.2's known unsafe one-frame linear callback schedule
 The ordinary linear streaming test uses the production callback's padded
 32-frame contract. Sinc retains its seven callback chunk sizes. No tolerance was
 relaxed to convert the one-frame failure into a pass; the diagnostic is retained.
+
+## Fixed-work throughput tool
+
+`test-xbox-mcpx-apu-resampler-throughput` drives 45 looping voices through the
+same production VP frame API. Its constructor-only linker wrapper selects sinc
+or linear before measured work; callbacks, sample fetch, worker dispatch and
+mixing are production code. It supports mono/stereo ADPCM and mono S16 PCM with
+1–16 workers. Each invocation warms 256 VP frames, checks the first measured
+frame, then reports elapsed microseconds and a fixed output checksum for the
+declared frame count. The timed region contains no tracing or per-frame output.
+
+This is a component benchmark. Use fresh A/A before balanced A/B orders, pin the
+same executable and libraries, and retain every attempt. Report baseline time,
+candidate time, absolute difference, improvement percentage, ordering and
+correctness. It does not replace PGR2 scene-qualified performance, native audio,
+XISO timings or hardware accuracy.
 
 ## Native runner and evidence
 
