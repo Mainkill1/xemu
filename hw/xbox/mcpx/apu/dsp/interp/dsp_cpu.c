@@ -374,6 +374,7 @@ void dsp56k_reset_cpu(dsp_core_t* dsp)
     memset(dsp->periph, 0, sizeof(dsp->periph));
     memset(dsp->stack, 0, sizeof(dsp->stack));
     memset(dsp->registers, 0, sizeof(dsp->registers));
+    memset(dsp->pram_opcache, 0, sizeof(dsp->pram_opcache));
 
     /* Registers */
     dsp->pc = 0x0000;
@@ -588,6 +589,14 @@ static const char* disasm_get_instruction_text(dsp_core_t* dsp)
     return dsp->disasm_str_instr2;
 }
 
+/* Preserve the opcode name in the existing cold undefined diagnostic. */
+static void execute_unimplemented(dsp_core_t *dsp)
+{
+    const OpcodeEntry *op = lookup_opcode(dsp->cur_inst);
+    DPRINTF("%x - %s\n", dsp->cur_inst, op->name);
+    emu_undefined(dsp);
+}
+
 void dsp56k_execute_instruction(dsp_core_t* dsp)
 {
     trace_dsp56k_execute_instruction(dsp->is_gp, dsp->pc);
@@ -619,22 +628,22 @@ void dsp56k_execute_instruction(dsp_core_t* dsp)
         }
     }
 
-    if (dsp->cur_inst < 0x100000) {
-        const OpcodeEntry *op = dsp->pram_opcache[dsp->pc];
-        if (op == NULL) {
-            op = lookup_opcode(dsp->cur_inst);
-            dsp->pram_opcache[dsp->pc] = op;
-        }
-        if (op->emu_func) {
-            op->emu_func(dsp);
+    /* Direct-handler dispatch inspired by Will Bonnett (Synkronicity):
+     * https://github.com/Synkronicity/Xemu-Symphony/commit/e8c7c38a3e8cd6c746aa53d59a8214957a300cdd
+     * Uses existing handler signatures and write-time invalidation;
+     * no immutable-RAM assumption or cached extension operands.
+     */
+    DspInstructionHandler handler = dsp->pram_opcache[dsp->pc];
+    if (handler == NULL) {
+        if (dsp->cur_inst < 0x100000) {
+            const OpcodeEntry *op = lookup_opcode(dsp->cur_inst);
+            handler = op->emu_func ? op->emu_func : execute_unimplemented;
         } else {
-            DPRINTF("%x - %s\n", dsp->cur_inst, op->name);
-            emu_undefined(dsp);
+            handler = opcodes_parmove[(dsp->cur_inst >> 20) & BITMASK(4)];
         }
-    } else {
-        /* Do parallel move read */
-        opcodes_parmove[(dsp->cur_inst>>20) & BITMASK(4)](dsp);
+        dsp->pram_opcache[dsp->pc] = handler;
     }
+    handler(dsp);
 
     /* Disasm current instruction ? (trace mode only) */
     if (tracing && disasm_return) {

@@ -1,0 +1,16 @@
+{
+  "parent": {
+    "debugSha256": "614ec7555af52d876e51de31263126b7fe700aac87c9592c218a959a24fffb0b",
+    "producers": [
+      "Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+      "clang LLVM (rustc version 1.96.0 (ac68faa20 2026-05-25))"
+    ]
+  },
+  "candidate": {
+    "debugSha256": "6898f26098443308964bdb9f65963fa70be2fba85d21c07cc9a9530dce011404",
+    "producers": [
+      "Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+      "clang LLVM (rustc version 1.96.0 (ac68faa20 2026-05-25))"
+    ]
+  }
+}

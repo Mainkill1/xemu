@@ -1,0 +1,198 @@
+{
+  "libraries": [
+    {
+      "name": "libbrotlicommon.so.1",
+      "parentSha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "candidateBundleSha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5"
+    },
+    {
+      "name": "libbrotlidec.so.1",
+      "parentSha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "candidateBundleSha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9"
+    },
+    {
+      "name": "libcap.so.2",
+      "parentSha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "candidateBundleSha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137"
+    },
+    {
+      "name": "libcrypto.so.3",
+      "parentSha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "candidateBundleSha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac"
+    },
+    {
+      "name": "libcurl-gnutls.so.4",
+      "parentSha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "candidateBundleSha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff"
+    },
+    {
+      "name": "libdbus-1.so.3",
+      "parentSha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "candidateBundleSha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d"
+    },
+    {
+      "name": "libepoxy.so.0",
+      "parentSha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "candidateBundleSha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907"
+    },
+    {
+      "name": "libffi.so.8",
+      "parentSha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "candidateBundleSha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641"
+    },
+    {
+      "name": "libgcrypt.so.20",
+      "parentSha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "candidateBundleSha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8"
+    },
+    {
+      "name": "libglib-2.0.so.0",
+      "parentSha256": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+      "candidateBundleSha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e"
+    },
+    {
+      "name": "libgnutls.so.30",
+      "parentSha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "candidateBundleSha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce"
+    },
+    {
+      "name": "libgssapi_krb5.so.2",
+      "parentSha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "candidateBundleSha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565"
+    },
+    {
+      "name": "libhogweed.so.6",
+      "parentSha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "candidateBundleSha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab"
+    },
+    {
+      "name": "libidn2.so.0",
+      "parentSha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "candidateBundleSha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e"
+    },
+    {
+      "name": "libk5crypto.so.3",
+      "parentSha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "candidateBundleSha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50"
+    },
+    {
+      "name": "libkeyutils.so.1",
+      "parentSha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "candidateBundleSha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c"
+    },
+    {
+      "name": "libkrb5.so.3",
+      "parentSha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "candidateBundleSha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1"
+    },
+    {
+      "name": "libkrb5support.so.0",
+      "parentSha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "candidateBundleSha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad"
+    },
+    {
+      "name": "liblber-2.5.so.0",
+      "parentSha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "candidateBundleSha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d"
+    },
+    {
+      "name": "libldap-2.5.so.0",
+      "parentSha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "candidateBundleSha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42"
+    },
+    {
+      "name": "liblz4.so.1",
+      "parentSha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "candidateBundleSha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb"
+    },
+    {
+      "name": "liblzma.so.5",
+      "parentSha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "candidateBundleSha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3"
+    },
+    {
+      "name": "libnettle.so.8",
+      "parentSha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "candidateBundleSha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706"
+    },
+    {
+      "name": "libnghttp2.so.14",
+      "parentSha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "candidateBundleSha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde"
+    },
+    {
+      "name": "libp11-kit.so.0",
+      "parentSha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "candidateBundleSha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2"
+    },
+    {
+      "name": "libpcap.so.0.8",
+      "parentSha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "candidateBundleSha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7"
+    },
+    {
+      "name": "libpcre.so.3",
+      "parentSha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "candidateBundleSha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101"
+    },
+    {
+      "name": "libpsl.so.5",
+      "parentSha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "candidateBundleSha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9"
+    },
+    {
+      "name": "librtmp.so.1",
+      "parentSha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "candidateBundleSha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97"
+    },
+    {
+      "name": "libsamplerate.so.0",
+      "parentSha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "candidateBundleSha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41"
+    },
+    {
+      "name": "libsasl2.so.2",
+      "parentSha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "candidateBundleSha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5"
+    },
+    {
+      "name": "libslirp.so.0",
+      "parentSha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "candidateBundleSha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df"
+    },
+    {
+      "name": "libssh.so.4",
+      "parentSha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "candidateBundleSha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765"
+    },
+    {
+      "name": "libsystemd.so.0",
+      "parentSha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "candidateBundleSha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a"
+    },
+    {
+      "name": "libtasn1.so.6",
+      "parentSha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "candidateBundleSha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a"
+    },
+    {
+      "name": "libudev.so.1",
+      "parentSha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "candidateBundleSha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409"
+    },
+    {
+      "name": "libunistring.so.2",
+      "parentSha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "candidateBundleSha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed"
+    },
+    {
+      "name": "libzstd.so.1",
+      "parentSha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "candidateBundleSha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df"
+    }
+  ],
+  "differences": [
+    "libglib-2.0.so.0"
+  ],
+  "nativePlan": "Use exact parent runtime libraries for both, replacing only xemu executable."
+}

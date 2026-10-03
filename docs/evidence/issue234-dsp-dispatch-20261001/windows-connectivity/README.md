@@ -1,0 +1,9 @@
+# Windows reachability check — no #234 workload executed
+
+The maintained LAN HTTP client timed out at 2026-10-02 00:42 UTC. A bounded SSH bootstrap inspection later found an idle runner, no xemu process, a listener on `0.0.0.0:9368`, and a successful local HTTP status response. The runner's recorded start time is **00:44:03 UTC**, after the failed LAN observation. We did not stop or restart the service, change firewall rules, launch xemu, or manipulate queue/state files.
+
+A fresh maintained LAN client read at **00:48:08 UTC** succeeded. [The receipt](lan-api-after-inspection.json) shows an idle host with no current, pending or testing job. [Capability discovery](agent.json) identifies **0.1.0+2a872c5408c3f23220bcdd31e46f843e7970de65**, a different runner/workspace from the earlier procedures. It lacks the current performance-analysis and XISO-campaign APIs. A prior campaign route is absent on this instance; its earlier retained evidence remains historical and is not repaired or adopted here.
+
+This establishes current reachability, not a firewall root cause or Windows performance/correctness qualification. No #234 Windows workload belongs to these records. The current Deck comparison continues through its own maintained client and frozen inputs. The existing Windows service and test ownership are preserved; a compatible runner/procedure is required before using the missing APIs.
+
+`inspect.ps1` is the exact read-only bootstrap diagnostic. SSH was used only to inspect connectivity/listener/process state. All test operations remain HTTP operations from the agent host. The raw PowerShell progress stream is retained in `stderr.txt`; exit code 0 and local HTTP 200 are in the receipt/stdout. No credentials are included. [manifest.json](manifest.json) hashes the retained inspection payloads.

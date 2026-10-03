@@ -1,0 +1,5 @@
+Collecting clang-format
+  Using cached clang_format-23.1.2-py2.py3-none-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (4.7 kB)
+Using cached clang_format-23.1.2-py2.py3-none-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (1.9 MB)
+Installing collected packages: clang-format
+Successfully installed clang-format-23.1.2

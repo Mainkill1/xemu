@@ -1,0 +1,38 @@
+{
+  "parent-gcc": {
+    "sha256": "037e6179a02ad48daae349373d12c5b03a4f6e42db5e2544a19db6604c051679",
+    "bytes": 1526016,
+    "executeSymbols": [
+      "00000000000225f0 000000000000087d t dsp56k_execute_instruction",
+      "000000000000e09a 000000000000007c t dsp56k_execute_instruction.cold"
+    ],
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "candidate-gcc": {
+    "sha256": "d7544075a292d2f65e78c8433727a11e94066a7e29b199d117751f193b3a0d34",
+    "bytes": 1526808,
+    "executeSymbols": [
+      "00000000000225c0 000000000000081d t dsp56k_execute_instruction",
+      "000000000000e080 000000000000005d t dsp56k_execute_instruction.cold"
+    ],
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "parent-clang": {
+    "sha256": "da8ef0d450e1c56aa91d8eaab82fca5adea7f0b51897a172e51e92a356dce7af",
+    "bytes": 1716424,
+    "executeSymbols": [
+      "000000000003cc10 000000000000080c t dsp56k_execute_instruction",
+      "000000000003d850 0000000000000038 t trace_dsp56k_execute_instruction_disasm"
+    ],
+    "compiler": "Debian clang version 19.1.7 (3+b1)"
+  },
+  "candidate-clang": {
+    "sha256": "f911c071997ff458dc08219ddc08c4108d9cf198355c8dfd154f09f229d776bf",
+    "bytes": 1716400,
+    "executeSymbols": [
+      "000000000003cc30 00000000000006f4 t dsp56k_execute_instruction",
+      "000000000003d690 0000000000000038 t trace_dsp56k_execute_instruction_disasm"
+    ],
+    "compiler": "Debian clang version 19.1.7 (3+b1)"
+  }
+}

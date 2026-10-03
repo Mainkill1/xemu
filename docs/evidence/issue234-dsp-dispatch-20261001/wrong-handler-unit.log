@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S969dde463161ad08d308c38f3ea4b435
+# Start of dsp tests
+# Start of dispatch tests
+not ok /dsp/dispatch/overwrite - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:75:test_warmed_overwrite: assertion failed (core->registers[DSP_REG_LA] == 0x23): (0 == 35)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:75:test_warmed_overwrite: assertion failed (core->registers[DSP_REG_LA] == 0x23): (0 == 35)

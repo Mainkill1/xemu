@@ -1,0 +1,293 @@
+{
+  "testId": "issue234-deck-pgr2-stationary-c-v1",
+  "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+  "sourceHead": "58df82fe70dfc5ad07cecac974ce84db81559dac",
+  "ciProductCommit": "ecb2a59e3a89f34f079787dd7b02c06b30578e2b",
+  "sourceTreeEqual": true,
+  "attempts": [
+    {
+      "id": "issue234-deck-c-v1-aaaa-1",
+      "order": "AAAA",
+      "position": 1,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-aaaa-1",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-2",
+      "order": "AAAA",
+      "position": 2,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-aaaa-2",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-3",
+      "order": "AAAA",
+      "position": 3,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-aaaa-3",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-4",
+      "order": "AAAA",
+      "position": 4,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-aaaa-4",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-1",
+      "order": "ABBA",
+      "position": 1,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-abba-1",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-2",
+      "order": "ABBA",
+      "position": 2,
+      "physicalRole": "B",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "request": {
+        "id": "issue234-deck-c-v1-abba-2",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-3",
+      "order": "ABBA",
+      "position": 3,
+      "physicalRole": "B",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "request": {
+        "id": "issue234-deck-c-v1-abba-3",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-4",
+      "order": "ABBA",
+      "position": 4,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-abba-4",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-1",
+      "order": "BAAB",
+      "position": 1,
+      "physicalRole": "B",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "request": {
+        "id": "issue234-deck-c-v1-baab-1",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-2",
+      "order": "BAAB",
+      "position": 2,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-baab-2",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-3",
+      "order": "BAAB",
+      "position": 3,
+      "physicalRole": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue234-deck-c-v1-baab-3",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-4",
+      "order": "BAAB",
+      "position": 4,
+      "physicalRole": "B",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "request": {
+        "id": "issue234-deck-c-v1-baab-4",
+        "testId": "issue234-deck-pgr2-stationary-c-v1",
+        "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue234-deck-native-c-balanced-v1",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    }
+  ],
+  "orders": [
+    "AAAA",
+    "ABBA",
+    "BAAB"
+  ],
+  "policy": "Keep every attempt. No reruns, intervention, cache waivers or retroactive outcome edits. Start the next only after the owned previous target is terminal.",
+  "controlledLibraryChoice": "Both use exact parent runtime libraries, because candidate AppImage GLib differs. Build slots replace only xemu.",
+  "limits": "Synthetic replay gains are not game gains; power/frequency uncontrolled; no PCM oracle. Fixed 300s observation preserves prior160-frame/540-CPU floors on this sparse scene."
+}

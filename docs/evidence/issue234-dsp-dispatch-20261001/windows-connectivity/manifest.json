@@ -1,0 +1,26 @@
+{
+  "stdout.txt": {
+    "bytes": 6568,
+    "sha256": "fd3395f87b14dea88391cd42afa26e6db9a9801a0b3f3800070196435325bf0d"
+  },
+  "receipt.json": {
+    "bytes": 58,
+    "sha256": "99e1be7e79aa23ad494afab19ea1b0ae47935be471d70a630af906d7e8421045"
+  },
+  "inspect.ps1": {
+    "bytes": 756,
+    "sha256": "71d29464cd06f969722737f866644c8d0b3055ea5fa8e95ae0c0a6c01dcb3849"
+  },
+  "stderr.txt": {
+    "bytes": 2298,
+    "sha256": "a72e0afd857c342c764679f5e22529a90ecc1b941cdcdde5d55c4d72f9004442"
+  },
+  "lan-api-after-inspection.json": {
+    "bytes": 2576,
+    "sha256": "b13daaf3a5d02d49f5dec169e3d0e98adf3e81456c99310f90bf8639ce16bdb5"
+  },
+  "agent.json": {
+    "bytes": 990,
+    "sha256": "a3cdf1f23ad4472e294041ac93e83418f8c3580a4140baad32b9fc9221e1adee"
+  }
+}

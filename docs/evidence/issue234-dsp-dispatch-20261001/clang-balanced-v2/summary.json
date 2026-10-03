@@ -1,0 +1,296 @@
+[
+  {
+    "mode": "normal",
+    "order": "AAAA",
+    "stateDigest": "223c0a8f6982d3b225ba324978187a665a5697e8a0edb035104d2ffd931026e3",
+    "A": {
+      "samples": 32,
+      "medianNs": 3.1355000000000004,
+      "minimumNs": 3.0142,
+      "maximumNs": 3.157
+    }
+  },
+  {
+    "mode": "normal",
+    "order": "ABBA",
+    "stateDigest": "223c0a8f6982d3b225ba324978187a665a5697e8a0edb035104d2ffd931026e3",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.141,
+      "minimumNs": 3.1356,
+      "maximumNs": 3.2312
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 2.8288,
+      "minimumNs": 2.7942,
+      "maximumNs": 2.9074
+    },
+    "savedNs": 0.3121999999999998,
+    "improvementPercent": 9.939509710283343
+  },
+  {
+    "mode": "normal",
+    "order": "BAAB",
+    "stateDigest": "223c0a8f6982d3b225ba324978187a665a5697e8a0edb035104d2ffd931026e3",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.1635999999999997,
+      "minimumNs": 3.1482,
+      "maximumNs": 3.244
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 2.8512,
+      "minimumNs": 2.7988,
+      "maximumNs": 2.9082
+    },
+    "savedNs": 0.3123999999999998,
+    "improvementPercent": 9.874826147426976
+  },
+  {
+    "mode": "parallel",
+    "order": "AAAA",
+    "stateDigest": "e95c058b2ebf1cd9b12cc50ea82691fdc2e816d92b32ba0f0693506d4dc6f7f0",
+    "A": {
+      "samples": 32,
+      "medianNs": 3.5481,
+      "minimumNs": 3.5276,
+      "maximumNs": 3.6674
+    }
+  },
+  {
+    "mode": "parallel",
+    "order": "ABBA",
+    "stateDigest": "e95c058b2ebf1cd9b12cc50ea82691fdc2e816d92b32ba0f0693506d4dc6f7f0",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.5349000000000004,
+      "minimumNs": 3.5188,
+      "maximumNs": 3.8874
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.0557,
+      "minimumNs": 3.0328,
+      "maximumNs": 3.0836
+    },
+    "savedNs": 0.4792000000000005,
+    "improvementPercent": 13.556253359359543
+  },
+  {
+    "mode": "parallel",
+    "order": "BAAB",
+    "stateDigest": "e95c058b2ebf1cd9b12cc50ea82691fdc2e816d92b32ba0f0693506d4dc6f7f0",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.5358,
+      "minimumNs": 3.5196,
+      "maximumNs": 3.8526
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.0528000000000004,
+      "minimumNs": 3.0294,
+      "maximumNs": 3.2336
+    },
+    "savedNs": 0.48299999999999965,
+    "improvementPercent": 13.660274902426599
+  },
+  {
+    "mode": "mixed",
+    "order": "AAAA",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 32,
+      "medianNs": 4.2115,
+      "minimumNs": 3.6818,
+      "maximumNs": 5.7986
+    }
+  },
+  {
+    "mode": "mixed",
+    "order": "ABBA",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 16,
+      "medianNs": 4.4595,
+      "minimumNs": 3.4316,
+      "maximumNs": 5.3206
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.1134000000000004,
+      "minimumNs": 3.0188,
+      "maximumNs": 3.1402
+    },
+    "savedNs": 1.3460999999999999,
+    "improvementPercent": 30.184998318197103
+  },
+  {
+    "mode": "mixed",
+    "order": "BAAB",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 16,
+      "medianNs": 4.2069,
+      "minimumNs": 3.4258,
+      "maximumNs": 5.0104
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.1288,
+      "minimumNs": 3.0426,
+      "maximumNs": 3.152
+    },
+    "savedNs": 1.0781,
+    "improvementPercent": 25.626946207421142
+  },
+  {
+    "mode": "working-set",
+    "order": "AAAA",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 32,
+      "medianNs": 4.3262,
+      "minimumNs": 3.4192,
+      "maximumNs": 5.2206
+    }
+  },
+  {
+    "mode": "working-set",
+    "order": "ABBA",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 16,
+      "medianNs": 4.1769,
+      "minimumNs": 3.4364,
+      "maximumNs": 6.143
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.1238,
+      "minimumNs": 3.0264,
+      "maximumNs": 3.1584
+    },
+    "savedNs": 1.0530999999999997,
+    "improvementPercent": 25.21247815365462
+  },
+  {
+    "mode": "working-set",
+    "order": "BAAB",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.9856,
+      "minimumNs": 3.6432,
+      "maximumNs": 4.9076
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.1204,
+      "minimumNs": 3.0354,
+      "maximumNs": 3.1678
+    },
+    "savedNs": 0.8651999999999997,
+    "improvementPercent": 21.708149337615414
+  },
+  {
+    "mode": "cold",
+    "order": "AAAA",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 32,
+      "medianNs": 3.6403,
+      "minimumNs": 3.6102,
+      "maximumNs": 3.7298
+    }
+  },
+  {
+    "mode": "cold",
+    "order": "ABBA",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.6345,
+      "minimumNs": 3.6136,
+      "maximumNs": 3.7486
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.7454,
+      "minimumNs": 3.7264,
+      "maximumNs": 3.7702
+    },
+    "savedNs": -0.1109,
+    "improvementPercent": -3.05131379832164
+  },
+  {
+    "mode": "cold",
+    "order": "BAAB",
+    "stateDigest": "23449f7e4308153981e6615165ae015d72eef6a33160aa82d8f26a9328bf1d24",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.6324,
+      "minimumNs": 3.6174,
+      "maximumNs": 3.8086
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.7414,
+      "minimumNs": 3.72,
+      "maximumNs": 3.9484
+    },
+    "savedNs": -0.10899999999999999,
+    "improvementPercent": -3.000770840215835
+  },
+  {
+    "mode": "updates",
+    "order": "AAAA",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 32,
+      "medianNs": 3.958,
+      "minimumNs": 3.8774,
+      "maximumNs": 4.216
+    }
+  },
+  {
+    "mode": "updates",
+    "order": "ABBA",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.9493,
+      "minimumNs": 3.8356,
+      "maximumNs": 3.996
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.9775,
+      "minimumNs": 3.8498,
+      "maximumNs": 4.0936
+    },
+    "savedNs": -0.028200000000000003,
+    "improvementPercent": -0.714050591244018
+  },
+  {
+    "mode": "updates",
+    "order": "BAAB",
+    "stateDigest": "c4150d980f458fc5dd91b437c25c10696cb4594984a409c24b627ccde8308f53",
+    "A": {
+      "samples": 16,
+      "medianNs": 3.9669,
+      "minimumNs": 3.8518,
+      "maximumNs": 4.0586
+    },
+    "B": {
+      "samples": 16,
+      "medianNs": 3.9722999999999997,
+      "minimumNs": 3.8464,
+      "maximumNs": 4.5642
+    },
+    "savedNs": -0.005399999999999849,
+    "improvementPercent": -0.1361264463434886
+  }
+]
