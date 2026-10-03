@@ -278,12 +278,20 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
     }
 
     tb = tcg_jump_cache_lookup_observed(jc, hash, s, &old_tb, &old_pc);
-#else
-    tb = tcg_jump_cache_lookup(jc, hash, s);
-#endif
     if (likely(tb)) {
         goto hit;
     }
+#else
+    /* Preserve the original lookup expression when compiled out. */
+    tb = qatomic_read(&jc->array[hash].tb);
+    if (likely(tb &&
+               jc->array[hash].pc == s.pc &&
+               tb->cs_base == s.cs_base &&
+               tb->flags == s.flags &&
+               tb_cflags(tb) == s.cflags)) {
+        goto hit;
+    }
+#endif
 
     tb = tb_htable_lookup(cpu, s);
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE

@@ -92,6 +92,14 @@ instrumentation. Establish same-binary OFF/counters/conflicts observer costs and
 compile-disabled versus dormant costs. Do not pool instrumented timing with an
 uninstrumented baseline or call recoverability counts a percentage speedup.
 
+The compiled-out path retains the parent's literal primary lookup expression.
+Routing it through the observed-lookup wrapper caused GCC 14 O2 to outline
+`tb_lookup` in an earlier branch build, while the diagnostic build forced it
+inline. A matched dormant comparison then appeared 23.8% faster on stable code.
+That comparison mixed compiler code shapes and did not establish a cache gain.
+Preserve those results, inspect compiled code, and qualify corrected builds with
+fresh identities before interpreting observer overhead or production gains.
+
 Timing includes timer-read overhead and excludes work before/after its timestamps.
 Occupancy is genuinely sampled, but still adds reads to sampled clears. Summing
 sampled durations cannot reconstruct total observer overhead. Snapshot differences
