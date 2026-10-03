@@ -20,32 +20,32 @@ uint64_t g_dbg_muted_voices[4];
 
 static uint8_t reader_test_ldub_phys(AddressSpace *as, hwaddr addr)
 {
-    g_assert_cmpuint(addr, <, sizeof(test_memory));
+    g_assert(addr < sizeof(test_memory));
     return test_memory[addr];
 }
 
 static uint16_t reader_test_lduw_le_phys(AddressSpace *as, hwaddr addr)
 {
-    g_assert_cmpuint(addr + sizeof(uint16_t), <=, sizeof(test_memory));
+    g_assert(addr <= sizeof(test_memory) - sizeof(uint16_t));
     return lduw_le_p(&test_memory[addr]);
 }
 
 static uint32_t reader_test_ldl_le_phys(AddressSpace *as, hwaddr addr)
 {
-    g_assert_cmpuint(addr + sizeof(uint32_t), <=, sizeof(test_memory));
+    g_assert(addr <= sizeof(test_memory) - sizeof(uint32_t));
     return ldl_le_p(&test_memory[addr]);
 }
 
 static void reader_test_stb_phys(AddressSpace *as, hwaddr addr, uint8_t value)
 {
-    g_assert_cmpuint(addr, <, sizeof(test_memory));
+    g_assert(addr < sizeof(test_memory));
     test_memory[addr] = value;
 }
 
 static void reader_test_stl_le_phys(AddressSpace *as, hwaddr addr,
                                     uint32_t value)
 {
-    g_assert_cmpuint(addr + sizeof(uint32_t), <=, sizeof(test_memory));
+    g_assert(addr <= sizeof(test_memory) - sizeof(uint32_t));
     stl_le_p(&test_memory[addr], value);
 }
 
