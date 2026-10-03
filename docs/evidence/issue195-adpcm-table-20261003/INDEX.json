@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "baseline_commit": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "candidate_commit": "6cca0fe8604f0253ba8f779ff3ff560cf366fa4a",
+  "fixture_commit": "d9d56e2f2d02ac7a0b6a7fb5e90df2531dbb57fd",
+  "runner": "http://10.0.0.123:9368",
+  "matched_runs": 30,
+  "matched_correctness_passes": 30,
+  "excluded_runs": 30,
+  "files": {
+    "REPORT.md": "bee6fc541bbdf9a6a0458131523a03adfe5a68180cf9dc73bc068f6986f6e5dc",
+    "EVIDENCE.tar.gz": "318c0d3f4622d0d6c1b7ee814956873427211443b1dbc34994fd08d56aaea70a"
+  },
+  "executables": {
+    "baseline_sha256": "68e481a8af5d0f3e48dc3934613abdf62b0e365b651073e549302832402fb5eb",
+    "candidate_sha256": "99b9464de75b9adcd297ed9f6d3a8c1fdaba2a53508e6647d7a65882e9fa0c80"
+  }
+}
