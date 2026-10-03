@@ -79,10 +79,9 @@ bool tcg_victim_cache_fill(CPUJumpCache *jc, unsigned hash, vaddr pc,
     }
 
     jc->array[hash].pc = pc;
-    qatomic_set(&jc->array[hash].tb, tb);
+    qatomic_set_mb(&jc->array[hash].tb, tb);
 
     /* A late publisher must not resurrect a slot after a concurrent clear. */
-    smp_mb();
     if (!epoch_valid(jc, epoch)) {
         jc->victim.count = 0;
         qatomic_set(&jc->array[hash].tb, NULL);
