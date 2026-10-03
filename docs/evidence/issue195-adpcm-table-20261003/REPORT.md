@@ -1,7 +1,9 @@
 # PR #195 Steam Deck qualification
 
-Date: 2026-10-03  
-Runner: Steam Deck `10.0.0.123`  
+Date: 2026-10-03
+
+Runner: Steam Deck `10.0.0.123`
+
 Metric: fixed-work elapsed time; lower is better
 
 ## Compared builds
