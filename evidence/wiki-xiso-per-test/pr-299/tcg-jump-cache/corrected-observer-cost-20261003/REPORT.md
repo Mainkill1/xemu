@@ -4,12 +4,12 @@
 the dormant observer has measurable cost in the stable-code fixture. Combined
 medians are below 5%, but one order is not; these results do not establish an
 under-5% overhead bound. Counters also fails consistent under-5% qualification;
-conflict-classifier measurement remains pending.
+conflict-classifier measurement is complete and exceeds 5% on rewrite.
 No production cache optimization or cache speedup is tested here.
 
 **Counters update:** All eight counters attempts are correct, eligible and
 Mesa-qualified. Combined stable cost is 4.65%, rewrite 3.64%; stable BAAB and
-rewrite ABBA exceed 5%. Conflict-classifier measurement is now running. These
+rewrite ABBA exceed 5%. Conflict-classifier measurement is complete. These
 comparisons measure compiler hooks plus accounting; costs cannot be isolated by
 subtracting separate campaigns.
 
@@ -57,6 +57,23 @@ is stable -4.81% (ABBA -4.41%, BAAB -5.49%) and rewrite -3.83% (ABBA -6.15%,
 BAAB -3.01%). No samples are excluded. Counters B1 rewrite mean is 3.273506 s
 with all ten samples 3.204353–3.332858 s; cause remains unclassified.
 
+### Baseline versus active conflict classification
+
+Same executable identities, with `conflicts` frozen in both definitions: inactive
+in compiled-out A, active counters plus FIFO classification in B. No timing or
+occupancy collection runs. This mode adds searches, model movement, barriers and
+invalidation bookkeeping; it is a diagnostic, not a cache optimization.
+
+| Test ID / fixed work | Baseline A | Conflicts B | Time saved | Improvement % | ABBA | BAAB | Correctness |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `cpu_translation_blocks.code_stable`, 50 million operations | 2.521808 s | 2.576684 s | -0.054876 s | -2.18% | -2.79% | -1.31% | PASS 8/8 |
+| `cpu_translation_blocks.code_rewrite`, 1 million operations | 3.038566 s | 3.293155 s | -0.254588 s | -8.38% | -7.89% | -6.96% | PASS 8/8 |
+
+The compact attempt-median metric is stable -2.14% (ABBA -3.22%, BAAB -0.87%)
+and rewrite -8.49% (ABBA -8.09%, BAAB -7.35%). Every sample remains. Different
+campaigns are not a causal ablation: do not conclude that conflicts is cheaper
+than counters from these separate run blocks.
+
 ### Preserved dormant B1 result
 
 Dormant stable-code B1 has mean 2.944436 s versus 2.554232–2.557663 s in the other B
@@ -80,8 +97,8 @@ guest work timings, not whole-game FPS or suite duration.
 
 ## Qualification and identities
 
-- Campaigns `i167-correct-dormant-31c-001` and `i167-correct-counters-31c-001`;
-  all 16/16 attempts completed, passed original references and were
+- Campaigns `i167-correct-dormant-31c-001`, `i167-correct-counters-31c-001` and
+  `i167-correct-conflicts-31c-001`; all 24/24 attempts completed, passed original references and were
   evidence-complete/comparison-eligible.
 - Steam Deck `10.0.0.123`, maintained LAN HTTP only. Runner
   `c264004dfc906eef008c8a7235764c37daee330b` includes main #93/#94/#95 fixes.
@@ -91,13 +108,13 @@ guest work timings, not whole-game FPS or suite duration.
   per-iteration completion. No monitor queries, external sampler or guest clock changes.
 - Suite remains **unverified**, not selfapproved. Exact suite/application hashes,
   frozen plans, run IDs and outcomes are in the archive.
-- All 16 private cold Mesa disk namespaces start empty and qualify with observed
+- All 24 private cold Mesa disk namespaces start empty and qualify with observed
   writes, zero issues and no uncontrolled-cache waiver or global purge. OS page
   cache and driver in-memory state remain uncontrolled.
 
-All **4,962 native files** were collected with **zero exclusions**: dormant 2,482,
-counters 2,480. The archive publishes 560 native evidence files;
-[INDEX.json](INDEX.json) individually hashes the 4,402 private runtime/cache files
+All **7,443 native files** were collected with **zero exclusions**: dormant 2,482,
+counters 2,480, conflicts 2,481. The archive publishes 840 native evidence files;
+[INDEX.json](INDEX.json) individually hashes the 6,603 private runtime/cache files
 retained locally. Guest extraction bytes
 match their ledger. No native failure, silent rerun or reference substitution
 occurred. [SUMMARY.json](SUMMARY.json) and [EVIDENCE.zip](EVIDENCE.zip) retain every
@@ -105,8 +122,8 @@ metric and attempt, including B1. Archive size/SHA-256 are in INDEX.json.
 
 ## Remaining work
 
-The corrected conflicts ABBA/BAAB campaign is running. Counters is complete.
-These compare compiled-out A against compiled-in active B, so
+The corrected CPU observer matrix is complete. These compare compiled-out A
+against compiled-in active B, so
 they measure combined hook and accounting cost rather than same-binary activation.
 After qualification, obtain a reached retail scene with explicit controller
 binding and a 300-second diagnostic window. Counts or slow instrumentation alone

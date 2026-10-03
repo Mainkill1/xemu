@@ -13,7 +13,9 @@ describes `7cb38844fb2`. The [corrected dormant observer packet](corrected-obser
 adds eight correct/eligible/Mesa-qualified runs: -1.80% stable / -1.05% rewrite mean
 work, with stable ABBA -9.18%. It does not establish an under-5% cost bound.
 The same packet now adds eight counters outcomes: -4.65% stable / -3.64% rewrite;
-stable BAAB and rewrite ABBA exceed 5%. Conflicts measurement is running.
+stable BAAB and rewrite ABBA exceed 5%. Conflicts completes eight further outcomes:
+-2.18% stable / -8.38% rewrite, with both rewrite orders slower. All 40 corrected
+matrix attempts are correct, eligible and privately Mesa-qualified.
 
 ## What changed and why
 
@@ -155,7 +157,7 @@ parent and corrected binaries have new campaign identities. The
 [corrected A/A and parent/default-off parity packet](corrected-parent-parity-20261003/REPORT.md)
 contains all 16 completed outcomes and per-test reports. Corrected dormant
 qualification has completed in the [observer-cost packet](corrected-observer-cost-20261003/REPORT.md).
-Counters has completed and conflicts is running. Every B1 slow sample is
+The corrected CPU observer matrix is complete. Every B1 slow sample is
 preserved, with cause unclassified.
 
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
