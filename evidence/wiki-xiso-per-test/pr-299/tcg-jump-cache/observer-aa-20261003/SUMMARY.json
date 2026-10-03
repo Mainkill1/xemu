@@ -1,0 +1,543 @@
+{
+  "productCommit": "7cb38844fb2dddb1b24cc65501831c9cdcedb43e",
+  "runnerCommit": "c264004dfc906eef008c8a7235764c37daee330b",
+  "campaign": "i167-obs-aa-7cb-001",
+  "status": "eligible",
+  "suiteQualification": "unverified",
+  "executableSha256": "4a85fa3316e1f29ca4526ccad6488ff5ebf0414998c01328132e76a50fbc8de8",
+  "decision": "HOLD: A/A control only; no speedup established; rewrite variation prevents interpretation of small effects",
+  "rows": [
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "category": "cpu",
+      "metric": "max_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3375960.25,
+        "median": 3373627.5,
+        "min": 3360771,
+        "max": 3395815,
+        "sampleStdDev": 14974.348274632868
+      },
+      "b": {
+        "count": 4,
+        "mean": 3400045.75,
+        "median": 3398992.5,
+        "min": 3359390,
+        "max": 3442808,
+        "sampleStdDev": 34277.240693838445
+      },
+      "aSamples": [
+        3395815,
+        3369333,
+        3377922,
+        3360771
+      ],
+      "bSamples": [
+        3442808,
+        3359390,
+        3394461,
+        3403524
+      ],
+      "improvementPercent": -0.751861,
+      "abbaImprovementPercent": -0.54766,
+      "baabImprovementPercent": -0.879874,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3339668.0250000004,
+        "median": 3334415.6,
+        "min": 3327597.1,
+        "max": 3362243.8,
+        "sampleStdDev": 15483.933426700547
+      },
+      "b": {
+        "count": 4,
+        "mean": 3346566.7249999996,
+        "median": 3347893.8,
+        "min": 3324663.1,
+        "max": 3365816.2,
+        "sampleStdDev": 16930.27328020722
+      },
+      "aSamples": [
+        3362243.8,
+        3332329,
+        3336502.2,
+        3327597.1
+      ],
+      "bSamples": [
+        3365816.2,
+        3324663.1,
+        3346151.8,
+        3349635.8
+      ],
+      "improvementPercent": -0.404215,
+      "abbaImprovementPercent": 0.061147,
+      "baabImprovementPercent": -0.475508,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "category": "cpu",
+      "metric": "median_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3340534.5,
+        "median": 3331399.25,
+        "min": 3320773,
+        "max": 3378566.5,
+        "sampleStdDev": 26029.14770982712
+      },
+      "b": {
+        "count": 4,
+        "mean": 3343963.75,
+        "median": 3348651,
+        "min": 3320673.5,
+        "max": 3357879.5,
+        "sampleStdDev": 16423.189359865446
+      },
+      "aSamples": [
+        3378566.5,
+        3327611.5,
+        3335187,
+        3320773
+      ],
+      "bSamples": [
+        3357879.5,
+        3320673.5,
+        3344834,
+        3352468
+      ],
+      "improvementPercent": -0.517853,
+      "abbaImprovementPercent": 0.411934,
+      "baabImprovementPercent": -0.621128,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "category": "cpu",
+      "metric": "min_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3304791,
+        "median": 3306083,
+        "min": 3299019,
+        "max": 3307979,
+        "sampleStdDev": 4179.1409005520345
+      },
+      "b": {
+        "count": 4,
+        "mean": 3312081.25,
+        "median": 3307670,
+        "min": 3301673,
+        "max": 3331312,
+        "sampleStdDev": 13313.650472979552
+      },
+      "aSamples": [
+        3307979,
+        3304413,
+        3299019,
+        3307753
+      ],
+      "bSamples": [
+        3331312,
+        3301673,
+        3310380,
+        3304960
+      ],
+      "improvementPercent": -0.048002,
+      "abbaImprovementPercent": -0.31143,
+      "baabImprovementPercent": -0.129685,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "category": "cpu",
+      "metric": "p95_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3375960.25,
+        "median": 3373627.5,
+        "min": 3360771,
+        "max": 3395815,
+        "sampleStdDev": 14974.348274632868
+      },
+      "b": {
+        "count": 4,
+        "mean": 3400045.75,
+        "median": 3398992.5,
+        "min": 3359390,
+        "max": 3442808,
+        "sampleStdDev": 34277.240693838445
+      },
+      "aSamples": [
+        3395815,
+        3369333,
+        3377922,
+        3360771
+      ],
+      "bSamples": [
+        3442808,
+        3359390,
+        3394461,
+        3403524
+      ],
+      "improvementPercent": -0.751861,
+      "abbaImprovementPercent": -0.54766,
+      "baabImprovementPercent": -0.879874,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "category": "cpu",
+      "metric": "max_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3064376.25,
+        "median": 3077522.5,
+        "min": 2992420,
+        "max": 3110040,
+        "sampleStdDev": 51074.677864051875
+      },
+      "b": {
+        "count": 4,
+        "mean": 3156603.5,
+        "median": 3171694,
+        "min": 3006928,
+        "max": 3276098,
+        "sampleStdDev": 111523.10176670422
+      },
+      "aSamples": [
+        3067098,
+        2992420,
+        3110040,
+        3087947
+      ],
+      "bSamples": [
+        3181050,
+        3162338,
+        3006928,
+        3276098
+      ],
+      "improvementPercent": -3.059978,
+      "abbaImprovementPercent": -4.684696,
+      "baabImprovementPercent": -1.372042,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 2995781.7249999996,
+        "median": 2992915.95,
+        "min": 2951973.7,
+        "max": 3045321.3,
+        "sampleStdDev": 42070.1729832728
+      },
+      "b": {
+        "count": 4,
+        "mean": 3095429.075,
+        "median": 3120203.05,
+        "min": 2965099,
+        "max": 3176211.2,
+        "sampleStdDev": 91053.22410046328
+      },
+      "aSamples": [
+        3045321.3,
+        2951973.7,
+        3014363.1,
+        2971468.8
+      ],
+      "bSamples": [
+        3128354.4,
+        3112051.7,
+        2965099,
+        3176211.2
+      ],
+      "improvementPercent": -4.252946,
+      "abbaImprovementPercent": -4.053679,
+      "baabImprovementPercent": -2.597438,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "category": "cpu",
+      "metric": "median_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 2993500.875,
+        "median": 2989074.5,
+        "min": 2957596.5,
+        "max": 3038258,
+        "sampleStdDev": 38592.33868566622
+      },
+      "b": {
+        "count": 4,
+        "mean": 3095037.25,
+        "median": 3118595.5,
+        "min": 2960576.5,
+        "max": 3182381.5,
+        "sampleStdDev": 94770.48861459986
+      },
+      "aSamples": [
+        3038258,
+        2957596.5,
+        3012913.5,
+        2965235.5
+      ],
+      "bSamples": [
+        3126521.5,
+        3110669.5,
+        2960576.5,
+        3182381.5
+      ],
+      "improvementPercent": -4.333147,
+      "abbaImprovementPercent": -4.025056,
+      "baabImprovementPercent": -2.756857,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "category": "cpu",
+      "metric": "min_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 2951013,
+        "median": 2941475,
+        "min": 2898394,
+        "max": 3022708,
+        "sampleStdDev": 54337.7969189035
+      },
+      "b": {
+        "count": 4,
+        "mean": 3047688.5,
+        "median": 3074329,
+        "min": 2928767,
+        "max": 3113329,
+        "sampleStdDev": 81407.07449396928
+      },
+      "aSamples": [
+        3022708,
+        2898394,
+        2961057,
+        2921893
+      ],
+      "bSamples": [
+        3076664,
+        3071994,
+        2928767,
+        3113329
+      ],
+      "improvementPercent": -4.516578,
+      "abbaImprovementPercent": -3.843136,
+      "baabImprovementPercent": -2.705207,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "category": "cpu",
+      "metric": "p95_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 3064376.25,
+        "median": 3077522.5,
+        "min": 2992420,
+        "max": 3110040,
+        "sampleStdDev": 51074.677864051875
+      },
+      "b": {
+        "count": 4,
+        "mean": 3156603.5,
+        "median": 3171694,
+        "min": 3006928,
+        "max": 3276098,
+        "sampleStdDev": 111523.10176670422
+      },
+      "aSamples": [
+        3067098,
+        2992420,
+        3110040,
+        3087947
+      ],
+      "bSamples": [
+        3181050,
+        3162338,
+        3006928,
+        3276098
+      ],
+      "improvementPercent": -3.059978,
+      "abbaImprovementPercent": -4.684696,
+      "baabImprovementPercent": -1.372042,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    }
+  ],
+  "cacheQualification": [
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "A1",
+      "runId": "20261003-035335299-588fd8891eba48e6b3dce9173b3cbf6e",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "B1",
+      "runId": "20261003-035456611-f2ec62f01de941b2850c9753e50dfaa4",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "B2",
+      "runId": "20261003-035618565-3a69e4fce21b4a74b716db562d9b2698",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "A2",
+      "runId": "20261003-035740067-faa95a786610450f8b0f8cc47137da2b",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "B3",
+      "runId": "20261003-035900919-76ec7d8aa0d14e7389f37ab70181208c",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "A3",
+      "runId": "20261003-040021134-8f47e778a13b461b9732008a50d5a1e6",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "A4",
+      "runId": "20261003-040141953-cc9ec0baa61a4496b12700f37ba05c94",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    },
+    {
+      "Status": "complete",
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "Issues": [],
+      "label": "B4",
+      "runId": "20261003-040302215-146999801de94b6b96852d767bda3691",
+      "driverBeforeFiles": 0,
+      "driverBeforeBytes": 0,
+      "driverAfterFiles": 275,
+      "driverAfterBytes": 2886729
+    }
+  ],
+  "nativeFilesCollected": 2480,
+  "nativeCollectionExclusions": 0,
+  "publicNativeFiles": 280,
+  "privateNativeFiles": 2200
+}

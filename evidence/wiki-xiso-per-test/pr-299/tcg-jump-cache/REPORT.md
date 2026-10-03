@@ -132,6 +132,12 @@ Archive size: 561,899 bytes.
 
 ## Next experiment
 
+The [updated-runner A/A packet](observer-aa-20261003/REPORT.md) adds eight
+correct, evidence-complete, eligible runs with qualified private Mesa namespaces.
+Identical executable bytes differ by -0.40% on stable mean time and -4.25% on
+rewrite mean time; small rewrite changes cannot be accepted as gains. A matched
+dormant-probe campaign is running. This does not establish observer cost yet.
+
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
 workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple
 miss-only eight-entry victim candidate against matched uninstrumented production
