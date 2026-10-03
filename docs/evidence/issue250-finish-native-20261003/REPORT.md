@@ -83,7 +83,7 @@ Preserve the measured guest-observable flip/report waits.
 - Host: Steam Deck `10.0.0.123`, AMD Custom APU 0405, Vulkan/RADV VANGOGH.
   GL presentation reports Mesa 25.3.0; Vulkan reports driver 25.99.99. These
   strings are retained verbatim in `stderr.log`, not normalized into a guessed
-  common version. Full DSP/default JIT, VP workers 0, 128 MiB, fixed keyboard
+  common version. Full DSP/default JIT, VP setting 0 (automatic; eight workers on Deck), 128 MiB, fixed keyboard
   binding/virtual port, cold private application/driver state and cloned HDD.
 - Product: main `76c23c7d444a6f12c9778bb2c35fab513f6c8056`, executable SHA-256
   `5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b`.

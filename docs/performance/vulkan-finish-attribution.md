@@ -70,3 +70,8 @@ Live header-only and auxiliary/finish modes are mutually exclusive.
 [The frozen PGR2 300-second recipe](recipes/pgr2-finish-300/README.md)
 retains its input contract, configuration, navigation and failed first outcome.
 It is an unpaired diagnostic; the owning PR retains raw native evidence.
+
+The [separate 30-second host profile recipe](recipes/pgr2-host-profile-30/README.md)
+retains a failed native report stage and offline attribution. It does not
+replace the 300-second recipe or qualify a converter change. VP setting zero
+means automatic worker selection, not zero workers.
