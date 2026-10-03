@@ -245,6 +245,75 @@ static void test_converter_drain(gconstpointer opaque)
     g_assert_false(d.vp.filters[0].resampler_source_finished);
 }
 
+static void test_stream_recovery_and_reuse(gconstpointer opaque)
+{
+    int type = GPOINTER_TO_INT(opaque);
+    float samples[32][2];
+    bool recovered = false;
+
+    setup_voice(2048, false);
+    d.vp.resampler_type = type;
+    voice_set_mask(&d, 0, NV_PAVS_VOICE_CFG_FMT,
+                   NV_PAVS_VOICE_CFG_FMT_DATA_TYPE, 1);
+    voice_set_mask(&d, 0, NV_PAVS_VOICE_CFG_FMT,
+                   NV_PAVS_VOICE_CFG_FMT_PERSIST, 1);
+
+    /* No SSL is available yet. Silence must not permanently finish it. */
+    for (int block = 0; block < 4; block++) {
+        g_assert_cmpint(voice_resample(&d, 0, samples, 32, 1.0f, false),
+                        ==, 32);
+        for (int i = 0; i < 32; i++) {
+            g_assert_cmpfloat(samples[i][0], ==, 0.0f);
+            g_assert_cmpfloat(samples[i][1], ==, 0.0f);
+        }
+        g_assert_cmpuint(cursor(), ==, 0);
+        g_assert_false(d.vp.filters[0].resampler_source_finished);
+        g_assert_false(d.vp.filters[0].resampler_deactivate_after_mix);
+    }
+
+    d.vp.ssl[0].count[0] = 1;
+    stl_le_phys(&address_space_memory, 0x2800, 0x4000);
+    stl_le_phys(&address_space_memory, 0x2804, 2048 | (1 << 16));
+    for (int i = 0; i < 2048; i++) {
+        stw_le_phys(&address_space_memory, 0x4000 + i * 2, 16384);
+    }
+    for (int block = 0; block < 4; block++) {
+        g_assert_cmpint(voice_resample(&d, 0, samples, 32, 1.0f, false),
+                        ==, 32);
+        for (int i = 0; i < 32; i++) {
+            recovered |= samples[i][0] > 0.25f;
+        }
+    }
+    g_assert_true(recovered);
+    g_assert_cmpuint(cursor(), >, 0);
+    g_assert_cmpuint(
+        voice_get_mask(&d, 0, NV_PAVS_VOICE_PAR_STATE,
+                       NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE), ==, 1);
+
+    /* VOICE_ON uses this reset: old positive history must not leak. */
+    voice_reset_filters(&d, 0);
+    g_assert_null(d.vp.filters[0].resampler);
+    g_assert_false(d.vp.filters[0].resampler_source_finished);
+    g_assert_false(d.vp.filters[0].resampler_deactivate_after_mix);
+    voice_set_mask(&d, 0, NV_PAVS_VOICE_PAR_OFFSET,
+                   NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    voice_set_mask(&d, 0, NV_PAVS_VOICE_CFG_FMT,
+                   NV_PAVS_VOICE_CFG_FMT_STEREO, 1);
+    voice_set_mask(&d, 0, NV_PAVS_VOICE_CFG_FMT,
+                   NV_PAVS_VOICE_CFG_FMT_SAMPLES_PER_BLOCK, 1);
+    stl_le_phys(&address_space_memory, 0x2804,
+                2048 | (1 << 16) | (1 << 18) | (1 << 23));
+    for (int i = 0; i < 4096; i++) {
+        stw_le_phys(&address_space_memory, 0x4000 + i * 2, (uint16_t)-8192);
+    }
+    g_assert_cmpint(voice_resample(&d, 0, samples, 32, 1.0f, true), ==, 32);
+    g_assert_cmpint(d.vp.filters[0].resampler_channels, ==, 2);
+    for (int i = 0; i < 32; i++) {
+        g_assert_cmpfloat(samples[i][0], <, -0.1f);
+        g_assert_cmpfloat(samples[i][1], <, -0.1f);
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -263,5 +332,11 @@ int main(int argc, char **argv)
                          GINT_TO_POINTER(SRC_SINC_FASTEST), test_converter_drain);
     g_test_add_data_func("/xbox/apu/voice-samples/linear-finite-drain-reset",
                          GINT_TO_POINTER(SRC_LINEAR), test_converter_drain);
+    g_test_add_data_func("/xbox/apu/voice-samples/sinc-stream-recovery-reuse",
+                         GINT_TO_POINTER(SRC_SINC_FASTEST),
+                         test_stream_recovery_and_reuse);
+    g_test_add_data_func("/xbox/apu/voice-samples/linear-stream-recovery-reuse",
+                         GINT_TO_POINTER(SRC_LINEAR),
+                         test_stream_recovery_and_reuse);
     return g_test_run();
 }
