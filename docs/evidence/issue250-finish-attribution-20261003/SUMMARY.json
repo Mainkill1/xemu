@@ -1,0 +1,804 @@
+{
+  "recommendation": "HOLD",
+  "newNativeAttempts": 0,
+  "runtimeChange": false,
+  "nativeProvenance": [
+    {
+      "tag": "pgr2-v1",
+      "runId": "20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c",
+      "executableSha256": "1b52adf0dea0823a95c37ae79d447af01bf8a904d6385037908b2ca57d44bba2",
+      "originalAssessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible",
+        "ComparisonReasons": [],
+        "Checks": [
+          {
+            "Name": "stationary-start-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/stationary-start.png satisfied the declared requirement."
+          },
+          {
+            "Name": "stationary-end-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/stationary-end.png satisfied the declared requirement."
+          },
+          {
+            "Name": "existing-vulkan-telemetry",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "diagnostic-phase-boundaries",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:segments.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "guest-frame-progress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:guest-frames.log satisfied the declared requirement."
+          },
+          {
+            "Name": "bounded-telemetry-schema",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-schema-check.json satisfied the declared requirement."
+          },
+          {
+            "Name": "actual-vma-allocation-lifecycle",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-texture-allocations.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "allocation-schema-header",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-allocation-schema-check.json satisfied the declared requirement."
+          },
+          {
+            "Name": "plan_completion",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "The declared plan completed."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": true,
+            "Category": "state",
+            "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "sourceSha256": "13e6f1c82d24da90526832515d3dbb11656382aa38620ce6ee7d96978181b336",
+      "sourceBytes": 14244709,
+      "sourcePath": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-v1/collected/20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c/vk-perf.jsonl",
+      "privateMesaQualified": true,
+      "originalRunner": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "sceneAudit": {
+        "reviewedScreenshots": 2,
+        "captures": [
+          "stationary-start.png",
+          "stationary-end.png"
+        ],
+        "scene": "PGR2 Hong Kong stationary race grid at 0mph; first capture GO, second GO cleared and other cars moved",
+        "notQualified": [
+          "driving or streaming",
+          "repeated race/menu transitions"
+        ],
+        "allocationEvidence": "Schema2 shutdown checkpoint passed full validation; all816 image creations remain live; no destruction or post-destruction opportunity"
+      }
+    },
+    {
+      "tag": "morrowind-off-v1",
+      "runId": "20261002-062420291-70415e0a4aba429ba9a0001eaebb2493",
+      "executableSha256": "1b52adf0dea0823a95c37ae79d447af01bf8a904d6385037908b2ca57d44bba2",
+      "originalAssessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible",
+        "ComparisonReasons": [],
+        "Checks": [
+          {
+            "Name": "post-intro-observation-start-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/post-intro-observation-start.png satisfied the declared requirement."
+          },
+          {
+            "Name": "post-intro-observation-end-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/post-intro-observation-end.png satisfied the declared requirement."
+          },
+          {
+            "Name": "existing-vulkan-telemetry",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "diagnostic-phase-boundaries",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:segments.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "guest-frame-progress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:guest-frames.log satisfied the declared requirement."
+          },
+          {
+            "Name": "validated-vulkan-telemetry-schema",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:vk-schema-check.json satisfied the declared requirement."
+          },
+          {
+            "Name": "plan_completion",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "The declared plan completed."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": true,
+            "Category": "state",
+            "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "sourceSha256": "f13a45b70a1c1a638017167de1b8fce64fd484f5ed253cb46d271a70bda363e8",
+      "sourceBytes": 29047362,
+      "sourcePath": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-off-v1/collected/20261002-062420291-70415e0a4aba429ba9a0001eaebb2493/vk-perf.jsonl",
+      "privateMesaQualified": true,
+      "originalRunner": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "sceneAudit": {
+        "reviewedScreenshots": 1,
+        "scene": "Direct review of post-intro end: initial ship interior/NPC behind name-entry modal; stationary initial scene, not streaming",
+        "comparison": "One correctness-attribution control, not ABBA/BAAB or performance proof"
+      }
+    }
+  ],
+  "summaries": {
+    "pgr2-v1": {
+      "schemaVersion": 8,
+      "mode": "finalizedFinishLog",
+      "frameRecords": 3704,
+      "observedTimestampSpanMs": 163876.093,
+      "durationSampling": {
+        "initial_per_reason_per_frame": 8,
+        "hot_stride": 16
+      },
+      "durationMeaning": "Host elapsed sampled submit/fence-wait milliseconds, not CPU time, GPU work or predicted savings. Durations are not extrapolated; partial coverage omits untimed submissions.",
+      "coverageMeaning": "Counters are grouped at PGRAPH control-frame boundaries; first bucket start and activity after the final record are unobserved. Not displayed FPS.",
+      "all": {
+        "reasons": {
+          "vertex_buffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_create": {
+            "calls": 93,
+            "submits": 77,
+            "timingSamples": 36,
+            "fenceWaits": 77,
+            "sampledSubmitHostElapsedMs": 2.594,
+            "sampledFenceWaitHostElapsedMs": 13.229,
+            "durationCoverage": "partial"
+          },
+          "surface_down": {
+            "calls": 108,
+            "submits": 41,
+            "timingSamples": 41,
+            "fenceWaits": 41,
+            "sampledSubmitHostElapsedMs": 4.842,
+            "sampledFenceWaitHostElapsedMs": 153.958,
+            "durationCoverage": "all_submissions"
+          },
+          "need_buffer_space": {
+            "calls": 296,
+            "submits": 296,
+            "timingSamples": 296,
+            "fenceWaits": 296,
+            "sampledSubmitHostElapsedMs": 37.702,
+            "sampledFenceWaitHostElapsedMs": 1372.879,
+            "durationCoverage": "all_submissions"
+          },
+          "framebuffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "presenting": {
+            "calls": 3419,
+            "submits": 3419,
+            "timingSamples": 3419,
+            "fenceWaits": 3419,
+            "sampledSubmitHostElapsedMs": 315.47,
+            "sampledFenceWaitHostElapsedMs": 2444.835,
+            "durationCoverage": "all_submissions"
+          },
+          "flip_stall": {
+            "calls": 3704,
+            "submits": 2434,
+            "timingSamples": 2434,
+            "fenceWaits": 2434,
+            "sampledSubmitHostElapsedMs": 265.411,
+            "sampledFenceWaitHostElapsedMs": 4399.346,
+            "durationCoverage": "all_submissions"
+          },
+          "flush": {
+            "calls": 1,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "stalled": {
+            "calls": 100,
+            "submits": 100,
+            "timingSamples": 100,
+            "fenceWaits": 100,
+            "sampledSubmitHostElapsedMs": 12.568,
+            "sampledFenceWaitHostElapsedMs": 150.845,
+            "durationCoverage": "all_submissions"
+          },
+          "texture_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          }
+        }
+      },
+      "tail": {
+        "seconds": 60,
+        "startTimestampUs": 177596721084,
+        "endTimestampUs": 177656721084,
+        "completeBucketCount": 81,
+        "completeBuckets": {
+          "vertex_buffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_create": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_down": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "need_buffer_space": {
+            "calls": 133,
+            "submits": 133,
+            "timingSamples": 133,
+            "fenceWaits": 133,
+            "sampledSubmitHostElapsedMs": 17.482,
+            "sampledFenceWaitHostElapsedMs": 363.624,
+            "durationCoverage": "all_submissions"
+          },
+          "framebuffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "presenting": {
+            "calls": 81,
+            "submits": 81,
+            "timingSamples": 81,
+            "fenceWaits": 81,
+            "sampledSubmitHostElapsedMs": 8.372,
+            "sampledFenceWaitHostElapsedMs": 44.965,
+            "durationCoverage": "all_submissions"
+          },
+          "flip_stall": {
+            "calls": 81,
+            "submits": 79,
+            "timingSamples": 79,
+            "fenceWaits": 79,
+            "sampledSubmitHostElapsedMs": 9.136,
+            "sampledFenceWaitHostElapsedMs": 85.313,
+            "durationCoverage": "all_submissions"
+          },
+          "flush": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "stalled": {
+            "calls": 81,
+            "submits": 81,
+            "timingSamples": 81,
+            "fenceWaits": 81,
+            "sampledSubmitHostElapsedMs": 10.142,
+            "sampledFenceWaitHostElapsedMs": 101.75,
+            "durationCoverage": "all_submissions"
+          },
+          "texture_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          }
+        },
+        "straddlingBucket": {
+          "guestFrame": 3623,
+          "startTimestampUs": 177596678297,
+          "endTimestampUs": 177596780313,
+          "reasons": {
+            "vertex_buffer_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "surface_create": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "surface_down": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "need_buffer_space": {
+              "calls": 2,
+              "submits": 2,
+              "timingSamples": 2,
+              "fenceWaits": 2,
+              "sampledSubmitHostElapsedMs": 0.277,
+              "sampledFenceWaitHostElapsedMs": 6.278,
+              "durationCoverage": "all_submissions"
+            },
+            "framebuffer_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "presenting": {
+              "calls": 1,
+              "submits": 1,
+              "timingSamples": 1,
+              "fenceWaits": 1,
+              "sampledSubmitHostElapsedMs": 0.103,
+              "sampledFenceWaitHostElapsedMs": 0.285,
+              "durationCoverage": "all_submissions"
+            },
+            "flip_stall": {
+              "calls": 1,
+              "submits": 1,
+              "timingSamples": 1,
+              "fenceWaits": 1,
+              "sampledSubmitHostElapsedMs": 0.067,
+              "sampledFenceWaitHostElapsedMs": 1.546,
+              "durationCoverage": "all_submissions"
+            },
+            "flush": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "stalled": {
+              "calls": 1,
+              "submits": 1,
+              "timingSamples": 1,
+              "fenceWaits": 1,
+              "sampledSubmitHostElapsedMs": 0.103,
+              "sampledFenceWaitHostElapsedMs": 0.554,
+              "durationCoverage": "all_submissions"
+            },
+            "texture_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            }
+          }
+        }
+      },
+      "sourcePath": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-v1/collected/20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c/vk-perf.jsonl",
+      "sourceSha256": "13e6f1c82d24da90526832515d3dbb11656382aa38620ce6ee7d96978181b336",
+      "sourceBytes": 14244709
+    },
+    "morrowind-off-v1": {
+      "schemaVersion": 8,
+      "mode": "finalizedFinishLog",
+      "frameRecords": 7550,
+      "observedTimestampSpanMs": 231077.884,
+      "durationSampling": {
+        "initial_per_reason_per_frame": 8,
+        "hot_stride": 16
+      },
+      "durationMeaning": "Host elapsed sampled submit/fence-wait milliseconds, not CPU time, GPU work or predicted savings. Durations are not extrapolated; partial coverage omits untimed submissions.",
+      "coverageMeaning": "Counters are grouped at PGRAPH control-frame boundaries; first bucket start and activity after the final record are unobserved. Not displayed FPS.",
+      "all": {
+        "reasons": {
+          "vertex_buffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_create": {
+            "calls": 28,
+            "submits": 18,
+            "timingSamples": 15,
+            "fenceWaits": 18,
+            "sampledSubmitHostElapsedMs": 1.033,
+            "sampledFenceWaitHostElapsedMs": 7.649,
+            "durationCoverage": "partial"
+          },
+          "surface_down": {
+            "calls": 28,
+            "submits": 12,
+            "timingSamples": 12,
+            "fenceWaits": 12,
+            "sampledSubmitHostElapsedMs": 1.446,
+            "sampledFenceWaitHostElapsedMs": 50.096,
+            "durationCoverage": "all_submissions"
+          },
+          "need_buffer_space": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "framebuffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "presenting": {
+            "calls": 363,
+            "submits": 363,
+            "timingSamples": 363,
+            "fenceWaits": 363,
+            "sampledSubmitHostElapsedMs": 34.564,
+            "sampledFenceWaitHostElapsedMs": 310.821,
+            "durationCoverage": "all_submissions"
+          },
+          "flip_stall": {
+            "calls": 7550,
+            "submits": 7468,
+            "timingSamples": 7468,
+            "fenceWaits": 7468,
+            "sampledSubmitHostElapsedMs": 758.129,
+            "sampledFenceWaitHostElapsedMs": 4020.052,
+            "durationCoverage": "all_submissions"
+          },
+          "flush": {
+            "calls": 1,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "stalled": {
+            "calls": 1751,
+            "submits": 1751,
+            "timingSamples": 1751,
+            "fenceWaits": 1751,
+            "sampledSubmitHostElapsedMs": 156.039,
+            "sampledFenceWaitHostElapsedMs": 3438.079,
+            "durationCoverage": "all_submissions"
+          },
+          "texture_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          }
+        }
+      },
+      "tail": {
+        "seconds": 60,
+        "startTimestampUs": 177296832302,
+        "endTimestampUs": 177356832302,
+        "completeBucketCount": 1547,
+        "completeBuckets": {
+          "vertex_buffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_create": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_down": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "need_buffer_space": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "framebuffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "presenting": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "flip_stall": {
+            "calls": 1547,
+            "submits": 1547,
+            "timingSamples": 1547,
+            "fenceWaits": 1547,
+            "sampledSubmitHostElapsedMs": 162.362,
+            "sampledFenceWaitHostElapsedMs": 904.288,
+            "durationCoverage": "all_submissions"
+          },
+          "flush": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "stalled": {
+            "calls": 1547,
+            "submits": 1547,
+            "timingSamples": 1547,
+            "fenceWaits": 1547,
+            "sampledSubmitHostElapsedMs": 136.412,
+            "sampledFenceWaitHostElapsedMs": 2658.743,
+            "durationCoverage": "all_submissions"
+          },
+          "texture_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          }
+        },
+        "straddlingBucket": {
+          "guestFrame": 6003,
+          "startTimestampUs": 177296827788,
+          "endTimestampUs": 177296867425,
+          "reasons": {
+            "vertex_buffer_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "surface_create": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "surface_down": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "need_buffer_space": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "framebuffer_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "presenting": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "flip_stall": {
+              "calls": 1,
+              "submits": 1,
+              "timingSamples": 1,
+              "fenceWaits": 1,
+              "sampledSubmitHostElapsedMs": 0.136,
+              "sampledFenceWaitHostElapsedMs": 0.528,
+              "durationCoverage": "all_submissions"
+            },
+            "flush": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            },
+            "stalled": {
+              "calls": 1,
+              "submits": 1,
+              "timingSamples": 1,
+              "fenceWaits": 1,
+              "sampledSubmitHostElapsedMs": 0.096,
+              "sampledFenceWaitHostElapsedMs": 1.67,
+              "durationCoverage": "all_submissions"
+            },
+            "texture_dirty": {
+              "calls": 0,
+              "submits": 0,
+              "timingSamples": 0,
+              "fenceWaits": 0,
+              "sampledSubmitHostElapsedMs": 0.0,
+              "sampledFenceWaitHostElapsedMs": 0.0,
+              "durationCoverage": "no_submissions"
+            }
+          }
+        }
+      },
+      "sourcePath": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-off-v1/collected/20261002-062420291-70415e0a4aba429ba9a0001eaebb2493/vk-perf.jsonl",
+      "sourceSha256": "f13a45b70a1c1a638017167de1b8fce64fd484f5ed253cb46d271a70bda363e8",
+      "sourceBytes": 29047362
+    }
+  },
+  "sourceProof": {
+    "hw/xbox/nv2a/pgraph/vk/draw.c": {
+      "measuredSha256": "529535c210b6e3900d9223b077545b3e2f171f82d15eccf92bc28363e6a736ed",
+      "mainSha256": "529535c210b6e3900d9223b077545b3e2f171f82d15eccf92bc28363e6a736ed",
+      "identical": true
+    },
+    "hw/xbox/nv2a/pgraph/vk/perf.c": {
+      "measuredSha256": "f1a723147259a4f5692f3af1d90254cfe3ffe482b2246e83b7a1cf83a40985cc",
+      "mainSha256": "f1a723147259a4f5692f3af1d90254cfe3ffe482b2246e83b7a1cf83a40985cc",
+      "identical": true
+    },
+    "hw/xbox/nv2a/pgraph/vk/renderer.h": {
+      "measuredSha256": "76583b7177f9dc5e3981afdd13c80bb6f89fbc08bd28301facf990a84e7d185b",
+      "mainSha256": "bd67fe9043ecc33a777312b37f5a94589c7222c957c0e4186daa4c29686ad807",
+      "identical": false
+    }
+  },
+  "readerTests": 24,
+  "zipSha256": "7ba1ccb3015c1806a35a5f5a1a3ad69e0e39fc9733e2fa921a857c69fcffc037"
+}

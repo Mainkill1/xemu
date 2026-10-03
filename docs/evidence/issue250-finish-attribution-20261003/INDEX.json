@@ -1,0 +1,227 @@
+[
+  {
+    "path": "checks/baseline-reader.log",
+    "bytes": 114,
+    "sha256": "45c9e0c690db4a834685017e86d8dde7ea89dd3bf81a2d42e87ad86248219099"
+  },
+  {
+    "path": "checks/check-negative-controls.py",
+    "bytes": 1447,
+    "sha256": "105d78ef7b362d860be9b3df8e0b9d3495b63ad09400fde69e78051b7dab05af"
+  },
+  {
+    "path": "checks/morrowind-off-v1-finish.json",
+    "bytes": 9440,
+    "sha256": "20627623cdd5972363b9ebffd93408c0d834b6b966345a6e804bd3ad83eb9f61"
+  },
+  {
+    "path": "checks/native-provenance.json",
+    "bytes": 6565,
+    "sha256": "e70ad46e5b858566361676df7e474a5a35fff008edab542d22d87bcb58878b15"
+  },
+  {
+    "path": "checks/negative-controls.log",
+    "bytes": 2930,
+    "sha256": "e5182c7af16be396de3f78ed95f0c2005f62fef7ae4f46013120153b792c745a"
+  },
+  {
+    "path": "checks/package-evidence.py",
+    "bytes": 11903,
+    "sha256": "6bc975af109ff433ed2767d6405e1ce4c13c3a5ccd9925dfaf87f68c1fc1e1f0"
+  },
+  {
+    "path": "checks/pgr2-v1-finish.json",
+    "bytes": 9463,
+    "sha256": "426cdcd6366c1efcc9f0427612ee09baabfd416ad8e7876b736b5a67c1615654"
+  },
+  {
+    "path": "checks/production-source-proof.json",
+    "bytes": 728,
+    "sha256": "83c5e8cef364d88353bd99d2ffaa36670a1f60f94271e05786b7ab36252cbfb2"
+  },
+  {
+    "path": "checks/python-compat-red.log",
+    "bytes": 1713,
+    "sha256": "d63003899b462559e686dae4dc89d7ff41cfb5d495d19588d8b1004694c7bb96"
+  },
+  {
+    "path": "checks/reader-final.log",
+    "bytes": 123,
+    "sha256": "42071ee19afcc5ac59d8463438401a32dd874a9e813df2ea4bf8144cd54d027e"
+  },
+  {
+    "path": "checks/reader-green.log",
+    "bytes": 122,
+    "sha256": "0496bd6158e721a4c9f37bb8c0fd5dbb9c0fb78d9051f00756b2818498b05768"
+  },
+  {
+    "path": "checks/reader-red.log",
+    "bytes": 23888,
+    "sha256": "94206df5ff84ffeaebce7a7138fd1cae6729cd3cf9c8ceea022ce56f21b8482a"
+  },
+  {
+    "path": "morrowind-off-v1/assessment.json",
+    "bytes": 1793,
+    "sha256": "8146f2733b69e96fa28d075d47d20dc2a7cac3d48bc2c2f68f14ef02f2c6673a"
+  },
+  {
+    "path": "morrowind-off-v1/collection.json",
+    "bytes": 445,
+    "sha256": "4b241b73a69876120173ba6b36df9cbdfa977ae4ae29c531017d2e6bda153f07"
+  },
+  {
+    "path": "morrowind-off-v1/diagnostics/run-state/report.json",
+    "bytes": 84840,
+    "sha256": "a1379649d48a28d83b7708b7153b841fc0416fb69f1337540f861153951c9e1b"
+  },
+  {
+    "path": "morrowind-off-v1/host-inventory.json",
+    "bytes": 466,
+    "sha256": "4e3903e20fe5653b8140e0bf55c2de9b7d8695a3b7ce9131a388b0fc8cc59d67"
+  },
+  {
+    "path": "morrowind-off-v1/input-manifest.json",
+    "bytes": 10945,
+    "sha256": "2f88ea852630aecf1ea2dfd64b95cae80c250253eaf6cb1029d5fa677e5fec2b"
+  },
+  {
+    "path": "morrowind-off-v1/job.json",
+    "bytes": 15454,
+    "sha256": "57b3cc7cb893ec2e1c16525fc08fe71cddac6c64a666a13965313764a83704c0"
+  },
+  {
+    "path": "morrowind-off-v1/manifest.json",
+    "bytes": 18159,
+    "sha256": "2c4b07ac7dc1c4045300cb3598b01abfbc2e2521c62299a10a13f69cc835458f"
+  },
+  {
+    "path": "morrowind-off-v1/result.json",
+    "bytes": 9518,
+    "sha256": "1fd63c133d6453a3df77a6c315ebb24640e5cf6cb3365fe8d50c9fe5066d1fa9"
+  },
+  {
+    "path": "morrowind-off-v1/scene-audit.json",
+    "bytes": 260,
+    "sha256": "986ddef13a52929891f89d2cf32e8bd9b8f0572fc61843189947e222b22cf9c5"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/newgame-loading-end.png",
+    "bytes": 264766,
+    "sha256": "187d01fa79b4c1996e716d8281346a62957380e296f7dfe4e65d93ac5325d2a7"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/newgame-loading.png",
+    "bytes": 1396892,
+    "sha256": "5ce8d0ccbd1a8966c3c2b2a3d8422b4b01ff07e9c766af326922b577f9eefc1b"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/newgame-selected.png",
+    "bytes": 1556465,
+    "sha256": "b4dbd90fc93bb4f39d13a474379ebd5861f960bd6818f9e4255f293738588441"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/post-intro-observation-end.png",
+    "bytes": 776181,
+    "sha256": "0d8237c455b83f322926d9707356b3396b84b60d7311745771d5727577d9324a"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/post-intro-observation-start.png",
+    "bytes": 776181,
+    "sha256": "0d8237c455b83f322926d9707356b3396b84b60d7311745771d5727577d9324a"
+  },
+  {
+    "path": "morrowind-off-v1/screenshots/startup-end.png",
+    "bytes": 1494783,
+    "sha256": "d6ac19db93418d856514506208922b8eda6f76ea13676eeea7a76f3e11360852"
+  },
+  {
+    "path": "morrowind-off-v1/segments.jsonl",
+    "bytes": 700,
+    "sha256": "25af28ecfa931f1b909916c48cb2a7e22db1e265f32ea81c86e0039b9ae46f34"
+  },
+  {
+    "path": "morrowind-off-v1/vk-perf.jsonl",
+    "bytes": 29047362,
+    "sha256": "f13a45b70a1c1a638017167de1b8fce64fd484f5ed253cb46d271a70bda363e8"
+  },
+  {
+    "path": "pgr2-v1/assessment.json",
+    "bytes": 2140,
+    "sha256": "1decb8f60f9e8da27d0903eb02807776ea3d13227b9b0334b09e972742afee78"
+  },
+  {
+    "path": "pgr2-v1/collection.json",
+    "bytes": 426,
+    "sha256": "902818add08bd075ae668489750a3ed8e093411874cb604bec0ceab078519502"
+  },
+  {
+    "path": "pgr2-v1/diagnostics/run-state/report.json",
+    "bytes": 172666,
+    "sha256": "bf9375ff0bf32da99358f8955d3d023f516666e95b7a5be779c256bd988cc781"
+  },
+  {
+    "path": "pgr2-v1/host-inventory.json",
+    "bytes": 466,
+    "sha256": "8a2cf3c301ddb5eb4a7588a75505a4e86af87dcff2bf54fb2994cbe9da06db18"
+  },
+  {
+    "path": "pgr2-v1/input-manifest.json",
+    "bytes": 11229,
+    "sha256": "e3cbe8614694dbc4ecd569610d8370214bd104cd635cd79837bd882336ca3ac3"
+  },
+  {
+    "path": "pgr2-v1/job.json",
+    "bytes": 20841,
+    "sha256": "99088811f618af9b688b3dbda67ebd0dcca61cf7e945f1bd07c061090775e88e"
+  },
+  {
+    "path": "pgr2-v1/manifest.json",
+    "bytes": 24438,
+    "sha256": "e0bf7f0fdfc9ce0e78a68190ed5b80e3fc3bec0c425478c86bbf37e393c4a335"
+  },
+  {
+    "path": "pgr2-v1/result.json",
+    "bytes": 10552,
+    "sha256": "5077d411c289b4079a3fb6120c7e05038d00c54cb371cdff75f2cfd39bb63ee4"
+  },
+  {
+    "path": "pgr2-v1/scene-audit.json",
+    "bytes": 473,
+    "sha256": "464b5a0e7a6151e12aed55d83da8df4bbc8e4a67d8ff397f1db3d4920e2924ed"
+  },
+  {
+    "path": "pgr2-v1/screenshots/race-loading-end.png",
+    "bytes": 656556,
+    "sha256": "1db27fc84433e4c9987b1dbc184d28b918e1c318cff39356674bbfac45b931df"
+  },
+  {
+    "path": "pgr2-v1/screenshots/race-loading-start.png",
+    "bytes": 687027,
+    "sha256": "8b86faf816c3ab0674bba8418ba2473da610ebba5bd735c6d64621c11406d7be"
+  },
+  {
+    "path": "pgr2-v1/screenshots/startup-end.png",
+    "bytes": 332752,
+    "sha256": "4d78e3ee28eae99915c443f14a48244f99505e1afda3f76d787a3f8a3f3a7f42"
+  },
+  {
+    "path": "pgr2-v1/screenshots/stationary-end.png",
+    "bytes": 643048,
+    "sha256": "53db88f1961bc121e9a66e1b0fcfd592d19ee3cc5cd0daf3cd777fde5ea8b36c"
+  },
+  {
+    "path": "pgr2-v1/screenshots/stationary-start.png",
+    "bytes": 654286,
+    "sha256": "cdca93b5b9ba8d1d8629a6fc7e50b9b081c94e63250609134e098ca196fff273"
+  },
+  {
+    "path": "pgr2-v1/segments.jsonl",
+    "bytes": 667,
+    "sha256": "0a70828a444d70331c24bd78eceffb91037ce348c54f8f5a547b680558f9cc24"
+  },
+  {
+    "path": "pgr2-v1/vk-perf.jsonl",
+    "bytes": 14244709,
+    "sha256": "13e6f1c82d24da90526832515d3dbb11656382aa38620ce6ee7d96978181b336"
+  }
+]
