@@ -63,10 +63,20 @@ publication stayed valid. `tcg_victim_cache_invalidate_begin/end(jc)` bracket
 primary clearing, accept NULL during early initialization, and become empty
 inline functions in compile-disabled builds.
 
+The existing full/page/targeted primary clear loops are shared inline routines
+`tcg_jump_cache_clear_all/page/tb`, called by the production invalidation paths
+and retained tests. They bracket the original pointer writes with the protocol
+above; this permits real clear-path coverage without linking unrelated TCG
+translation/emission machinery or copying the algorithm into a test.
+
 Build option `xemu_tcg_victim_cache` defaults false. Enabled miss helpers live
 in `accel/tcg/tb-victim-cache.c`; shared structures and declarations live in
 `accel/tcg/tb-victim-cache.h` and `tb-jmp-cache.h`. Preserve primary offsets.
 Expected additional allocation is 160 bytes on x86-64; report measured size.
+Force `tb_lookup` inlining only in enabled builds: GCC otherwise outlines it
+and adds a primary-hit call. Leave the original disabled inline declaration
+unchanged. Matched assembly keeps the same disabled instructions except source
+line arguments and relocated string references.
 No runtime activation flag, instrumentation, adaptive resizing or hash change.
 
 ## Qualification and decision

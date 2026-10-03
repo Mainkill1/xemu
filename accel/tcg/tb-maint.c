@@ -31,6 +31,7 @@
 #include "system/tcg.h"
 #include "tcg/tcg.h"
 #include "tb-hash.h"
+#include "tb-victim-cache.h"
 #include "tb-context.h"
 #include "tb-internal.h"
 #include "internal-common.h"
@@ -914,9 +915,7 @@ static void tb_jmp_cache_inval_tb(TranslationBlock *tb)
         CPU_FOREACH(cpu) {
             CPUJumpCache *jc = cpu->tb_jmp_cache;
 
-            if (qatomic_read(&jc->array[h].tb) == tb) {
-                qatomic_set(&jc->array[h].tb, NULL);
-            }
+            tcg_jump_cache_clear_tb(jc, h, tb);
         }
     }
 }
