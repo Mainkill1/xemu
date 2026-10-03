@@ -1023,6 +1023,34 @@ static bool check_surfaces_overlap(const SurfaceBinding *surface,
                                         other_surface->size);
 }
 
+static bool surface_is_tracked(PGRAPHVkState *r,
+                               const SurfaceBinding *candidate)
+{
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface == candidate) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool depth_alias_pair_is_exclusive(PGRAPHVkState *r,
+                                          const SurfaceBinding *producer,
+                                          const SurfaceBinding *view)
+{
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface != producer && surface != view &&
+            check_surfaces_overlap(surface, producer)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static void invalidate_overlapping_surfaces(NV2AState *d,
                                             SurfaceBinding const *surface,
                                             SurfaceBinding const *preserve)
@@ -1051,12 +1079,23 @@ static void surface_put(NV2AState *d, SurfaceBinding *surface,
                         SurfaceBinding *preserve)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    uint64_t preserve_lifetime_id = preserve ? preserve->lifetime_id : 0;
 
     invalidate_overlapping_surfaces(d, surface, preserve);
-    assert(pgraph_vk_surface_get(d, surface->vram_addr) == preserve);
+    if (preserve) {
+        assert(preserve != surface);
+        assert(surface_is_tracked(r, preserve));
+        assert(preserve->draw_dirty);
+        assert(preserve->lifetime_id == preserve_lifetime_id);
+    }
     register_cpu_access_callback(d, surface);
 
     QTAILQ_INSERT_HEAD(&r->surfaces, surface, entry);
+    assert(surface_is_tracked(r, surface));
+    if (preserve) {
+        assert(surface->lifetime_id != 0);
+        assert(depth_alias_pair_is_exclusive(r, preserve, surface));
+    }
 }
 
 SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr)
@@ -1064,19 +1103,13 @@ SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr)
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
     SurfaceBinding *surface;
-    SurfaceBinding *first = NULL;
     QTAILQ_FOREACH (surface, &r->surfaces, entry) {
         if (surface->vram_addr == addr) {
-            if (surface->draw_dirty) {
-                return surface;
-            }
-            if (!first) {
-                first = surface;
-            }
+            return surface;
         }
     }
 
-    return first;
+    return NULL;
 }
 
 SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr)
@@ -1352,15 +1385,15 @@ static PGRAPHVkDepthAliasView depth_alias_view(const SurfaceBinding *surface)
         .color = surface->color,
         .swizzled = surface->swizzle,
         .initialized = surface->initialized,
+        .draw_dirty = surface->draw_dirty,
         .upload_pending = surface->upload_pending,
         .download_pending = surface->download_pending,
         .superseded_by_guest = surface->readback_superseded_by_guest,
     };
 }
 
-static SurfaceBinding *find_depth_alias_producer(NV2AState *d,
-                                                 const SurfaceBinding *target,
-                                                 const SurfaceBinding *view)
+static SurfaceBinding *pgraph_vk_find_depth_alias_producer(
+    NV2AState *d, const SurfaceBinding *target, const SurfaceBinding *view)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1373,6 +1406,12 @@ static SurfaceBinding *find_depth_alias_producer(NV2AState *d,
         return NULL;
     }
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface == view || surface->vram_addr != target->vram_addr ||
+            surface->color || surface->swizzle || !surface->draw_dirty ||
+            surface->shape.zeta_format !=
+                NV097_SET_SURFACE_FORMAT_ZETA_Z24S8) {
+            continue;
+        }
         PGRAPHVkDepthAliasView source_view = depth_alias_view(surface);
         if (pgraph_vk_depth_alias_read_only_eligible(
                 &source_view, &target_view,
@@ -2024,7 +2063,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             }
         }
         SurfaceBinding *alias_source = !color ?
-            find_depth_alias_producer(d, &target, exact) : NULL;
+            pgraph_vk_find_depth_alias_producer(d, &target, exact) : NULL;
         if (surface != NULL) {
             // FIXME: Support same color/zeta surface target? In the mean time,
             // if the surface we just found is currently bound, just unbind it.
