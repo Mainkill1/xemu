@@ -94,19 +94,6 @@ bool tcg_victim_cache_fill(CPUJumpCache *jc, unsigned hash, vaddr pc,
 TranslationBlock *tcg_victim_cache_lookup(CPUJumpCache *jc, unsigned hash,
                                           TCGTBCPUState state, uint64_t epoch)
 {
-    if (!epoch_valid(jc, epoch)) {
-        jc->victim.count = 0;
-        return NULL;
-    }
-    for (unsigned i = 0; i < jc->victim.count; i++) {
-        TranslationBlock *tb = jc->victim.entries[i].tb;
-
-        if (jc->victim.entries[i].pc == state.pc &&
-            tb->cs_base == state.cs_base && tb->flags == state.flags &&
-            tb_cflags(tb) == state.cflags) {
-            return tcg_victim_cache_fill(jc, hash, state.pc, tb, epoch) ? tb :
-                                                                          NULL;
-        }
-    }
+    /* Research control: keep callers/fills/clears, force global fallback. */
     return NULL;
 }
