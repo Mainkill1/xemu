@@ -8,6 +8,7 @@
 #define TEST_SGE_BASE 0x2000
 #define TEST_SSL_BASE 0x3000
 #define TEST_DATA_BASE 0x4000
+#define TEST_NOTIFY_BASE 0x8000
 
 static uint8_t test_memory[TEST_MEMORY_SIZE];
 
@@ -110,6 +111,7 @@ static void fixture_init(ReaderFixture *fixture, bool stream, bool stereo,
     fixture->d.regs[NV_PAPU_VPVADDR] = TEST_VOICE_BASE;
     fixture->d.regs[NV_PAPU_VPSGEADDR] = TEST_SGE_BASE;
     fixture->d.regs[NV_PAPU_VPSSLADDR] = TEST_SSL_BASE;
+    fixture->d.regs[NV_PAPU_FENADDR] = TEST_NOTIFY_BASE;
     fixture->d.ram_ptr = test_memory;
     fixture->d.vp.filters[0].voice = 0;
     fixture->d.vp.filters[0].resampler_channels = stereo ? 2 : 1;
@@ -152,26 +154,56 @@ static uint32_t fixture_cbo(void)
            NV_PAVS_VOICE_PAR_OFFSET_CBO;
 }
 
-static void test_rejects_oversized_sge_before_ingestion(void)
+static hwaddr fixture_notifier_address(int notifier)
 {
-    ReaderFixture fixture;
-
-    fixture_init(&fixture, false, false, 3, 0, 63);
-    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
-                    -1);
-    g_assert_cmpuint(fixture_cbo(), ==, 0);
-    g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+    return TEST_NOTIFY_BASE +
+           16 * (MCPX_HW_NOTIFIER_BASE_OFFSET + notifier) + 15;
 }
 
-static void test_rejects_oversized_stream_before_ingestion(void)
+static void assert_no_completion(const ReaderFixture *fixture)
 {
+    hwaddr notifier = fixture_notifier_address(MCPX_HW_NOTIFIER_SSLA_DONE);
+
+    g_assert_cmphex(fixture->d.regs[NV_PAPU_ISTS], ==, 0);
+    g_assert_false(fixture->d.set_irq);
+    g_assert_cmphex(test_memory[notifier], ==, 0);
+    g_assert_cmphex(test_memory[notifier - 1], ==, 0);
+    g_assert_cmphex(voice_reg_load(NV_PAVS_VOICE_PAR_STATE) &
+                        NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE,
+                    ==, NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
+}
+
+typedef struct OversizedCase {
+    bool stream;
+    unsigned int samples_per_block;
+} OversizedCase;
+
+static const OversizedCase oversized_cases[] = {
+    { false, 3 },
+    { false, 32 },
+    { true, 3 },
+    { true, 32 },
+};
+
+static void test_rejects_oversized_before_ingestion(gconstpointer opaque)
+{
+    const OversizedCase *test_case = opaque;
     ReaderFixture fixture;
 
-    fixture_init(&fixture, true, false, 32, 0, 63);
+    fixture_init(&fixture, test_case->stream, false,
+                 test_case->samples_per_block, 0, 63);
+    if (test_case->stream) {
+        fixture.d.ram_ptr = NULL;
+    } else {
+        stl_le_p(&test_memory[TEST_SGE_BASE], TEST_MEMORY_SIZE);
+    }
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
                     -1);
     g_assert_cmpuint(fixture_cbo(), ==, 0);
     g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+    assert_no_completion(&fixture);
+    g_assert_cmpint(fixture.d.vp.ssl[0].ssl_index, ==, 0);
+    g_assert_cmpint(fixture.d.vp.ssl[0].ssl_seg, ==, 0);
 }
 
 static void test_valid_mono_and_stereo_controls(void)
@@ -209,10 +241,12 @@ static void test_short_stereo_stops_before_primed_tail(void)
                     25);
     g_assert_cmpuint(fixture_cbo(), ==, 25);
     g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+    assert_no_completion(&fixture);
 
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
                     -1);
     g_assert_cmpuint(fixture_cbo(), ==, 25);
+    assert_no_completion(&fixture);
 }
 
 static void test_callback_preserves_prefix_before_malformed_block(void)
@@ -236,15 +270,40 @@ static void test_callback_preserves_prefix_before_malformed_block(void)
     }
     g_assert_cmpuint(fixture_cbo(), ==, 64);
     g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+    assert_no_completion(&fixture);
+
+    test_memory[TEST_DATA_BASE + 36 + 2] = 10;
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    g_assert_cmpuint(fixture_cbo(), ==, 96);
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
+    for (int i = 0; i < 32; i++) {
+        g_assert_cmpfloat(fixture.samples[i][0], !=, 0.0f);
+    }
+    assert_no_completion(&fixture);
 }
 
-static void test_same_address_mutation_is_observed(void)
+typedef struct ChannelCase {
+    bool stereo;
+    unsigned int samples_per_block;
+    size_t block_size;
+} ChannelCase;
+
+static const ChannelCase channel_cases[] = {
+    { false, 1, 36 },
+    { true, 2, 72 },
+};
+
+static void test_same_address_mutation_is_observed(gconstpointer opaque)
 {
+    const ChannelCase *test_case = opaque;
     ReaderFixture fixture;
     float first[NUM_SAMPLES_PER_FRAME][2];
 
-    fixture_init(&fixture, false, false, 1, 0, 63);
-    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
+    fixture_init(&fixture, false, test_case->stereo,
+                 test_case->samples_per_block, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], test_case->block_size,
+                     test_case->stereo ? 2 : 1);
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
                     32);
     memcpy(first, fixture.samples, sizeof(first));
@@ -259,12 +318,15 @@ static void test_same_address_mutation_is_observed(void)
                     test_memory[TEST_DATA_BASE + 11]);
 }
 
-static void test_voice_on_and_vp_reset_invalidate_cache(void)
+static void test_voice_on_and_vp_reset_invalidate_cache(gconstpointer opaque)
 {
+    const ChannelCase *test_case = opaque;
     ReaderFixture fixture;
 
-    fixture_init(&fixture, false, false, 1, 0, 63);
-    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
+    fixture_init(&fixture, false, test_case->stereo,
+                 test_case->samples_per_block, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], test_case->block_size,
+                     test_case->stereo ? 2 : 1);
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
                     1);
     g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
@@ -281,62 +343,234 @@ static void test_voice_on_and_vp_reset_invalidate_cache(void)
     g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
 }
 
-static void test_cached_and_uncached_valid_work_are_identical(void)
+typedef struct CompletionOutcome {
+    float samples[64][2];
+    uint32_t cbo;
+    uint32_t state;
+    uint32_t ists;
+    bool irq;
+    int ssl_index;
+    int ssl_seg;
+    uint8_t notify_status;
+    uint8_t envelope_state;
+} CompletionOutcome;
+
+static void fixture_reset_completion(ReaderFixture *fixture, bool stream)
+{
+    hwaddr notifier = fixture_notifier_address(MCPX_HW_NOTIFIER_SSLA_DONE);
+
+    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET,
+                  NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    voice_reg_set(NV_PAVS_VOICE_PAR_STATE,
+                  NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE, 1);
+    fixture->d.regs[NV_PAPU_ISTS] = 0;
+    fixture->d.set_irq = false;
+    fixture->d.vp.ssl[0].ssl_index = 0;
+    fixture->d.vp.ssl[0].ssl_seg = 0;
+    test_memory[notifier] = 0;
+    test_memory[notifier - 1] = 0;
+    if (stream) {
+        hwaddr notifier_b = fixture_notifier_address(
+            MCPX_HW_NOTIFIER_SSLB_DONE);
+
+        test_memory[notifier_b] = 0;
+        test_memory[notifier_b - 1] = 0;
+    }
+    memset(fixture->samples, 0, sizeof(fixture->samples));
+}
+
+static void capture_completion(ReaderFixture *fixture,
+                               CompletionOutcome *outcome)
+{
+    hwaddr notifier = fixture_notifier_address(MCPX_HW_NOTIFIER_SSLA_DONE);
+
+    outcome->cbo = fixture_cbo();
+    outcome->state = voice_reg_load(NV_PAVS_VOICE_PAR_STATE);
+    outcome->ists = fixture->d.regs[NV_PAPU_ISTS];
+    outcome->irq = fixture->d.set_irq;
+    outcome->ssl_index = fixture->d.vp.ssl[0].ssl_index;
+    outcome->ssl_seg = fixture->d.vp.ssl[0].ssl_seg;
+    outcome->notify_status = test_memory[notifier];
+    outcome->envelope_state = test_memory[notifier - 1];
+}
+
+static void assert_completion_outcomes_equal(const CompletionOutcome *cached,
+                                             const CompletionOutcome *uncached)
+{
+    g_assert_cmpmem(cached->samples, sizeof(cached->samples),
+                    uncached->samples, sizeof(uncached->samples));
+    g_assert_cmphex(cached->cbo, ==, uncached->cbo);
+    g_assert_cmphex(cached->state, ==, uncached->state);
+    g_assert_cmphex(cached->ists, ==, uncached->ists);
+    g_assert_cmpint(cached->irq, ==, uncached->irq);
+    g_assert_cmpint(cached->ssl_index, ==, uncached->ssl_index);
+    g_assert_cmpint(cached->ssl_seg, ==, uncached->ssl_seg);
+    g_assert_cmphex(cached->notify_status, ==, uncached->notify_status);
+    g_assert_cmphex(cached->envelope_state, ==, uncached->envelope_state);
+}
+
+static void run_buffer_completion(ReaderFixture *fixture,
+                                  CompletionOutcome *outcome)
+{
+    g_assert_cmpint(voice_get_samples(&fixture->d, 0, fixture->samples, 32),
+                    ==, 32);
+    memcpy(outcome->samples, fixture->samples, sizeof(fixture->samples));
+    capture_completion(fixture, outcome);
+}
+
+static void test_cached_and_uncached_buffer_completion_are_identical(void)
 {
     ReaderFixture fixture;
-    float uncached[NUM_SAMPLES_PER_FRAME][2];
-    uint32_t uncached_ists;
-    bool uncached_irq;
+    CompletionOutcome cached = { 0 };
+    CompletionOutcome uncached = { 0 };
 
-    fixture_init(&fixture, false, true, 2, 0, 63);
-    init_adpcm_block(&test_memory[TEST_DATA_BASE], 72, 2);
+    fixture_init(&fixture, false, false, 1, 0, 31);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
                     32);
-    memcpy(uncached, fixture.samples, sizeof(uncached));
-    uncached_ists = fixture.d.regs[NV_PAPU_ISTS];
-    uncached_irq = fixture.d.set_irq;
-    g_assert_cmpuint(fixture_cbo(), ==, 32);
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
 
-    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
-    memset(fixture.samples, 0, sizeof(fixture.samples));
-    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
-                    32);
-    g_assert_cmpmem(fixture.samples, sizeof(fixture.samples), uncached,
-                    sizeof(uncached));
-    g_assert_cmpuint(fixture_cbo(), ==, 32);
-    g_assert_cmphex(fixture.d.regs[NV_PAPU_ISTS], ==, uncached_ists);
-    g_assert_cmpint(fixture.d.set_irq, ==, uncached_irq);
+    fixture_reset_completion(&fixture, false);
+    run_buffer_completion(&fixture, &cached);
 
-    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    fixture_reset_completion(&fixture, false);
     mcpx_apu_adpcm_cache_reset(&fixture.d.vp.filters[0].adpcm_cache);
-    memset(fixture.samples, 0, sizeof(fixture.samples));
+    run_buffer_completion(&fixture, &uncached);
+
+    assert_completion_outcomes_equal(&cached, &uncached);
+    g_assert_cmphex(cached.cbo, ==, 31);
+    g_assert_cmphex(cached.state & NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE, ==,
+                    0);
+    g_assert_cmphex(cached.ists, ==,
+                    NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS);
+    g_assert_true(cached.irq);
+    g_assert_cmphex(cached.notify_status, ==,
+                    NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+    g_assert_cmphex(cached.envelope_state, ==, 1);
+}
+
+static void run_stream_completion(ReaderFixture *fixture,
+                                  CompletionOutcome *outcome)
+{
+    g_assert_cmpint(voice_get_samples(&fixture->d, 0, fixture->samples, 32),
+                    ==, 32);
+    memcpy(outcome->samples, fixture->samples, sizeof(fixture->samples));
+    g_assert_cmpint(voice_get_samples(&fixture->d, 0, fixture->samples, 32),
+                    ==, 32);
+    memcpy(&outcome->samples[32], fixture->samples,
+           sizeof(fixture->samples));
+    capture_completion(fixture, outcome);
+}
+
+static void test_cached_and_uncached_stream_completion_are_identical(void)
+{
+    ReaderFixture fixture;
+    CompletionOutcome cached = { 0 };
+    CompletionOutcome uncached = { 0 };
+
+    fixture_init(&fixture, true, false, 1, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
     g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
                     32);
-    g_assert_cmpmem(fixture.samples, sizeof(fixture.samples), uncached,
-                    sizeof(uncached));
-    g_assert_cmpuint(fixture_cbo(), ==, 32);
-    g_assert_cmphex(fixture.d.regs[NV_PAPU_ISTS], ==, uncached_ists);
-    g_assert_cmpint(fixture.d.set_irq, ==, uncached_irq);
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
+
+    fixture_reset_completion(&fixture, true);
+    run_stream_completion(&fixture, &cached);
+
+    fixture_reset_completion(&fixture, true);
+    mcpx_apu_adpcm_cache_reset(&fixture.d.vp.filters[0].adpcm_cache);
+    run_stream_completion(&fixture, &uncached);
+
+    assert_completion_outcomes_equal(&cached, &uncached);
+    g_assert_cmphex(cached.cbo, ==, 0);
+    g_assert_cmphex(cached.state & NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE, ==,
+                    NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
+    g_assert_cmphex(cached.ists, ==,
+                    NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS);
+    g_assert_true(cached.irq);
+    g_assert_cmpint(cached.ssl_index, ==, 1);
+    g_assert_cmpint(cached.ssl_seg, ==, 0);
+    g_assert_cmphex(cached.notify_status, ==,
+                    NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+    g_assert_cmphex(cached.envelope_state, ==, 1);
+}
+
+static void test_pcm_buffer_completion_control(void)
+{
+    ReaderFixture fixture;
+    CompletionOutcome outcome = { 0 };
+
+    fixture_init(&fixture, false, false, 1, 0, 31);
+    voice_reg_set(NV_PAVS_VOICE_CFG_FMT,
+                  NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE,
+                  NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE_B16);
+    voice_reg_set(NV_PAVS_VOICE_CFG_FMT,
+                  NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE,
+                  NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE_S16);
+    for (int i = 0; i < 32; i++) {
+        stw_le_p(&test_memory[TEST_DATA_BASE + i * sizeof(int16_t)],
+                 0x100 + i * 13);
+    }
+
+    run_buffer_completion(&fixture, &outcome);
+
+    g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+    for (int i = 0; i < 32; i++) {
+        g_assert_cmpfloat(outcome.samples[i][0], ==,
+                          int16_to_float(0x100 + i * 13));
+        g_assert_cmpfloat(outcome.samples[i][1], ==,
+                          outcome.samples[i][0]);
+    }
+    g_assert_cmphex(outcome.cbo, ==, 31);
+    g_assert_cmphex(outcome.state & NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE, ==,
+                    0);
+    g_assert_cmphex(outcome.ists, ==,
+                    NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS);
+    g_assert_true(outcome.irq);
+    g_assert_cmphex(outcome.notify_status, ==,
+                    NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
 }
 
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/mcpx/apu/adpcm-reader/rejects-oversized-sge",
-                    test_rejects_oversized_sge_before_ingestion);
-    g_test_add_func("/mcpx/apu/adpcm-reader/rejects-oversized-stream",
-                    test_rejects_oversized_stream_before_ingestion);
+    g_test_add_data_func("/mcpx/apu/adpcm-reader/rejects-oversized-sge-spb3",
+                         &oversized_cases[0],
+                         test_rejects_oversized_before_ingestion);
+    g_test_add_data_func("/mcpx/apu/adpcm-reader/rejects-oversized-sge-spb32",
+                         &oversized_cases[1],
+                         test_rejects_oversized_before_ingestion);
+    g_test_add_data_func(
+        "/mcpx/apu/adpcm-reader/rejects-oversized-stream-spb3",
+        &oversized_cases[2], test_rejects_oversized_before_ingestion);
+    g_test_add_data_func(
+        "/mcpx/apu/adpcm-reader/rejects-oversized-stream-spb32",
+        &oversized_cases[3], test_rejects_oversized_before_ingestion);
     g_test_add_func("/mcpx/apu/adpcm-reader/valid-controls",
                     test_valid_mono_and_stereo_controls);
     g_test_add_func("/mcpx/apu/adpcm-reader/short-stereo-prefix",
                     test_short_stereo_stops_before_primed_tail);
     g_test_add_func("/mcpx/apu/adpcm-reader/preserves-prefix",
                     test_callback_preserves_prefix_before_malformed_block);
-    g_test_add_func("/mcpx/apu/adpcm-reader/observes-same-address-mutation",
-                    test_same_address_mutation_is_observed);
-    g_test_add_func("/mcpx/apu/adpcm-reader/lifecycle-invalidation",
-                    test_voice_on_and_vp_reset_invalidate_cache);
-    g_test_add_func("/mcpx/apu/adpcm-reader/valid-work-parity",
-                    test_cached_and_uncached_valid_work_are_identical);
+    g_test_add_data_func(
+        "/mcpx/apu/adpcm-reader/observes-same-address-mutation-mono",
+        &channel_cases[0], test_same_address_mutation_is_observed);
+    g_test_add_data_func(
+        "/mcpx/apu/adpcm-reader/observes-same-address-mutation-stereo",
+        &channel_cases[1], test_same_address_mutation_is_observed);
+    g_test_add_data_func("/mcpx/apu/adpcm-reader/lifecycle-invalidation-mono",
+                         &channel_cases[0],
+                         test_voice_on_and_vp_reset_invalidate_cache);
+    g_test_add_data_func(
+        "/mcpx/apu/adpcm-reader/lifecycle-invalidation-stereo",
+        &channel_cases[1], test_voice_on_and_vp_reset_invalidate_cache);
+    g_test_add_func("/mcpx/apu/adpcm-reader/valid-buffer-completion-parity",
+                    test_cached_and_uncached_buffer_completion_are_identical);
+    g_test_add_func("/mcpx/apu/adpcm-reader/valid-stream-completion-parity",
+                    test_cached_and_uncached_stream_completion_are_identical);
+    g_test_add_func("/mcpx/apu/adpcm-reader/pcm-completion-control",
+                    test_pcm_buffer_completion_control);
     return g_test_run();
 }
