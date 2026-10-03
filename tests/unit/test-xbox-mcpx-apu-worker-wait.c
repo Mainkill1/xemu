@@ -148,6 +148,9 @@ static void test_spurious_finished_wake(gconstpointer opaque)
         mcpx_apu_vp_finalize(&d);
         /* No helper or worker may survive this owned pool. */
         g_assert_null(d.vp.voice_work_dispatch.workers);
+        qemu_cond_destroy(&d.vp.voice_work_dispatch.work_pending);
+        qemu_cond_destroy(&d.vp.voice_work_dispatch.work_finished);
+        qemu_mutex_destroy(&d.vp.voice_work_dispatch.lock);
     }
 }
 
