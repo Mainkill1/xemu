@@ -47,7 +47,7 @@ typedef MCPXAPUResamplerFetchResult (*MCPXAPUResamplerFetchSamples)(
 static inline long mcpx_apu_resampler_fill_input_block(
     int channels, int frames, MCPXAPUResamplerFetchSamples fetch,
     void *opaque, float stereo[][2], float mono[], float **data,
-    bool *end_of_input)
+    bool *end_of_input, int converter_type)
 {
     assert(channels == 1 || channels == 2);
     assert(frames > 0);
@@ -72,6 +72,22 @@ static inline long mcpx_apu_resampler_fill_input_block(
             *end_of_input = true;
             break;
         }
+    }
+
+    if (*end_of_input && sample_count == 1 && converter_type == SRC_LINEAR) {
+        /*
+         * libsamplerate 0.2.2's linear converter reads before the supplied
+         * buffer when a callback returns exactly one frame (upstream issue
+         * #208 / PR #209). Supplying one silent guard frame keeps the
+         * production callback out of that unsafe third-party schedule while
+         * preserving the real source cursor and end-of-input state.
+         */
+        if (channels == 1) {
+            mono[sample_count] = 0.0f;
+        } else {
+            memset(&stereo[sample_count], 0, sizeof(stereo[0]));
+        }
+        sample_count++;
     }
 
     if (*end_of_input) {

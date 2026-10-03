@@ -242,6 +242,7 @@ typedef struct ProductionAdapter {
     float mono[32];
     int channels;
     int callbacks;
+    int converter_type;
     bool source_finished;
 } ProductionAdapter;
 
@@ -262,6 +263,7 @@ typedef struct ObservedAdapter {
     ObservedSource source;
     float stereo[32][2];
     float mono[32];
+    int converter_type;
     bool source_finished;
 } ObservedAdapter;
 
@@ -313,7 +315,7 @@ static long observed_adapter_callback(void *opaque, float **data)
     long frames = mcpx_apu_resampler_fill_input_block(
         adapter->source.channels, ARRAY_SIZE(adapter->stereo),
         fetch_observed_source, &adapter->source, adapter->stereo, adapter->mono,
-        data, &end_of_input);
+        data, &end_of_input, adapter->converter_type);
     adapter->source_finished = end_of_input;
 
     return frames;
@@ -355,7 +357,8 @@ static long production_adapter_callback(void *opaque, float **data)
     bool end_of_input;
     long frames = mcpx_apu_resampler_fill_input_block(
         adapter->channels, ARRAY_SIZE(adapter->stereo), fetch_production_input,
-        &adapter->input, adapter->stereo, adapter->mono, data, &end_of_input);
+        &adapter->input, adapter->stereo, adapter->mono, data, &end_of_input,
+        adapter->converter_type);
     adapter->source_finished = end_of_input;
 
     return frames;
@@ -377,7 +380,7 @@ static void test_production_input_pads_short_tail(void)
     g_assert_cmpint(
         mcpx_apu_resampler_fill_input_block(2, FRAMES, fetch_production_input,
                                             &input, stereo, mono, &data,
-                                            &end_of_input),
+                                            &end_of_input, SRC_SINC_FASTEST),
         ==, FRAMES);
     g_assert_false(end_of_input);
     g_assert_true(data == (float *)stereo);
@@ -408,7 +411,7 @@ static void test_production_input_preserves_finite_tail(void)
     g_assert_cmpint(
         mcpx_apu_resampler_fill_input_block(2, FRAMES, fetch_production_input,
                                             &input, stereo, mono, &data,
-                                            &end_of_input),
+                                            &end_of_input, SRC_SINC_FASTEST),
         ==, 1);
     g_assert_true(end_of_input);
     g_assert_true(data == (float *)stereo);
@@ -416,6 +419,56 @@ static void test_production_input_preserves_finite_tail(void)
     g_assert_cmpint(input.fetches, ==, 1);
     g_assert_cmpfloat(stereo[0][0], ==, 0.25f);
     g_assert_cmpfloat(stereo[0][1], ==, -0.5f);
+}
+
+static void test_linear_finite_single_frame_adds_guard(void)
+{
+    enum { FRAMES = 32 };
+    ProductionInput input = {
+        .samples = { { 0.25f, -0.5f } },
+        .available = 1,
+        .empty_result = -1,
+        .finite = true,
+    };
+    float stereo[FRAMES][2] = { 0 };
+    float mono[FRAMES] = { 0 };
+    float *data = NULL;
+    bool end_of_input;
+
+    g_assert_cmpint(
+        mcpx_apu_resampler_fill_input_block(2, FRAMES, fetch_production_input,
+                                            &input, stereo, mono, &data,
+                                            &end_of_input, SRC_LINEAR),
+        ==, 2);
+    g_assert_true(end_of_input);
+    g_assert_true(data == (float *)stereo);
+    g_assert_cmpint(input.offset, ==, 1);
+    g_assert_cmpfloat(stereo[0][0], ==, 0.25f);
+    g_assert_cmpfloat(stereo[0][1], ==, -0.5f);
+    g_assert_cmpfloat(stereo[1][0], ==, 0.0f);
+    g_assert_cmpfloat(stereo[1][1], ==, 0.0f);
+}
+
+static void test_linear_empty_finite_source_stays_empty(void)
+{
+    enum { FRAMES = 32 };
+    ProductionInput input = {
+        .empty_result = -1,
+        .finite = true,
+    };
+    float stereo[FRAMES][2] = { 0 };
+    float mono[FRAMES] = { 0 };
+    float *data = NULL;
+    bool end_of_input;
+
+    g_assert_cmpint(
+        mcpx_apu_resampler_fill_input_block(2, FRAMES, fetch_production_input,
+                                            &input, stereo, mono, &data,
+                                            &end_of_input, SRC_LINEAR),
+        ==, 0);
+    g_assert_true(end_of_input);
+    g_assert_true(data == (float *)stereo);
+    g_assert_cmpint(input.offset, ==, 0);
 }
 
 static void test_production_input_recovers_after_starvation(void)
@@ -430,7 +483,7 @@ static void test_production_input_recovers_after_starvation(void)
     g_assert_cmpint(
         mcpx_apu_resampler_fill_input_block(1, FRAMES, fetch_production_input,
                                             &input, stereo, mono, &data,
-                                            &end_of_input),
+                                            &end_of_input, SRC_SINC_FASTEST),
         ==, FRAMES);
     g_assert_false(end_of_input);
     g_assert_true(data == mono);
@@ -445,7 +498,7 @@ static void test_production_input_recovers_after_starvation(void)
     g_assert_cmpint(
         mcpx_apu_resampler_fill_input_block(1, FRAMES, fetch_production_input,
                                             &input, stereo, mono, &data,
-                                            &end_of_input),
+                                            &end_of_input, SRC_SINC_FASTEST),
         ==, FRAMES);
     g_assert_false(end_of_input);
     g_assert_true(data == mono);
@@ -465,6 +518,7 @@ static void run_production_adapter_short_tail(int converter_type, int channels)
             .empty_result = -1,
         },
         .channels = channels,
+        .converter_type = converter_type,
     };
     float output[OUTPUT_FRAMES * 2] = { 0 };
 
@@ -513,6 +567,7 @@ static void run_production_adapter_starvation_recovery(int converter_type,
     ProductionAdapter adapter = {
         .input = { .empty_result = 0 },
         .channels = channels,
+        .converter_type = converter_type,
     };
     float output[OUTPUT_FRAMES * 2] = { 0 };
 
@@ -562,6 +617,75 @@ static void test_production_adapter_starvation_recovery(void)
                 converter_types[converter], channels);
         }
     }
+}
+
+static void test_linear_finite_single_frame_matches_mono_stereo(void)
+{
+    enum { OUTPUT_FRAMES = 32 };
+    ProductionAdapter mono_adapter = {
+        .input = {
+            .samples = { { 0.375f, 0.375f } },
+            .available = 1,
+            .empty_result = -1,
+            .finite = true,
+        },
+        .channels = 1,
+        .converter_type = SRC_LINEAR,
+    };
+    ProductionAdapter stereo_adapter = {
+        .input = {
+            .samples = { { 0.375f, 0.375f } },
+            .available = 1,
+            .empty_result = -1,
+            .finite = true,
+        },
+        .channels = 2,
+        .converter_type = SRC_LINEAR,
+    };
+    float mono_output[OUTPUT_FRAMES] = { 0 };
+    float stereo_output[OUTPUT_FRAMES][2] = { 0 };
+    int mono_error;
+    int stereo_error;
+    SRC_STATE *mono = src_callback_new(production_adapter_callback, SRC_LINEAR,
+                                       1, &mono_error, &mono_adapter);
+    SRC_STATE *stereo = src_callback_new(production_adapter_callback,
+                                         SRC_LINEAR, 2, &stereo_error,
+                                         &stereo_adapter);
+
+    g_assert_nonnull(mono);
+    g_assert_cmpint(mono_error, ==, 0);
+    g_assert_nonnull(stereo);
+    g_assert_cmpint(stereo_error, ==, 0);
+
+    long mono_count =
+        src_callback_read(mono, 1.0, OUTPUT_FRAMES, mono_output);
+    long stereo_count = src_callback_read(stereo, 1.0, OUTPUT_FRAMES,
+                                          (float *)stereo_output);
+
+    g_assert_cmpint(mono_count, ==, stereo_count);
+    g_assert_cmpint(mono_count, >, 0);
+    g_assert_cmpint(mono_count, <=, 2);
+    g_assert_cmpint(mono_adapter.input.offset, ==, 1);
+    g_assert_cmpint(stereo_adapter.input.offset, ==, 1);
+    for (int frame = 0; frame < mono_count; frame++) {
+        g_assert_true(isfinite(mono_output[frame]));
+        g_assert_true(isfinite(stereo_output[frame][0]));
+        g_assert_true(isfinite(stereo_output[frame][1]));
+        g_assert_cmpfloat_with_epsilon(mono_output[frame],
+                                       stereo_output[frame][0], 1e-7f);
+        g_assert_cmpfloat_with_epsilon(stereo_output[frame][0],
+                                       stereo_output[frame][1], 1e-7f);
+    }
+    g_assert_cmpint(src_callback_read(mono, 1.0, OUTPUT_FRAMES, mono_output),
+                    ==, 0);
+    g_assert_cmpint(src_callback_read(stereo, 1.0, OUTPUT_FRAMES,
+                                     (float *)stereo_output),
+                    ==, 0);
+    g_assert_true(mono_adapter.source_finished);
+    g_assert_true(stereo_adapter.source_finished);
+
+    src_delete(mono);
+    src_delete(stereo);
 }
 
 static void run_channel_change_at_stream_reset(int converter_type)
@@ -751,6 +875,7 @@ static void run_deterministic_pitch_sweep(int converter_type, int channels)
                 .channels = channels,
                 .active = true,
             },
+            .converter_type = converter_type,
         };
         float output[OUTPUT_FRAMES * 2];
         int error;
@@ -829,6 +954,7 @@ static void run_loop_transition(int converter_type, int channels)
             .looping = true,
             .active = true,
         },
+        .converter_type = converter_type,
     };
     float output[OUTPUT_FRAMES * 2];
     int error;
@@ -894,6 +1020,7 @@ static void run_finite_source_drain(int converter_type, int channels,
             .channels = channels,
             .active = true,
         },
+        .converter_type = converter_type,
     };
     float output[OUTPUT_FRAMES * 2];
     uint64_t generated_total = 0;
@@ -970,6 +1097,10 @@ int main(int argc, char **argv)
                     test_production_input_pads_short_tail);
     g_test_add_func("/mcpx/apu/resampler/production-input-finite-tail",
                     test_production_input_preserves_finite_tail);
+    g_test_add_func("/mcpx/apu/resampler/linear-finite-single-frame-guard",
+                    test_linear_finite_single_frame_adds_guard);
+    g_test_add_func("/mcpx/apu/resampler/linear-empty-finite-source",
+                    test_linear_empty_finite_source_stays_empty);
     g_test_add_func("/mcpx/apu/resampler/production-input-starvation-recovery",
                     test_production_input_recovers_after_starvation);
     g_test_add_func("/mcpx/apu/resampler/production-adapter-short-tail",
@@ -977,6 +1108,9 @@ int main(int argc, char **argv)
     g_test_add_func(
         "/mcpx/apu/resampler/production-adapter-starvation-recovery",
         test_production_adapter_starvation_recovery);
+    g_test_add_func(
+        "/mcpx/apu/resampler/linear-finite-single-frame-mono-stereo",
+        test_linear_finite_single_frame_matches_mono_stereo);
     g_test_add_func("/mcpx/apu/resampler/channel-change-at-stream-reset",
                     test_channel_change_at_stream_reset);
     g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",

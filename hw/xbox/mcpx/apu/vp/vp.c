@@ -1177,6 +1177,9 @@ static MCPXAPUResamplerFetchResult voice_resample_fetch(
 static long voice_resample_callback(void *cb_data, float **data)
 {
     MCPXAPUVoiceFilter *filter = cb_data;
+    uint16_t v = filter->voice;
+    assert(v < MCPX_HW_MAX_VOICES);
+    MCPXAPUState *d = container_of(filter, MCPXAPUState, vp.filters[v]);
 
     if (filter->resampler_source_finished) {
         /*
@@ -1196,7 +1199,8 @@ static long voice_resample_callback(void *cb_data, float **data)
     long frames = mcpx_apu_resampler_fill_input_block(
         filter->resampler_channels, NUM_SAMPLES_PER_FRAME,
         voice_resample_fetch, filter, (float(*)[2])filter->resample_buf,
-        filter->mono_resample_buf, data, &end_of_input);
+        filter->mono_resample_buf, data, &end_of_input,
+        d->vp.resampler_type);
     filter->resampler_source_finished = end_of_input;
     return frames;
 }
