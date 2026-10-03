@@ -1,0 +1,177 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "bytes": 17493,
+  "sha256": "7126e7a3e696984e61d0b6eb9cd66e03807569cb3db553d0232997da3d7e39a7",
+  "payloads": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 1757,
+      "sha256": "b1e01af6d352ad65c43250d5312117b331ceebd507d3ab7834d2ddd89aa2b605"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/assessment.json",
+      "bytes": 557,
+      "sha256": "662ef4e21c0d01fbe4ac0a98f1a210ba9b0735e24ac2bd54acdd9a53755e3a6f"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/crash/native/exit-native.json",
+      "bytes": 139,
+      "sha256": "ef5567473091fd1e2288baefc63945b2090c6c482e3c9cde3cfb61d6b52d52cd"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/crash/native/ready.json",
+      "bytes": 59,
+      "sha256": "272e6405886cdf5cefa6b1d49e77fe1eaf98865196ab7ad0df2c2318ecd1ee62"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/crash/native/start",
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/crash/report.json",
+      "bytes": 425,
+      "sha256": "53f212b994d9e3ea5cae0706204d8274a46a9e9e0296b5c67d2435839575e740"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/crash/report.txt",
+      "bytes": 198,
+      "sha256": "2bcc065567d223967070344cf8ca339b370dedce784a83a26ad8f6d45d3c3b3b"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/diagnostic-bundle.json",
+      "bytes": 369,
+      "sha256": "dfcbeedec581c771ad06d8dcb120e4024e8631ee9123755f5de26ba5409500d0"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/diagnostics.zip",
+      "bytes": 11268,
+      "sha256": "b3a5126c262406f5d91732edcbe46e03a71bda3a3153fc94e5ebe29840ea5912"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/diagnostics/run-state/report.json",
+      "bytes": 1281,
+      "sha256": "678e110a760b7c41f1829d0fb38588d04c0a408a2ef8ef2faf96164a45618d0f"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/host-inventory.json",
+      "bytes": 466,
+      "sha256": "4d29ee4c4e1082961948f88c66e7f2ffdda732477b2f2d47a84d26e1301b3ba9"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/input-manifest.json",
+      "bytes": 458,
+      "sha256": "e309090aa9160c30bdfdb59a9b6284bdb1e1987f0ded61a81537fa24b3382a0a"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/job.json",
+      "bytes": 2489,
+      "sha256": "3ec371ba95261006ae63636714cd10b5450541026cd4d70e9df79c05688096fc"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/launch.json",
+      "bytes": 1540,
+      "sha256": "4efc72ccb522da82901985e84715d4588a1cc3d23731887ce21d6a53e8fc6e52"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/metrics.csv",
+      "bytes": 343,
+      "sha256": "15b1865acec06e1f9d0b01c059e65459e54e9196d205ca37e7c378fe22cc6040"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/operator-events.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/pre-run-environment.json",
+      "bytes": 1572,
+      "sha256": "7d4770bf8b95f3417e52ce4b108876b94fac23b82eb17d417f296ef754f26540"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/preflight.json",
+      "bytes": 1100,
+      "sha256": "0af5493d99399770632a6870c18593bf37844bd77379ce8bbc6b3cb6a6025b5f"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/result.json",
+      "bytes": 5354,
+      "sha256": "263264a7cd4407831e7c75fa1cc45c4b67728e96a953a01b407420e962e8f185"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/runtime-state.json",
+      "bytes": 58,
+      "sha256": "84a3230f7043fd79213906fbf46592e64d8eada284b1bd51100e9347363934ef"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/20261003-015123616-0d727ee4d97b44dea92568fe3063c486/stdout.log",
+      "bytes": 320,
+      "sha256": "b42f2b861d01946718f7e4c28aaf11e5450e1a1d348623131d8cd6a1591f50b6"
+    },
+    {
+      "path": "receipts/canary-collection.json",
+      "bytes": 422,
+      "sha256": "02a98d51cbb1ea885a8028f40c30db8b0e93e91c9b147078535f00f627c32161"
+    },
+    {
+      "path": "receipts/canary-result.json",
+      "bytes": 637,
+      "sha256": "4e5a557a1056494e2b9c89f083e901ec4f77dbb0e1b4b1974c58684c048aa1e0"
+    },
+    {
+      "path": "receipts/clone-submit.json",
+      "bytes": 567,
+      "sha256": "3f9d4289a1e6e9feb759c3f4c8e006d4b21c6c677c45587937580a83d03196b9"
+    },
+    {
+      "path": "receipts/final-status.json",
+      "bytes": 2535,
+      "sha256": "df3a2e8e4642d33ccdb7f15665e7d4df3da1d8cab2929ce64b622f74115a9299"
+    },
+    {
+      "path": "receipts/local-verification.json",
+      "bytes": 196,
+      "sha256": "8845dd20f9a795cefca8635ced7ffe95cdd00964606b5c3bab6c2de64f294c3b"
+    },
+    {
+      "path": "receipts/post-deployment-discovery.json",
+      "bytes": 1237,
+      "sha256": "c9932b44ef385d790a9d52608bb2002dced5fa1a4b2f293d1413d0b7896ff498"
+    },
+    {
+      "path": "receipts/post-deployment-status.json",
+      "bytes": 2352,
+      "sha256": "4ee8c68a876d2bd09bb686b054d57480a77f73734613f1b397667b3489d2839d"
+    },
+    {
+      "path": "receipts/preserved-history.json",
+      "bytes": 4052,
+      "sha256": "9d77c0ea6c01eeb8db542261ffd5c540e777714dc769446bb644a494f62a7940"
+    },
+    {
+      "path": "receipts/provenance-linux-x64.json",
+      "bytes": 278,
+      "sha256": "302991a9cca419dacd5ec0d9fe07361567d31028f7bd0760e699af9f1741b4f3"
+    },
+    {
+      "path": "receipts/wait.json",
+      "bytes": 938,
+      "sha256": "5341c3965bb1167eacbcf14d142d728bc65f5a5e04c746ec9a0565dfb268367a"
+    }
+  ],
+  "omissions": [
+    {
+      "path": "fixture binary and libraries",
+      "reason": "Not eligible result artifacts; retained in archived runner job and original source-bound CI payload. Executable hash and prior full payload manifest remain pinned."
+    },
+    {
+      "path": "runner binary and managed fixture logs",
+      "reason": "Tool implementation/qualification belongs to genuine runner draft89; complete operator artifacts retained locally. Runner package source and archive hash are included."
+    }
+  ]
+}

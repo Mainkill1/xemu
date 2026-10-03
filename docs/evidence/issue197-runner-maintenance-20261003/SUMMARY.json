@@ -1,0 +1,38 @@
+{
+  "scope": "Retained native correctness/process-lifecycle qualification after runner upgrade; not a performance comparison",
+  "runnerCommit": "62eff1cebc7003859f58cb684bd62f21f4c07c07",
+  "runnerBase": "f34fee787a776bc9e1e344adaea932a4af846153",
+  "oldRunner": "f5b3e58de71ce6fb56450679a456fd049aa95b29",
+  "xemuProductionUnchangedSince": "9474ebfafd18e18a5ad700f1d81e8e01f8b5c5f5",
+  "fixtureSourceEquivalentTo": "e25b0ba239c8146d2d661f26ec5ad29e82a14853",
+  "fixtureCI": 36993825114,
+  "fixtureExecutableSha256": "71feecec2e29001bff791fbcd1d8d90361daead26b35fac8aa7b54239d625ac6",
+  "host": "10.0.0.123",
+  "jobId": "runner62eff1c-retained-ram-controls-20261003",
+  "runId": "20261003-015123616-0d727ee4d97b44dea92568fe3063c486",
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "complete",
+    "comparison": "eligible"
+  },
+  "checksPassed": 3,
+  "checksExpected": 3,
+  "fullEligibleCollection": {
+    "ok": true,
+    "jobId": "runner62eff1c-retained-ram-controls-20261003",
+    "runId": "20261003-015123616-0d727ee4d97b44dea92568fe3063c486",
+    "fileCount": 21,
+    "bytes": 27997,
+    "directory": "/home/codex/src/steamdeck-xemu/artifacts/runner-f34fee78-upgrade-20261003/combined-62eff1c/collected/20261003-015123616-0d727ee4d97b44dea92568fe3063c486",
+    "complete": true,
+    "scope": "allEligibleArtifacts",
+    "excluded": 0
+  },
+  "archivesBefore": 566,
+  "archivesAfter": 567,
+  "priorFourCorrectnessOutcomesPreserved": true,
+  "priorNegativeTimeoutPreserved": true,
+  "performance": "N/A: no timed A/B work; no speedup or timing bridge claimed",
+  "futureGameContract": "Fresh immutable controller and recording-start scene gates, A/A first, physical ABBA and BAAB; no retroactive qualification"
+}
