@@ -492,6 +492,14 @@ if host_os == 'linux' and have_system
     link_args: ['-Wl,--gc-sections'])
   test('test-xbox-mcpx-apu-voice-samples', voice_samples_test,
        args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+  voice_dispatch_test = executable('test-xbox-mcpx-apu-worker-dispatch',
+    files('test-xbox-mcpx-apu-worker-dispatch.c',
+          '../../system/memory.c', '../../system/physmem.c'), genh,
+    dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
+    c_args: ['-ffunction-sections', '-fdata-sections'],
+    link_args: ['-Wl,--gc-sections'])
+  test('test-xbox-mcpx-apu-worker-dispatch', voice_dispatch_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'], timeout: 30)
   voice_vmstate_test = executable('test-xbox-mcpx-apu-resampler-vmstate',
     files('test-xbox-mcpx-apu-resampler-vmstate.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,

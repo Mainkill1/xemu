@@ -1121,9 +1121,10 @@ void MainMenuAudioView::Draw()
             "14\0"
             "15\0"
             "16\0",
-            "Set MCPX voice processing worker threads. Auto chooses a "
-            "host-dependent count, capped at 16. Restart xemu to apply "
-            "changes.")) {
+            "Auto uses up to 4 workers for experimental linear resampling "
+            "or 16 for sinc, limited by host logical CPUs. Explicit counts "
+            "override Auto; try 1 or 2 on constrained hosts. Restart xemu "
+            "to apply changes.")) {
         xemu_queue_notification(
             "Voice processing worker count changed. Restart xemu to apply it.");
     }

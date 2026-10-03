@@ -6,6 +6,11 @@
 #include <stdbool.h>
 
 #define MCPX_APU_MAX_VOICE_WORKERS 16
+/*
+ * Conservative Auto ceiling for experimental linear. Hosts with fewer logical
+ * CPUs use fewer workers, and explicit settings override this limit. Requalify
+ * the ceiling after changes to voice processing or dispatch costs.
+ */
 #define MCPX_APU_LINEAR_AUTO_WORKERS 4
 
 static inline int mcpx_apu_voice_worker_count(int configured_workers,
