@@ -16,6 +16,23 @@
 #include "system/ioport.h"
 #include "system/ramblock.h"
 #include "system/tcg.h"
+#include "qemu/rcu.h"
+
+static unsigned int sge_rcu_guard_entries;
+
+static inline RCUReadAuto *tracked_rcu_read_auto_lock(void)
+{
+    sge_rcu_guard_entries++;
+    return rcu_read_auto_lock();
+}
+
+#undef RCU_READ_LOCK_GUARD
+#define RCU_READ_LOCK_GUARD() \
+    TRACKED_RCU_READ_LOCK_GUARD_(glue(_rcu_read_auto, __COUNTER__))
+#define TRACKED_RCU_READ_LOCK_GUARD_(var) \
+    g_autoptr(RCUReadAuto) var __attribute__((unused)) = \
+        tracked_rcu_read_auto_lock()
+
 #include "hw/xbox/mcpx/apu/vp/vp.c"
 
 struct McpxApuDebug g_dbg, g_dbg_cache;
@@ -154,9 +171,23 @@ static void test_live_descriptor(void)
     g_assert_null(cache.mapping.fv);
 }
 
+static void test_direct_hit_avoids_rcu_bookkeeping(void)
+{
+    g_auto(MCPXAPUSGETranslationCache) cache = {0};
+
+    stl_le_phys(&address_space_memory, 0x2000, 0x4000);
+    sge_rcu_guard_entries = 0;
+
+    g_assert_cmphex(get_data_ptr(0x2000, UINT_MAX, 0, &cache), ==, 0x4000);
+    g_assert_cmpuint(sge_rcu_guard_entries, ==, 1);
+    g_assert_cmphex(get_data_ptr(0x2000, UINT_MAX, 4, &cache), ==, 0x4004);
+    g_assert_cmpuint(sge_rcu_guard_entries, ==, 1);
+}
+
 static void test_sample_changes_descriptor(void)
 {
     g_auto(MCPXAPUSGETranslationCache) cache = {0};
+    RCU_READ_LOCK_GUARD();
 
     stl_le_phys(&address_space_memory, 0x2000, 0x4000);
     stl_le_phys(&address_space_memory, 0x4004, 100);
@@ -192,6 +223,7 @@ static void test_table_and_page_changes(void)
 static void test_descriptor_overlay(void)
 {
     g_auto(MCPXAPUSGETranslationCache) cache = {0};
+    RCU_READ_LOCK_GUARD();
 
     stl_le_phys(&address_space_memory, 0x2000, 0x4000);
     g_assert_cmphex(get_data_ptr(0x2000, UINT_MAX, 0, &cache), ==, 0x4000);
@@ -211,6 +243,7 @@ static void test_descriptor_overlay(void)
 static void test_partial_descriptor_mapping(void)
 {
     g_auto(MCPXAPUSGETranslationCache) cache = {0};
+    RCU_READ_LOCK_GUARD();
 
     stl_le_phys(&address_space_memory, 0x2000, 0x4000);
     memory_region_add_subregion_overlap(get_system_memory(), 0x2002,
@@ -260,6 +293,8 @@ int main(int argc, char **argv)
     memory_region_init_io(&partial_overlay, OBJECT(&ram), &partial_ops, NULL,
                           "partial-descriptor-overlay", 2);
     g_test_add_func("/xbox/apu/sge/live-descriptor", test_live_descriptor);
+    g_test_add_func("/xbox/apu/sge/direct-hit-avoids-rcu-bookkeeping",
+                    test_direct_hit_avoids_rcu_bookkeeping);
     g_test_add_func("/xbox/apu/sge/sample-rewrites-descriptor",
                     test_sample_changes_descriptor);
     g_test_add_func("/xbox/apu/sge/table-and-page-changes",
@@ -270,10 +305,7 @@ int main(int argc, char **argv)
                     test_partial_descriptor_mapping);
     g_test_add_func("/xbox/apu/sge/early-return-cleanup",
                     test_early_return_cleanup);
-    /* The unit BQL stub cannot serialize the RCU reclaimer's transactions. */
-    rcu_read_lock();
     int result = g_test_run();
-    rcu_read_unlock();
     drain_call_rcu();
     return result;
 }
