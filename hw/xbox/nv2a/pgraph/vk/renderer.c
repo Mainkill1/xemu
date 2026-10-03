@@ -24,6 +24,7 @@
 #include "ui/xemu-tweaks.h"
 #include "failpoint.h"
 #include "renderer.h"
+#include "neural-present-vk.h"
 #include "hybrid-ready.h"
 
 #include "gloffscreen.h"
@@ -122,8 +123,10 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
 
     pgraph_vk_debug_init();
 
+    pgraph_vk_neural_present_bootstrap(pg);
     pgraph_vk_init_instance(pg, errp);
     if (*errp) {
+        pgraph_vk_neural_present_finalize(pg);
         return;
     }
     pg->vk_renderer_state->hybrid_service_timer = timer_new_ns(
@@ -155,6 +158,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_init_textures(pg);
     pgraph_vk_init_reports(pg);
     pgraph_vk_init_compute(pg);
+    pgraph_vk_neural_present_init(pg);
     pgraph_vk_init_display(pg);
 
     qatomic_set(&pg->vk_renderer_state->hybrid_prewarm_service_pending,
@@ -181,6 +185,7 @@ static void pgraph_vk_finalize(NV2AState *d)
     /* Finish recorded draws before destroying their cached pipelines. */
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
     pgraph_vk_finalize_display(pg);
+    pgraph_vk_neural_present_finalize(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);
     pgraph_vk_finalize_textures(pg);

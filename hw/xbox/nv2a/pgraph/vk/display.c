@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "ui/xemu-gpu-info.h"
 #include "renderer.h"
+#include "neural-present-vk.h"
 #include <math.h>
 
 static uint8_t *convert_texture_data__CR8YB8CB8YA8(uint8_t *data_out,
@@ -547,6 +548,8 @@ static void destroy_current_display_image(PGRAPHState *pg)
         return;
     }
 
+    pgraph_vk_neural_present_release_display(pg);
+
     if (d->host_copy.gl_texture_id) {
         glDeleteTextures(1, &d->host_copy.gl_texture_id);
         d->host_copy.gl_texture_id = 0;
@@ -670,7 +673,8 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
         .usage = VK_IMAGE_USAGE_SAMPLED_BIT |
                  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                  (d->shared_presentation ? 0 :
-                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT),
+                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT) |
+                 pgraph_vk_neural_present_required_image_usage(pg),
         .samples = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
@@ -973,8 +977,9 @@ static void update_uniforms(PGRAPHState *pg, SurfaceBinding *surface,
     }
 }
 
-static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
-                           uint32_t vga_line_offset)
+static void render_display(
+    PGRAPHState *pg, SurfaceBinding *surface, uint32_t vga_line_offset,
+    PGRAPHVkNeuralPresentFrame *neural_frame)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1047,6 +1052,8 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
     vkCmdDraw(cmd, 3, 1, 0, 0);
 
     vkCmdEndRenderPass(cmd);
+
+    pgraph_vk_neural_present_record(pg, cmd, neural_frame);
 
 #if 0
     VkImageCopy region = {
@@ -1276,7 +1283,14 @@ void pgraph_vk_render_display(PGRAPHState *pg)
     }
 
     disp->reuse.valid = false;
-    render_display(pg, surface, vga_display_params.line_offset);
+    PGRAPHVkNeuralPresentFrame neural_frame;
+    pgraph_vk_neural_present_prepare(
+        pg, surface, scanout_address, pvideo_enabled,
+        interlace_mode != NV_PRMCIO_INTERLACE_MODE_DISABLED,
+        &neural_frame);
+    render_display(pg, surface, vga_display_params.line_offset,
+                   &neural_frame);
+    pgraph_vk_neural_present_complete(pg, &neural_frame);
 
     /* The display submission and host-copy invalidation have completed. */
     pgraph_vk_host_copy_publish_completed(

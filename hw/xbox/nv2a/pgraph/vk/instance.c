@@ -23,6 +23,7 @@
 #include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "neural-present-vk.h"
 #include "device-inventory.h"
 #include "xemu-version.h"
 
@@ -231,7 +232,8 @@ static bool create_instance(PGRAPHState *pg, Error **errp)
         }
     }
 
-    result = vkCreateInstance(&create_info, NULL, &r->instance);
+    result = pgraph_vk_neural_present_create_instance(
+        pg, &create_info, NULL, &r->instance);
     if (result != VK_SUCCESS) {
         error_setg(errp, "Failed to create instance (%d)", result);
         return false;
@@ -719,8 +721,8 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         .pNext = next_struct,
     };
 
-    result = vkCreateDevice(r->physical_device, &device_create_info, NULL,
-                            &r->device);
+    result = pgraph_vk_neural_present_create_device(
+        pg, r->physical_device, &device_create_info, NULL, &r->device);
     if (result != VK_SUCCESS) {
         error_setg(errp, "Failed to create logical device (%d)", result);
         return false;

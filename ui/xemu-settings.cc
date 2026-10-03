@@ -35,6 +35,8 @@
 #include "xemu-settings.h"
 #include "xemu-settings-migration.hh"
 #include "xemu-tweaks.h"
+#include "xemu-dlss-config.hh"
+#include "xemu-settings-menu.h"
 
 #define DEFINE_CONFIG_TREE
 #include "xemu-config.h"
@@ -206,6 +208,11 @@ bool xemu_settings_load(void)
     }
 
     config_tree.store_to_struct(&g_config);
+    g_config.general.last_viewed_menu_index = xemu_settings_menu_migrate_index(
+        g_config.general.last_viewed_menu_index,
+        g_config.general.settings_menu_version);
+    g_config.general.settings_menu_version = XEMU_SETTINGS_MENU_VERSION;
+    xemu_dlss_apply_settings(true);
 
     return success;
 }
@@ -301,8 +308,7 @@ bool xemu_settings_load_gamepad_mapping(const char *guid,
     cnode->store_to_struct(&g_config);
 
     *mapping =
-        &g_config.input
-             .gamepad_mappings[g_config.input.gamepad_mappings_count - 1];
+        &g_config.input.gamepad_mappings[g_config.input.gamepad_mappings_count - 1];
 
     // Migrate global 'allow_vibration' setting to the controller config
     if (!g_config.input.allow_vibration) {

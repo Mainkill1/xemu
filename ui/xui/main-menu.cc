@@ -1988,6 +1988,7 @@ MainMenuScene::MainMenuScene()
     : m_animation(0.12, 0.12), m_general_button("General", ICON_FA_GEARS),
       m_input_button("Input", ICON_FA_GAMEPAD),
       m_display_button("Display", ICON_FA_TV),
+      m_dlss_button("DLSS", ICON_FA_MICROCHIP),
       m_audio_button("Audio", ICON_FA_VOLUME_HIGH),
       m_network_button("Network", ICON_FA_NETWORK_WIRED),
       m_snapshots_button("Snapshots", ICON_FA_CLOCK_ROTATE_LEFT),
@@ -2000,6 +2001,7 @@ MainMenuScene::MainMenuScene()
     m_tabs.push_back(&m_general_button);
     m_tabs.push_back(&m_input_button);
     m_tabs.push_back(&m_display_button);
+    m_tabs.push_back(&m_dlss_button);
     m_tabs.push_back(&m_audio_button);
     m_tabs.push_back(&m_network_button);
     m_tabs.push_back(&m_snapshots_button);
@@ -2010,6 +2012,7 @@ MainMenuScene::MainMenuScene()
     m_views.push_back(&m_general_view);
     m_views.push_back(&m_input_view);
     m_views.push_back(&m_display_view);
+    m_views.push_back(&m_dlss_view);
     m_views.push_back(&m_audio_view);
     m_views.push_back(&m_network_view);
     m_views.push_back(&m_snapshots_view);
@@ -2028,17 +2031,17 @@ void MainMenuScene::ShowSettings()
 
 void MainMenuScene::ShowSnapshots()
 {
-    SetNextViewIndexWithFocus(5);
+    SetNextViewIndexWithFocus(XEMU_SETTINGS_TAB_SNAPSHOTS);
 }
 
 void MainMenuScene::ShowSystem()
 {
-    SetNextViewIndexWithFocus(6);
+    SetNextViewIndexWithFocus(XEMU_SETTINGS_TAB_SYSTEM);
 }
 
 void MainMenuScene::ShowAbout()
 {
-    SetNextViewIndexWithFocus(8);
+    SetNextViewIndexWithFocus(XEMU_SETTINGS_TAB_ABOUT);
 }
 
 void MainMenuScene::SetNextViewIndexWithFocus(int i)
