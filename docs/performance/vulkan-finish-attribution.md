@@ -64,3 +64,9 @@ samples greater than submissions, submissions greater than calls, unequal
 wait/submission counts and duration without a sample fail. This validates the
 telemetry contract; it does not prove the run completed or its scene is suitable.
 Live header-only and auxiliary/finish modes are mutually exclusive.
+
+## Reusable native recipe
+
+[The frozen PGR2 300-second recipe](recipes/pgr2-finish-300/README.md)
+retains its input contract, configuration, navigation and failed first outcome.
+It is an unpaired diagnostic; the owning PR retains raw native evidence.
