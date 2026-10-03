@@ -1,0 +1,280 @@
+{
+  "aa": {
+    "comparison": "Identical parent A/A",
+    "status": "inconclusive",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.8387814499999999,
+        "candidateSeconds": 0.8416609,
+        "timeSavedSeconds": -0.00287945000000007,
+        "improvementPercent": -0.34329,
+        "abbaImprovementPercent": 1.326225,
+        "baabImprovementPercent": -0.515773,
+        "aSamplesSeconds": [
+          0.7248026,
+          0.9492344,
+          0.7283285,
+          0.9558048
+        ],
+        "bSamplesSeconds": [
+          0.7134935,
+          0.938342,
+          0.7449798000000001,
+          0.9478398
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 0.87777445,
+        "candidateSeconds": 0.8799443499999999,
+        "timeSavedSeconds": -0.002169900000000023,
+        "improvementPercent": -0.247205,
+        "abbaImprovementPercent": 0.931234,
+        "baabImprovementPercent": 0.438894,
+        "aSamplesSeconds": [
+          0.7944943000000001,
+          0.9595125,
+          0.7960364,
+          0.9716104
+        ],
+        "bSamplesSeconds": [
+          0.777833,
+          0.9598399,
+          0.8016445999999999,
+          0.9582440999999999
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 0.88944735,
+        "candidateSeconds": 0.8924284,
+        "timeSavedSeconds": -0.0029810500000000467,
+        "improvementPercent": -0.335158,
+        "abbaImprovementPercent": -0.536616,
+        "baabImprovementPercent": 0.382902,
+        "aSamplesSeconds": [
+          0.8005774,
+          0.9747526999999999,
+          0.804142,
+          0.9803855
+        ],
+        "bSamplesSeconds": [
+          0.8189659,
+          0.9658909,
+          0.804288,
+          0.9734065
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.37768640000000003,
+        "candidateSeconds": 0.3749482,
+        "timeSavedSeconds": 0.002738200000000012,
+        "improvementPercent": 0.724993,
+        "abbaImprovementPercent": 0.265722,
+        "baabImprovementPercent": 0.707985,
+        "aSamplesSeconds": [
+          0.37677859999999996,
+          0.3788223,
+          0.3785942,
+          0.37017890000000003
+        ],
+        "bSamplesSeconds": [
+          0.37778890000000004,
+          0.37580420000000003,
+          0.36937970000000003,
+          0.3740922
+        ]
+      }
+    ]
+  },
+  "parent": {
+    "comparison": "Production parent \u2192 full candidate",
+    "status": "eligible",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.7334403500000001,
+        "candidateSeconds": 0.54966745,
+        "timeSavedSeconds": 0.18377290000000013,
+        "improvementPercent": 25.056284,
+        "abbaImprovementPercent": 25.132835,
+        "baabImprovementPercent": 33.228806,
+        "aSamplesSeconds": [
+          0.7317364000000001,
+          0.7351443000000001,
+          0.9370104,
+          0.7183145
+        ],
+        "bSamplesSeconds": [
+          0.5468369000000001,
+          0.5513751,
+          0.5479598,
+          0.5573204
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 0.79262425,
+        "candidateSeconds": 0.5884714,
+        "timeSavedSeconds": 0.20415284999999997,
+        "improvementPercent": 25.756574,
+        "abbaImprovementPercent": 24.282882,
+        "baabImprovementPercent": 32.370338,
+        "aSamplesSeconds": [
+          0.7724048,
+          0.7958448,
+          0.9435254000000001,
+          0.7894036999999999
+        ],
+        "bSamplesSeconds": [
+          0.5893293000000001,
+          0.5981041,
+          0.5843606,
+          0.5876135
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 0.80540855,
+        "candidateSeconds": 1.2576133999999999,
+        "timeSavedSeconds": -0.4522048499999999,
+        "improvementPercent": -56.146021,
+        "abbaImprovementPercent": -57.77105,
+        "baabImprovementPercent": -40.462595,
+        "aSamplesSeconds": [
+          0.8033905,
+          0.8055169,
+          0.9848183,
+          0.8053001999999999
+        ],
+        "bSamplesSeconds": [
+          1.2848111,
+          1.253579,
+          1.2527991,
+          1.2616478
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.3726865,
+        "candidateSeconds": 0.36716034999999997,
+        "timeSavedSeconds": 0.005526150000000023,
+        "improvementPercent": 1.482788,
+        "abbaImprovementPercent": 1.700558,
+        "baabImprovementPercent": 0.641054,
+        "aSamplesSeconds": [
+          0.37139140000000004,
+          0.37398159999999997,
+          0.3698068,
+          0.37836729999999996
+        ],
+        "bSamplesSeconds": [
+          0.36702809999999997,
+          0.36566940000000003,
+          0.36729259999999997,
+          0.3760853
+        ]
+      }
+    ]
+  },
+  "recovery": {
+    "comparison": "Recovery bypass \u2192 full candidate",
+    "status": "inconclusive",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.9172878000000001,
+        "candidateSeconds": 0.56577025,
+        "timeSavedSeconds": 0.35151755000000007,
+        "improvementPercent": 38.321403,
+        "abbaImprovementPercent": 24.455914,
+        "baabImprovementPercent": 38.369171,
+        "aSamplesSeconds": [
+          0.9318144,
+          0.9161116,
+          0.918464,
+          0.911035
+        ],
+        "bSamplesSeconds": [
+          0.5620721,
+          0.8339266999999999,
+          0.558067,
+          0.5694684
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 1.1168856999999999,
+        "candidateSeconds": 0.642513,
+        "timeSavedSeconds": 0.4743727,
+        "improvementPercent": 42.472806,
+        "abbaImprovementPercent": 45.057158,
+        "baabImprovementPercent": 39.654582,
+        "aSamplesSeconds": [
+          1.2820562,
+          1.2354075,
+          0.9983639,
+          0.9732393
+        ],
+        "bSamplesSeconds": [
+          0.6962586,
+          0.6869075,
+          0.5916537,
+          0.5981185
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 1.0159473,
+        "candidateSeconds": 1.2661277000000002,
+        "timeSavedSeconds": -0.25018040000000014,
+        "improvementPercent": -24.625332,
+        "abbaImprovementPercent": -18.524029,
+        "baabImprovementPercent": -25.008196,
+        "aSamplesSeconds": [
+          1.019815,
+          1.0135909,
+          1.0183037,
+          1.0073678000000001
+        ],
+        "bSamplesSeconds": [
+          1.2819328,
+          1.1281418,
+          1.2557053,
+          1.2765501000000001
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.47760080000000005,
+        "candidateSeconds": 0.3800894,
+        "timeSavedSeconds": 0.09751140000000003,
+        "improvementPercent": 20.416926,
+        "abbaImprovementPercent": 17.700734,
+        "baabImprovementPercent": -3.016299,
+        "aSamplesSeconds": [
+          0.5817849,
+          0.5988232,
+          0.3645042,
+          0.3734167
+        ],
+        "bSamplesSeconds": [
+          0.5975598000000001,
+          0.374072,
+          0.3793115,
+          0.38086729999999996
+        ]
+      }
+    ]
+  },
+  "decision": "HOLD",
+  "attempts": 24,
+  "collectedFiles": 7441,
+  "excluded": 0,
+  "CPUCorrect": true,
+  "MesaQualified": true,
+  "renderingQualified": false,
+  "zipSha256": "d42604a550159738e539aeac3353de7d0a2731a2b1b2188d500a337f5555ce85"
+}
