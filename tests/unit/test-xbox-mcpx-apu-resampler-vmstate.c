@@ -40,6 +40,30 @@ bool mcpx_apu_debug_is_muted(uint16_t voice)
     return test_muted;
 }
 
+static MemoryRegion notification_region;
+static unsigned notification_writes;
+
+static uint64_t notification_read(void *opaque, hwaddr address, unsigned size)
+{
+    return bytes[0x3000 + 16 * MCPX_HW_NOTIFIER_BASE_OFFSET + 15];
+}
+
+static void notification_write(void *opaque, hwaddr address, uint64_t value,
+                               unsigned size)
+{
+    notification_writes++;
+    bytes[0x3000 + 16 * MCPX_HW_NOTIFIER_BASE_OFFSET + 15] = value;
+}
+
+static const MemoryRegionOps notification_ops = {
+    .read = notification_read,
+    .write = notification_write,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+    .valid = { .min_access_size = 1, .max_access_size = 1 },
+};
+
+static void prepare_mix_state(void);
+
 static int round_trip_descriptions(const VMStateDescription *save,
                                    const VMStateDescription *load)
 {
@@ -78,6 +102,7 @@ static void test_terminal_round_trip(gconstpointer opaque)
     for (int channels = 1; channels <= 2; channels++) {
         setup_voice(64, channels == 2);
         d.vp.resampler_type = type;
+        prepare_mix_state();
         d.gp.dsp = g_new0(DSPState, 1);
         d.ep.dsp = g_new0(DSPState, 1);
         d.is_idle = true;
@@ -103,6 +128,13 @@ static void test_terminal_round_trip(gconstpointer opaque)
                         ==, 0);
         g_assert_true(d.vp.filters[0].resampler_deactivate_after_mix);
         g_assert_cmpuint(notification(), ==, 0);
+        float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+        voice_process(&d, bins, samples, 0, 0);
+        g_assert_cmpuint(notification(), ==,
+                        NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+        for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
+            g_assert_cmpfloat(bins[0][i], ==, 0);
+        }
         voice_destroy_resampler(&d.vp.filters[0]);
         qemu_cond_destroy(&d.cond);
         qemu_mutex_destroy(&d.lock);
@@ -168,6 +200,7 @@ static void test_automatic_completion(gconstpointer opaque)
                 prepare_mix_state();
                 d.vp.resampler_type = type;
                 test_muted = muted;
+                notification_writes = 0;
                 bool heard_tail = false;
                 int notifications = 0;
                 for (int block = 0; block < 32; block++) {
@@ -188,6 +221,11 @@ static void test_automatic_completion(gconstpointer opaque)
                 g_test_message("type=%d channels=%d muted=%d length=%d tail=%d",
                                type, channels, muted, lengths[n], heard_tail);
                 g_assert_cmpint(notifications, ==, 1);
+                g_assert_cmpuint(notification_writes, ==, 1);
+                float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+                float output[NUM_SAMPLES_PER_FRAME][2] = { 0 };
+                voice_process(&d, bins, output, 0, 0);
+                g_assert_cmpuint(notification_writes, ==, 1);
                 g_assert_cmpint(heard_tail, ==, !muted);
                 g_assert_cmpuint(cursor(), ==, lengths[n] - 1);
                 g_assert_cmpuint(voice_get_mask(&d, 0,
@@ -295,6 +333,11 @@ int main(int argc, char **argv)
     cpu_exec_init_all();
     rust_bql_mock_lock();
     init_memory();
+    memory_region_init_io(&notification_region, object_new(TYPE_CONTAINER),
+                           &notification_ops, NULL, "completion-status", 1);
+    memory_region_add_subregion_overlap(get_system_memory(),
+        0x3000 + 16 * MCPX_HW_NOTIFIER_BASE_OFFSET + 15,
+        &notification_region, 1);
     g_test_add_data_func("/xbox/apu/vmstate/terminal-sinc",
                          GINT_TO_POINTER(SRC_SINC_FASTEST),
                          test_terminal_round_trip);
