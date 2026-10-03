@@ -238,6 +238,87 @@ static void test_callback_preserves_prefix_before_malformed_block(void)
     g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
 }
 
+static void test_same_address_mutation_is_observed(void)
+{
+    ReaderFixture fixture;
+    float first[NUM_SAMPLES_PER_FRAME][2];
+
+    fixture_init(&fixture, false, false, 1, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    memcpy(first, fixture.samples, sizeof(first));
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
+
+    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    test_memory[TEST_DATA_BASE + 11] ^= 0x55;
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    g_assert_cmpint(memcmp(first, fixture.samples, sizeof(first)), !=, 0);
+    g_assert_cmphex(fixture.d.vp.filters[0].adpcm_cache.encoded[11], ==,
+                    test_memory[TEST_DATA_BASE + 11]);
+}
+
+static void test_voice_on_and_vp_reset_invalidate_cache(void)
+{
+    ReaderFixture fixture;
+
+    fixture_init(&fixture, false, false, 1, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], 36, 1);
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
+                    1);
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
+
+    fixture.d.vp.voice_locked[0] = 1;
+    fe_method(&fixture.d, NV1BA0_PIO_VOICE_ON, 0);
+    g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+
+    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 1), ==,
+                    1);
+    g_assert_true(fixture.d.vp.filters[0].adpcm_cache.valid);
+    mcpx_apu_vp_reset(&fixture.d);
+    g_assert_false(fixture.d.vp.filters[0].adpcm_cache.valid);
+}
+
+static void test_cached_and_uncached_valid_work_are_identical(void)
+{
+    ReaderFixture fixture;
+    float uncached[NUM_SAMPLES_PER_FRAME][2];
+    uint32_t uncached_ists;
+    bool uncached_irq;
+
+    fixture_init(&fixture, false, true, 2, 0, 63);
+    init_adpcm_block(&test_memory[TEST_DATA_BASE], 72, 2);
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    memcpy(uncached, fixture.samples, sizeof(uncached));
+    uncached_ists = fixture.d.regs[NV_PAPU_ISTS];
+    uncached_irq = fixture.d.set_irq;
+    g_assert_cmpuint(fixture_cbo(), ==, 32);
+
+    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    memset(fixture.samples, 0, sizeof(fixture.samples));
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    g_assert_cmpmem(fixture.samples, sizeof(fixture.samples), uncached,
+                    sizeof(uncached));
+    g_assert_cmpuint(fixture_cbo(), ==, 32);
+    g_assert_cmphex(fixture.d.regs[NV_PAPU_ISTS], ==, uncached_ists);
+    g_assert_cmpint(fixture.d.set_irq, ==, uncached_irq);
+
+    voice_reg_set(NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_CBO, 0);
+    mcpx_apu_adpcm_cache_reset(&fixture.d.vp.filters[0].adpcm_cache);
+    memset(fixture.samples, 0, sizeof(fixture.samples));
+    g_assert_cmpint(voice_get_samples(&fixture.d, 0, fixture.samples, 32), ==,
+                    32);
+    g_assert_cmpmem(fixture.samples, sizeof(fixture.samples), uncached,
+                    sizeof(uncached));
+    g_assert_cmpuint(fixture_cbo(), ==, 32);
+    g_assert_cmphex(fixture.d.regs[NV_PAPU_ISTS], ==, uncached_ists);
+    g_assert_cmpint(fixture.d.set_irq, ==, uncached_irq);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -251,5 +332,11 @@ int main(int argc, char **argv)
                     test_short_stereo_stops_before_primed_tail);
     g_test_add_func("/mcpx/apu/adpcm-reader/preserves-prefix",
                     test_callback_preserves_prefix_before_malformed_block);
+    g_test_add_func("/mcpx/apu/adpcm-reader/observes-same-address-mutation",
+                    test_same_address_mutation_is_observed);
+    g_test_add_func("/mcpx/apu/adpcm-reader/lifecycle-invalidation",
+                    test_voice_on_and_vp_reset_invalidate_cache);
+    g_test_add_func("/mcpx/apu/adpcm-reader/valid-work-parity",
+                    test_cached_and_uncached_valid_work_are_identical);
     return g_test_run();
 }

@@ -40,6 +40,7 @@ typedef struct MCPXADPCMBlockCache {
     bool valid;
     unsigned int channels;
     size_t encoded_size;
+    /* Frames per channel valid in the interleaved decoded prefix. */
     int sample_count;
     uint8_t encoded[MCPX_ADPCM_MAX_BLOCK_BYTES];
     int16_t decoded[MCPX_ADPCM_MAX_DECODED_SAMPLES];
@@ -180,6 +181,7 @@ static inline const int16_t *mcpx_apu_adpcm_decode_cached(
     MCPXADPCMBlockCache *cache, const uint8_t *encoded, size_t encoded_size,
     unsigned int channels, int *sample_count, bool *cache_hit)
 {
+    /* sample_count is frames per channel. Only that decoded prefix is valid. */
     if (!mcpx_apu_adpcm_fits_cache(encoded_size, channels)) {
         mcpx_apu_adpcm_cache_reset(cache);
         *sample_count = 0;
