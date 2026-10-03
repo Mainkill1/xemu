@@ -1,0 +1,312 @@
+{
+  "files": {
+    "AgentChecks.log": {
+      "bytes": 10060,
+      "sha256": "da9e67826d47f86bc6867c283adbb8cc530b1e614b90711dc28a993d8492c7ea"
+    },
+    "REPORT.md": {
+      "bytes": 4854,
+      "sha256": "6ebaa9abfa7b40cdfae5cef9de7e46ebb2413d35d64abc78fbde90fce9612757"
+    },
+    "RunnerChecks.log": {
+      "bytes": 2836,
+      "sha256": "d099ec0802412ce4ff645fb5e6b963727b35b2fc06b37c1d8ec7ec80ecbed1ff"
+    },
+    "SUMMARY.json": {
+      "bytes": 1443,
+      "sha256": "33d0e41a69ca3ab2d99011fb1732baf970651293a55f4b3a68eed70ce7f0ac7e"
+    },
+    "XisoChecks.log": {
+      "bytes": 1787,
+      "sha256": "a8b4670ba78d09e7d5369d8263fbf2b194664fe8fc5ec08db2ed334ac8ebbad1"
+    },
+    "after-discovery.json": {
+      "bytes": 1237,
+      "sha256": "9d924d50ef8ac30b695eae18b20f2790565f35c7e8e7f915b19315e5b9ed3ba3"
+    },
+    "after-status.json": {
+      "bytes": 2352,
+      "sha256": "6a5e4a22cb6b2daeb4580dc03583257a8da4cbb0e7ba0732bd1ec4c9b6729fac"
+    },
+    "after-suites.json": {
+      "bytes": 22989,
+      "sha256": "a3124bfe50dc339e5c81bd3d7928b33466ad553329fa7686d646ecda8be0b919"
+    },
+    "ambiguous-config-control.json": {
+      "bytes": 558,
+      "sha256": "98fa98f316a2b612c41a2526e2e163b903214b00d883c687246b6c6c82eb46ef"
+    },
+    "before-aa-plan.json": {
+      "bytes": 5818,
+      "sha256": "88d6e872d8861815ed80794e5d76851232a96558cf6bb4cc805c9870f0a9ed86"
+    },
+    "before-aa-report.json": {
+      "bytes": 9463,
+      "sha256": "5da502eb7b5145c1247a439cb53ccddce7c2b5a6f9cfbf2aa949f4fbe7ad52a7"
+    },
+    "before-aa-status.json": {
+      "bytes": 589,
+      "sha256": "48fdd2ef6a276b31e50b4da5405faeb346c433befe6b84319e52d3341e7fa046"
+    },
+    "before-discovery.json": {
+      "bytes": 1237,
+      "sha256": "ca2cfa6b6445a245ad1e9bbfc9ec75e4d3c6d87aa16a29d74e6ed06bec76b520"
+    },
+    "before-status.json": {
+      "bytes": 2519,
+      "sha256": "60921fb22f5cf07a4001bdb797d2475ff254bfb8414306e743ec4656b97a8f82"
+    },
+    "before-suites.json": {
+      "bytes": 22989,
+      "sha256": "a3124bfe50dc339e5c81bd3d7928b33466ad553329fa7686d646ecda8be0b919"
+    },
+    "before-tests.json": {
+      "bytes": 58099,
+      "sha256": "b02e87db463d3ea4d62a9a071447322024a7d759e49e97db27636fc1d17de6ec"
+    },
+    "compatibility-pr-body.md": {
+      "bytes": 2565,
+      "sha256": "740c2d9476c449598029d48af4b762d0380bf876b0ace39abd0ce5357962245e"
+    },
+    "configuration-control-container.json": {
+      "bytes": 4449,
+      "sha256": "baf9ba8b66343ae0f42e1779ff0509a28b6c13e8255c445f9ee9cd141962373c"
+    },
+    "configuration-control-upload-completed.json": {
+      "bytes": 137,
+      "sha256": "647bd9729ea49f19f724438e66a73be30b81a49c0b3e515c27a64c7138792114"
+    },
+    "fixed-AgentChecks.log": {
+      "bytes": 10060,
+      "sha256": "da9e67826d47f86bc6867c283adbb8cc530b1e614b90711dc28a993d8492c7ea"
+    },
+    "fixed-ControllerIntegrationChecks.log": {
+      "bytes": 772,
+      "sha256": "5f5208cd2b2d2676ea1079d4936951df6590db43101c7df3f137e7ad510f6039"
+    },
+    "fixed-ControllerRepairChecks.log": {
+      "bytes": 386,
+      "sha256": "3449e9aeb324b8de3a461fb5ba7d5aad6ff095621ca7cab77ee54de52f287c28"
+    },
+    "fixed-CrashChecks.log": {
+      "bytes": 721,
+      "sha256": "975d02141882c5fecb67a5383e1e1789936c747170bb971d1169ae053eb79ee5"
+    },
+    "fixed-DiskAssetChecks.log": {
+      "bytes": 423,
+      "sha256": "c31379261fb27d31b24dc12fd51de8e13f3d1a20dc9b1397e65a3bee54108370"
+    },
+    "fixed-FinalizationChecks.log": {
+      "bytes": 471,
+      "sha256": "b041dc0db433f05ad51ce67a94c3d96570cc46ca954019acbc0b91a0f5af5af1"
+    },
+    "fixed-GamepadProviderChecks.log": {
+      "bytes": 558,
+      "sha256": "5d73ff312a8d79e72f2cca2d84f8acfc6e90a73a84f6c26074a19488f6348677"
+    },
+    "fixed-OperationChecks.log": {
+      "bytes": 705,
+      "sha256": "46fbc2ca71c79afc65e63f1ba789bb243ec977c668476a76aed28af81c8e069f"
+    },
+    "fixed-RunnerChecks.log": {
+      "bytes": 2836,
+      "sha256": "d099ec0802412ce4ff645fb5e6b963727b35b2fc06b37c1d8ec7ec80ecbed1ff"
+    },
+    "fixed-StateChecks.log": {
+      "bytes": 1190,
+      "sha256": "e8be24758972a8b9f0cff787603f64b98046c07bebacf5f0eb69cdefd8433c10"
+    },
+    "fixed-aa-plan.json": {
+      "bytes": 5818,
+      "sha256": "88d6e872d8861815ed80794e5d76851232a96558cf6bb4cc805c9870f0a9ed86"
+    },
+    "fixed-aa-report.json": {
+      "bytes": 9463,
+      "sha256": "5da502eb7b5145c1247a439cb53ccddce7c2b5a6f9cfbf2aa949f4fbe7ad52a7"
+    },
+    "fixed-aa-status.json": {
+      "bytes": 589,
+      "sha256": "48fdd2ef6a276b31e50b4da5405faeb346c433befe6b84319e52d3341e7fa046"
+    },
+    "fixed-ambiguous-rejected.json": {
+      "bytes": 132,
+      "sha256": "8d81c9b6834f01240bf9c045ec45892bc441bd3ce4fbc9efe7b19410588ee769"
+    },
+    "fixed-config-application-plan.json": {
+      "bytes": 4001,
+      "sha256": "e6ea94edfae870dfcdf634b934fb9fd8e1efd008f2c8b37ebd2ce18927a762d4"
+    },
+    "fixed-config-suite-plan.json": {
+      "bytes": 3983,
+      "sha256": "3547e23d76a53a9b2de9a56e7df4d32c1f4f9544d8018a23e0c025e469a41aa7"
+    },
+    "fixed-discovery.json": {
+      "bytes": 1237,
+      "sha256": "cf088849fd8a9680bdd9f737de2c2c69c5b6ced80314603b357ede29e0f24179"
+    },
+    "fixed-gamepad-install.log": {
+      "bytes": 293,
+      "sha256": "85dada4d48b2db07c130a4fa11671f70dfe81e8120be853223c0ed38d25774b3"
+    },
+    "fixed-operator-upgrade.log": {
+      "bytes": 379,
+      "sha256": "1331b44bae96ce0c707d50b014fde22e9144055fe404eab76c2113e78babcd5c"
+    },
+    "fixed-operator-upgrade.sh": {
+      "bytes": 2874,
+      "sha256": "ce4768d1eb3b27bc8a2d81fcec756c0d0ed38c07364d4e54000ed531bdd6cfe2"
+    },
+    "fixed-package-provenance.json": {
+      "bytes": 309,
+      "sha256": "7534e4d173818166d6f044c1ae9119bf16fb7d3402cee0c9f1fa09137bba8457"
+    },
+    "fixed-publish-correct-identity.log": {
+      "bytes": 346,
+      "sha256": "afd7520db45b8872a374b426bde7e4b4627176c3800b28915eb81052bc881715"
+    },
+    "fixed-publish.log": {
+      "bytes": 435,
+      "sha256": "d048e58dfc3e18eb42879c39675fb57ef6d3bf13826c3d1cd08321244e7af043"
+    },
+    "fixed-status.json": {
+      "bytes": 2352,
+      "sha256": "5edd4304e9dff992583dc94721606cf78dcd961f90d0765f3c0cae33b8a184e0"
+    },
+    "fixed-suite-exits.json": {
+      "bytes": 566,
+      "sha256": "b705340a192fff24ce615a2cba1a047b0b96419e9112db291c6ae1fedf7f7e1b"
+    },
+    "fixed-suites.json": {
+      "bytes": 22989,
+      "sha256": "a3124bfe50dc339e5c81bd3d7928b33466ad553329fa7686d646ecda8be0b919"
+    },
+    "fixed-tests.json": {
+      "bytes": 58099,
+      "sha256": "b02e87db463d3ea4d62a9a071447322024a7d759e49e97db27636fc1d17de6ec"
+    },
+    "gamepad-build.log": {
+      "bytes": 116,
+      "sha256": "30551d4c2d16985bf5822d2094f5bec856aca61dae19acbe6c56ad1d78b3388f"
+    },
+    "gamepad-install.log": {
+      "bytes": 281,
+      "sha256": "7ce5a1e4e9ec6e1a21b0d97c8e66eaf0a69bf7652d6ce77f01f062df4be3ce68"
+    },
+    "independent-fix-XisoChecks.log": {
+      "bytes": 1869,
+      "sha256": "2938906c2b72b1824a40867bd065878ad9362a34d8612375117b51dde5a18ede"
+    },
+    "legacy-identity-final.log": {
+      "bytes": 1869,
+      "sha256": "2938906c2b72b1824a40867bd065878ad9362a34d8612375117b51dde5a18ede"
+    },
+    "legacy-identity-green.log": {
+      "bytes": 1869,
+      "sha256": "2938906c2b72b1824a40867bd065878ad9362a34d8612375117b51dde5a18ede"
+    },
+    "legacy-identity-red.log": {
+      "bytes": 406,
+      "sha256": "cff72ab9fb524c235f6de7c6d05afd9611f8051bfde4084a69cb87b4575d6c6a"
+    },
+    "legacy-identity-red2.log": {
+      "bytes": 3239,
+      "sha256": "32788d8008ed2955d04629aa03b40905f8aec2638c7721d6ba5f120cf831df4e"
+    },
+    "new-format-identity-preserved.json": {
+      "bytes": 639,
+      "sha256": "add2f0edf1ff3f6b04fca42cfeb1be8614453b65bf96d6b40ffdc164936828a8"
+    },
+    "operator-upgrade.log": {
+      "bytes": 379,
+      "sha256": "b40ca87d161a2d2aac52558be71c9aa0c5fe729dc8bfa491e98fb6e5b816d4a5"
+    },
+    "operator-upgrade.sh": {
+      "bytes": 2874,
+      "sha256": "12eb8ca632d4388bc0dcd6ca67fdb21d70a970de2f789d02e5fbb78ed92c32e0"
+    },
+    "original-metadata-preservation.json": {
+      "bytes": 73,
+      "sha256": "1a42ba67ba92fb08558dc6fb136a44843c959c979404120ba565c8f8a6b1514f"
+    },
+    "pr89-before.md": {
+      "bytes": 5017,
+      "sha256": "56b19fd66113d46138eac6ecd28551ceba009326299ce1bc09a5c31340e6b5a1"
+    },
+    "preserved-aa-plan.json": {
+      "bytes": 5818,
+      "sha256": "88d6e872d8861815ed80794e5d76851232a96558cf6bb4cc805c9870f0a9ed86"
+    },
+    "preserved-aa-report.json": {
+      "bytes": 9463,
+      "sha256": "5da502eb7b5145c1247a439cb53ccddce7c2b5a6f9cfbf2aa949f4fbe7ad52a7"
+    },
+    "preserved-aa-terminal-status.json": {
+      "bytes": 589,
+      "sha256": "48fdd2ef6a276b31e50b4da5405faeb346c433befe6b84319e52d3341e7fa046"
+    },
+    "preserved-conflicts-plan.json": {
+      "bytes": 5900,
+      "sha256": "c69169e5f4d661374aada3c9f344883e7bac14cd8073925514a83db705b4263d"
+    },
+    "preserved-conflicts-report.json": {
+      "bytes": 9492,
+      "sha256": "232942ced9793e7f6fd82790074d4ea4831a7fb7b6e3d3d484d4a6e01270f9b5"
+    },
+    "preserved-conflicts-terminal-status.json": {
+      "bytes": 610,
+      "sha256": "4029382e22a187a93d6484e0fbcb30d886ee0a7507c3c7bd09f5155ba994f73c"
+    },
+    "preserved-counters-plan.json": {
+      "bytes": 5890,
+      "sha256": "2c5533fb43e81440c0b43894b0c280d0c7961ffafdbad1667110b4948ecd831a"
+    },
+    "preserved-counters-report.json": {
+      "bytes": 9505,
+      "sha256": "97438191189873c781414b4506c7c207fb1a5d7aeb1b84c41a864308e4d9f95b"
+    },
+    "preserved-counters-terminal-status.json": {
+      "bytes": 607,
+      "sha256": "4a7ed0ff80589626d5580270503ddf74c978ddf18221c9c581ac8a2605e07b02"
+    },
+    "preserved-dormant-plan.json": {
+      "bytes": 5880,
+      "sha256": "b2dbb9d81ba413c95b46b2da0978c68e06ce25d298cc1d52d494b27ae0db6147"
+    },
+    "preserved-dormant-report.json": {
+      "bytes": 9496,
+      "sha256": "71cb9a6314b32c3f3c1892d0e7bce07e2560913b43f73713d58817285b83144b"
+    },
+    "preserved-dormant-terminal-status.json": {
+      "bytes": 604,
+      "sha256": "1c47d9f7fcc6ec4665cef94dbb0e566bad4a9c27e61055d399db9e81371b8354"
+    },
+    "preserved-parity-plan.json": {
+      "bytes": 5866,
+      "sha256": "e571b4682b5a6ce2e371d1c8b2559a39c91c69659567af47da9d1667faee2a12"
+    },
+    "preserved-parity-report.json": {
+      "bytes": 9512,
+      "sha256": "108294b7cb4b39b3c2e2c93c13a4c0503420873347032ed8b0b0ecdb000d3160"
+    },
+    "preserved-parity-terminal-status.json": {
+      "bytes": 601,
+      "sha256": "30107125bc46a0e29f35249f0949a5459170df12ccd18a77c535a7f780bfefe7"
+    },
+    "publish.log": {
+      "bytes": 429,
+      "sha256": "2b6aa3edadeae2e9d12b48ff16644e4afd4d94d832c850725050090b0f5a54ef"
+    },
+    "python-xiso.log": {
+      "bytes": 1631,
+      "sha256": "b6b88e25ffa3be0fe4241753648fde4134f586dc1c45667a45744256aec82fc4"
+    },
+    "verify-via-http.py": {
+      "bytes": 2040,
+      "sha256": "6b718282242ca11d36c662e642747a8f9bd446ef0d55f2f13e84b6737aab936b"
+    }
+  },
+  "exclusions": [
+    "Self-contained binary packages are indexed by their source revision and package SHA-256, rather than duplicated in evidence."
+  ],
+  "nativeMeasurementAttempts": 0
+}

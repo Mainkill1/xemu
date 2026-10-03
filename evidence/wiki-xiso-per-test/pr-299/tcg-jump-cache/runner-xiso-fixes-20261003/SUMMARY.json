@@ -1,0 +1,50 @@
+{
+  "runnerVersion": "0.2.0+55a360daf82a699ecd12d69d8484f32bf1cf3752",
+  "host": "http://10.0.0.123:9368",
+  "preservedCampaigns": [
+    {
+      "campaign": "i167-correct-aa-31c-001",
+      "originalPlanReportStatusIdentical": true
+    },
+    {
+      "campaign": "i167-correct-parity-31c-001",
+      "originalPlanReportStatusIdentical": true
+    },
+    {
+      "campaign": "i167-correct-dormant-31c-001",
+      "originalPlanReportStatusIdentical": true
+    },
+    {
+      "campaign": "i167-correct-counters-31c-001",
+      "originalPlanReportStatusIdentical": true
+    },
+    {
+      "campaign": "i167-correct-conflicts-31c-001",
+      "originalPlanReportStatusIdentical": true
+    }
+  ],
+  "preservedNativeAttempts": 40,
+  "originalMetadataFilesUnchanged": 1091,
+  "newMeasurementAttempts": 0,
+  "archivedNativeEntries": 633,
+  "idle": true,
+  "performanceClaim": false,
+  "managedChecks": {
+    "AgentChecks": 142,
+    "ControllerIntegrationChecks": 11,
+    "ControllerRepairChecks": 7,
+    "CrashChecks": 9,
+    "DiskAssetChecks": 5,
+    "FinalizationChecks": 6,
+    "GamepadProviderChecks": 11,
+    "OperationChecks": 9,
+    "RunnerChecks": 48,
+    "StateChecks": 16,
+    "XisoChecks": 26
+  },
+  "managedChecksTotal": 290,
+  "pythonXisoClientChecks": 10,
+  "independentFixXisoChecks": 26,
+  "sourceFixPr": "https://github.com/Mainkill1/Xemu-Test-Runner/pull/98",
+  "runnerToolPr": "https://github.com/Mainkill1/Xemu-Test-Runner/pull/89"
+}
