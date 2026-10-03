@@ -17,7 +17,8 @@ subtracting separate campaigns.
 
 Both builds use product `31c083ece2e7d44e87b2c7c4039cfc6b2365848d`, matched
 GCC14 O2 i386-softmmu settings and support bytes. A compiles the probe out; B
-compiles it in with collection **OFF**. Both inline the primary lookup. This
+compiles it in. Runtime mode is OFF, counters or conflicts as declared for each
+campaign below. Both inline the primary lookup. This
 isolates the build-option change more closely than the
 [superseded compiler-confounded comparison](../observer-dormant-7cb-20261003/REPORT.md).
 It is not a same-executable runtime OFF/ON comparison.
@@ -25,7 +26,7 @@ It is not a same-executable runtime OFF/ON comparison.
 | Label | Build | Executable SHA-256 |
 | --- | --- | --- |
 | A | Corrected probe compiled out | `6ab70e58239e9b312f4168b3d8572e64143fcb602adf7264bd3a1e267e7cea7c` |
-| B | Corrected probe compiled in, collection OFF | `db2edddae3080e26f166b4e9750d28449e1150604b20f9135aa884cebb3a5d58` |
+| B | Corrected probe compiled in; mode per campaign | `db2edddae3080e26f166b4e9750d28449e1150604b20f9135aa884cebb3a5d58` |
 
 Physical order is A1, B1, B2, A2 (ABBA), then B3, A3, A4, B4 (BAAB).
 All attempts and samples remain. Tables use medians of four **attempt-level mean**
