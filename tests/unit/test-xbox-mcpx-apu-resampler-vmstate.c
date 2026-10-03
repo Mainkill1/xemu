@@ -8,7 +8,7 @@
 
 /* Reuse the real AddressSpace setup and production reader, not sample doubles.
  */
-int voice_samples_main(int argc, char **argv);
+static int voice_samples_main(int argc, char **argv) G_GNUC_UNUSED;
 #define main voice_samples_main
 #include "test-xbox-mcpx-apu-voice-samples.c"
 #undef main
