@@ -1,0 +1,11 @@
+{
+  "file": "native-evidence.tar.gz",
+  "bytes": 3066057,
+  "sha256": "a9db4d65307365c9b12224d6310c87a86939f0379e0bd548868b3596707b594d",
+  "contents": "Original canonical generated-fixture evidence and losslessly compressed logs; contents match file-manifest.json; binary/guest/cache exclusions retain hashes in attempt-audit.json.",
+  "nativeRuns": 30,
+  "benchmarkRuns": 24,
+  "diagnosticRuns": 6,
+  "fixtureAndToolHead": "82a109e394f155513ed5f308514e29d71b4d66bb",
+  "candidateMeasuredHead": "aeeb9554a87f5e4cb706ff6c58b3825b16f320f1"
+}

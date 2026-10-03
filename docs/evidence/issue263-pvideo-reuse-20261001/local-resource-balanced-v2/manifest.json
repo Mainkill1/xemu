@@ -1,0 +1,1065 @@
+{
+  "scope": "allocation-only host microbenchmark; no uploads, shaders or gameplay",
+  "reference_commit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidate_head_before_measurement": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidate_source_sha256": {
+    "hw/xbox/nv2a/pgraph/vk/display.c": "558edeafe57bbce5346c0320b6f351d2cf2cf80c0e3a1ce6e9bbf4218f5c53c0",
+    "hw/xbox/nv2a/pgraph/vk/renderer.h": "de8ce6bb7e796c624a2d8e2ab00510b1d325258e0478ed98cabe972aa5ddb7a1",
+    "tests/unit/test-xbox-vk-pvideo-gpu.c": "e5c630c03bc5b449f3c8b24666fa75ddc411494c3c35e2303ff3dfd907d0165b"
+  },
+  "reference_source_sha256": "4852bf6f370e109e102015efbb9387e7fce1ffa11cd88e3b0c4bc50defbaf399",
+  "reference_executable_sha256": "f91e7f566a9db1a00705c739b41b903b0f43034b19fd69ee56e6442e037a72a5",
+  "candidate_executable_sha256": "340a85d1f8268305ecb2af371d73d4868512f5da569da8d7d2b2c73095ae0d19",
+  "reference_uses": "exact reference display.c, shared harness/current struct headers and toolchain",
+  "cwd": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/build-profile",
+  "reference_compile": [
+    "cc",
+    "-m64",
+    "-Itests/unit/test-xbox-vk-pvideo-gpu.p",
+    "-Itests/unit",
+    "-I../tests/unit",
+    "-Itarget/i386",
+    "-I../target/i386",
+    "-Isubprojects/volk",
+    "-I../subprojects/volk",
+    "-I/usr/include",
+    "-Isubprojects/glslang",
+    "-I../subprojects/glslang",
+    "-Isubprojects/glslang/__CMake_build/include",
+    "-I../subprojects/glslang/__CMake_build/include",
+    "-I../subprojects/VulkanMemoryAllocator/include",
+    "-Isubprojects/VulkanMemoryAllocator",
+    "-I../subprojects/VulkanMemoryAllocator",
+    "-Isubprojects/SPIRV-Reflect",
+    "-I../subprojects/SPIRV-Reflect",
+    "-I.",
+    "-Iqapi",
+    "-Itrace",
+    "-Iui",
+    "-Iui/shader",
+    "-Idata",
+    "-I/usr/include/glib-2.0",
+    "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+    "-I/usr/include/sysprof-6",
+    "-fdiagnostics-color=auto",
+    "-Wall",
+    "-Winvalid-pch",
+    "-std=gnu11",
+    "-O2",
+    "-g",
+    "-Wempty-body",
+    "-Wendif-labels",
+    "-Wexpansion-to-defined",
+    "-Wformat-security",
+    "-Wformat-y2k",
+    "-Wignored-qualifiers",
+    "-Wimplicit-fallthrough=2",
+    "-Winit-self",
+    "-Wmissing-format-attribute",
+    "-Wmissing-prototypes",
+    "-Wnested-externs",
+    "-Wold-style-declaration",
+    "-Wold-style-definition",
+    "-Wredundant-decls",
+    "-Wshadow=local",
+    "-Wstrict-prototypes",
+    "-Wtype-limits",
+    "-Wwrite-strings",
+    "-Wno-missing-include-dirs",
+    "-Wno-psabi",
+    "-Wno-shift-negative-value",
+    "-isystem",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/linux-headers",
+    "-isystem",
+    "linux-headers",
+    "-iquote",
+    ".",
+    "-iquote",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse",
+    "-iquote",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/include",
+    "-iquote",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/host/include/x86_64",
+    "-iquote",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/host/include/generic",
+    "-iquote",
+    "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/tcg/i386",
+    "-pthread",
+    "-mcx16",
+    "-msse2",
+    "-D_GNU_SOURCE",
+    "-D_FILE_OFFSET_BITS=64",
+    "-D_LARGEFILE_SOURCE",
+    "-fno-strict-aliasing",
+    "-fno-common",
+    "-fwrapv",
+    "-ftrivial-auto-var-init=zero",
+    "-fzero-call-used-regs=used-gpr",
+    "-DXBOX",
+    "-fPIE",
+    "-DVK_NO_PROTOTYPES",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-DCOMPILING_PER_TARGET",
+    "-DCONFIG_TARGET=\"i386-softmmu-config-target.h\"",
+    "-DCONFIG_DEVICES=\"i386-softmmu-config-devices.h\"",
+    "-o",
+    "/home/codex/src/steamdeck-xemu/artifacts/issue263-pvideo-reuse/local-resource-balanced-v2/reference.o",
+    "-c",
+    "../tests/unit/test-xbox-vk-pvideo-gpu.c",
+    "-I/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/hw/xbox/nv2a/pgraph/vk",
+    "-DXEMU_PVIDEO_DISPLAY_SOURCE=\"/home/codex/src/steamdeck-xemu/artifacts/issue263-pvideo-reuse/local-resource-balanced-v2/reference-display.c\""
+  ],
+  "reference_link": [
+    "c++",
+    "-m64",
+    "-o",
+    "/home/codex/src/steamdeck-xemu/artifacts/issue263-pvideo-reuse/local-resource-balanced-v2/pvideo-reference",
+    "libevent-loop-base.a.p/event-loop-base.c.o",
+    "libqom.a.p/qom_container.c.o",
+    "libqom.a.p/qom_object.c.o",
+    "libqom.a.p/qom_object_interfaces.c.o",
+    "libqom.a.p/qom_qom-qobject.c.o",
+    "/home/codex/src/steamdeck-xemu/artifacts/issue263-pvideo-reuse/local-resource-balanced-v2/reference.o",
+    "-Wl,--as-needed",
+    "-Wl,--no-undefined",
+    "-pie",
+    "-Wl,-z,relro",
+    "-Wl,-z,now",
+    "-DXBOX",
+    "-Wl,--start-group",
+    "libqemuutil.a",
+    "subprojects/xxHash-0.8.3/libxxhash.a",
+    "subprojects/volk/libvolk.a",
+    "subprojects/glslang/libglslang.a",
+    "subprojects/glslang/libMachineIndependent.a",
+    "subprojects/glslang/libGenericCodeGen.a",
+    "subprojects/glslang/libSPIRV.a",
+    "thirdparty/libvma.a",
+    "subprojects/SPIRV-Reflect/libspirv_reflect_static.a",
+    "-Wl,--gc-sections",
+    "/usr/lib/x86_64-linux-gnu/libvulkan.so",
+    "/usr/lib/x86_64-linux-gnu/libcurl.so",
+    "-lm",
+    "-pthread",
+    "/usr/lib/x86_64-linux-gnu/libglib-2.0.so",
+    "-Wl,--end-group"
+  ],
+  "platform": "Linux-6.12.101+deb13-amd64-x86_64-with-glibc2.41",
+  "cpu_affinity": [
+    0
+  ],
+  "icd": "/usr/share/vulkan/icd.d/lvp_icd.json",
+  "icd_sha256": "b6400076ed18c58e1447573fd08490718983321cbdaf94c0ba9594693dbccea4",
+  "plan": {
+    "aa": "AAAA",
+    "abba": "ABBA",
+    "baab": "BAAB"
+  },
+  "A": "reference",
+  "B": "candidate",
+  "requests_per_batch": 10001,
+  "clock": "g_get_monotonic_time, microseconds, one warmup create/destroy outside batch",
+  "results": [
+    {
+      "phase": "aa",
+      "ordinal": 1,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3972",
+        "ns_per_request": "397.160",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "2f86a5c3c38e7b55fe5a94942a99731b15c34c11b59daa73b4587319c2beaaa2",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "aa",
+      "ordinal": 2,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3805",
+        "ns_per_request": "380.462",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "a81275f1448056ae6029c0d06238d025c7d72237b2dd93c3047bff503e27bcef",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "aa",
+      "ordinal": 3,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "4150",
+        "ns_per_request": "414.959",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "66d3f6fd716755cda10e1fc61ddc0a7b002d478caa5832410a0d31e0babc2b2b",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "aa",
+      "ordinal": 4,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3785",
+        "ns_per_request": "378.462",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "5bc5624035ca84c109d64167da4a0a006928743357466d098dd4face7e16efb0",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "abba",
+      "ordinal": 1,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3809",
+        "ns_per_request": "380.862",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "8321dc89589751c12f44f848cc70bfec38d4a06b1f1539c131c814805e53cb85",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "abba",
+      "ordinal": 2,
+      "variant": "B",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "1",
+        "elapsed_us": "19",
+        "ns_per_request": "1.900",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "22dcc884cfc3ff0b4dbeb1d7959b4c10649b27b1b51de6d8a971339c41b727a9",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "abba",
+      "ordinal": 3,
+      "variant": "B",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "1",
+        "elapsed_us": "28",
+        "ns_per_request": "2.800",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "f2eae4b01023226b5cc4748e4dd99a9c919accc9650fe86e3a2c3119dee1c421",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "abba",
+      "ordinal": 4,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "5468",
+        "ns_per_request": "546.745",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "a4ded724461ebc2fd2cbe607bf239f1b4e48750e69803436db39ebd6a067cfa4",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "baab",
+      "ordinal": 1,
+      "variant": "B",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "1",
+        "elapsed_us": "28",
+        "ns_per_request": "2.800",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "f2eae4b01023226b5cc4748e4dd99a9c919accc9650fe86e3a2c3119dee1c421",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "baab",
+      "ordinal": 2,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3835",
+        "ns_per_request": "383.462",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "d7a8661545810a50073604af639538f47abe60d3133f9d612893fd35a2a8dc16",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "baab",
+      "ordinal": 3,
+      "variant": "A",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "10001",
+        "elapsed_us": "3797",
+        "ns_per_request": "379.662",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "8bada52e3381799119b94b8a9380303d53b5dcdc40fa73e378fd93e2b0d59cc5",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    },
+    {
+      "phase": "baab",
+      "ordinal": 4,
+      "variant": "B",
+      "exit_code": 0,
+      "fields": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "driver_version": "109056002",
+        "requests": "10001",
+        "image_creates": "1",
+        "elapsed_us": "19",
+        "ns_per_request": "1.900",
+        "live_allocations_after_teardown": "0"
+      },
+      "stdout_sha256": "22dcc884cfc3ff0b4dbeb1d7959b4c10649b27b1b51de6d8a971339c41b727a9",
+      "cache_files_before": [],
+      "cache_files_after": [
+        {
+          "path": "mesa/mesa_shader_cache/23/2c1f7c66c0292ff7aaf5bb63502e20bb4a8009879ba1bd60ede222aa8ada9b",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/2e/67a8182bf5d7656ee9d2eb0a93219494bfaf867a2d5d45d10a654332aa36c4",
+          "bytes": 605,
+          "sha256": "70d2e753bac346908e8a7c6abc1a18dff0bc9c360abb10bcb0fc6db505f42eba"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/50/5c1e8cf6f4e06250de5d71d220608aee4dbbe01c908499e7a4d19d45d3a5cf",
+          "bytes": 479,
+          "sha256": "66686d85788091cec425cc5e293550a3455504773a86605a7afd88d1cb0c036b"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/5a/746a343fef89b63993c4533efafdb81fe3af14d1e7a04246b3db6da1235fa3",
+          "bytes": 613,
+          "sha256": "1fab7cbc58f5e2cc1c1055c0785000f7565af47c7f8dae723b95697045fa9423"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/74/be627e1368b96820073b2f22c9cfcf10d9894d4b92fc5a3ecffa93763152a1",
+          "bytes": 613,
+          "sha256": "1583d5c3228fd4fe8d093652e2bc653075f7b68d94ce4e087fe7039362f1d73f"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/83/1324e92282ddf56a6a5a0a3d472d1952373a99ad1502df97f1ca3fc3a6bdd3",
+          "bytes": 612,
+          "sha256": "28fdf7267bd76fe28b1e3431ac31caeed7d924cdb95032368304f55a6ed90a5e"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/c0/4321ac66faa664df5e0f537769dc4b6b1196525f19dee54b3ccc2ed6b599fb",
+          "bytes": 614,
+          "sha256": "cd0f5049ff8a9ae07b94aa34ea28fc3bca8cb8bb7570820c5f94beea27547591"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/ec/641438431acfe8d9f45c7cd10e8e17409cf932ad9de0287b62b950ec7e190b",
+          "bytes": 461,
+          "sha256": "eaeddb9f0e26ce9bf091566252f250ffefdf2213e3f74e27ed12b394b87707f4"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/f7/f86f06441e79abbed6adb381afeb20401679d52e6d975d5b545f35e2385583",
+          "bytes": 613,
+          "sha256": "b36ce9d6f6fe3f8384b96cdb8a9a20aa58af5fb6985409f3e1b29f192f4b577c"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/fa/fb4b22790c8f48b9db13e78edcb13a62f274864c7acbfe7613e6f76f3718d1",
+          "bytes": 437,
+          "sha256": "7924d2bd4ce9d98b20e0b639146cf0495fdb29212f801754120ca60c13fc74f2"
+        },
+        {
+          "path": "mesa/mesa_shader_cache/index",
+          "bytes": 2097160,
+          "sha256": "3f5aca0745c4bf8064d725df6b8b7c55b3ec136927d6f3886b191cb1f761e7a9"
+        }
+      ],
+      "cache_file_count": 11
+    }
+  ]
+}

@@ -519,6 +519,7 @@ typedef struct PGRAPHVkDisplayState {
         VkImageView image_view;
         VmaAllocation allocation;
         VkSampler sampler;
+        VkImageLayout current_layout;
     } pvideo;
 
     int width, height;

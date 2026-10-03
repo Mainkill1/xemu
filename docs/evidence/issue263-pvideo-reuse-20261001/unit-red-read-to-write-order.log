@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02S2f9b3ceb573f93416b643b8a70ae7bc3
+# Start of pvideo tests
+**
+ERROR:../tests/unit/test-xbox-vk-pvideo.c:277:test_upload_orders_previous_shader_read: assertion failed (upload_old_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL): (0 == 5)
+not ok /pvideo/read-to-write-order - ERROR:../tests/unit/test-xbox-vk-pvideo.c:277:test_upload_orders_previous_shader_read: assertion failed (upload_old_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL): (0 == 5)
+Bail out!
