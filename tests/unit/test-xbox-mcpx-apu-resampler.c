@@ -213,9 +213,9 @@ static void test_streaming_mono_matches_duplicated_stereo(void)
             /*
              * libsamplerate 0.2.2's linear converter reads before its input
              * buffer when a callback returns exactly one frame (upstream
-             * issue #208 / PR #209). The production voice callback always
-             * returns NUM_SAMPLES_PER_FRAME (32), padding with silence when
-             * necessary, so that broken third-party schedule is unreachable.
+             * issue #208 / PR #209). The production callback returns its
+             * actual finite prefix, appending a synthetic silent frame only
+             * for a one-frame linear tail. This raw callback has no guard.
              */
             if (converter_types[converter] == SRC_LINEAR &&
                 callback_frames[chunk] == 1) {
@@ -447,6 +447,78 @@ static void test_linear_finite_single_frame_adds_guard(void)
     g_assert_cmpfloat(stereo[0][1], ==, -0.5f);
     g_assert_cmpfloat(stereo[1][0], ==, 0.0f);
     g_assert_cmpfloat(stereo[1][1], ==, 0.0f);
+}
+
+static void test_linear_guard_requires_two_slots(void)
+{
+    if (g_test_subprocess()) {
+        ProductionInput input = { .available = 1, .finite = true };
+        /* Extra storage keeps the old implementation from crashing by luck. */
+        float stereo[2][2] = { 0 };
+        float mono[2] = { 0 };
+        float *data;
+        bool end_of_input;
+
+        mcpx_apu_resampler_fill_input_block(1, 1, fetch_production_input,
+                                           &input, stereo, mono, &data,
+                                           &end_of_input, SRC_LINEAR);
+        return;
+    }
+    g_test_trap_subprocess(NULL, 0, 0);
+    g_test_trap_assert_failed();
+    g_test_trap_assert_stderr("*frames >= 2*");
+}
+
+static void test_linear_guard_high_ratios(void)
+{
+    static const double ratios[] = { 1, 4, 16, 64, 256 };
+
+    for (int channels = 1; channels <= 2; channels++) {
+        for (int r = 0; r < ARRAY_SIZE(ratios); r++) {
+            ProductionAdapter adapter = {
+                .input = {
+                    .samples = { { 0.5f, 0.5f } },
+                    .available = 1,
+                    .finite = true,
+                },
+                .channels = channels,
+                .converter_type = SRC_LINEAR,
+            };
+            float output[32 * 2];
+            int error;
+            SRC_STATE *resampler = src_callback_new(
+                production_adapter_callback, SRC_LINEAR, channels,
+                &error, &adapter);
+            g_assert_nonnull(resampler);
+            g_assert_cmpint(error, ==, 0);
+            long total = 0;
+            for (int block = 0; block < 32; block++) {
+                long count = src_callback_read(resampler, ratios[r], 32,
+                                                output);
+                g_assert_cmpint(src_error(resampler), ==, 0);
+                for (int i = 0; i < count * channels; i++) {
+                    g_assert_true(isfinite(output[i]));
+                }
+                if (channels == 2) {
+                    for (int i = 0; i < count; i++) {
+                        g_assert_cmpfloat(output[2 * i], ==,
+                                          output[2 * i + 1]);
+                    }
+                }
+                total += count;
+                if (!count) {
+                    break;
+                }
+            }
+            g_assert_cmpint(adapter.input.offset, ==, 1);
+            g_assert_true(adapter.source_finished);
+            /* libsamplerate 0.2.2 treats the silent guard as source. */
+            g_assert_cmpint(total, ==, 2 * ratios[r]);
+            g_test_message("channels=%d ratio=%.0f: 1 real + 1 guard -> %ld",
+                           channels, ratios[r], total);
+            src_delete(resampler);
+        }
+    }
 }
 
 static void test_linear_empty_finite_source_stays_empty(void)
@@ -1099,6 +1171,10 @@ int main(int argc, char **argv)
                     test_production_input_preserves_finite_tail);
     g_test_add_func("/mcpx/apu/resampler/linear-finite-single-frame-guard",
                     test_linear_finite_single_frame_adds_guard);
+    g_test_add_func("/mcpx/apu/resampler/linear-guard-capacity",
+                    test_linear_guard_requires_two_slots);
+    g_test_add_func("/mcpx/apu/resampler/linear-guard-high-ratios",
+                    test_linear_guard_high_ratios);
     g_test_add_func("/mcpx/apu/resampler/linear-empty-finite-source",
                     test_linear_empty_finite_source_stays_empty);
     g_test_add_func("/mcpx/apu/resampler/production-input-starvation-recovery",

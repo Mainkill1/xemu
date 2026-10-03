@@ -51,6 +51,8 @@ static inline long mcpx_apu_resampler_fill_input_block(
 {
     assert(channels == 1 || channels == 2);
     assert(frames > 0);
+    /* Both arrays have at least frames slots; linear may append one guard. */
+    assert(converter_type != SRC_LINEAR || frames >= 2);
 
     int sample_count = 0;
     *end_of_input = false;
@@ -80,7 +82,10 @@ static inline long mcpx_apu_resampler_fill_input_block(
          * buffer when a callback returns exactly one frame (upstream issue
          * #208 / PR #209). Supplying one silent guard frame keeps the
          * production callback out of that unsafe third-party schedule while
-         * preserving the real source cursor and end-of-input state.
+         * preserving the real source cursor and end-of-input state. The
+         * guard is synthetic input, not padding: it can extend output by one
+         * input frame scaled by the conversion ratio (up to 256 at zero
+         * pitch-envelope contribution). It is not sample-identical to sinc.
          */
         if (channels == 1) {
             mono[sample_count] = 0.0f;
