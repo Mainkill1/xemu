@@ -70,6 +70,7 @@ static void test_read_only_alias_eligibility(void)
         .guest_z24s8 = true,
         .host_supported = true,
         .initialized = true,
+        .draw_dirty = true,
     };
     PGRAPHVkDepthAliasView view = producer;
 
@@ -80,6 +81,11 @@ static void test_read_only_alias_eligibility(void)
 
     g_assert_true(pgraph_vk_depth_alias_read_only_eligible(
         &producer, &view, false, false, 1, false));
+
+    producer.draw_dirty = false;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.draw_dirty = true;
 
     producer.upload_pending = true;
     g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
