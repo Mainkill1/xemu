@@ -1,0 +1,208 @@
+{
+  "productCommit": "31c083ece2e7d44e87b2c7c4039cfc6b2365848d",
+  "runnerCommit": "c264004dfc906eef008c8a7235764c37daee330b",
+  "runId": "20261003-054249387-64aea7bda0da46b4820fc3b8367190ff",
+  "testRequest": "i167-pgr2-diag-001-t001",
+  "savedRevision": "9887371b436b67d9466581ea545274f4908e7360fead533ef991e4eac3ac7a6b",
+  "executableSha256": "db2edddae3080e26f166b4e9750d28449e1150604b20f9135aa884cebb3a5d58",
+  "snapshots": {
+    "before": {
+      "lookup_started": 767797653,
+      "generated": 77476,
+      "recycled": 104318,
+      "hit_calls": 723312637,
+      "global_hit_calls": 44263585,
+      "global_miss_calls": 221431,
+      "victim8_recovered": 26988939,
+      "victim16_recovered": 28623559,
+      "shadow_resets": 74637,
+      "overlapped_fills": 0,
+      "other_flush_calls": 624,
+      "pcrel_flush_calls": 105895,
+      "empty_global_hit": 12384835,
+      "empty_global_miss": 179185,
+      "pc_conflict_global_hit": 31084424,
+      "pc_conflict_global_miss": 34007,
+      "translation_state_global_hit": 794326,
+      "translation_state_global_miss": 8239
+    },
+    "after": {
+      "lookup_started": 880076033,
+      "generated": 81015,
+      "recycled": 226049,
+      "hit_calls": 807902612,
+      "global_hit_calls": 71822207,
+      "global_miss_calls": 351214,
+      "victim8_recovered": 32609723,
+      "victim16_recovered": 36460260,
+      "shadow_resets": 183595,
+      "overlapped_fills": 0,
+      "other_flush_calls": 624,
+      "pcrel_flush_calls": 227631,
+      "empty_global_hit": 29069608,
+      "empty_global_miss": 302297,
+      "pc_conflict_global_hit": 41013021,
+      "pc_conflict_global_miss": 39039,
+      "translation_state_global_hit": 1739578,
+      "translation_state_global_miss": 9878
+    },
+    "delta": {
+      "lookup_started": 112278380,
+      "generated": 3539,
+      "recycled": 121731,
+      "hit_calls": 84589975,
+      "global_hit_calls": 27558622,
+      "global_miss_calls": 129783,
+      "victim8_recovered": 5620784,
+      "victim16_recovered": 7836701,
+      "shadow_resets": 108958,
+      "overlapped_fills": 0,
+      "other_flush_calls": 0,
+      "pcrel_flush_calls": 121736,
+      "empty_global_hit": 16684773,
+      "empty_global_miss": 123112,
+      "pc_conflict_global_hit": 9928597,
+      "pc_conflict_global_miss": 5032,
+      "translation_state_global_hit": 945252,
+      "translation_state_global_miss": 1639
+    },
+    "files": {
+      "jit-start": {
+        "path": "diagnostics/20261003-054522673-jit-start/monitor.txt",
+        "sha256": "6dca492bd6e0141f358f126de7398124f1628752fb42dd64a4bd5bbe4e13329e"
+      },
+      "jit-end": {
+        "path": "diagnostics/20261003-055023427-jit-end/monitor.txt",
+        "sha256": "7510c8604315eec0206bd6bc722b647fc32f407f04e44d4a1493c1a8976b1c2d"
+      }
+    }
+  },
+  "potentialRecoveryRatios": {
+    "8": {
+      "ofValidatedGlobalHitsPercent": 20.395736767970472,
+      "ofCompletedCLookupsPercent": 5.006114267056579
+    },
+    "16": {
+      "ofValidatedGlobalHitsPercent": 28.436476250517895,
+      "ofCompletedCLookupsPercent": 6.9797061553613435
+    }
+  },
+  "sceneReview": {
+    "reachedRaceScene": true,
+    "method": "Assistant viewed both actual native PNGs",
+    "observations": [
+      "Both show same stationary red car in city race scene, gear 1, 000 MPH, position 6/6",
+      "Start shows competitors ahead; end shows them gone with moved minimap markers",
+      "No loading/menu/pause/error screen at either boundary"
+    ],
+    "limits": [
+      "Boundary captures do not prove every intervening frame",
+      "No approved scene oracle or production correctness qualification created",
+      "Single instrumented diagnostic; no baseline performance comparison"
+    ],
+    "images": {
+      "recording-start.png": "4b7d0c6e4a754d086898627785e801498009d5924152e5bf36d24e33df211a3a",
+      "recording-end.png": "75fa641a8dcf416441248d7a653139d8b311f199b9a83d859718a1667c66ebd8"
+    }
+  },
+  "nativePerformanceAnalysis": {
+    "SchemaVersion": 1,
+    "ProfileSha256": "7964a0559ec43fafeb310283f65c54a7f3f65410ad170f6dea89963dba1961a1",
+    "Profile": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 6,
+      "FrameTailSeconds": 300,
+      "MinimumCpuSamples": 540,
+      "MinimumFrameSamples": 160
+    },
+    "Monitoring": {
+      "Segment": "stationary-start",
+      "Rows": 605,
+      "MissingCpuSamples": 0,
+      "MissingDutySamples": 0,
+      "Cpu": {
+        "Count": 605,
+        "Mean": 255.64646611570225,
+        "Median": 256.071,
+        "Min": 212.092,
+        "Max": 286.582,
+        "P95": 262.21,
+        "P99": 264.40160000000003
+      },
+      "CollectorDuty": {
+        "Count": 605,
+        "Mean": 0.3950942148760334,
+        "Median": 0.368,
+        "Min": 0.253,
+        "Max": 0.747,
+        "P95": 0.5837999999999999,
+        "P99": 0.661
+      },
+      "Overruns": 0
+    },
+    "Flips": {
+      "Samples": 6,
+      "Frames": 18,
+      "ElapsedUs": 34323598,
+      "CadenceFps": 0.5244205458879923
+    },
+    "Frames": {
+      "WindowStartUs": 261184517437,
+      "WindowEndUs": 261484517437,
+      "FirstSampleUs": 261185358373,
+      "LastSampleUs": 261484517437,
+      "ZeroIntervals": 0,
+      "IntervalsMs": {
+        "Count": 176,
+        "Mean": 1706.1973011363636,
+        "Median": 1723.288,
+        "Min": 89.186,
+        "Max": 2692.195,
+        "P95": 2419.625,
+        "P99": 2609.09025
+      }
+    },
+    "Sources": [
+      {
+        "Path": "metrics.csv",
+        "Bytes": 172320,
+        "Sha256": "f26778ac7bfd0c0868cfae4c04fee5a86301be28eab9743bbba758184b77e10e",
+        "Records": 899,
+        "IgnoredRecords": 293
+      },
+      {
+        "Path": "guest-flips.log",
+        "Bytes": 3017,
+        "Sha256": "3ff2ada3c3970b1559024fefe011d4810eeb7d0fda206ae8050d38d6ad935111",
+        "Records": 78,
+        "IgnoredRecords": 0
+      },
+      {
+        "Path": "guest-frames.log",
+        "Bytes": 196401,
+        "Sha256": "792d44e2b3ea91eef427368f31db512e7822453d099d50189cc698fcbf8ad56b",
+        "Records": 3791,
+        "IgnoredRecords": 0
+      }
+    ],
+    "Errors": [],
+    "Complete": true
+  },
+  "cacheQualification": {
+    "Status": "complete",
+    "CacheMode": "cold",
+    "DriverNamespaceVerified": true,
+    "DriverQualification": "mesa_private_disk_writes_observed",
+    "ComparisonReady": true,
+    "AllowUncontrolledDriverCache": false,
+    "Issues": []
+  },
+  "nativeFilesCollected": 871,
+  "nativeExclusions": 0,
+  "publicNativeFiles": 38,
+  "privateNativeFiles": 833,
+  "decision": "HOLD: reached-retail potential recoveries justify one bounded uninstrumented miss-only eight-entry victim experiment with full invalidation/lifetime controls. No optimization or gain qualified. Low diagnostic frame-event cadence requires matched baseline/resource qualification; do not treat counts or instrumented timings as FPS gains."
+}

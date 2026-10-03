@@ -17,6 +17,14 @@ stable BAAB and rewrite ABBA exceed 5%. Conflicts completes eight further outcom
 -2.18% stable / -8.38% rewrite, with both rewrite orders slower. All 40 corrected
 matrix attempts are correct, eligible and privately Mesa-qualified.
 
+**Reached retail attribution:** [PGR2's reviewed stationary race window](retail-attribution-20261003/REPORT.md)
+adds 27,558,622 validated global hits and 5,620,784 / 7,836,701 potential
+eight/sixteen-entry recoveries (20.40% / 28.44% of global hits). This justifies a
+bounded miss-only eight-entry experiment; it is not a speedup. The low logged
+frame-event cadence and GLib stderr warning remain unclassified. The diagnostic
+completed, privately qualified Mesa and retained all 871 native files with zero
+exclusions; no scene oracle was pinned or selfapproved.
+
 ## What changed and why
 
 Product `7cb38844fb2dddb1b24cc65501831c9cdcedb43e`, based on
@@ -160,8 +168,9 @@ qualification has completed in the [observer-cost packet](corrected-observer-cos
 The corrected CPU observer matrix is complete. Every B1 slow sample is
 preserved, with cause unclassified.
 
-First isolate OFF/counters/conflicts observer costs and obtain a reached retail
-workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple
+Combined OFF/counters/conflicts observer costs and a reached 300-second retail
+window are now recorded. Same-executable activation cost remains unisolated.
+Next audit production invalidation/lifetime paths and test one simple
 miss-only eight-entry victim candidate against matched uninstrumented production
 builds with A/A, physical ABBA and BAAB. Preserve mapping/page-spanning, SMC,
 full-flush/reuse, CPU reset/load, debug/IRQ and concurrency controls. Explore the
