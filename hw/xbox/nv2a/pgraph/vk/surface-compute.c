@@ -342,14 +342,6 @@ void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
     r->compute.descriptor_set_index = 0;
 }
 
-static uint32_t get_workgroup_size_for_output_units(PGRAPHVkState *r,
-                                                     uint64_t output_units)
-{
-    return pgraph_vk_compute_workgroup_size(
-        output_units, r->device_props.limits.maxComputeWorkGroupSize[0],
-        r->device_props.limits.maxComputeWorkGroupInvocations);
-}
-
 static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
                                              VkFormat host_fmt,
                                              PGRAPHVkComputeOperation operation,
@@ -417,17 +409,20 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t output_size_in_units = output_width * output_height;
+    uint32_t workgroup_size_in_units;
+    uint32_t group_count;
+    bool dispatch_valid = pgraph_vk_compute_dispatch_plan(
+        output_size_in_units,
+        r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations,
+        r->device_props.limits.maxComputeWorkGroupCount[0],
+        &workgroup_size_in_units, &group_count);
+    assert(dispatch_valid);
+    assert(output_size_in_units % workgroup_size_in_units == 0);
+
     ComputePipeline *pipeline = get_compute_pipeline(
         r, surface->host_fmt.vk_format,
-        PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL,
-        get_workgroup_size_for_output_units(r, output_size_in_units));
-
-    size_t workgroup_size_in_units = pipeline->key.workgroup_size;
-    assert(output_size_in_units % workgroup_size_in_units == 0);
-    size_t group_count = output_size_in_units / workgroup_size_in_units;
-
-    assert(r->device_props.limits.maxComputeWorkGroupSize[0] >= workgroup_size_in_units);
-    assert(r->device_props.limits.maxComputeWorkGroupCount[0] >= group_count);
+        PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL, workgroup_size_in_units);
 
     // FIXME: Smarter workgroup scaling
 
@@ -492,17 +487,20 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t output_size_in_units = output_width * output_height;
+    uint32_t workgroup_size_in_units;
+    uint32_t group_count;
+    bool dispatch_valid = pgraph_vk_compute_dispatch_plan(
+        output_size_in_units,
+        r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations,
+        r->device_props.limits.maxComputeWorkGroupCount[0],
+        &workgroup_size_in_units, &group_count);
+    assert(dispatch_valid);
+    assert(output_size_in_units % workgroup_size_in_units == 0);
+
     ComputePipeline *pipeline = get_compute_pipeline(
         r, surface->host_fmt.vk_format,
-        PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL,
-        get_workgroup_size_for_output_units(r, output_size_in_units));
-
-    size_t workgroup_size_in_units = pipeline->key.workgroup_size;
-    assert(output_size_in_units % workgroup_size_in_units == 0);
-    size_t group_count = output_size_in_units / workgroup_size_in_units;
-
-    assert(r->device_props.limits.maxComputeWorkGroupSize[0] >= workgroup_size_in_units);
-    assert(r->device_props.limits.maxComputeWorkGroupCount[0] >= group_count);
+        PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL, workgroup_size_in_units);
 
     // FIXME: Smarter workgroup scaling
 
@@ -543,7 +541,6 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     uint32_t unused_index;
-    const uint32_t workgroup_size = 64;
 
     if (!pgraph_vk_alias_morton_index(0, 0, width, height, &unused_index)) {
         return false;
@@ -551,10 +548,17 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
 
     uint64_t units = (uint64_t)width * height;
     uint64_t bytes = units * sizeof(uint32_t);
-    uint64_t groups = (units + workgroup_size - 1) / workgroup_size;
+    uint32_t workgroup_size;
+    uint32_t groups;
+    bool dispatch_valid = pgraph_vk_compute_dispatch_plan(
+        units, r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations,
+        r->device_props.limits.maxComputeWorkGroupCount[0], &workgroup_size,
+        &groups);
 
     if (src == VK_NULL_HANDLE || dst == VK_NULL_HANDLE || src == dst ||
         src_size < bytes || dst_size < bytes ||
+        !dispatch_valid ||
         !packed_depth_dispatch_limits_allow(&r->device_props.limits,
                                             bytes, workgroup_size, groups) ||
         pgraph_vk_compute_needs_finish(r)) {
