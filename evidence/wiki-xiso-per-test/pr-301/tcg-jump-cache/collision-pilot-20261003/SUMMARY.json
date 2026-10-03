@@ -1,0 +1,151 @@
+{
+  "decision": "HOLD",
+  "campaign": [
+    {
+      "id": "xc-i167-collision-native-19f252d-001-001",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-113913864-a8909268c7414dfbbbdf9807c147be3f",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "failed",
+      "evidence": "complete",
+      "comparison": "ineligible",
+      "error": null
+    }
+  ],
+  "selectedLeaves": 5,
+  "guestPass": 5,
+  "independentChecksumPass": 4,
+  "runnerCorrectness": "failed_missing_5_oracles",
+  "evidence": "complete",
+  "MesaQualified": true,
+  "collectedFiles": 309,
+  "excluded": 0,
+  "rows": [
+    {
+      "id": "cpu_translation_blocks.direct_loop",
+      "meanWorkSeconds": 0.020176,
+      "guestOutcome": "PASS",
+      "rawSamplesMicroseconds": [
+        20397,
+        20078,
+        19661,
+        19622,
+        20565,
+        19729,
+        20096,
+        20896,
+        20533,
+        20183
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "cpu_translation_blocks.jump_cache_collision10",
+      "meanWorkSeconds": 0.7996331,
+      "guestOutcome": "PASS",
+      "rawSamplesMicroseconds": [
+        854167,
+        811410,
+        824472,
+        781721,
+        770252,
+        769387,
+        772960,
+        798263,
+        825963,
+        787736
+      ],
+      "metadata": {
+        "oracle_status": "PASS",
+        "operations": 8000000,
+        "targets": 10,
+        "colliding": true,
+        "work_checksum": "80931474",
+        "result_checksum": "9d8149e6",
+        "expected_checksum": "9d8149e6"
+      }
+    },
+    {
+      "id": "cpu_translation_blocks.jump_cache_collision2",
+      "meanWorkSeconds": 0.7188171999999999,
+      "guestOutcome": "PASS",
+      "rawSamplesMicroseconds": [
+        710007,
+        710123,
+        719287,
+        733215,
+        712730,
+        713037,
+        712052,
+        727811,
+        731161,
+        718749
+      ],
+      "metadata": {
+        "oracle_status": "PASS",
+        "operations": 8000000,
+        "targets": 2,
+        "colliding": true,
+        "work_checksum": "25d77da1",
+        "result_checksum": "4f71ed44",
+        "expected_checksum": "4f71ed44"
+      }
+    },
+    {
+      "id": "cpu_translation_blocks.jump_cache_collision8",
+      "meanWorkSeconds": 0.7777982,
+      "guestOutcome": "PASS",
+      "rawSamplesMicroseconds": [
+        777483,
+        772153,
+        767805,
+        788073,
+        775737,
+        795736,
+        767150,
+        767998,
+        776518,
+        789329
+      ],
+      "metadata": {
+        "oracle_status": "PASS",
+        "operations": 8000000,
+        "targets": 8,
+        "colliding": true,
+        "work_checksum": "8526a9d7",
+        "result_checksum": "52f08fda",
+        "expected_checksum": "52f08fda"
+      }
+    },
+    {
+      "id": "cpu_translation_blocks.jump_cache_noncollision8",
+      "meanWorkSeconds": 0.3767477,
+      "guestOutcome": "PASS",
+      "rawSamplesMicroseconds": [
+        372356,
+        378309,
+        378311,
+        371825,
+        371548,
+        379081,
+        378393,
+        379160,
+        379627,
+        378867
+      ],
+      "metadata": {
+        "oracle_status": "PASS",
+        "operations": 8000000,
+        "targets": 8,
+        "colliding": false,
+        "work_checksum": "d9b2a53b",
+        "result_checksum": "52f08fda",
+        "expected_checksum": "52f08fda"
+      }
+    }
+  ]
+}
