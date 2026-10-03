@@ -167,6 +167,20 @@ tests = {
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
 }
 
+if have_tcg and host_arch in ['x86_64', 'aarch64']
+  tests += {
+    'test-tcg-jump-cache-validity': [xbox_i386_target_headers,
+      meson.project_source_root() / 'accel/tcg/jump-cache-probe.c',
+    ],
+    'test-tcg-jump-cache-conflicts': [xbox_i386_target_headers,
+      meson.project_source_root() / 'accel/tcg/jump-cache-probe.c',
+    ],
+    'test-tcg-jump-cache-probe': [
+      meson.project_source_root() / 'accel/tcg/jump-cache-probe.c',
+    ],
+  }
+endif
+
 if host_os == 'windows'
   tests += {
     'test-xbox-qemu-poll': [],

@@ -1,0 +1,243 @@
+{
+  "sourceCommit": "7cb38844fb2dddb1b24cc65501831c9cdcedb43e",
+  "scope": "Early-to-late wall-clock diagnostics include boot/setup; not guest phase boundaries, production speedup or an overhead qualification",
+  "modelBytes": 4704,
+  "rows": [
+    {
+      "workload": "stable",
+      "runId": "20261003-033132721-39f31032720541f5a410e1a4d3c17688",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "snapshots": {
+        "late": {
+          "path": "guest-collected/20261003-033132721-39f31032720541f5a410e1a4d3c17688/diagnostics/20261003-033200639-jit-late/monitor.txt",
+          "hit": 726484865,
+          "global_hit": 1834303,
+          "global_miss": 47935,
+          "victim8_recovered": 795398,
+          "victim16_recovered": 818592,
+          "shadow_resets": 9407,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            841578,
+            37064
+          ],
+          "miss_pc_conflict": [
+            913626,
+            9442
+          ],
+          "miss_translation_state": [
+            79099,
+            1429
+          ]
+        },
+        "early": {
+          "path": "guest-collected/20261003-033132721-39f31032720541f5a410e1a4d3c17688/diagnostics/20261003-033142475-jit-early/monitor.txt",
+          "hit": 83983155,
+          "global_hit": 1319595,
+          "global_miss": 23606,
+          "victim8_recovered": 713680,
+          "victim16_recovered": 728180,
+          "shadow_resets": 3932,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            464304,
+            18445
+          ],
+          "miss_pc_conflict": [
+            840230,
+            4095
+          ],
+          "miss_translation_state": [
+            15061,
+            1066
+          ]
+        },
+        "middle": {
+          "path": "guest-collected/20261003-033132721-39f31032720541f5a410e1a4d3c17688/diagnostics/20261003-033152623-jit-middle/monitor.txt",
+          "hit": 423404468,
+          "global_hit": 1616591,
+          "global_miss": 45436,
+          "victim8_recovered": 757152,
+          "victim16_recovered": 780345,
+          "shadow_resets": 6961,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            677332,
+            34574
+          ],
+          "miss_pc_conflict": [
+            887702,
+            9442
+          ],
+          "miss_translation_state": [
+            51557,
+            1420
+          ]
+        }
+      },
+      "earlyToLateDiagnosticWindow": {
+        "hit": 642501710,
+        "global_hit": 514708,
+        "global_miss": 24329,
+        "victim8_recovered": 81718,
+        "victim16_recovered": 90412,
+        "shadow_resets": 5475,
+        "overlapped_fills": 0,
+        "miss_empty": [
+          377274,
+          18619
+        ],
+        "miss_pc_conflict": [
+          73396,
+          5347
+        ],
+        "miss_translation_state": [
+          64038,
+          363
+        ],
+        "victim8_fraction_of_global_hits_percent": 15.876574679235606,
+        "victim16_fraction_of_global_hits_percent": 17.565687729741914,
+        "victim8_fraction_of_completed_C_lookups_percent": 0.012708059385232083
+      },
+      "guestTimingDiagnosticOnly": {
+        "Id": "cpu_translation_blocks.code_stable",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 2654601.8,
+        "MedianUs": 2655622,
+        "MinUs": 2609068,
+        "MaxUs": 2687801,
+        "P95Us": 2687801
+      },
+      "stateSummary": {
+        "CacheMode": "cold",
+        "DriverCache": "mesa",
+        "Issues": []
+      }
+    },
+    {
+      "workload": "rewrite",
+      "runId": "20261003-033330643-c088b3247fa24aaa9ff4935caef4d0b2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "snapshots": {
+        "late": {
+          "path": "guest-collected/20261003-033330643-c088b3247fa24aaa9ff4935caef4d0b2/diagnostics/20261003-033358430-jit-late/monitor.txt",
+          "hit": 216315956,
+          "global_hit": 6146425,
+          "global_miss": 8563720,
+          "victim8_recovered": 766045,
+          "victim16_recovered": 789424,
+          "shadow_resets": 4265609,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            5192810,
+            8550592
+          ],
+          "miss_pc_conflict": [
+            920372,
+            9417
+          ],
+          "miss_translation_state": [
+            33243,
+            3711
+          ]
+        },
+        "middle": {
+          "path": "guest-collected/20261003-033330643-c088b3247fa24aaa9ff4935caef4d0b2/diagnostics/20261003-033350403-jit-middle/monitor.txt",
+          "hit": 216177435,
+          "global_hit": 3388976,
+          "global_miss": 3529898,
+          "victim8_recovered": 750342,
+          "victim16_recovered": 773721,
+          "shadow_resets": 1748472,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            2459861,
+            3518076
+          ],
+          "miss_pc_conflict": [
+            896281,
+            9415
+          ],
+          "miss_translation_state": [
+            32834,
+            2407
+          ]
+        },
+        "early": {
+          "path": "guest-collected/20261003-033330643-c088b3247fa24aaa9ff4935caef4d0b2/diagnostics/20261003-033340251-jit-early/monitor.txt",
+          "hit": 82230893,
+          "global_hit": 1329396,
+          "global_miss": 23611,
+          "victim8_recovered": 721593,
+          "victim16_recovered": 736218,
+          "shadow_resets": 3935,
+          "overlapped_fills": 0,
+          "miss_empty": [
+            465648,
+            18421
+          ],
+          "miss_pc_conflict": [
+            849368,
+            4131
+          ],
+          "miss_translation_state": [
+            14380,
+            1059
+          ]
+        }
+      },
+      "earlyToLateDiagnosticWindow": {
+        "hit": 134085063,
+        "global_hit": 4817029,
+        "global_miss": 8540109,
+        "victim8_recovered": 44452,
+        "victim16_recovered": 53206,
+        "shadow_resets": 4261674,
+        "overlapped_fills": 0,
+        "miss_empty": [
+          4727162,
+          8532171
+        ],
+        "miss_pc_conflict": [
+          71004,
+          5286
+        ],
+        "miss_translation_state": [
+          18863,
+          2652
+        ],
+        "victim8_fraction_of_global_hits_percent": 0.9228094744706747,
+        "victim16_fraction_of_global_hits_percent": 1.1045397484632125,
+        "victim8_fraction_of_completed_C_lookups_percent": 0.030148763175340824
+      },
+      "guestTimingDiagnosticOnly": {
+        "Id": "cpu_translation_blocks.code_rewrite",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 3180570,
+        "MedianUs": 3192202.5,
+        "MinUs": 3091658,
+        "MaxUs": 3245774,
+        "P95Us": 3245774
+      },
+      "stateSummary": {
+        "CacheMode": "cold",
+        "DriverCache": "mesa",
+        "Issues": []
+      }
+    }
+  ]
+}
