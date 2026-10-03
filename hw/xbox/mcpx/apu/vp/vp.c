@@ -1127,49 +1127,35 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     return sample_count;
 }
 
-static long voice_resample_callback(void *cb_data, float **data)
+static int voice_resample_fetch(void *opaque, float samples[][2],
+                                int requested)
 {
-    MCPXAPUVoiceFilter *filter = cb_data;
+    MCPXAPUVoiceFilter *filter = opaque;
     uint16_t v = filter->voice;
     assert(v < MCPX_HW_MAX_VOICES);
     MCPXAPUState *d = container_of(filter, MCPXAPUState, vp.filters[v]);
 
-    int sample_count = 0;
-    while (sample_count < NUM_SAMPLES_PER_FRAME) {
-        int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
-                                    NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
-        if (!active) {
-            break;
-        }
-        int count = voice_get_samples(
-            d, v, (float(*)[2]) & filter->resample_buf[2 * sample_count],
-            NUM_SAMPLES_PER_FRAME - sample_count);
-        if (count < 0) {
-            break;
-        }
-        if (filter->resampler_channels == 1) {
-            mcpx_apu_pack_mono_samples(
-                (const float(*)[2]) &filter->resample_buf[2 * sample_count],
-                &filter->mono_resample_buf[sample_count], count);
-        }
-        sample_count += count;
+    int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
+                                NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
+    if (!active) {
+        return -1;
     }
+    return voice_get_samples(d, v, samples, requested);
+}
 
-    if (sample_count < NUM_SAMPLES_PER_FRAME) {
-        /* Starvation causes SRC hang on repeated calls. Provide silence. */
-        if (filter->resampler_channels == 1) {
-            memset(&filter->mono_resample_buf[sample_count], 0,
-                   (NUM_SAMPLES_PER_FRAME - sample_count) * sizeof(float));
-        } else {
-            memset(&filter->resample_buf[2 * sample_count], 0,
-                   2 * (NUM_SAMPLES_PER_FRAME - sample_count) * sizeof(float));
-        }
-        sample_count = NUM_SAMPLES_PER_FRAME;
-    }
+static long voice_resample_callback(void *cb_data, float **data)
+{
+    MCPXAPUVoiceFilter *filter = cb_data;
 
-    *data = filter->resampler_channels == 1 ? filter->mono_resample_buf
-                                            : filter->resample_buf;
-    return sample_count;
+    /*
+     * Starvation causes SRC hang on repeated short callbacks. Always return
+     * the production 32-frame block and pad any unavailable tail with
+     * silence.
+     */
+    return mcpx_apu_resampler_fill_input_block(
+        filter->resampler_channels, NUM_SAMPLES_PER_FRAME,
+        voice_resample_fetch, filter, (float(*)[2])filter->resample_buf,
+        filter->mono_resample_buf, data);
 }
 
 static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],

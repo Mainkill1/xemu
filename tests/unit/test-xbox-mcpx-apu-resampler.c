@@ -231,6 +231,90 @@ static void test_streaming_mono_matches_duplicated_stereo(void)
     }
 }
 
+typedef struct ProductionInput {
+    float samples[32][2];
+    int available;
+    int offset;
+    int fetches;
+    int empty_result;
+} ProductionInput;
+
+static int fetch_production_input(void *opaque, float samples[][2],
+                                  int requested)
+{
+    ProductionInput *input = opaque;
+
+    input->fetches++;
+    int count = MIN(requested, input->available - input->offset);
+    if (count <= 0) {
+        return input->empty_result;
+    }
+    memcpy(samples, &input->samples[input->offset],
+           count * sizeof(input->samples[0]));
+    input->offset += count;
+    return count;
+}
+
+static void test_production_input_pads_short_tail(void)
+{
+    enum { FRAMES = 32 };
+    ProductionInput input = {
+        .samples = { { 0.25f, -0.5f } },
+        .available = 1,
+        .empty_result = -1,
+    };
+    float stereo[FRAMES][2];
+    float mono[FRAMES];
+    float *data = NULL;
+
+    g_assert_cmpint(mcpx_apu_resampler_fill_input_block(
+                        2, FRAMES, fetch_production_input, &input, stereo,
+                        mono, &data),
+                    ==, FRAMES);
+    g_assert_true(data == (float *)stereo);
+    g_assert_cmpint(input.offset, ==, 1);
+    g_assert_cmpint(input.fetches, ==, 2);
+    g_assert_cmpfloat(stereo[0][0], ==, 0.25f);
+    g_assert_cmpfloat(stereo[0][1], ==, -0.5f);
+    for (int i = 1; i < FRAMES; i++) {
+        g_assert_cmpfloat(stereo[i][0], ==, 0.0f);
+        g_assert_cmpfloat(stereo[i][1], ==, 0.0f);
+    }
+}
+
+static void test_production_input_recovers_after_starvation(void)
+{
+    enum { FRAMES = 32 };
+    ProductionInput input = { 0 };
+    float stereo[FRAMES][2];
+    float mono[FRAMES];
+    float *data = NULL;
+
+    g_assert_cmpint(mcpx_apu_resampler_fill_input_block(
+                        1, FRAMES, fetch_production_input, &input, stereo,
+                        mono, &data),
+                    ==, FRAMES);
+    g_assert_true(data == mono);
+    g_assert_cmpint(input.fetches, ==, 1);
+    for (int i = 0; i < FRAMES; i++) {
+        g_assert_cmpfloat(mono[i], ==, 0.0f);
+    }
+
+    input.samples[0][0] = 0.75f;
+    input.samples[0][1] = -0.25f;
+    input.available = 1;
+    g_assert_cmpint(mcpx_apu_resampler_fill_input_block(
+                        1, FRAMES, fetch_production_input, &input, stereo,
+                        mono, &data),
+                    ==, FRAMES);
+    g_assert_true(data == mono);
+    g_assert_cmpint(input.fetches, ==, 3);
+    g_assert_cmpfloat(mono[0], ==, 0.75f);
+    for (int i = 1; i < FRAMES; i++) {
+        g_assert_cmpfloat(mono[i], ==, 0.0f);
+    }
+}
+
 static void run_channel_change_at_stream_reset(int converter_type)
 {
     enum { INPUT_FRAMES = 256, OUTPUT_FRAMES = 32 };
@@ -413,6 +497,10 @@ int main(int argc, char **argv)
                     test_mono_matches_duplicated_stereo);
     g_test_add_func("/mcpx/apu/resampler/streaming-converter-equivalence",
                     test_streaming_mono_matches_duplicated_stereo);
+    g_test_add_func("/mcpx/apu/resampler/production-input-short-tail",
+                    test_production_input_pads_short_tail);
+    g_test_add_func("/mcpx/apu/resampler/production-input-starvation-recovery",
+                    test_production_input_recovers_after_starvation);
     g_test_add_func("/mcpx/apu/resampler/channel-change-at-stream-reset",
                     test_channel_change_at_stream_reset);
     g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",
