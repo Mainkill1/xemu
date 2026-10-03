@@ -148,6 +148,183 @@ static void test_capacity_fifo(void)
     g_free(jc);
 }
 
+typedef struct ReferenceIdentity {
+    TranslationBlock *tb;
+    vaddr pc;
+} ReferenceIdentity;
+
+typedef struct ReferenceCache {
+    ReferenceIdentity primary[2];
+    ReferenceIdentity fifo[8];
+    unsigned count;
+} ReferenceCache;
+
+/* Compact logical list, independent of production physical-slot indexing. */
+static void reference_remove(ReferenceCache *reference, unsigned index)
+{
+    reference->count--;
+    for (unsigned i = index; i < reference->count; i++) {
+        reference->fifo[i] = reference->fifo[i + 1];
+    }
+}
+
+static bool reference_fill(ReferenceCache *reference, vaddr pc,
+                           TranslationBlock *tb)
+{
+    unsigned group = (pc >> 2) & 1;
+    ReferenceIdentity previous = reference->primary[group];
+    bool evicted = false;
+
+    for (unsigned i = 0; i < reference->count;) {
+        if (reference->fifo[i].tb == tb && reference->fifo[i].pc == pc) {
+            reference_remove(reference, i);
+        } else {
+            i++;
+        }
+    }
+    if (previous.tb && (previous.tb != tb || previous.pc != pc)) {
+        if (reference->count == 8) {
+            reference_remove(reference, 0);
+            evicted = true;
+        }
+        reference->fifo[reference->count++] = previous;
+    }
+    reference->primary[group] = (ReferenceIdentity){ tb, pc };
+    return evicted;
+}
+
+static TranslationBlock *reference_recover(ReferenceCache *reference,
+                                           TCGTBCPUState wanted)
+{
+    if (wanted.cs_base != 0x12340000 || wanted.flags != 0x80000001 ||
+        wanted.cflags != (CF_PCREL | 32)) {
+        return NULL;
+    }
+    for (unsigned i = 0; i < reference->count; i++) {
+        if (reference->fifo[i].pc == wanted.pc) {
+            TranslationBlock *tb = reference->fifo[i].tb;
+
+            reference_fill(reference, wanted.pc, tb);
+            return tb;
+        }
+    }
+    return NULL;
+}
+
+static void test_reference_fifo_trace(void)
+{
+    CPUJumpCache *jc = g_new0(CPUJumpCache, 1);
+    ReferenceCache reference = { 0 };
+    TCGTBCPUState states[20];
+    TranslationBlock blocks[10];
+    uint32_t random = 0x12345678;
+    unsigned primary_hash[2];
+    unsigned fills[2] = { 0 }, lookups[2] = { 0 };
+    unsigned hits = 0, misses = 0, middle_promotions = 0, evictions = 0;
+
+    for (unsigned i = 0; i < ARRAY_SIZE(states); i++) {
+        states[i] = state_for(0x80000000 + i * 0x01000000 + (i & 1) * 4);
+        if (!(i & 1)) {
+            blocks[i / 2] = block_for(states[i]);
+        }
+    }
+    primary_hash[0] = tb_jmp_cache_hash_func(states[0].pc);
+    primary_hash[1] = tb_jmp_cache_hash_func(states[1].pc);
+    g_assert_cmpuint(primary_hash[0], !=, primary_hash[1]);
+    for (unsigned i = 0; i < ARRAY_SIZE(states); i++) {
+        g_assert_cmpuint(tb_jmp_cache_hash_func(states[i].pc), ==,
+                         primary_hash[i & 1]);
+    }
+    for (unsigned step = 0; step < 20000; step++) {
+        random ^= random << 13;
+        random ^= random >> 17;
+        random ^= random << 5;
+        unsigned index = random % ARRAY_SIZE(states);
+        TCGTBCPUState wanted = states[index];
+
+        if (step % 257 == 0) {
+            tcg_jump_cache_clear_all(jc);
+            memset(&reference, 0, sizeof(reference));
+        } else if ((random >> 8) & 1) {
+            fills[index & 1]++;
+            fill(jc, wanted, &blocks[index / 2]);
+            evictions +=
+                reference_fill(&reference, wanted.pc, &blocks[index / 2]);
+        } else {
+            if (step % 7 == 0) {
+                wanted.cflags ^= CF_SINGLE_STEP;
+            }
+            unsigned position = 0;
+            while (position < reference.count &&
+                   reference.fifo[position].pc != wanted.pc) {
+                position++;
+            }
+            TranslationBlock *expected = reference_recover(&reference, wanted);
+
+            lookups[index & 1]++;
+            hits += expected != NULL;
+            misses += expected == NULL;
+            middle_promotions += expected != NULL && position > 0;
+            g_assert_true(recover(jc, wanted) == expected);
+        }
+        for (unsigned group = 0; group < 2; group++) {
+            unsigned hash = primary_hash[group];
+            TranslationBlock *expected = reference.primary[group].tb;
+
+            g_assert_true(qatomic_read(&jc->array[hash].tb) == expected);
+            if (expected) {
+                g_assert_cmpuint(jc->array[hash].pc, ==,
+                                 reference.primary[group].pc);
+            }
+        }
+    }
+    for (unsigned group = 0; group < 2; group++) {
+        g_assert_cmpuint(fills[group], >, 0);
+        g_assert_cmpuint(lookups[group], >, 0);
+    }
+    g_assert_cmpuint(hits, >, 0);
+    g_assert_cmpuint(misses, >, 0);
+    g_assert_cmpuint(middle_promotions, >, 0);
+    g_assert_cmpuint(evictions, >, 0);
+    g_test_message("trace hits=%u misses=%u middle-promotions=%u evictions=%u",
+                   hits, misses, middle_promotions, evictions);
+    g_free(jc);
+}
+
+/* At capacity, retaining one new identity should alter one payload slot.
+ * This is a memory-work guard; native timings remain the acceptance gate. */
+static void test_full_eviction_one_payload_change(void)
+{
+    CPUJumpCache *jc = g_new0(CPUJumpCache, 1);
+    TCGTBCPUState states[10];
+    TranslationBlock blocks[10];
+    TranslationBlock *before_tb[TB_VICTIM_CACHE_SIZE];
+    vaddr before_pc[TB_VICTIM_CACHE_SIZE];
+
+    for (unsigned i = 0; i < ARRAY_SIZE(states); i++) {
+        states[i] = state_for(0x80000000 + i * 0x01000000);
+        blocks[i] = block_for(states[i]);
+    }
+    for (unsigned i = 0; i < 9; i++) {
+        fill(jc, states[i], &blocks[i]);
+    }
+    g_assert_cmpuint(jc->victim.count, ==, TB_VICTIM_CACHE_SIZE);
+    for (unsigned i = 0; i < TB_VICTIM_CACHE_SIZE; i++) {
+        before_tb[i] = jc->victim.entries[i].tb;
+        before_pc[i] = jc->victim.entries[i].pc;
+    }
+    fill(jc, states[9], &blocks[9]);
+    unsigned changed = 0;
+    for (unsigned i = 0; i < TB_VICTIM_CACHE_SIZE; i++) {
+        changed += before_tb[i] != jc->victim.entries[i].tb ||
+                   before_pc[i] != jc->victim.entries[i].pc;
+    }
+    g_assert_cmpuint(changed, ==, 1);
+    g_assert_null(recover(jc, states[0]));
+    g_assert_true(recover(jc, states[1]) == &blocks[1]);
+    g_free(jc);
+}
+
 static void test_distinct_primary(void)
 {
     CPUJumpCache *jc = g_new0(CPUJumpCache, 1);
@@ -379,6 +556,10 @@ int main(int argc, char **argv)
     g_test_add_func("/tcg/victim8/invalid-block", test_invalid_block);
     g_test_add_func("/tcg/victim8/capacity-fifo", test_capacity_fifo);
     g_test_add_func("/tcg/victim8/distinct-primary", test_distinct_primary);
+    g_test_add_func("/tcg/victim8/reference-fifo-trace-20000",
+                    test_reference_fifo_trace);
+    g_test_add_func("/tcg/victim8/full-eviction-one-payload-change",
+                    test_full_eviction_one_payload_change);
     g_test_add_func("/tcg/victim8/virtual-aliases", test_virtual_aliases);
     g_test_add_func("/tcg/victim8/full-clear", test_full_clear);
     g_test_add_func("/tcg/victim8/page-clear", test_page_clear);

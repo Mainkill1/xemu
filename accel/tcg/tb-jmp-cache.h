@@ -38,6 +38,7 @@ typedef struct CPUJumpCache {
         /* Everything below is private to the serialized dispatch owner. */
         uint64_t owner_generation;
         unsigned count;
+        unsigned head; /* Circular FIFO index; uses prior alignment padding. */
         struct {
             TranslationBlock *tb;
             vaddr pc;

@@ -41,12 +41,24 @@ uint64_t tcg_victim_cache_epoch(CPUJumpCache *jc)
     return epoch;
 }
 
+static unsigned victim_index(CPUJumpCache *jc, unsigned logical)
+{
+    return (jc->victim.head + logical) % TB_VICTIM_CACHE_SIZE;
+}
+
 static void remove_entry(CPUJumpCache *jc, unsigned index)
 {
     unsigned count = --jc->victim.count;
 
-    memmove(&jc->victim.entries[index], &jc->victim.entries[index + 1],
-            (count - index) * sizeof(jc->victim.entries[0]));
+    /* Full eviction and oldest-entry promotion move no retained payload. */
+    if (index == 0) {
+        jc->victim.head = victim_index(jc, 1);
+        return;
+    }
+    for (unsigned i = index; i < count; i++) {
+        jc->victim.entries[victim_index(jc, i)] =
+            jc->victim.entries[victim_index(jc, i + 1)];
+    }
 }
 
 bool tcg_victim_cache_fill(CPUJumpCache *jc, unsigned hash, vaddr pc,
@@ -58,8 +70,10 @@ bool tcg_victim_cache_fill(CPUJumpCache *jc, unsigned hash, vaddr pc,
 
         /* Remove the promoted identity; virtual aliases remain distinct. */
         for (unsigned i = 0; i < jc->victim.count;) {
-            if (jc->victim.entries[i].tb == tb &&
-                jc->victim.entries[i].pc == pc) {
+            unsigned slot = victim_index(jc, i);
+
+            if (jc->victim.entries[slot].tb == tb &&
+                jc->victim.entries[slot].pc == pc) {
                 remove_entry(jc, i);
             } else {
                 i++;
@@ -70,7 +84,7 @@ bool tcg_victim_cache_fill(CPUJumpCache *jc, unsigned hash, vaddr pc,
             if (jc->victim.count == TB_VICTIM_CACHE_SIZE) {
                 remove_entry(jc, 0);
             }
-            unsigned i = jc->victim.count++;
+            unsigned i = victim_index(jc, jc->victim.count++);
             jc->victim.entries[i].tb = displaced;
             jc->victim.entries[i].pc = displaced_pc;
         }
@@ -99,9 +113,10 @@ TranslationBlock *tcg_victim_cache_lookup(CPUJumpCache *jc, unsigned hash,
         return NULL;
     }
     for (unsigned i = 0; i < jc->victim.count; i++) {
-        TranslationBlock *tb = jc->victim.entries[i].tb;
+        unsigned slot = victim_index(jc, i);
+        TranslationBlock *tb = jc->victim.entries[slot].tb;
 
-        if (jc->victim.entries[i].pc == state.pc &&
+        if (jc->victim.entries[slot].pc == state.pc &&
             tb->cs_base == state.cs_base && tb->flags == state.flags &&
             tb_cflags(tb) == state.cflags) {
             return tcg_victim_cache_fill(jc, hash, state.pc, tb, epoch) ? tb :
