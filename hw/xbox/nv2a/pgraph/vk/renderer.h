@@ -1112,6 +1112,8 @@ void pgraph_vk_finalize_surfaces(PGRAPHState *pg);
 void pgraph_vk_surface_flush(NV2AState *d);
 void pgraph_vk_process_pending_downloads(NV2AState *d);
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
+void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
+                                              SurfaceBinding *producer);
 SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
 bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
