@@ -33,6 +33,7 @@
 #include "failure-state.h"
 #include "renderer.h"
 #include "surface-coherence.h"
+#include "surface-retention.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -234,7 +235,8 @@ static bool refresh_readback_guest_writes(void *opaque, uint64_t start,
     return consume_surface_guest_writes(opaque, start, size);
 }
 
-static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force);
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force,
+                             bool retain);
 
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size)
@@ -267,7 +269,7 @@ bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
             if (surface->draw_dirty) {
-                succeeded &= download_surface(d, surface, true);
+                succeeded &= download_surface(d, surface, true, false);
             }
         }
     }
@@ -685,7 +687,33 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     return true;
 }
 
-static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
+static void publish_retained_surface(const SurfaceBinding *surface,
+                                     uint8_t *guest, const uint8_t *owned)
+{
+    size_t row_bytes = MIN(surface->pitch,
+                           surface->width * surface->fmt.bytes_per_pixel);
+
+    for (unsigned int y = 0; y < surface->height; y++) {
+        size_t offset = (size_t)y * surface->pitch;
+        memcpy(guest + offset, owned + offset, row_bytes);
+    }
+}
+
+typedef struct SurfaceReadbackContext {
+    NV2AState *d;
+    SurfaceBinding *surface;
+} SurfaceReadbackContext;
+
+static bool read_surface_image(void *opaque, uint8_t *destination)
+{
+    SurfaceReadbackContext *context = opaque;
+
+    return download_surface_to_buffer(context->d, context->surface,
+                                      destination);
+}
+
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force,
+                             bool retain)
 {
     if (!surface->width || !surface->height ||
         !pgraph_vk_surface_readback_preflight(
@@ -700,8 +728,21 @@ static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 
     // FIXME: Respect write enable at last TOU?
 
-    bool succeeded = download_surface_to_buffer(
-        d, surface, d->vram_ptr + surface->vram_addr);
+    uint8_t *guest = d->vram_ptr + surface->vram_addr;
+    g_autofree uint8_t *owned = retain ? g_malloc(surface->size) : NULL;
+    SurfaceReadbackContext context = { d, surface };
+    bool succeeded = owned ? pgraph_vk_surface_readback_owned(
+        guest, owned, surface->size, read_surface_image, &context) :
+        download_surface_to_buffer(d, surface, guest);
+    if (succeeded && owned) {
+        /*
+         * Only linear eviction readbacks request retention. Publish the same
+         * rows as ordinary readback; leave guest pitch padding untouched.
+         */
+        assert(!surface->swizzle);
+        publish_retained_surface(surface, guest, owned);
+        surface->retained_guest_bytes = g_steal_pointer(&owned);
+    }
     if (!pgraph_vk_surface_download_complete(
             succeeded, &surface->download_pending, &surface->draw_dirty)) {
         return false;
@@ -773,7 +814,7 @@ void pgraph_vk_process_pending_downloads(NV2AState *d)
 
     bool succeeded = true;
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
-        succeeded &= download_surface(d, surface, false);
+        succeeded &= download_surface(d, surface, false, false);
     }
 
     qatomic_set(&r->downloads_succeeded, succeeded);
@@ -1315,7 +1356,7 @@ static SurfaceBinding *get_retained_surface(NV2AState *d,
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
 {
     if (surface->draw_dirty) {
-        return download_surface(d, surface, true);
+        return download_surface(d, surface, true, false);
     }
     return true;
 }
@@ -1949,17 +1990,26 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 trace_nv2a_pgraph_surface_evict_reason(
                     "incompatible", surface->vram_addr);
                 compare_surfaces(surface, &target);
-                if (!pgraph_vk_surface_download_if_dirty(d, surface)) {
-                    error_report("Vulkan surface readback failed before replacement");
-                    abort();
-                }
-                if (!surface->color && surface->initialized &&
-                    !surface->upload_pending &&
+                /*
+                 * The replacement may cover fewer pages than the old image.
+                 * Resolve writes over the entire evicted extent first.
+                 */
+                consume_surface_guest_writes(d, surface->vram_addr,
+                                              surface->size);
+                bool retain = !surface->color && !surface->swizzle &&
+                    surface->initialized && !surface->upload_pending &&
                     !surface->readback_superseded_by_guest &&
                     surface->vram_addr == target.vram_addr &&
-                    surface->size <= 2 * MiB) {
-                    surface->retained_guest_bytes = g_memdup2(
-                        d->vram_ptr + surface->vram_addr, surface->size);
+                    surface->size <= 2 * MiB;
+                /*
+                 * A clean image has no owned readback reference. Never pair
+                 * it with a later snapshot of mutable guest RAM.
+                 */
+                if (surface->draw_dirty &&
+                    !download_surface(d, surface, true, retain)) {
+                    error_report("Vulkan surface readback failed "
+                                 "before replacement");
+                    abort();
                 }
                 invalidate_surface(d, surface);
             }
@@ -2041,7 +2091,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             // FIXME: Cannot monitor for reads/writes; flush now
             if (!download_surface(d,
                                   color ? r->color_binding : r->zeta_binding,
-                                  true)) {
+                                  true, false)) {
                 error_report("Vulkan surface readback failed before direct use");
                 abort();
             }
