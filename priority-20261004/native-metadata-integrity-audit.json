@@ -1,0 +1,1255 @@
+{
+  "scope": "Validate existing canonical metadata only; no rehashing payloads and no test/runner changes",
+  "prs": {
+    "190": {
+      "actualMetricRuns": 51,
+      "identities": [
+        {
+          "runId": "20261004-203627762-bf291cf6eb8a425a984de12360f6874d",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203718320-cecc1ea5fafe4ded9577d9be9ab144d9",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203807921-5b12ee25f9cd49fdae0aeaa8d7a68200",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203857197-3366a8904ceb4109b10beb23699502eb",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203947159-7e1d214ebf53458783dc032e91a490e9",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204037021-2ccc80dd5ce2453a8142395e540c71c8",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204126770-9fc3d94aacbf4327abcfa5fc30228c53",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204216647-17c2a2ff8c714f6bac71971faf60eaac",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204306478-2e10cb8777a2433db81108175f6e8733",
+          "package": "parent",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204541618-6e7cb4955cc74e638c00929a404f8b9c",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204816065-bfaaefa4b9fa46c4829efd886d203fe8",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210251304-b5c9c2f4bf614a9e934928f19494599d",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210452907-3adf7d360424400fbdb2d2f0df5e2562",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210716212-e952c7d887da47a58c6d9888d6b5f68f",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210919303-ac7adae081e74f47a3fd32904c41edaf",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211121428-ebf6864f3aff4b308e0fafd3a8844ebf",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211323833-7aa92e168d3348a29b22e0c14e6c8429",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211526395-f4804333aca54f5384eea22b9949a1d9",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211729335-f0940c9ae7fe46f493e3f9d39cae8bf0",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211932304-7ea3e526445e49e3b3b23f5cf39f7812",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212206650-1cdcb909fee24da4a8b9461698b0ecd0",
+          "package": "parent",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212443446-6f603a7cca434a92a786a828db8c465b",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212616560-28fdff7652ab4c41b27d337407eaee47",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212849822-cf25d51b12ef4669900f2bdc1e27e25c",
+          "package": "parent",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213127769-8e88b4c3043a44e481c4884741b510cd",
+          "package": "parent",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213401720-dc925637227d4c8e8e8b5a58ef240daf",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203633187-a6ec077d10a34b2b8dde377749a2d3e6",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203721791-e9b86e62f29e4c84b4268f07bd5659df",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203810034-b0ade6f445714de6b0e8382c8c2cfb30",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203858553-4475100613b44df78a0e26dbdbe8501b",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-203946384-6df5616e5bb8487f9d050a2a51d39b5d",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204034614-653dcdad183c458da215d9b88f8ec301",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204900612-4590664960744964adf88f864b575403",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-204949048-c4bd120c00a342e6882919320ec0303c",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-205036407-a9743005e5f34b10903f2c8395cd2398",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-205250404-29007007c55f42eeb990bbec0b14b554",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-205504276-5815f3dbd45a4c0698442322e31e1ab2",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210112210-43df9329beae4145ad2284623d8f087d",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210304060-ba6d0a0ca80f4cf0b0f95a9b25e31f3e",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210702446-aac1a94b4f3544bbbdc47334c78d9148",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-210853682-30c22b9c6b0848f087be92e6f72a6e00",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211045449-130987352bf94d5496ab9bef4e69c21f",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211237233-8143c87a81aa46739538c5646ea21afc",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211428904-9a53ba7378b847fc9cf6c86454137a4e",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211620724-2007458eddc947e3acefb9e6dd101b4b",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-211816609-c1a1d116717a4c5ab1fdb842ed550647",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212029774-4e9ff50723584d9a9e0e635dfaa918d9",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212242982-a8520f4b733344379521c8a694e359d0",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212456308-8c0e0198c29e4e74b27585a905fabc7b",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212710054-fd828eab351e4435883ad4f39cce2065",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-212923449-286ebdef429a40abbc353cffd8f336af",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        }
+      ],
+      "procedureGroups": [
+        {
+          "host": "deck",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "deck",
+          "title": "pgr2",
+          "attemptsWithMetrics": 9,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "deck",
+          "title": "conker",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "pgr2",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "conker",
+          "attemptsWithMetrics": 9,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true,
+          "currentOriginalRevisionRuns": 8,
+          "separatelyRetainedFailedLegacyRevision": 1,
+          "scope": "Original qualified revision comparison; reused failed one-A procedure retained separately"
+        }
+      ]
+    },
+    "303": {
+      "actualMetricRuns": 42,
+      "identities": [
+        {
+          "runId": "20261004-213637984-5a1ab6876e204aec800850d760b9b7b6",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213727512-b064598e7eda43baab1b4046defb17f6",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213823114-e7ff7b1b88da4120a255ab3de9640152",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213912517-4fc44ec023e2468eb77b70fe2a184fe4",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214001784-c9d37eb1060648d1886ce42e134c47e9",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214051098-f4f27eeec64e4562b6c9c5f3cb2c8fa5",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214144132-2d28246702814c8e832b3dcb25183a76",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214234677-4ce242553170489ea3fea5aa4db98cb9",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214325107-a16b015f8b81423bb4bafba4cbb74f47",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214526156-eb3c4319b6124f13b7b3b34e776dd0d4",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214718564-24202fcd88df44a59a83e076672c3a4a",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214913664-1f82e9cf42ab41618b97b16e95ad15c9",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215109191-0a741c9bce534c8bbe985f8efed7f8fa",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215303842-8c8ea7da5bd945f3b30e75e178699078",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215458490-63b03253abdf4cceb6df384b42b07019",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215652866-70b68ff043f04eeba1152177434fdfec",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215847412-b448a72f0ab847019d526430a21f76af",
+          "package": "parent",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
+          "package": "candidate",
+          "host": "deck",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213140357-cde68d80ffa548c2926f2ef4cbc281c5",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213228431-f3c9ae382c954137a9a71099fbbbb6ef",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213315310-c1ee48652ce1481c98f40d639141f04e",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213402777-476291489f54403ab4ec0ff30b858623",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213450140-6acbb02d47484c7d9cd88e11146ba5f7",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213537556-67e604ed1c8b4e00862de64cf7c54d7e",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213625003-a9fd2d01d70448a2acfcb52f4024ec07",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213712241-01f71127a3d848b7a72580546fda2354",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213800173-29f13b146d4b4afab7e5f8caf044324c",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214143870-de988596130d480cacf79df00b7807b1",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214335181-2ea664476c90493f9e64040f276ee40b",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214526961-0c0f2ab91c3a4541b4d6e10b62898e20",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214718784-35c0390303e1497891ad278c8c996129",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-214910672-7a189e25d84347c1a8ec359c9d275883",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215102417-4f8a3d8006ba4dcfb3cafbbf16672a51",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215254226-9dca00c483bd4b3aa01a9c867896dfbb",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215508094-ba1b092a4b274669a12f80dead89180b",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215721877-87a969b34c4d48f39fbb5ecf24ba47f5",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-215935832-969ecec600444395939e13cb895d18d8",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220149738-2d4b82d85cc04991ae65fbc0b53c48a2",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220403552-73fa1f6dc31b45dd9fe59e484d253725",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220617529-d1862111e0784db99415ea0d7a98af83",
+          "package": "parent",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220831436-fb71bfeedbb5499280feb697996c2655",
+          "package": "candidate",
+          "host": "win",
+          "title": "pgr2",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        }
+      ],
+      "procedureGroups": [
+        {
+          "host": "deck",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "deck",
+          "title": "conker",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "deck",
+          "title": "pgr2",
+          "attemptsWithMetrics": 2,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "conker",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "pgr2",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        }
+      ]
+    },
+    "305": {
+      "actualMetricRuns": 27,
+      "identities": [
+        {
+          "runId": "20261004-220400091-b1f27d82e1604dd48156427118be9fd5",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220451895-4abe5397a2c04d8885cceffdb86592ed",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220541689-943dbb27f1be484f85cd7bd359327a8c",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220630935-3b2580403fc3447ab28c3809d20d3de9",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220722058-9efb4b00ad5940f2a175ad6eb55ce6db",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220820628-baad1f3cfdf1414fbba4ea35aad7f366",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-220911357-572d41a4c6374c099112a561875fd6f3",
+          "package": "parent",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221001203-21e099b067e2430c8d52c59e8e959c8e",
+          "package": "candidate",
+          "host": "deck",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221054199-253a3133d15c4e1cbcbed72654b75fad",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221253813-654232ee88114f248c8c61ac1541ccaf",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221450175-61516b0b3c9841658f90cda2bcf159b0",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221645440-79355b64d5b84e71b95bb2150fb940bc",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221839696-d28d2743a2f5429ca9e29c48997e2485",
+          "package": "candidate",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-222034406-f5a89d4371df49cabf8c8ce24f592182",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-222230765-116586f2b3b0485b8263daeacddff3e3",
+          "package": "parent",
+          "host": "deck",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221049005-063f0804a45e40e2aa550c786c176032",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221137524-e4cf819d84dd4ebdb9af978d96679b48",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221224772-4a9cd37b4cf34f349f3a44e09ee3efca",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221311601-277488e1437446c1aa8a8c198563c342",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221358418-a579f5d0c9f0458dac285bfe02b2d23f",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221445679-f6a3f9e0328b4d7fb9755f3de3cb837a",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221532440-01e9aa770f9340a9aaef1e759b987103",
+          "package": "parent",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221619789-a0735453f5e4407cbed13b1308268946",
+          "package": "candidate",
+          "host": "win",
+          "title": "morrowind",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221707675-9f210adfd0b34043a7e949aa33f504e1",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-221859140-d04289615fc64758a931ad85f41f276c",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-222051000-05acf46438fb417983fb560dd9f9921e",
+          "package": "candidate",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        },
+        {
+          "runId": "20261004-222242901-faf77c9233e5473997134a9dbeb22c47",
+          "package": "parent",
+          "host": "win",
+          "title": "conker",
+          "metricExecutableMatchesExpected": true,
+          "launchExecutableMatchesExpected": true,
+          "noOperatorIntervention": true
+        }
+      ],
+      "procedureGroups": [
+        {
+          "host": "deck",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "deck",
+          "title": "conker",
+          "attemptsWithMetrics": 7,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "morrowind",
+          "attemptsWithMetrics": 8,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        },
+        {
+          "host": "win",
+          "title": "conker",
+          "attemptsWithMetrics": 4,
+          "identicalActualPlans": true,
+          "identicalPerformanceProfiles": true,
+          "identicalControllerConfiguration": true,
+          "doesNotProveGuestConsumedInput": true
+        }
+      ]
+    }
+  },
+  "errors": [],
+  "classificationCorrection": "Initial audit mixed a retained failed one-A legacy Conker revision with the eight valid original two-A cells. All eight valid actual Plans are byte-for-byte identical after canonical JSON serialization; original failed revision remains retained and not rewritten."
+}
