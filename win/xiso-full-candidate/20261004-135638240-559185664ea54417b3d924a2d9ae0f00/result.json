@@ -1,0 +1,247 @@
+{
+  "runId": "20261004-135638240-559185664ea54417b3d924a2d9ae0f00",
+  "job": "xc-pr282-3ba-win-vk-full-candidate-v1-022",
+  "jobPackage": "agent-xc-pr282-3ba-win-vk-full-candidate-v1-022",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T13:56:38.2406911+00:00",
+  "endedUtc": "2026-10-04T13:56:50.3352199+00:00",
+  "durationMs": 12094.529,
+  "processId": 315264,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-135638240-559185664ea54417b3d924a2d9ae0f00",
+    "ExecutableSha256": "97e1ab6b65023f547f881d3396ba3bf212372a4102a2799a9470419bb9d63a33",
+    "Platform": "windows",
+    "ProcessId": 315264,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "97e1ab6b65023f547f881d3396ba3bf212372a4102a2799a9470419bb9d63a33",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-pr282-3ba-win-vk-full-candidate-v1-022/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:62868,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:uniform_thrash.uniform_thrash",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:uniform_thrash.uniform_thrash",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-135638240-559185664ea54417b3d924a2d9ae0f00",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 2504,
+    "TimestampUtc": "2026-10-04T13:56:37.9524846+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 2516,
+    "TimestampUtc": "2026-10-04T13:56:49.9786738+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 23,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 9.880694782608696,
+    "maxCollectorDutyPercent": 11.35914,
+    "maxCollectorDurationMs": 56.7957,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

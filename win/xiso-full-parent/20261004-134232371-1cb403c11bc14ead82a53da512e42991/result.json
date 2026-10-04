@@ -1,0 +1,427 @@
+{
+  "runId": "20261004-134232371-1cb403c11bc14ead82a53da512e42991",
+  "job": "xc-pr282-3ba-win-vk-full-parent-v1-020",
+  "jobPackage": "agent-xc-pr282-3ba-win-vk-full-parent-v1-020",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T13:42:32.3715205+00:00",
+  "endedUtc": "2026-10-04T13:42:50.6618723+00:00",
+  "durationMs": 18290.3522,
+  "processId": 288880,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-134232371-1cb403c11bc14ead82a53da512e42991",
+    "ExecutableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "Platform": "windows",
+    "ProcessId": 288880,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-pr282-3ba-win-vk-full-parent-v1-020/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:60442,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 14 leaves and 2 groups; received 16. Missing 0, extra 0."
+      },
+      {
+        "Name": "xiso_group:surface.vulkan_memory_pressure.representative",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "xiso_group:surface.vulkan_memory_pressure.stress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 14 stable IDs; received 14. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_002",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_008",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_032",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_128",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.alias_resize",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.growth",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.idle_retention",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.plateau",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.reuse",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.alias_resize",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.growth",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.idle_retention",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.plateau",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.reuse",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 14 leaves and 2 groups; received 16. Missing 0, extra 0."
+      },
+      {
+        "Name": "xiso_group:surface.vulkan_memory_pressure.representative",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "xiso_group:surface.vulkan_memory_pressure.stress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 14 stable IDs; received 14. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_002",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_008",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_032",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.surface_list_lookup_128",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.alias_resize",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.growth",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.idle_retention",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.plateau",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.representative.reuse",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.alias_resize",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.growth",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.idle_retention",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.plateau",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:surface.vulkan_memory_pressure.stress.reuse",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-134232371-1cb403c11bc14ead82a53da512e42991",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1658,
+    "TimestampUtc": "2026-10-04T13:42:32.4119791+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1676,
+    "TimestampUtc": "2026-10-04T13:42:50.4181852+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 34,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 10.866147647058822,
+    "maxCollectorDutyPercent": 13.189859999999998,
+    "maxCollectorDurationMs": 65.9493,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

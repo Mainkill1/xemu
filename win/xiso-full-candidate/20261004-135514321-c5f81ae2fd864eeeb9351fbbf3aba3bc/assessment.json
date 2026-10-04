@@ -1,0 +1,29 @@
+{
+  "Execution": "crashed",
+  "Correctness": "notEvaluated",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is Crashed.",
+    "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary.",
+    "Native process crashed; performance comparison is ineligible."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "xiso_receipt_missing: the guest did not close its selected plan."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": true
+}

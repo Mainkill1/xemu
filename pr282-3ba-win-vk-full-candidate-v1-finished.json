@@ -1,0 +1,22 @@
+{
+  "id": "pr282-3ba-win-vk-full-candidate-v1",
+  "revision": "45b7334b6713c07b3f6587d410e0fc2398dce924bdd6013d48e44cc89753a733",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 5,
+  "failed": 18,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr282-3ba-win-vk-full-candidate-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr282-3ba-win-vk-full-candidate-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

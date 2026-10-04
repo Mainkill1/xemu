@@ -1,0 +1,752 @@
+{
+  "runId": "20261004-133955646-5251669102864e84b79f8ea733de53bb",
+  "job": "xc-pr282-3ba-win-vk-full-parent-v1-014",
+  "jobPackage": "agent-xc-pr282-3ba-win-vk-full-parent-v1-014",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T13:39:55.6461674+00:00",
+  "endedUtc": "2026-10-04T13:40:38.2573251+00:00",
+  "durationMs": 42611.158,
+  "processId": 316132,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-133955646-5251669102864e84b79f8ea733de53bb",
+    "ExecutableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "Platform": "windows",
+    "ProcessId": 316132,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-pr282-3ba-win-vk-full-parent-v1-014/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:59134,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 11 leaves and 0 groups; received 11. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 11 stable IDs; received 11. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.full_system",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.streaming_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.full_system",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.gpu_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.pfifo_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.streaming_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/mean_us",
+        "Value": 67427.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/median_us",
+        "Value": 67238,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/min_us",
+        "Value": 66842,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/max_us",
+        "Value": 68308,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/p95_us",
+        "Value": 68308,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/mean_us",
+        "Value": 72926.125,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/median_us",
+        "Value": 72932,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/min_us",
+        "Value": 72443,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/max_us",
+        "Value": 73509,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/p95_us",
+        "Value": 73509,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/full_system/mean_us",
+        "Value": 74077.25,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/full_system/median_us",
+        "Value": 73863.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/full_system/min_us",
+        "Value": 72711,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/full_system/max_us",
+        "Value": 75902,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/full_system/p95_us",
+        "Value": 75902,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/streaming_only/mean_us",
+        "Value": 16448.375,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/streaming_only/median_us",
+        "Value": 16617,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/streaming_only/min_us",
+        "Value": 15421,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/streaming_only/max_us",
+        "Value": 16777,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/doax_menu_stress/streaming_only/p95_us",
+        "Value": 16777,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/mean_us",
+        "Value": 42716.125,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/median_us",
+        "Value": 42489.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/min_us",
+        "Value": 42190,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/max_us",
+        "Value": 44431,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/p95_us",
+        "Value": 44431,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/mean_us",
+        "Value": 150932.375,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/median_us",
+        "Value": 150560,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/min_us",
+        "Value": 149858,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/max_us",
+        "Value": 153077,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/p95_us",
+        "Value": 153077,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/mean_us",
+        "Value": 153377.75,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/median_us",
+        "Value": 153476.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/min_us",
+        "Value": 152201,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/max_us",
+        "Value": 154119,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/p95_us",
+        "Value": 154119,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/full_system/mean_us",
+        "Value": 154151.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/full_system/median_us",
+        "Value": 153878.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/full_system/min_us",
+        "Value": 152791,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/full_system/max_us",
+        "Value": 155780,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/full_system/p95_us",
+        "Value": 155780,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/mean_us",
+        "Value": 91300.375,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/median_us",
+        "Value": 91240,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/min_us",
+        "Value": 90389,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/max_us",
+        "Value": 92476,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/p95_us",
+        "Value": 92476,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/mean_us",
+        "Value": 15988,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/median_us",
+        "Value": 15960.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/min_us",
+        "Value": 15943,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/max_us",
+        "Value": 16142,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/p95_us",
+        "Value": 16142,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/mean_us",
+        "Value": 3740,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/median_us",
+        "Value": 3707,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/min_us",
+        "Value": 3277,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/max_us",
+        "Value": 4043,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+      },
+      {
+        "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/p95_us",
+        "Value": 4043,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 11 leaves and 0 groups; received 11. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 11 stable IDs; received 11. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.full_system",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.doax_menu_stress.streaming_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.full_system",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.gpu_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.pfifo_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.pgr2_ai_backup.streaming_only",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 3 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-133955646-5251669102864e84b79f8ea733de53bb",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1502,
+    "TimestampUtc": "2026-10-04T13:39:56.2479247+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1543,
+    "TimestampUtc": "2026-10-04T13:40:37.334972+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 82,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 10.363703414634145,
+    "maxCollectorDutyPercent": 13.9609,
+    "maxCollectorDurationMs": 69.8045,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

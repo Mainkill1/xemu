@@ -1,0 +1,2499 @@
+{
+  "id": "pr282-3ba-win-vk-full-candidate-v1",
+  "suite": "pr256-windows-opengl-v5",
+  "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+  "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+  "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+  "qualification": "unverified",
+  "mode": "full",
+  "settings": {
+    "warmup_iterations": 3,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "per_iteration"
+  },
+  "tests": [
+    "busy_pfifo.pfifo_saturation",
+    "busy_pfifo.pgraph_pattern_polling",
+    "pfifo_array_elements.array_element16",
+    "pfifo_array_elements.array_element32",
+    "pfifo_array_elements.array_element_pgr2",
+    "pfifo_packet_boundary.array_element16_overflow",
+    "pfifo_packet_boundary.array_element32_overflow",
+    "pfifo_packet_boundary.inline_array_overflow",
+    "pfifo_packet_boundary.incrementing_inline_fallback",
+    "cpu_floating_point.sse_scalar",
+    "cpu_floating_point.x87_scalar",
+    "cpu_translation_blocks.direct_loop",
+    "cpu_translation_blocks.indirect_dispatch",
+    "cpu_translation_blocks.indirect_dispatch_stress",
+    "fill_rate.solid",
+    "fill_rate.textured",
+    "pipeline_texture_switch.texture_switch",
+    "pipeline_texture_switch.shader_negative_control",
+    "pipeline_texture_switch.clear_texture_normal",
+    "pipeline_texture_switch.sampler_only_identity",
+    "pipeline_texture_switch.palette_only_update",
+    "pipeline_texture_switch.shared_page_overlap",
+    "pipeline_texture_switch.texture_dma_remap",
+    "pipeline_texture_switch.palette_dma_remap",
+    "report_query.zero_query",
+    "report_query.single_boundary",
+    "report_query.clear_boundary",
+    "report_query.multiple_boundaries",
+    "report_query.dma_target_switch",
+    "report_query.fifo_producer_ordering",
+    "report_query.dma_descriptor_rewrite",
+    "report_query.dma_range_guard",
+    "shader_lifecycle.readiness_train_visible",
+    "shader_lifecycle.readiness_replay_visible",
+    "shader_lifecycle.readiness_identical_replay",
+    "shader_lifecycle.readiness_uniform_only",
+    "shader_lifecycle.readiness_early_demand",
+    "game_load.long_unlocked_scene.cpu",
+    "game_load.long_unlocked_scene.pfifo",
+    "game_load.long_unlocked_scene.alpha_overdraw",
+    "game_load.long_unlocked_scene.streaming_surface_reuse",
+    "game_load.long_unlocked_scene.combined",
+    "game_load.long_unlocked_scene.full_system",
+    "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+    "game_load.cross_title_hotpath.pgr2_small_draws",
+    "game_load.cross_title_hotpath.texture_update_reuse",
+    "game_load.cross_title_hotpath.surface_reuse",
+    "game_load.cross_title_hotpath.pipeline_state_churn",
+    "game_load.cross_title_hotpath.blend_constant_reuse",
+    "game_load.cross_title_hotpath.texture_binding_reuse",
+    "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+    "game_load.cross_title_hotpath.scaled_surface_pressure",
+    "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+    "game_load.cross_title_hotpath.gpu_wait_control",
+    "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+    "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+    "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+    "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+    "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+    "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+    "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+    "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+    "game_load.s3tc_sync_factor.bc2_native_eligible",
+    "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+    "game_load.s3tc_sync_factor.bc3_native_eligible",
+    "game_load.s3tc_sync_factor.bc3_bordered_fallback",
+    "game_load.repeated_display",
+    "game_load.repeated_display_boosted",
+    "game_load.doax_menu_representative.cpu_only",
+    "game_load.doax_menu_representative.pfifo_only",
+    "game_load.doax_menu_representative.gpu_only",
+    "game_load.doax_menu_representative.streaming_only",
+    "game_load.doax_menu_representative.cpu_pfifo_gpu",
+    "game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+    "game_load.doax_menu_representative.full_system",
+    "game_load.doax_menu_stress.cpu_only",
+    "game_load.doax_menu_stress.pfifo_only",
+    "game_load.doax_menu_stress.gpu_only",
+    "game_load.doax_menu_stress.streaming_only",
+    "game_load.doax_menu_stress.cpu_pfifo_gpu",
+    "game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+    "game_load.doax_menu_stress.full_system",
+    "game_load.pgr2_ai_backup.cpu_only",
+    "game_load.pgr2_ai_backup.pfifo_only",
+    "game_load.pgr2_ai_backup.gpu_only",
+    "game_load.pgr2_ai_backup.streaming_only",
+    "game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+    "game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+    "game_load.pgr2_ai_backup.full_system",
+    "high_vertex_count.arrays",
+    "high_vertex_count.inline_arrays",
+    "high_vertex_count.inline_buffers",
+    "high_vertex_count.inline_elements",
+    "primitive_type.line_loop.fixed_function",
+    "primitive_type.line_loop.vertex_shader",
+    "primitive_type.line_strip.fixed_function",
+    "primitive_type.line_strip.vertex_shader",
+    "primitive_type.lines.fixed_function",
+    "primitive_type.lines.vertex_shader",
+    "primitive_type.points.fixed_function",
+    "primitive_type.points.vertex_shader",
+    "primitive_type.polygon.fixed_function",
+    "primitive_type.polygon.vertex_shader",
+    "primitive_type.quad_strip.fixed_function",
+    "primitive_type.quad_strip.vertex_shader",
+    "primitive_type.quads.fixed_function",
+    "primitive_type.quads.vertex_shader",
+    "primitive_type.triangle_fan.fixed_function",
+    "primitive_type.triangle_fan.vertex_shader",
+    "primitive_type.triangle_strip.fixed_function",
+    "primitive_type.triangle_strip.vertex_shader",
+    "primitive_type.triangles.fixed_function",
+    "primitive_type.triangles.vertex_shader",
+    "texture_cubemap_fallback.unbordered_subblock_dxt1",
+    "texture_cubemap_fallback.bordered_rgba8_size1",
+    "texture_cubemap_fallback.bordered_rgba8_size2",
+    "texture_cubemap_fallback.bordered_rgba8_size4",
+    "texture_cubemap_fallback.bordered_rgba8_size8",
+    "texture_cubemap_fallback.bordered_palette_size1",
+    "texture_cubemap_fallback.bordered_palette_size2",
+    "texture_cubemap_fallback.bordered_palette_size4",
+    "texture_cubemap_fallback.bordered_palette_size8",
+    "texture_cubemap_fallback.bordered_r6g5b5_size1",
+    "texture_cubemap_fallback.bordered_r6g5b5_size2",
+    "texture_cubemap_fallback.bordered_r6g5b5_size4",
+    "texture_cubemap_fallback.bordered_r6g5b5_size8",
+    "surface.basic",
+    "surface.cpu_read_after_gpu_write",
+    "surface.cpu_read_clean_surface",
+    "surface.framebuffer_working_set_002",
+    "surface.framebuffer_working_set_008",
+    "surface.framebuffer_working_set_032",
+    "surface.framebuffer_working_set_064",
+    "surface.full_clear_elision_guard",
+    "surface.overlapping_surface_churn_representative",
+    "surface.overlapping_surface_churn_stress",
+    "surface.partial_channel_clear_guard",
+    "surface.surface_download_path",
+    "surface.surface_list_lookup_002",
+    "surface.surface_list_lookup_008",
+    "surface.surface_list_lookup_032",
+    "surface.surface_list_lookup_128",
+    "surface.vulkan_memory_pressure.representative.growth",
+    "surface.vulkan_memory_pressure.representative.plateau",
+    "surface.vulkan_memory_pressure.representative.alias_resize",
+    "surface.vulkan_memory_pressure.representative.reuse",
+    "surface.vulkan_memory_pressure.representative.idle_retention",
+    "surface.vulkan_memory_pressure.stress.growth",
+    "surface.vulkan_memory_pressure.stress.plateau",
+    "surface.vulkan_memory_pressure.stress.alias_resize",
+    "surface.vulkan_memory_pressure.stress.reuse",
+    "surface.vulkan_memory_pressure.stress.idle_retention",
+    "tiny_draw.arrays.fixed_function",
+    "tiny_draw.arrays.vertex_shader",
+    "tiny_draw.inline_arrays.fixed_function",
+    "tiny_draw.inline_arrays.vertex_shader",
+    "tiny_draw.inline_buffers.fixed_function",
+    "tiny_draw.inline_buffers.vertex_shader",
+    "tiny_draw.inline_elements.fixed_function",
+    "tiny_draw.inline_elements.vertex_shader",
+    "uniform_thrash.uniform_thrash",
+    "vertex_buffer_allocation.mixed.arrays",
+    "vertex_buffer_allocation.mixed.inline_arrays",
+    "vertex_buffer_allocation.mixed.inline_buffers",
+    "vertex_buffer_allocation.mixed.inline_elements",
+    "vertex_buffer_allocation.tiny.arrays",
+    "vertex_buffer_allocation.tiny.inline_arrays",
+    "vertex_buffer_allocation.tiny.inline_buffers",
+    "vertex_buffer_allocation.tiny.inline_elements",
+    "vertex_buffer_allocation.disjoint_same_page",
+    "vertex_buffer_allocation.rising_transient_growth"
+  ],
+  "addedDependencies": [],
+  "chunks": [
+    {
+      "index": 1,
+      "testId": "xiso-9399fa7378109e541ff8a9beacdc3ef2",
+      "revision": "d6a1fceab1cb3dca1d51f531c5a97ff979ea14fd96b6c0d1a136eea3b4e589a8",
+      "planId": "sha256:9399fa7378109e541ff8a9beacdc3ef2f6075ad717a24d1b4d5290dadba9ffc9",
+      "tests": [
+        "busy_pfifo.pfifo_saturation",
+        "busy_pfifo.pgraph_pattern_polling",
+        "pfifo_array_elements.array_element16",
+        "pfifo_array_elements.array_element32",
+        "pfifo_array_elements.array_element_pgr2",
+        "pfifo_packet_boundary.array_element16_overflow",
+        "pfifo_packet_boundary.array_element32_overflow",
+        "pfifo_packet_boundary.inline_array_overflow",
+        "pfifo_packet_boundary.incrementing_inline_fallback"
+      ],
+      "categories": [
+        "commands"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "busy_pfifo.pfifo_saturation",
+            "busy_pfifo.pgraph_pattern_polling",
+            "pfifo_array_elements.array_element16",
+            "pfifo_array_elements.array_element32",
+            "pfifo_array_elements.array_element_pgr2",
+            "pfifo_packet_boundary.array_element16_overflow",
+            "pfifo_packet_boundary.array_element32_overflow",
+            "pfifo_packet_boundary.inline_array_overflow",
+            "pfifo_packet_boundary.incrementing_inline_fallback"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "testId": "xiso-fa5c0bdbefcc72694c754753440bc6a1",
+      "revision": "e62cd4d5a5d50b05b860ab11b7c6239a97efd81efcc389cb59bedf582fc217db",
+      "planId": "sha256:fa5c0bdbefcc72694c754753440bc6a11f88d823306548f08a6ed28530557a8b",
+      "tests": [
+        "cpu_floating_point.sse_scalar",
+        "cpu_floating_point.x87_scalar",
+        "cpu_translation_blocks.direct_loop",
+        "cpu_translation_blocks.indirect_dispatch",
+        "cpu_translation_blocks.indirect_dispatch_stress"
+      ],
+      "categories": [
+        "cpu"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "cpu_floating_point.sse_scalar",
+            "cpu_floating_point.x87_scalar",
+            "cpu_translation_blocks.direct_loop",
+            "cpu_translation_blocks.indirect_dispatch",
+            "cpu_translation_blocks.indirect_dispatch_stress"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "testId": "xiso-92e3291fbedde13b0f835e7496ee5298",
+      "revision": "81924e67036537f830ba865741f7a9eccce2cc9529880a352a9eca3e2c6916cd",
+      "planId": "sha256:92e3291fbedde13b0f835e7496ee529804463626d9544bff491378af176a1a14",
+      "tests": [
+        "fill_rate.solid",
+        "fill_rate.textured"
+      ],
+      "categories": [
+        "surfaces"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "fill_rate.solid",
+            "fill_rate.textured"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "testId": "xiso-6a551e9e29853eb6326f6902aa656803",
+      "revision": "9aa20d603094887f58ecef678c9c30f884d6f87d9f104e08e70d86bee546290d",
+      "planId": "sha256:6a551e9e29853eb6326f6902aa65680335ae6f1ff251160bdca7163163f20ce3",
+      "tests": [
+        "pipeline_texture_switch.texture_switch",
+        "pipeline_texture_switch.shader_negative_control",
+        "pipeline_texture_switch.clear_texture_normal",
+        "pipeline_texture_switch.sampler_only_identity",
+        "pipeline_texture_switch.palette_only_update",
+        "pipeline_texture_switch.shared_page_overlap",
+        "pipeline_texture_switch.texture_dma_remap",
+        "pipeline_texture_switch.palette_dma_remap"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "pipeline_texture_switch.texture_switch",
+            "pipeline_texture_switch.shader_negative_control",
+            "pipeline_texture_switch.clear_texture_normal",
+            "pipeline_texture_switch.sampler_only_identity",
+            "pipeline_texture_switch.palette_only_update",
+            "pipeline_texture_switch.shared_page_overlap",
+            "pipeline_texture_switch.texture_dma_remap",
+            "pipeline_texture_switch.palette_dma_remap"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "testId": "xiso-47a1a69e6d52c11e579be58764f6f5e9",
+      "revision": "b4f07ed551df853f669fe8b3a2a5369d3741d8963b323c57de6669edd48f51d4",
+      "planId": "sha256:47a1a69e6d52c11e579be58764f6f5e9fced11050b64ee7b2f2c79389434f16a",
+      "tests": [
+        "report_query.zero_query",
+        "report_query.single_boundary",
+        "report_query.clear_boundary",
+        "report_query.multiple_boundaries",
+        "report_query.dma_target_switch",
+        "report_query.fifo_producer_ordering",
+        "report_query.dma_descriptor_rewrite",
+        "report_query.dma_range_guard"
+      ],
+      "categories": [
+        "commands"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "report_query.zero_query",
+            "report_query.single_boundary",
+            "report_query.clear_boundary",
+            "report_query.multiple_boundaries",
+            "report_query.dma_target_switch",
+            "report_query.fifo_producer_ordering",
+            "report_query.dma_descriptor_rewrite",
+            "report_query.dma_range_guard"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "testId": "xiso-a7dd2d34139f6e8dab806e01921b35ba",
+      "revision": "2efd23089f3943b69087c1ac32ef78120103de1da7bf82d5c890af17b9e3ad66",
+      "planId": "sha256:a7dd2d34139f6e8dab806e01921b35ba1ed8cc78d01789c5b0179f3effe406b6",
+      "tests": [
+        "shader_lifecycle.readiness_train_visible"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "shader_lifecycle.readiness_train_visible"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 7,
+      "testId": "xiso-18bfa6ea454a15a900c5d42107240837",
+      "revision": "9cd37f833a57bdc68afdaaa58037c4a5e0c8ac5657c032c1d61f84f71dd3e80b",
+      "planId": "sha256:18bfa6ea454a15a900c5d42107240837ed3bca5130d8092a450b13faa4561ecf",
+      "tests": [
+        "shader_lifecycle.readiness_replay_visible"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "shader_lifecycle.readiness_replay_visible"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 8,
+      "testId": "xiso-6af7687b04ffe3572fa79efbf7fe1a57",
+      "revision": "ea5b88f454f6c28dc296159067360292c2d6175d234d9397c6477ed9f270671b",
+      "planId": "sha256:6af7687b04ffe3572fa79efbf7fe1a57752233979cab7b1e48100e7210c4a9c2",
+      "tests": [
+        "shader_lifecycle.readiness_identical_replay"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "shader_lifecycle.readiness_identical_replay"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 9,
+      "testId": "xiso-2d2d185e6ec4be6f3201e2ba39d77483",
+      "revision": "e503dfc473e9d6652db06e7f1cfe5ce27b718e2d41f17351c6e392e46c2daf57",
+      "planId": "sha256:2d2d185e6ec4be6f3201e2ba39d7748358c5bea92fac53a69f9cef9804611e49",
+      "tests": [
+        "shader_lifecycle.readiness_uniform_only"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "shader_lifecycle.readiness_uniform_only"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 10,
+      "testId": "xiso-681f4d7067439ca52fca00dd05de8640",
+      "revision": "7ce52da3dbc5efcf57a5e2f626fe52f45133a919ffd3a32ee949a2191606adcc",
+      "planId": "sha256:681f4d7067439ca52fca00dd05de86409d5cadbc316afe2569aa537ed6b8924b",
+      "tests": [
+        "shader_lifecycle.readiness_early_demand"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "shader_lifecycle.readiness_early_demand"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 11,
+      "testId": "xiso-d34fc175b1f2a50ab7400828f6e5e360",
+      "revision": "7dbe4c42d658b03b103e735389573e95898e634edff47bbe6c15c747c88028c3",
+      "planId": "sha256:d34fc175b1f2a50ab7400828f6e5e360a67cd2044f5f8b45555f574f7662b077",
+      "tests": [
+        "game_load.long_unlocked_scene.cpu",
+        "game_load.long_unlocked_scene.pfifo",
+        "game_load.long_unlocked_scene.alpha_overdraw",
+        "game_load.long_unlocked_scene.streaming_surface_reuse",
+        "game_load.long_unlocked_scene.combined",
+        "game_load.long_unlocked_scene.full_system",
+        "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "game_load.cross_title_hotpath.pgr2_small_draws",
+        "game_load.cross_title_hotpath.texture_update_reuse",
+        "game_load.cross_title_hotpath.surface_reuse",
+        "game_load.cross_title_hotpath.pipeline_state_churn",
+        "game_load.cross_title_hotpath.blend_constant_reuse",
+        "game_load.cross_title_hotpath.texture_binding_reuse",
+        "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "game_load.cross_title_hotpath.gpu_wait_control"
+      ],
+      "categories": [
+        "scenarios"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "game_load.long_unlocked_scene.cpu",
+            "game_load.long_unlocked_scene.pfifo",
+            "game_load.long_unlocked_scene.alpha_overdraw",
+            "game_load.long_unlocked_scene.streaming_surface_reuse",
+            "game_load.long_unlocked_scene.combined",
+            "game_load.long_unlocked_scene.full_system",
+            "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+            "game_load.cross_title_hotpath.pgr2_small_draws",
+            "game_load.cross_title_hotpath.texture_update_reuse",
+            "game_load.cross_title_hotpath.surface_reuse",
+            "game_load.cross_title_hotpath.pipeline_state_churn",
+            "game_load.cross_title_hotpath.blend_constant_reuse",
+            "game_load.cross_title_hotpath.texture_binding_reuse",
+            "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+            "game_load.cross_title_hotpath.scaled_surface_pressure",
+            "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+            "game_load.cross_title_hotpath.gpu_wait_control"
+          ],
+          "groups": [
+            "game_load.long_unlocked_scene",
+            "game_load.cross_title_hotpath"
+          ],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 12,
+      "testId": "xiso-31047a06c9e182718ddac2b55108d401",
+      "revision": "7c4e681dde6b0e2b9296f9dcf0951e45ef1ba69b4eba661cb9a5cc64e3a5b1a6",
+      "planId": "sha256:31047a06c9e182718ddac2b55108d4014160b497f061ec824ededabcf992ef12",
+      "tests": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+        "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+        "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+        "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+        "game_load.s3tc_sync_factor.bc2_native_eligible",
+        "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+        "game_load.s3tc_sync_factor.bc3_native_eligible",
+        "game_load.s3tc_sync_factor.bc3_bordered_fallback"
+      ],
+      "categories": [
+        "textures"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+            "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+            "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+            "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+            "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+            "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+            "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+            "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+            "game_load.s3tc_sync_factor.bc2_native_eligible",
+            "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+            "game_load.s3tc_sync_factor.bc3_native_eligible",
+            "game_load.s3tc_sync_factor.bc3_bordered_fallback"
+          ],
+          "groups": [
+            "game_load.s3tc_sync_factor"
+          ],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 13,
+      "testId": "xiso-f7fadc74e92133c433a1bdab0c8de8e8",
+      "revision": "fca55316a8f26ff55cc516927e6c413ff5051864964c8f102fbc8d27cda86ea3",
+      "planId": "sha256:f7fadc74e92133c433a1bdab0c8de8e86618d110718cab9d680ad5e3280f5863",
+      "tests": [
+        "game_load.repeated_display",
+        "game_load.repeated_display_boosted",
+        "game_load.doax_menu_representative.cpu_only",
+        "game_load.doax_menu_representative.pfifo_only",
+        "game_load.doax_menu_representative.gpu_only",
+        "game_load.doax_menu_representative.streaming_only",
+        "game_load.doax_menu_representative.cpu_pfifo_gpu",
+        "game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+        "game_load.doax_menu_representative.full_system",
+        "game_load.doax_menu_stress.cpu_only",
+        "game_load.doax_menu_stress.pfifo_only",
+        "game_load.doax_menu_stress.gpu_only"
+      ],
+      "categories": [
+        "scenarios"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "game_load.repeated_display",
+            "game_load.repeated_display_boosted",
+            "game_load.doax_menu_representative.cpu_only",
+            "game_load.doax_menu_representative.pfifo_only",
+            "game_load.doax_menu_representative.gpu_only",
+            "game_load.doax_menu_representative.streaming_only",
+            "game_load.doax_menu_representative.cpu_pfifo_gpu",
+            "game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+            "game_load.doax_menu_representative.full_system",
+            "game_load.doax_menu_stress.cpu_only",
+            "game_load.doax_menu_stress.pfifo_only",
+            "game_load.doax_menu_stress.gpu_only"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 14,
+      "testId": "xiso-a8ba0fa001516d45647023c6219c18a9",
+      "revision": "68e815ad1bd00ec6e0dd758d365db77acfdc6340a381af4ca95d0d5ea9a027bc",
+      "planId": "sha256:a8ba0fa001516d45647023c6219c18a91580978f311a6c2e9a1322005634d8b0",
+      "tests": [
+        "game_load.doax_menu_stress.streaming_only",
+        "game_load.doax_menu_stress.cpu_pfifo_gpu",
+        "game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+        "game_load.doax_menu_stress.full_system",
+        "game_load.pgr2_ai_backup.cpu_only",
+        "game_load.pgr2_ai_backup.pfifo_only",
+        "game_load.pgr2_ai_backup.gpu_only",
+        "game_load.pgr2_ai_backup.streaming_only",
+        "game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+        "game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+        "game_load.pgr2_ai_backup.full_system"
+      ],
+      "categories": [
+        "scenarios"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "game_load.doax_menu_stress.streaming_only",
+            "game_load.doax_menu_stress.cpu_pfifo_gpu",
+            "game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+            "game_load.doax_menu_stress.full_system",
+            "game_load.pgr2_ai_backup.cpu_only",
+            "game_load.pgr2_ai_backup.pfifo_only",
+            "game_load.pgr2_ai_backup.gpu_only",
+            "game_load.pgr2_ai_backup.streaming_only",
+            "game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+            "game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+            "game_load.pgr2_ai_backup.full_system"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 15,
+      "testId": "xiso-45e1ffce971f2d9011028f851ff62e65",
+      "revision": "2a2ed66e95ac73bed37761f769e1b8053e18142038fb0db71bdc9e71bd8b2460",
+      "planId": "sha256:45e1ffce971f2d9011028f851ff62e65858958cfa5ab5c6773c80a4e825e683f",
+      "tests": [
+        "high_vertex_count.arrays",
+        "high_vertex_count.inline_arrays",
+        "high_vertex_count.inline_buffers",
+        "high_vertex_count.inline_elements",
+        "primitive_type.line_loop.fixed_function",
+        "primitive_type.line_loop.vertex_shader",
+        "primitive_type.line_strip.fixed_function",
+        "primitive_type.line_strip.vertex_shader",
+        "primitive_type.lines.fixed_function",
+        "primitive_type.lines.vertex_shader",
+        "primitive_type.points.fixed_function",
+        "primitive_type.points.vertex_shader"
+      ],
+      "categories": [
+        "geometry"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "high_vertex_count.arrays",
+            "high_vertex_count.inline_arrays",
+            "high_vertex_count.inline_buffers",
+            "high_vertex_count.inline_elements",
+            "primitive_type.line_loop.fixed_function",
+            "primitive_type.line_loop.vertex_shader",
+            "primitive_type.line_strip.fixed_function",
+            "primitive_type.line_strip.vertex_shader",
+            "primitive_type.lines.fixed_function",
+            "primitive_type.lines.vertex_shader",
+            "primitive_type.points.fixed_function",
+            "primitive_type.points.vertex_shader"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 16,
+      "testId": "xiso-bf80877b008b52a1cf7503cd59ba0263",
+      "revision": "6898739000946fa9833955e0978c8a26e1540943b12e34ee09551026fc7695ab",
+      "planId": "sha256:bf80877b008b52a1cf7503cd59ba026310ed2847d2fdd456ba25a58336796785",
+      "tests": [
+        "primitive_type.polygon.fixed_function",
+        "primitive_type.polygon.vertex_shader",
+        "primitive_type.quad_strip.fixed_function",
+        "primitive_type.quad_strip.vertex_shader",
+        "primitive_type.quads.fixed_function",
+        "primitive_type.quads.vertex_shader",
+        "primitive_type.triangle_fan.fixed_function",
+        "primitive_type.triangle_fan.vertex_shader",
+        "primitive_type.triangle_strip.fixed_function",
+        "primitive_type.triangle_strip.vertex_shader",
+        "primitive_type.triangles.fixed_function",
+        "primitive_type.triangles.vertex_shader"
+      ],
+      "categories": [
+        "geometry"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "primitive_type.polygon.fixed_function",
+            "primitive_type.polygon.vertex_shader",
+            "primitive_type.quad_strip.fixed_function",
+            "primitive_type.quad_strip.vertex_shader",
+            "primitive_type.quads.fixed_function",
+            "primitive_type.quads.vertex_shader",
+            "primitive_type.triangle_fan.fixed_function",
+            "primitive_type.triangle_fan.vertex_shader",
+            "primitive_type.triangle_strip.fixed_function",
+            "primitive_type.triangle_strip.vertex_shader",
+            "primitive_type.triangles.fixed_function",
+            "primitive_type.triangles.vertex_shader"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 17,
+      "testId": "xiso-7d059f862db93cddcdb4f1d0ac7c293c",
+      "revision": "5b223d3b81a55c455dff0ee349404c60c4832c73b58dee17c4ddbdef4a306ae9",
+      "planId": "sha256:7d059f862db93cddcdb4f1d0ac7c293cf9299d7d229c1deb31c003d62832e6fe",
+      "tests": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "texture_cubemap_fallback.bordered_rgba8_size1",
+        "texture_cubemap_fallback.bordered_rgba8_size2",
+        "texture_cubemap_fallback.bordered_rgba8_size4",
+        "texture_cubemap_fallback.bordered_rgba8_size8",
+        "texture_cubemap_fallback.bordered_palette_size1",
+        "texture_cubemap_fallback.bordered_palette_size2",
+        "texture_cubemap_fallback.bordered_palette_size4",
+        "texture_cubemap_fallback.bordered_palette_size8",
+        "texture_cubemap_fallback.bordered_r6g5b5_size1",
+        "texture_cubemap_fallback.bordered_r6g5b5_size2",
+        "texture_cubemap_fallback.bordered_r6g5b5_size4"
+      ],
+      "categories": [
+        "textures"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "texture_cubemap_fallback.unbordered_subblock_dxt1",
+            "texture_cubemap_fallback.bordered_rgba8_size1",
+            "texture_cubemap_fallback.bordered_rgba8_size2",
+            "texture_cubemap_fallback.bordered_rgba8_size4",
+            "texture_cubemap_fallback.bordered_rgba8_size8",
+            "texture_cubemap_fallback.bordered_palette_size1",
+            "texture_cubemap_fallback.bordered_palette_size2",
+            "texture_cubemap_fallback.bordered_palette_size4",
+            "texture_cubemap_fallback.bordered_palette_size8",
+            "texture_cubemap_fallback.bordered_r6g5b5_size1",
+            "texture_cubemap_fallback.bordered_r6g5b5_size2",
+            "texture_cubemap_fallback.bordered_r6g5b5_size4"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 18,
+      "testId": "xiso-ed01b4da769dfb546dd02b6dbef8a1da",
+      "revision": "9fa3b5d46336af9c9b3d05b519a4c9563a8ca05e6421a7bc8eae5b6e4845ea94",
+      "planId": "sha256:ed01b4da769dfb546dd02b6dbef8a1dad91dfe2ecd1a130ce1274971ae56306c",
+      "tests": [
+        "texture_cubemap_fallback.bordered_r6g5b5_size8"
+      ],
+      "categories": [
+        "textures"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "texture_cubemap_fallback.bordered_r6g5b5_size8"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "testId": "xiso-716768f8adfe06421fabe8c2573fe57c",
+      "revision": "c830889bc3899eb11a4faa461b62e6ca6552a4806ff73c5bf1d29f55bcc5445d",
+      "planId": "sha256:716768f8adfe06421fabe8c2573fe57ce70b533968e72cb5831ea142c8d89aec",
+      "tests": [
+        "surface.basic",
+        "surface.cpu_read_after_gpu_write",
+        "surface.cpu_read_clean_surface",
+        "surface.framebuffer_working_set_002",
+        "surface.framebuffer_working_set_008",
+        "surface.framebuffer_working_set_032",
+        "surface.framebuffer_working_set_064",
+        "surface.full_clear_elision_guard",
+        "surface.overlapping_surface_churn_representative",
+        "surface.overlapping_surface_churn_stress",
+        "surface.partial_channel_clear_guard",
+        "surface.surface_download_path"
+      ],
+      "categories": [
+        "surfaces"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "surface.basic",
+            "surface.cpu_read_after_gpu_write",
+            "surface.cpu_read_clean_surface",
+            "surface.framebuffer_working_set_002",
+            "surface.framebuffer_working_set_008",
+            "surface.framebuffer_working_set_032",
+            "surface.framebuffer_working_set_064",
+            "surface.full_clear_elision_guard",
+            "surface.overlapping_surface_churn_representative",
+            "surface.overlapping_surface_churn_stress",
+            "surface.partial_channel_clear_guard",
+            "surface.surface_download_path"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 20,
+      "testId": "xiso-97b10c1c33aa469ade36b44a67adbb09",
+      "revision": "65911ee8e9684e5c963eb2a05a21e5b30e8e0023ab1379fc870df3a5c654a902",
+      "planId": "sha256:97b10c1c33aa469ade36b44a67adbb093dafe1bf23a5115e6a700d29d939ef5c",
+      "tests": [
+        "surface.surface_list_lookup_002",
+        "surface.surface_list_lookup_008",
+        "surface.surface_list_lookup_032",
+        "surface.surface_list_lookup_128",
+        "surface.vulkan_memory_pressure.representative.growth",
+        "surface.vulkan_memory_pressure.representative.plateau",
+        "surface.vulkan_memory_pressure.representative.alias_resize",
+        "surface.vulkan_memory_pressure.representative.reuse",
+        "surface.vulkan_memory_pressure.representative.idle_retention",
+        "surface.vulkan_memory_pressure.stress.growth",
+        "surface.vulkan_memory_pressure.stress.plateau",
+        "surface.vulkan_memory_pressure.stress.alias_resize",
+        "surface.vulkan_memory_pressure.stress.reuse",
+        "surface.vulkan_memory_pressure.stress.idle_retention"
+      ],
+      "categories": [
+        "surfaces"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "surface.surface_list_lookup_002",
+            "surface.surface_list_lookup_008",
+            "surface.surface_list_lookup_032",
+            "surface.surface_list_lookup_128",
+            "surface.vulkan_memory_pressure.representative.growth",
+            "surface.vulkan_memory_pressure.representative.plateau",
+            "surface.vulkan_memory_pressure.representative.alias_resize",
+            "surface.vulkan_memory_pressure.representative.reuse",
+            "surface.vulkan_memory_pressure.representative.idle_retention",
+            "surface.vulkan_memory_pressure.stress.growth",
+            "surface.vulkan_memory_pressure.stress.plateau",
+            "surface.vulkan_memory_pressure.stress.alias_resize",
+            "surface.vulkan_memory_pressure.stress.reuse",
+            "surface.vulkan_memory_pressure.stress.idle_retention"
+          ],
+          "groups": [
+            "surface.vulkan_memory_pressure.representative",
+            "surface.vulkan_memory_pressure.stress"
+          ],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 21,
+      "testId": "xiso-133be5583f104ec31c510548fd3598e4",
+      "revision": "478231efec9781814100dcbf303db9baa22fc7d88094046aec9ec7d4512f03a3",
+      "planId": "sha256:133be5583f104ec31c510548fd3598e42a0cd5249147f83f5ad9e52e7d315106",
+      "tests": [
+        "tiny_draw.arrays.fixed_function",
+        "tiny_draw.arrays.vertex_shader",
+        "tiny_draw.inline_arrays.fixed_function",
+        "tiny_draw.inline_arrays.vertex_shader",
+        "tiny_draw.inline_buffers.fixed_function",
+        "tiny_draw.inline_buffers.vertex_shader",
+        "tiny_draw.inline_elements.fixed_function",
+        "tiny_draw.inline_elements.vertex_shader"
+      ],
+      "categories": [
+        "geometry"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "tiny_draw.arrays.fixed_function",
+            "tiny_draw.arrays.vertex_shader",
+            "tiny_draw.inline_arrays.fixed_function",
+            "tiny_draw.inline_arrays.vertex_shader",
+            "tiny_draw.inline_buffers.fixed_function",
+            "tiny_draw.inline_buffers.vertex_shader",
+            "tiny_draw.inline_elements.fixed_function",
+            "tiny_draw.inline_elements.vertex_shader"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "testId": "xiso-faba91140d2d7d90e9d544bd44fdc372",
+      "revision": "af5161fa33850fc0ef66053b702dba093ae16383ca220143cbf5f8624549ec28",
+      "planId": "sha256:faba91140d2d7d90e9d544bd44fdc372f333488251b555de225991ce3764ef80",
+      "tests": [
+        "uniform_thrash.uniform_thrash"
+      ],
+      "categories": [
+        "shaders"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "uniform_thrash.uniform_thrash"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    },
+    {
+      "index": 23,
+      "testId": "xiso-d27df0abe3b35806bee86354fd18939f",
+      "revision": "d7529cf7d3da89472778ed01482dd774446fafd1e06829e2936aa5e1dae2ff64",
+      "planId": "sha256:d27df0abe3b35806bee86354fd18939fdd5c331a4131068df1355f88aa5d8bb6",
+      "tests": [
+        "vertex_buffer_allocation.mixed.arrays",
+        "vertex_buffer_allocation.mixed.inline_arrays",
+        "vertex_buffer_allocation.mixed.inline_buffers",
+        "vertex_buffer_allocation.mixed.inline_elements",
+        "vertex_buffer_allocation.tiny.arrays",
+        "vertex_buffer_allocation.tiny.inline_arrays",
+        "vertex_buffer_allocation.tiny.inline_buffers",
+        "vertex_buffer_allocation.tiny.inline_elements",
+        "vertex_buffer_allocation.disjoint_same_page",
+        "vertex_buffer_allocation.rising_transient_growth"
+      ],
+      "categories": [
+        "geometry"
+      ],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": false,
+        "files": [
+          {
+            "source": "state/eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": null
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "pr256-clean-fatx-compat010-v1",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "uncontrolled",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "devbox-mcpx10-readonly-v1",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "devbox-complex4627-readonly-v1",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "pr256-converted-cubemap-20261002-v3",
+              "expectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+            }
+          ]
+        },
+        "xiso": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "suiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+          "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+          "catalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+          "tests": [
+            "vertex_buffer_allocation.mixed.arrays",
+            "vertex_buffer_allocation.mixed.inline_arrays",
+            "vertex_buffer_allocation.mixed.inline_buffers",
+            "vertex_buffer_allocation.mixed.inline_elements",
+            "vertex_buffer_allocation.tiny.arrays",
+            "vertex_buffer_allocation.tiny.inline_arrays",
+            "vertex_buffer_allocation.tiny.inline_buffers",
+            "vertex_buffer_allocation.tiny.inline_elements",
+            "vertex_buffer_allocation.disjoint_same_page",
+            "vertex_buffer_allocation.rising_transient_growth"
+          ],
+          "groups": [],
+          "settings": {
+            "warmup_iterations": 3,
+            "measurement_iterations_multiplier": 4,
+            "gpu_completion_mode": "per_iteration"
+          }
+        }
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-001",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 1,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-002",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 2,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-003",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 3,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-004",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 4,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-005",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 5,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-006",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 6,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-007",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 7,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-008",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 8,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-009",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 9,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-010",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 10,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-011",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 11,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-012",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 12,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-013",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 13,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-014",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 14,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-015",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 15,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-016",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 16,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-017",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 17,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-018",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 18,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-019",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 19,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-020",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 20,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-021",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 21,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-022",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 22,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "id": "xc-pr282-3ba-win-vk-full-candidate-v1-023",
+      "application": "pr282-win-xiso-vk-candidate-v1",
+      "applicationIdentity": "43d12b0f8b32bf956e9eccbd2cfe008d6b1f2b19be7b030352dee6ec56242aa4",
+      "chunk": 23,
+      "label": "B1",
+      "variant": "candidate",
+      "configurationSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    }
+  ],
+  "configurationSource": "application",
+  "configurationPath": "xemu.toml"
+}

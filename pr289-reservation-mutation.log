@@ -1,0 +1,11 @@
+Sensitivity mutation: remove production descriptor reservation; not an existing-head failure.
+TAP version 14
+# random seed: R02S3c20f86b0da5d99bb251cfcbc418366f
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/.scratch/pr282-latest-qualification/pr289-reservation-mutation-test.c:44:pgraph_vk_begin_nondraw_commands: assertion failed (r->compute.descriptor_set_index <= ARRAY_SIZE(r->compute.descriptor_sets) - 3): (1022 <= 1021)
+not ok /xbox/vk/alias/descriptor-reset - ERROR:/home/codex/xemu-shader-workbench-handoff/.scratch/pr282-latest-qualification/pr289-reservation-mutation-test.c:44:pgraph_vk_begin_nondraw_commands: assertion failed (r->compute.descriptor_set_index <= ARRAY_SIZE(r->compute.descriptor_sets) - 3): (1022 <= 1021)
+Bail out!
+Expected rejection status -6

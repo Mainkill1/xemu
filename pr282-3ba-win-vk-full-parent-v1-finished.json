@@ -1,0 +1,22 @@
+{
+  "id": "pr282-3ba-win-vk-full-parent-v1",
+  "revision": "24e60ebc6b5b81964a013df6d6ce043cfc152091caa93ac8a60db3cedbbb7420",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 5,
+  "failed": 18,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr282-3ba-win-vk-full-parent-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr282-3ba-win-vk-full-parent-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

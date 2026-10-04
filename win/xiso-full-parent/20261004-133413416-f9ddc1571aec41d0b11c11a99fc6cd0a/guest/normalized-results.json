@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-133413416-f9ddc1571aec41d0b11c11a99fc6cd0a",
+  "sourceSha256": "1fbd228abf6c4195b2400e2a24302780820928fa08fc88f7a779404423ae497f",
+  "records": [],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 8 leaves and 0 groups; received 8. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_oracle_coverage",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "No pinned oracle for 4 selected leaves. Actual results remain evidence, not a self-approved baseline."
+    }
+  ],
+  "measurements": []
+}

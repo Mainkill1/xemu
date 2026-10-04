@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-134232371-1cb403c11bc14ead82a53da512e42991",
+  "sourceSha256": "3ba56caac6c74fcdd64a0028fd5d35f7311f72dafe0c18ad8f98109b594a754e",
+  "records": [
+    {
+      "Id": "surface.surface_list_lookup_002",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1796.1,
+      "MedianUs": 1724,
+      "MinUs": 1473,
+      "MaxUs": 2191,
+      "P95Us": 2174
+    },
+    {
+      "Id": "surface.surface_list_lookup_008",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1357.25,
+      "MedianUs": 1293.5,
+      "MinUs": 1107,
+      "MaxUs": 1671,
+      "P95Us": 1563
+    },
+    {
+      "Id": "surface.surface_list_lookup_032",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1407,
+      "MedianUs": 1329.5,
+      "MinUs": 1188,
+      "MaxUs": 1743,
+      "P95Us": 1662
+    },
+    {
+      "Id": "surface.surface_list_lookup_128",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1383.3,
+      "MedianUs": 1321,
+      "MinUs": 1177,
+      "MaxUs": 2105,
+      "P95Us": 1825
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.representative.alias_resize",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 12749.25,
+      "MedianUs": 12709.5,
+      "MinUs": 12473,
+      "MaxUs": 13105,
+      "P95Us": 13105
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.representative.growth",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 12632,
+      "MedianUs": 12660.5,
+      "MinUs": 12318,
+      "MaxUs": 12889,
+      "P95Us": 12889
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.representative.idle_retention",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 949.25,
+      "MedianUs": 1032.5,
+      "MinUs": 631,
+      "MaxUs": 1101,
+      "P95Us": 1101
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.representative.plateau",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 12882.25,
+      "MedianUs": 12915.5,
+      "MinUs": 12511,
+      "MaxUs": 13187,
+      "P95Us": 13187
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.representative.reuse",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 12833,
+      "MedianUs": 12997.5,
+      "MinUs": 12246,
+      "MaxUs": 13091,
+      "P95Us": 13091
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.stress.alias_resize",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 52298.75,
+      "MedianUs": 52256,
+      "MinUs": 52048,
+      "MaxUs": 52635,
+      "P95Us": 52635
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.stress.growth",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 48422.25,
+      "MedianUs": 48229.5,
+      "MinUs": 48103,
+      "MaxUs": 49127,
+      "P95Us": 49127
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.stress.idle_retention",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 600,
+      "MedianUs": 599.5,
+      "MinUs": 597,
+      "MaxUs": 604,
+      "P95Us": 604
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.stress.plateau",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 48897,
+      "MedianUs": 48894.5,
+      "MinUs": 48419,
+      "MaxUs": 49380,
+      "P95Us": 49380
+    },
+    {
+      "Id": "surface.vulkan_memory_pressure.stress.reuse",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 4,
+      "MeanUs": 53782,
+      "MedianUs": 53795,
+      "MinUs": 53438,
+      "MaxUs": 54100,
+      "P95Us": 54100
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 14 leaves and 2 groups; received 16. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_group:surface.vulkan_memory_pressure.representative",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "xiso_group:surface.vulkan_memory_pressure.stress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 14 stable IDs; received 14. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:surface.surface_list_lookup_002",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.surface_list_lookup_008",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.surface_list_lookup_032",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.surface_list_lookup_128",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.representative.alias_resize",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.representative.growth",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.representative.idle_retention",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.representative.plateau",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.representative.reuse",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.stress.alias_resize",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.stress.growth",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.stress.idle_retention",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.stress.plateau",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.vulkan_memory_pressure.stress.reuse",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

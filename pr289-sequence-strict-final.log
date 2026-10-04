@@ -1,0 +1,13 @@
+TAP version 14
+# random seed: R02S949f6134a418cd8e9f7b1e7170f91114
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/three-descriptors
+ok 2 /xbox/vk/alias/descriptor-reset
+ok 3 /xbox/vk/alias/capacity-reset
+ok 4 /xbox/vk/alias/reject-before-recording
+# End of alias tests
+# End of vk tests
+# End of xbox tests

@@ -7,3 +7,5 @@ The normalized per-leaf means and raw guest total work are retained separately f
 #284 owned readback/source publication repairs and #287 defensive dispatcher limits/reflection checks have focused source regressions. Their current native runtime benefit is unqualified. See canonical PR descriptions for current source heads/limits.
 
 This isolated evidence branch is not for merging into product main. No executable, firmware, ISO, save-state, game memory, raw PCM or screenshot payload is included.
+
+Windows full Vulkan diagnostics completed both23 attempts, but only159/171 complete leaf objects were retained per variant: chunk17 device loss and chunk18 integer divide occur on both main and #282. Truncated output is preserved byte-exactly; recovered complete prefix objects are labeled partial evidence. No missing rows are presented as PASS. These full passes are unpaired diagnostics because22 missing oracles prevent paired qualification; raw sample means and process wall times are descriptive only. See fork issue#309.

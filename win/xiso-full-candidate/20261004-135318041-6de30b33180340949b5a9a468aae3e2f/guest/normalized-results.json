@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-135318041-6de30b33180340949b5a9a468aae3e2f",
+  "sourceSha256": "7ddcc9ce1097d59e53b6dd118f4212374f8cb70af79d876616d7e829b95817ae",
+  "records": [
+    {
+      "Id": "game_load.doax_menu_stress.cpu_pfifo_gpu",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 69193.75,
+      "MedianUs": 68941,
+      "MinUs": 68483,
+      "MaxUs": 70545,
+      "P95Us": 70545
+    },
+    {
+      "Id": "game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 74991.375,
+      "MedianUs": 75046.5,
+      "MinUs": 74217,
+      "MaxUs": 75334,
+      "P95Us": 75334
+    },
+    {
+      "Id": "game_load.doax_menu_stress.full_system",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 75239.875,
+      "MedianUs": 74931.5,
+      "MinUs": 74255,
+      "MaxUs": 77758,
+      "P95Us": 77758
+    },
+    {
+      "Id": "game_load.doax_menu_stress.streaming_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16334,
+      "MedianUs": 16383.5,
+      "MinUs": 15015,
+      "MaxUs": 18040,
+      "P95Us": 18040
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.cpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 43000.125,
+      "MedianUs": 42798,
+      "MinUs": 42522,
+      "MaxUs": 44497,
+      "P95Us": 44497
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 154135.75,
+      "MedianUs": 153702,
+      "MinUs": 153385,
+      "MaxUs": 155545,
+      "P95Us": 155545
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 157466.375,
+      "MedianUs": 157513,
+      "MinUs": 156092,
+      "MaxUs": 159178,
+      "P95Us": 159178
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.full_system",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 158229.875,
+      "MedianUs": 158222,
+      "MinUs": 157108,
+      "MaxUs": 159681,
+      "P95Us": 159681
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.gpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 93386.5,
+      "MedianUs": 93407,
+      "MinUs": 92830,
+      "MaxUs": 93951,
+      "P95Us": 93951
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.pfifo_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16853.125,
+      "MedianUs": 16840.5,
+      "MinUs": 16790,
+      "MaxUs": 16921,
+      "P95Us": 16921
+    },
+    {
+      "Id": "game_load.pgr2_ai_backup.streaming_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 3554.25,
+      "MedianUs": 3439.5,
+      "MinUs": 3348,
+      "MaxUs": 4140,
+      "P95Us": 4140
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 11 leaves and 0 groups; received 11. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 11 stable IDs; received 11. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.streaming_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.gpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.pfifo_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.streaming_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/mean_us",
+      "Value": 69193.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/median_us",
+      "Value": 68941,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/min_us",
+      "Value": 68483,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/max_us",
+      "Value": 70545,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu/p95_us",
+      "Value": 70545,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/mean_us",
+      "Value": 74991.375,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/median_us",
+      "Value": 75046.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/min_us",
+      "Value": 74217,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/max_us",
+      "Value": 75334,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/cpu_pfifo_gpu_streaming/p95_us",
+      "Value": 75334,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/full_system/mean_us",
+      "Value": 75239.875,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/full_system/median_us",
+      "Value": 74931.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/full_system/min_us",
+      "Value": 74255,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/full_system/max_us",
+      "Value": 77758,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/full_system/p95_us",
+      "Value": 77758,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.full_system"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/streaming_only/mean_us",
+      "Value": 16334,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/streaming_only/median_us",
+      "Value": 16383.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/streaming_only/min_us",
+      "Value": 15015,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/streaming_only/max_us",
+      "Value": 18040,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/doax_menu_stress/streaming_only/p95_us",
+      "Value": 18040,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.doax_menu_stress.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/mean_us",
+      "Value": 43000.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/median_us",
+      "Value": 42798,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/min_us",
+      "Value": 42522,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/max_us",
+      "Value": 44497,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_only/p95_us",
+      "Value": 44497,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/mean_us",
+      "Value": 154135.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/median_us",
+      "Value": 153702,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/min_us",
+      "Value": 153385,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/max_us",
+      "Value": 155545,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu/p95_us",
+      "Value": 155545,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/mean_us",
+      "Value": 157466.375,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/median_us",
+      "Value": 157513,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/min_us",
+      "Value": 156092,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/max_us",
+      "Value": 159178,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/cpu_pfifo_gpu_streaming/p95_us",
+      "Value": 159178,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/full_system/mean_us",
+      "Value": 158229.875,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/full_system/median_us",
+      "Value": 158222,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/full_system/min_us",
+      "Value": 157108,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/full_system/max_us",
+      "Value": 159681,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/full_system/p95_us",
+      "Value": 159681,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.full_system"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/mean_us",
+      "Value": 93386.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/median_us",
+      "Value": 93407,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/min_us",
+      "Value": 92830,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/max_us",
+      "Value": 93951,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/gpu_only/p95_us",
+      "Value": 93951,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.gpu_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/mean_us",
+      "Value": 16853.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/median_us",
+      "Value": 16840.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/min_us",
+      "Value": 16790,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/max_us",
+      "Value": 16921,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/pfifo_only/p95_us",
+      "Value": 16921,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.pfifo_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/mean_us",
+      "Value": 3554.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/median_us",
+      "Value": 3439.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/min_us",
+      "Value": 3348,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/max_us",
+      "Value": 4140,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+    },
+    {
+      "Name": "xiso/game_load/pgr2_ai_backup/streaming_only/p95_us",
+      "Value": 4140,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.pgr2_ai_backup.streaming_only"
+    }
+  ]
+}

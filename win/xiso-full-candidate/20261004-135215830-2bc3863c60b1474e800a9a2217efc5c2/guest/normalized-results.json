@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-135215830-2bc3863c60b1474e800a9a2217efc5c2",
+  "sourceSha256": "0d2997f0c4f767b5d44edd555f1deb072d7543e73110134cb51ea1c5db73e5d6",
+  "records": [
+    {
+      "Id": "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 100033.875,
+      "MedianUs": 100064.5,
+      "MinUs": 99632,
+      "MaxUs": 100414,
+      "P95Us": 100414
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.bc2_native_eligible",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 34895.75,
+      "MedianUs": 33406,
+      "MinUs": 33225,
+      "MaxUs": 37555,
+      "P95Us": 37555
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.bc3_bordered_fallback",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 99971.625,
+      "MedianUs": 100063,
+      "MinUs": 99644,
+      "MaxUs": 100251,
+      "P95Us": 100251
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.bc3_native_eligible",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 35473.25,
+      "MedianUs": 33679.5,
+      "MinUs": 33144,
+      "MaxUs": 41540,
+      "P95Us": 41540
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16651.375,
+      "MedianUs": 16660.5,
+      "MinUs": 16557,
+      "MaxUs": 16734,
+      "P95Us": 16734
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 32289.375,
+      "MedianUs": 33324,
+      "MinUs": 25007,
+      "MaxUs": 34106,
+      "P95Us": 34106
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16667.75,
+      "MedianUs": 16668.5,
+      "MinUs": 16476,
+      "MaxUs": 16840,
+      "P95Us": 16840
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16616.125,
+      "MedianUs": 16617.5,
+      "MinUs": 16355,
+      "MaxUs": 16774,
+      "P95Us": 16774
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16648.875,
+      "MedianUs": 16646.5,
+      "MinUs": 16481,
+      "MaxUs": 16846,
+      "P95Us": 16846
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 133380.75,
+      "MedianUs": 133463.5,
+      "MinUs": 132833,
+      "MaxUs": 133794,
+      "P95Us": 133794
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 50022.625,
+      "MedianUs": 50040.5,
+      "MinUs": 49810,
+      "MaxUs": 50205,
+      "P95Us": 50205
+    },
+    {
+      "Id": "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 49969.5,
+      "MedianUs": 49978.5,
+      "MinUs": 49663,
+      "MaxUs": 50206,
+      "P95Us": 50206
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 1 groups; received 13. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_group:game_load.s3tc_sync_factor",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.bc2_bordered_fallback",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.bc2_native_eligible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.bc3_bordered_fallback",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.bc3_native_eligible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_queued",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_wait",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_queued",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_wait",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 4 applicable reference hashes."
+    }
+  ],
+  "measurements": []
+}

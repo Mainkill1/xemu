@@ -1,0 +1,204 @@
+{
+  "runId": "20261004-134121521-809f922afec845b6baab26f19990a695",
+  "job": "xc-pr282-3ba-win-vk-full-parent-v1-017",
+  "jobPackage": "agent-xc-pr282-3ba-win-vk-full-parent-v1-017",
+  "attempt": 1,
+  "status": "failed",
+  "detail": null,
+  "startedUtc": "2026-10-04T13:41:21.5215757+00:00",
+  "endedUtc": "2026-10-04T13:41:49.4965208+00:00",
+  "durationMs": 27974.9457,
+  "processId": 310136,
+  "exitCode": 3,
+  "crash": {
+    "RunId": "20261004-134121521-809f922afec845b6baab26f19990a695",
+    "ExecutableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "Platform": "windows",
+    "ProcessId": 310136,
+    "ExitCode": 3,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "captured",
+    "Dump": "captured",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "windows_event_unavailable",
+      "windows-analysis:unavailable:tool_not_found:cdb.exe"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-pr282-3ba-win-vk-full-parent-v1-017/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:59270,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "xiso_receipt_missing: the guest did not close its selected plan."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "xiso_receipt_missing: the guest did not close its selected plan."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "notevaluated",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-134121521-809f922afec845b6baab26f19990a695",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1587,
+    "TimestampUtc": "2026-10-04T13:41:21.3904775+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1615,
+    "TimestampUtc": "2026-10-04T13:41:49.4003444+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 50,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 10.336442000000002,
+    "maxCollectorDutyPercent": 12.7524,
+    "maxCollectorDurationMs": 63.762,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+TAP version 14
+# random seed: R02S57414e6174dde770c2db0b05dc0f9e7b
+1..10
+# Start of xbox tests
+# Start of vk tests
+# Start of ubershader tests
+# Start of glsl tests
+ok 1 /xbox/vk/ubershader/glsl/compile-reflect-abi
+xemu-pr289/build/tests/unit/test-xbox-vk-ubershader-glsl-integration: nv2a/vk: GLSL parsing failed: ERROR: 0:2: 'this' : Reserved word. 
+ERROR: 0:2: '' : compilation terminated 
+ERROR: 2 compilation errors.  No code generated.
+
+
+ok 2 /xbox/vk/ubershader/glsl/invalid-source
+ok 3 /xbox/vk/ubershader/glsl/generated-graphics-stages
+ok 4 /xbox/vk/ubershader/glsl/dedup-alias-ownership
+ok 5 /xbox/vk/ubershader/glsl/dedup-alias-partial-failure
+# End of glsl tests
+# End of ubershader tests
+# Start of surface-alias tests
+ok 6 /xbox/vk/surface-alias/compute-compile
+ok 7 /xbox/vk/surface-alias/pipeline-identity
+ok 8 /xbox/vk/surface-alias/workgroup-selection
+# End of surface-alias tests
+# Start of psh tests
+ok 9 /xbox/vk/psh/depth-replace-compile
+# End of psh tests
+# Start of vsh tests
+ok 10 /xbox/vk/vsh/nv20-arithmetic-compile
+# End of vsh tests
+# End of vk tests
+# End of xbox tests
