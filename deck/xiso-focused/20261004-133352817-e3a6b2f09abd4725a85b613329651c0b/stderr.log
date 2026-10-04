@@ -1,0 +1,25 @@
+xemu_version: 0.8.136-0-g3ba880bb4ed1
+xemu_commit: 3ba880bb4ed1d319cbb10bf2b29c9cf25ffa3aa6
+xemu_date: Sun Oct  4 12:54:38 UTC 2026
+xemu_settings_set_path: config path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-133352817-e3a6b2f09abd4725a85b613329651c0b/diagnostics/run-state/effective-live.toml
+CPU: AMD Custom APU 0405
+OS_Version: SteamOS
+GL_VENDOR: AMD
+GL_RENDERER: AMD Custom GPU 0405 (radeonsi, vangogh, LLVM 20.1.8, DRM 3.64, 6.16.12-valve24.5-1-neptune-616-gb2f7cfe85e45)
+GL_VERSION: 4.6 (Core Profile) Mesa 25.3.0 (git-59b552c765)
+GL_SHADING_LANGUAGE_VERSION: 4.60
+GL geometry shader winding: 0, 0, 0, 0
+Available physical devices:
+- AMD Custom GPU 0405 (RADV VANGOGH) [00000000040000000000000000000000]: compatible
+Selected physical device: AMD Custom GPU 0405 (RADV VANGOGH) [00000000040000000000000000000000]
+- Vendor: 1002, Device: 163f
+- Driver Version: 25.99.99
+Enabled device extensions:
+- VK_KHR_external_memory_fd
+- VK_KHR_external_semaphore_fd
+- VK_EXT_custom_border_color
+- VK_EXT_memory_budget
+- VK_EXT_shader_demote_to_helper_invocation
+Vulkan presentation transport: shared external memory
+xemu_settings_get_base_path: base path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-pr282-3ba-deck-vk-oracle-focused-v1-011/
+VK geometry shader winding: 0, 0, 0, 0

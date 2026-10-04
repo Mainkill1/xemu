@@ -1,0 +1,272 @@
+{
+  "reference": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "candidate": "3ba880bb4ed1d319cbb10bf2b29c9cf25ffa3aa6",
+  "scope": "Secondary medians of eight canonical per-run measurements. GPU is whole-host utilization, not stage cost. Windows uncontrolled driver cache is ineligible.",
+  "runs": [
+    {
+      "cell": 1,
+      "variant": "parent",
+      "runId": "20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2",
+      "cpu": 221.7232096774194,
+      "gpu": 75.69354838709677,
+      "cadence": 13.574673885279838,
+      "avg": 72.14517002881844,
+      "p95": 99.9141,
+      "p99": 113.84990000000012,
+      "max": 150.221,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 2,
+      "variant": "candidate",
+      "runId": "20261004-131051652-73ab85c47691423da5200e9ac8efe1f6",
+      "cpu": 229.47867741935482,
+      "gpu": 83.8225806451613,
+      "cadence": 12.89591756516823,
+      "avg": 75.1752132132132,
+      "p95": 99.99080000000001,
+      "p99": 101.27360000000002,
+      "max": 133.454,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 3,
+      "variant": "candidate",
+      "runId": "20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b",
+      "cpu": 219.5554838709677,
+      "gpu": 71.58064516129032,
+      "cadence": 13.480357508624744,
+      "avg": 74.15523372781068,
+      "p95": 100.00515,
+      "p99": 110.58969999999992,
+      "max": 124.835,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 4,
+      "variant": "parent",
+      "runId": "20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27",
+      "cpu": 223.9502131147541,
+      "gpu": 66.11475409836065,
+      "cadence": 12.726320205590522,
+      "avg": 76.22489665653492,
+      "p95": 100.0172,
+      "p99": 116.59436,
+      "max": 116.73,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 5,
+      "variant": "candidate",
+      "runId": "20261004-131325276-4f63312f724c41689b14277e7f2e8df7",
+      "cpu": 224.73935483870963,
+      "gpu": 73.45161290322581,
+      "cadence": 13.094652992886111,
+      "avg": 74.01742011834324,
+      "p95": 99.977,
+      "p99": 100.1676,
+      "max": 134.901,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 6,
+      "variant": "parent",
+      "runId": "20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d",
+      "cpu": 225.49482258064518,
+      "gpu": 73.59677419354838,
+      "cadence": 12.982062984378382,
+      "avg": 74.5532827380952,
+      "p95": 100.00925000000001,
+      "p99": 101.55624999999995,
+      "max": 133.447,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 7,
+      "variant": "parent",
+      "runId": "20261004-131504314-5c1ce59e87c341888c1d5d55889a5811",
+      "cpu": 226.0321935483871,
+      "gpu": 71.37096774193549,
+      "cadence": 12.284839387055692,
+      "avg": 79.0071419558359,
+      "p95": 100.0662,
+      "p99": 116.7136,
+      "max": 134.3,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "cell": 8,
+      "variant": "candidate",
+      "runId": "20261004-131555181-5d4ab11285c6480f809b230dedacb3e7",
+      "cpu": 225.83267213114755,
+      "gpu": 74.72131147540983,
+      "cadence": 12.823210200436273,
+      "avg": 75.40125602409636,
+      "p95": 100.04870000000001,
+      "p99": 116.61966,
+      "max": 133.35,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ],
+  "metrics": {
+    "cpu": {
+      "overall": {
+        "before": 224.72251784769963,
+        "after": 225.2860134849286,
+        "improvementPercent": -0.25075174603145445
+      },
+      "ABBA": {
+        "before": 222.83671139608674,
+        "after": 224.51708064516126,
+        "improvementPercent": -0.7540809764005634
+      },
+      "BAAB": {
+        "before": 225.76350806451615,
+        "after": 225.2860134849286,
+        "improvementPercent": 0.2115021084147504
+      }
+    },
+    "gpu": {
+      "overall": {
+        "before": 72.48387096774194,
+        "after": 74.08646218931781,
+        "deltaPercentagePoints": 1.602591221575878
+      },
+      "ABBA": {
+        "before": 70.90415124272872,
+        "after": 77.70161290322581,
+        "deltaPercentagePoints": 6.797461660497092
+      },
+      "BAAB": {
+        "before": 72.48387096774194,
+        "after": 74.08646218931781,
+        "deltaPercentagePoints": 1.602591221575878
+      }
+    },
+    "cadence": {
+      "overall": {
+        "before": 12.854191594984453,
+        "after": 12.99528527902717,
+        "improvementPercent": 1.09764727715565
+      },
+      "ABBA": {
+        "before": 13.15049704543518,
+        "after": 13.188137536896487,
+        "improvementPercent": 0.2862286598845532
+      },
+      "BAAB": {
+        "before": 12.633451185717037,
+        "after": 12.958931596661191,
+        "improvementPercent": 2.5763380580607413
+      }
+    },
+    "avg": {
+      "overall": {
+        "before": 75.38908969731506,
+        "after": 74.66522347051193,
+        "improvementPercent": 0.9601737197112024
+      },
+      "ABBA": {
+        "before": 74.18503334267669,
+        "after": 74.66522347051193,
+        "improvementPercent": -0.6472870688311769
+      },
+      "BAAB": {
+        "before": 76.78021234696556,
+        "after": 74.7093380712198,
+        "improvementPercent": 2.697145804165772
+      }
+    },
+    "p95": {
+      "overall": {
+        "before": 100.013225,
+        "after": 99.997975,
+        "improvementPercent": 0.01524798345419705
+      },
+      "ABBA": {
+        "before": 99.96565000000001,
+        "after": 99.997975,
+        "improvementPercent": -0.032336107452896015
+      },
+      "BAAB": {
+        "before": 100.037725,
+        "after": 100.01285000000001,
+        "improvementPercent": 0.024865619445044576
+      }
+    },
+    "p99": {
+      "overall": {
+        "before": 115.22213000000005,
+        "after": 105.93164999999996,
+        "improvementPercent": 8.0631038499289
+      },
+      "ABBA": {
+        "before": 115.22213000000005,
+        "after": 105.93164999999996,
+        "improvementPercent": 8.0631038499289
+      },
+      "BAAB": {
+        "before": 109.13492499999998,
+        "after": 108.39363,
+        "improvementPercent": 0.6792463549134062
+      }
+    },
+    "max": {
+      "overall": {
+        "before": 133.8735,
+        "after": 133.402,
+        "improvementPercent": 0.3521981572155955
+      },
+      "ABBA": {
+        "before": 133.4755,
+        "after": 129.1445,
+        "improvementPercent": 3.2447902424040493
+      },
+      "BAAB": {
+        "before": 133.8735,
+        "after": 134.1255,
+        "improvementPercent": -0.18823740322019003
+      }
+    }
+  }
+}

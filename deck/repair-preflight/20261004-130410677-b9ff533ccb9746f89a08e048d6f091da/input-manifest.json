@@ -1,0 +1,53 @@
+{
+  "JobId": "pr282-deck-doaxbv-repair-preflight-v1-t001",
+  "CreatedUtc": "2026-10-04T13:04:10.7534236+00:00",
+  "PackageDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-pr282-deck-doaxbv-repair-preflight-v1-t001",
+  "JobManifestSha256": "a49033c502ed2b016de52d5b9a4a80a9170fc36cf10352564040af2f532b1b6f",
+  "ExecutableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "native-ci-executable",
+      "Bytes": 25548144,
+      "LastWriteUtc": "2026-10-04T13:04:09.0068048Z",
+      "Sha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+      "ExpectedSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Bytes": 511,
+      "LastWriteUtc": "2026-10-04T13:04:09.0338852Z",
+      "Sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "ExpectedSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-04T13:04:08.9708048Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-deck-pgr2-portable-save-seed-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "pr267-deck-pgr2-portable-save-seed-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

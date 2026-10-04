@@ -1,0 +1,2 @@
+PASS actual generated workgroup 1 GLSL+SPIR-V
+PASS actual generated workgroup 256 GLSL+SPIR-V

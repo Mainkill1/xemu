@@ -1,0 +1,85 @@
+{
+  "available": true,
+  "runId": "20261004-130225097-0243a93186b04b2da7b565c4c2bc2bb4",
+  "code": null,
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+    "profile": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": null,
+    "flips": {
+      "samples": 5,
+      "frames": 1502,
+      "elapsedUs": 25033381,
+      "cadenceFps": 59.99988575254777
+    },
+    "frames": {
+      "windowStartUs": 1355817096853,
+      "windowEndUs": 1355842096853,
+      "firstSampleUs": 1355817112918,
+      "lastSampleUs": 1355842096853,
+      "zeroIntervals": 0,
+      "intervalsMs": {
+        "count": 1435,
+        "mean": 17.422021602787446,
+        "median": 16.667,
+        "min": 15.946,
+        "max": 1067.24,
+        "p95": 16.8182,
+        "p99": 17.02166
+      }
+    },
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 31327,
+        "sha256": "d5c990020c0661f0c52674061f51a9fa5654037995f70437adddd3e770900fb6",
+        "records": 164,
+        "ignoredRecords": 163
+      },
+      {
+        "path": "guest-flips.log",
+        "bytes": 630,
+        "sha256": "1e295e8df07fed3ec1407f814a38d5bc8de5bee119185df33b02e4ddb7a7e130",
+        "records": 15,
+        "ignoredRecords": 0
+      },
+      {
+        "path": "guest-frames.log",
+        "bytes": 238116,
+        "sha256": "b5779d668aa97f9dd7c1d7e72904fb1dffbc7e3291c68a4e607fdba5dedaed11",
+        "records": 4430,
+        "ignoredRecords": 0
+      }
+    ],
+    "errors": [
+      "monitor: Selected segment has insufficient CPU/duty samples."
+    ],
+    "complete": false
+  },
+  "outcome": {
+    "execution": "failed",
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "executableSha256": "97e1ab6b65023f547f881d3396ba3bf212372a4102a2799a9470419bb9d63a33",
+  "launchExecutableSha256": "97e1ab6b65023f547f881d3396ba3bf212372a4102a2799a9470419bb9d63a33",
+  "identityCode": null,
+  "cleanup": {
+    "state": "complete",
+    "files": 1,
+    "deletedFiles": 1,
+    "hddDeleted": true
+  },
+  "detail": "/api/v1/runs/20261004-130225097-0243a93186b04b2da7b565c4c2bc2bb4?view=summary"
+}

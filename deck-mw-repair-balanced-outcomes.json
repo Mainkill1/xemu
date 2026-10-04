@@ -1,0 +1,290 @@
+[
+  {
+    "cell": 1,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr282-deck-mw-repair-balanced-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131001122-8b7b76e015114562b1ab6ddbc9bca5b2/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr282-deck-mw-repair-balanced-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131051652-73ab85c47691423da5200e9ac8efe1f6",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131051652-73ab85c47691423da5200e9ac8efe1f6?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131051652-73ab85c47691423da5200e9ac8efe1f6",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131051652-73ab85c47691423da5200e9ac8efe1f6/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131051652-73ab85c47691423da5200e9ac8efe1f6/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr282-deck-mw-repair-balanced-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131144187-e1d8ae9e488c4004b9e23af34ad1a78b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr282-deck-mw-repair-balanced-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131236066-5dd978df8f7d4155b6a2fb6700de6f27/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr282-deck-mw-repair-balanced-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131325276-4f63312f724c41689b14277e7f2e8df7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131325276-4f63312f724c41689b14277e7f2e8df7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131325276-4f63312f724c41689b14277e7f2e8df7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131325276-4f63312f724c41689b14277e7f2e8df7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131325276-4f63312f724c41689b14277e7f2e8df7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr282-deck-mw-repair-balanced-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131414665-d148ae6f67bb4f52a32338e2e79f327d/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr282-deck-mw-repair-balanced-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131504314-5c1ce59e87c341888c1d5d55889a5811",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131504314-5c1ce59e87c341888c1d5d55889a5811?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131504314-5c1ce59e87c341888c1d5d55889a5811",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131504314-5c1ce59e87c341888c1d5d55889a5811/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131504314-5c1ce59e87c341888c1d5d55889a5811/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr282-deck-mw-repair-balanced-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr282-deck-mw-repair-balanced-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-131555181-5d4ab11285c6480f809b230dedacb3e7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-131555181-5d4ab11285c6480f809b230dedacb3e7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-131555181-5d4ab11285c6480f809b230dedacb3e7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-131555181-5d4ab11285c6480f809b230dedacb3e7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-131555181-5d4ab11285c6480f809b230dedacb3e7/diagnostics"
+      }
+    }
+  }
+]

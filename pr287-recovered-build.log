@@ -1,0 +1,5 @@
+ninja: Entering directory `xemu-pr287/build'
+[1/4] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/4] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/4] Compiling C object tests/unit/test-xbox-vk-alias-dispatch-limits.p/test-xbox-vk-alias-dispatch-limits.c.o
+[4/4] Linking target tests/unit/test-xbox-vk-alias-dispatch-limits

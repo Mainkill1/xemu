@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Seb8a7c42ea32f01e3d503e00d198e770
+1..3
+# Start of xbox tests
+# Start of vk tests
+# Start of retention tests
+**
+ERROR:xemu-pr284/tests/unit/test-xbox-vk-surface-retention.c:33:test_owned_image_bytes: assertion failed (snapshot == image)
+not ok /xbox/vk/retention/owned-image - ERROR:xemu-pr284/tests/unit/test-xbox-vk-surface-retention.c:33:test_owned_image_bytes: assertion failed (snapshot == image)
+Bail out!

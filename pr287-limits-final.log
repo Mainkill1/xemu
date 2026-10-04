@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S1ed2be041b04f24c61b5ccb39c0274ef
+1..1
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/device-limits
+# End of alias tests
+# End of vk tests
+# End of xbox tests

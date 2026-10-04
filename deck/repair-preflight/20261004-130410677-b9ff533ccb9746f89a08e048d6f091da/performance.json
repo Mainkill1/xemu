@@ -1,0 +1,85 @@
+{
+  "available": true,
+  "runId": "20261004-130410677-b9ff533ccb9746f89a08e048d6f091da",
+  "code": null,
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+    "profile": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": null,
+    "flips": {
+      "samples": 5,
+      "frames": 1085,
+      "elapsedUs": 25061056,
+      "cadenceFps": 43.29426501421169
+    },
+    "frames": {
+      "windowStartUs": 1123001644531,
+      "windowEndUs": 1123026644531,
+      "firstSampleUs": 1123001654092,
+      "lastSampleUs": 1123026644531,
+      "zeroIntervals": 0,
+      "intervalsMs": {
+        "count": 1099,
+        "mean": 22.761697907188346,
+        "median": 22.297,
+        "min": 13.99,
+        "max": 206.946,
+        "p95": 27.563199999999995,
+        "p99": 32.50419999999996
+      }
+    },
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 46697,
+        "sha256": "9d82e36745521cbc870a47c9ebe14b3978da1864c919a4b755b2aae4d4ee0fad",
+        "records": 245,
+        "ignoredRecords": 244
+      },
+      {
+        "path": "guest-flips.log",
+        "bytes": 943,
+        "sha256": "4ab3e5817dde475740df5845eada38721a3ee577a88d0ddd6a72666afc704d93",
+        "records": 23,
+        "ignoredRecords": 0
+      },
+      {
+        "path": "guest-frames.log",
+        "bytes": 255417,
+        "sha256": "174f1986d97fbe4ed6b63e55b2f114943cef55993d1e6a3778136316520b8f0a",
+        "records": 4840,
+        "ignoredRecords": 0
+      }
+    ],
+    "errors": [
+      "monitor: Selected segment has insufficient CPU/duty samples."
+    ],
+    "complete": false
+  },
+  "outcome": {
+    "execution": "failed",
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "executableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+  "launchExecutableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+  "identityCode": null,
+  "cleanup": {
+    "state": "complete",
+    "files": 1,
+    "deletedFiles": 1,
+    "hddDeleted": true
+  },
+  "detail": "/api/v1/runs/20261004-130410677-b9ff533ccb9746f89a08e048d6f091da?view=summary"
+}

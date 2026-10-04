@@ -1,0 +1,3 @@
+Meson test encountered an error:
+
+The test program '/home/codex/xemu-shader-workbench-handoff/xemu-pr287/build/tests/unit/test-crypto-block' does not exist. Cannot run tests before building them.

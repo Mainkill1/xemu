@@ -1,0 +1,38 @@
+[
+  {
+    "schema_version": 1,
+    "id": "cpu_floating_point.sse_scalar",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "CpuFloatingPoint::SSEScalar",
+    "outcome": "PASS",
+    "iterations": 40,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 3490,
+    "total_us": 47915000,
+    "average_us": 1197875,
+    "min_us": 1173632,
+    "max_us": 1232693,
+    "median_us": 1193492,
+    "p95_us": 1232693,
+    "mad_us": 10931,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      1185430,
+      1196760,
+      1216016,
+      1191563,
+      1190096,
+      1179692,
+      1173632,
+      1195422,
+      1217442,
+      1232693
+    ],
+    "framebuffer_fnv1a64": "6962077c244da325"
+  }
+]
