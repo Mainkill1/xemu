@@ -2718,6 +2718,8 @@ if have_tcg
   config_host_data.set('CONFIG_TCG', 1)
   config_host_data.set('CONFIG_TCG_INTERPRETER', tcg_arch == 'tci')
 endif
+config_host_data.set('CONFIG_XEMU_TCG_JUMP_CACHE_PROBE',
+                    get_option('xemu_tcg_jump_cache_probe'))
 config_host_data.set('CONFIG_TPM', have_tpm)
 config_host_data.set('CONFIG_TSAN', get_option('tsan'))
 config_host_data.set('CONFIG_USB_LIBUSB', libusb.found())
