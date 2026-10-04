@@ -1,0 +1,5 @@
+host,test,beforeUs,afterUs,differenceUs,improvementPercent,ABBAimprovementPercent,BAABimprovementPercent,correctness,attemptComparisonEligible,canonicalComparisonStatus,canonicalIndexedAttempts,parentCandidateHashEqual,parentHashes,candidateHashes,pinnedOracle
+deck,cpu_floating_point.sse_scalar,1194849.65,1188589.1,-6260.549999999814,0.5239613201543654,1.062511257319889,0.36986661878336413,passed,True,inconclusive,8,True,['6962077c244da325'],['6962077c244da325'],6962077c244da325
+deck,cpu_floating_point.x87_scalar,1141895.7000000002,1139558.4,-2337.3000000002794,0.20468594460950146,-2.060816633409748,1.9494391223671501,passed,True,inconclusive,8,True,['6962077c244da325'],['6962077c244da325'],6962077c244da325
+win,cpu_floating_point.sse_scalar,519905.25,518845.89999999997,-1059.350000000035,0.20375828095600784,0.6120305313213544,-0.9037097570016344,passed,False,ineligible,0,True,['6962077c244da325'],['6962077c244da325'],6962077c244da325
+win,cpu_floating_point.x87_scalar,817185.6,819450.25,2264.6500000000233,-0.27712798659203286,0.5504612197149248,-0.9319518114038752,passed,False,ineligible,0,True,['6962077c244da325'],['6962077c244da325'],6962077c244da325

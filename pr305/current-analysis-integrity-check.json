@@ -1,0 +1,5 @@
+{
+  "selectedRows": 342,
+  "assertions": "Unique host/test rows; per-variant recovered counts; all process wall totals include crash attempts with zero leaves; raw min<=mean<=max; nearest-rank sample percentiles",
+  "passed": true
+}
