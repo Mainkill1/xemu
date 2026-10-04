@@ -38,6 +38,12 @@ typedef struct PGRAPHVkDepthAliasView {
     bool superseded_by_guest;
 } PGRAPHVkDepthAliasView;
 
+/*
+ * Admit a GPU-image producer to a read-only swizzled view conversion. This
+ * does not imply guest RAM contains the producer bytes or that conversion
+ * is profitable. The runtime caller must prove producer ownership, reject
+ * newer overlapping versions, and prefer ordinary upload for current RAM.
+ */
 bool pgraph_vk_depth_alias_read_only_eligible(
     const PGRAPHVkDepthAliasView *producer,
     const PGRAPHVkDepthAliasView *view,
