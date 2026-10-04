@@ -1,0 +1,40 @@
+{
+  "candidate": "8431ada9049336317417fa7316d298e00104c9ec",
+  "predecessor": "4301f6717e897fe783d5a021c689407d77e6aaad",
+  "runtimeRepair": "update_fip=false for valid DF E0; checkpoint/soft helper/status expression/AX width retained",
+  "sourceGuards": {
+    "passed": 3,
+    "scopedMutantsRejected": [
+      "commented checkpoint",
+      "missing final TOP OR",
+      "missing 16-bit AX write",
+      "missing FIP guard"
+    ]
+  },
+  "nativeHostReference": "Strict GCC native differential fixture: pointer fields, upper EAX, real fault continuation and 2097152 supplied status configurations PASS",
+  "actualXboxGuest": {
+    "pointerOnlyBefore": {
+      "hard": 1,
+      "soft": 1
+    },
+    "pointerOnlyAfter": {
+      "hard": 0,
+      "soft": 0
+    },
+    "currentFullAfter": {
+      "hard": "pointer=0 fault=0 matrix=0 configs=2097152",
+      "soft": "pointer=0 fault=0 matrix=0 configs=2097152"
+    }
+  },
+  "scope": "Local AMD/Linux full Xbox VMs with original-state guest test. Does not qualify native Windows/Deck gameplay performance or save/load. Private firmware/HDD/ISO/configs excluded.",
+  "limitations": [
+    "Before observer ended on unsupported optional screendump/quit receipt EOF after guest result written; guest failure retained.",
+    "Full current VM teardown retains inherited GLib g_source_destroy assertion; both exit0.",
+    "Sandboxed full attempt failed to create Xvfb before emulator start; authorized local retry succeeded."
+  ],
+  "review": "Independent scoped review: no critical/important issues; overallPR HOLD pending native/XISO gates",
+  "ciPending": [
+    37237901709,
+    37237898121
+  ]
+}

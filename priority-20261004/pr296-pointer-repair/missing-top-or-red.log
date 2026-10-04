@@ -1,0 +1,14 @@
+..F
+======================================================================
+FAIL: test_generated_path_keeps_soft_fallback_and_fp_checkpoint (__main__.FnstswGenerationTests.test_generated_path_keeps_soft_fallback_and_fp_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr296/tests/unit/test-xemu-fnstsw-generation.py", line 54, in test_generated_path_keeps_soft_fallback_and_fp_checkpoint
+    self.assertIn("tcg_gen_or_i32(result, result, top);", body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'tcg_gen_or_i32(result, result, top);' not found in 'static void gen_fnstsw_ax(DisasContext *s, TCGv_i32 result)\n{\n    GEN_HELPER_FALLBACK_T_v(fnstsw, result);\n\n    \n    gen_flush_fp(s);\n    TCGv_i32 top = tcg_temp_new_i32();\n    tcg_gen_ld16u_i32(result, tcg_env, offsetof(CPUX86State, fpus));\n    tcg_gen_andi_i32(result, result, ~0x3800);\n    tcg_gen_andi_i32(top, fpstt, 7);\n    tcg_gen_shli_i32(top, top, 11);\n    \n}'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=1)

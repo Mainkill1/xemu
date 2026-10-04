@@ -1,0 +1,3 @@
+# PR296 FNSTSW pointer repair
+
+Numeric/component evidence only; no game resources or firmware. Candidate8431ada versus predecessor4301f671. Actual Xbox guest pointer check fails on the predecessor in both hard and soft FPU, and passes after the one-line AX-dispatch correction. A fresh full current guest run also passes pointer, fault checkpoint and 2,097,152 supplied status configurations in both modes. Native x86-64 is an independent architectural reference. Source guards are structural, with meaningful negative controls. Native gameplay/XISO/current-head CI are separate incomplete gates. Preserve inherited teardown warning and original failed observer/sandbox attempts.

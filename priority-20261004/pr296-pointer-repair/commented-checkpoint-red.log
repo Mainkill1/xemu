@@ -1,0 +1,14 @@
+..E
+======================================================================
+ERROR: test_generated_path_keeps_soft_fallback_and_fp_checkpoint (__main__.FnstswGenerationTests.test_generated_path_keeps_soft_fallback_and_fp_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr296/tests/unit/test-xemu-fnstsw-generation.py", line 49, in test_generated_path_keeps_soft_fallback_and_fp_checkpoint
+    self.assertLess(body.index("gen_flush_fp(s);"), body.index("fpus"))
+                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+ValueError: substring not found
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (errors=1)

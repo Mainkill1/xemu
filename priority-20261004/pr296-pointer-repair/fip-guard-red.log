@@ -1,0 +1,14 @@
+.F.
+======================================================================
+FAIL: test_ax_status_preserves_saved_instruction_pointer (__main__.FnstswGenerationTests.test_ax_status_preserves_saved_instruction_pointer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr296/tests/unit/test-xemu-fnstsw-generation.py", line 38, in test_ax_status_preserves_saved_instruction_pointer
+    self.assertIn("update_fip = false;", dispatch.group("body"))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'update_fip = false;' not found in 'gen_fnstsw_ax(s, s->tmp2_i32);\n                tcg_gen_extu_i32_tl(s->T0, s->tmp2_i32);\n                gen_op_mov_reg_v(s, MO_16, R_EAX, s->T0);\n                '
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=1)
