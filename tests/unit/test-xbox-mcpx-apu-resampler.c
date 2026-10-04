@@ -3,7 +3,10 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/vp/resample.h"
 
+#include <math.h>
 #include <samplerate.h>
+
+static bool linear_single_frame;
 
 typedef struct TestSamples {
     float *samples;
@@ -62,8 +65,9 @@ static void test_expand_mono(void)
     }
 }
 
-static void test_sinc_mono_matches_duplicated_stereo(void)
+static void test_mono_matches_duplicated_stereo(gconstpointer opaque)
 {
+    int converter = GPOINTER_TO_INT(opaque);
     enum { INPUT_FRAMES = 256, OUTPUT_FRAMES = 96 };
     float mono_input[INPUT_FRAMES];
     float stereo_input[INPUT_FRAMES][2];
@@ -88,9 +92,9 @@ static void test_sinc_mono_matches_duplicated_stereo(void)
     };
     int mono_err;
     int stereo_err;
-    SRC_STATE *mono = src_callback_new(sample_callback, SRC_SINC_FASTEST, 1,
+    SRC_STATE *mono = src_callback_new(sample_callback, converter, 1,
                                        &mono_err, &mono_samples);
-    SRC_STATE *stereo = src_callback_new(sample_callback, SRC_SINC_FASTEST, 2,
+    SRC_STATE *stereo = src_callback_new(sample_callback, converter, 2,
                                          &stereo_err, &stereo_samples);
 
     g_assert_nonnull(mono);
@@ -115,7 +119,7 @@ static void test_sinc_mono_matches_duplicated_stereo(void)
     src_delete(stereo);
 }
 
-static void run_sinc_streaming_equivalence(long callback_frames)
+static void run_streaming_equivalence(int converter, long callback_frames)
 {
     enum {
         INPUT_FRAMES = 2048,
@@ -149,9 +153,9 @@ static void run_sinc_streaming_equivalence(long callback_frames)
     };
     int mono_err;
     int stereo_err;
-    SRC_STATE *mono = src_callback_new(sample_callback, SRC_SINC_FASTEST, 1,
+    SRC_STATE *mono = src_callback_new(sample_callback, converter, 1,
                                        &mono_err, &mono_samples);
-    SRC_STATE *stereo = src_callback_new(sample_callback, SRC_SINC_FASTEST, 2,
+    SRC_STATE *stereo = src_callback_new(sample_callback, converter, 2,
                                          &stereo_err, &stereo_samples);
 
     g_assert_nonnull(mono);
@@ -171,6 +175,8 @@ static void run_sinc_streaming_equivalence(long callback_frames)
         g_assert_cmpint(mono_samples.offset, ==, stereo_samples.offset);
         g_assert_cmpint(mono_samples.callback_calls, ==,
                         stereo_samples.callback_calls);
+        g_test_message("converter=%d chunk=%ld block=%d rate=%.2f offset=%ld",
+                       converter, callback_frames, block, rate, mono_samples.offset);
         for (int i = 0; i < mono_count; i++) {
             g_assert_cmpfloat_with_epsilon(mono_output[i],
                                            stereo_output[i][0], 1e-7f);
@@ -183,17 +189,26 @@ static void run_sinc_streaming_equivalence(long callback_frames)
     src_delete(stereo);
 }
 
-static void test_sinc_streaming_mono_matches_duplicated_stereo(void)
+static void test_streaming_mono_matches_duplicated_stereo(gconstpointer opaque)
 {
+    int converter = GPOINTER_TO_INT(opaque);
     static const long callback_frames[] = { 1, 7, 17, 31, 32, 33, 64 };
 
+    if (converter == SRC_LINEAR) {
+        /* The production callback always supplies 32 frames, including
+         * silence padding. Short-callback linear diagnostics are separate
+         * from qualification of that production contract. */
+        run_streaming_equivalence(converter, linear_single_frame ? 1 : 32);
+        return;
+    }
     for (int i = 0; i < ARRAY_SIZE(callback_frames); i++) {
-        run_sinc_streaming_equivalence(callback_frames[i]);
+        run_streaming_equivalence(converter, callback_frames[i]);
     }
 }
 
-static void test_sinc_channel_change_at_stream_reset(void)
+static void test_channel_change_at_stream_reset(gconstpointer opaque)
 {
+    int converter = GPOINTER_TO_INT(opaque);
     enum { INPUT_FRAMES = 256, OUTPUT_FRAMES = 32 };
     float mono_input[INPUT_FRAMES];
     float stereo_input[INPUT_FRAMES][2];
@@ -214,7 +229,7 @@ static void test_sinc_channel_change_at_stream_reset(void)
     };
     int err;
     SRC_STATE *resampler = src_callback_new(
-        sample_callback, SRC_SINC_FASTEST, 1, &err, &mono_samples);
+        sample_callback, converter, 1, &err, &mono_samples);
     g_assert_nonnull(resampler);
     g_assert_cmpint(err, ==, 0);
 
@@ -232,11 +247,11 @@ static void test_sinc_channel_change_at_stream_reset(void)
         .channels = 2,
     };
     TestSamples fresh_samples = recreated_samples;
-    resampler = src_callback_new(sample_callback, SRC_SINC_FASTEST, 2, &err,
+    resampler = src_callback_new(sample_callback, converter, 2, &err,
                                  &recreated_samples);
     g_assert_nonnull(resampler);
     g_assert_cmpint(err, ==, 0);
-    SRC_STATE *fresh = src_callback_new(sample_callback, SRC_SINC_FASTEST, 2,
+    SRC_STATE *fresh = src_callback_new(sample_callback, converter, 2,
                                         &err, &fresh_samples);
     g_assert_nonnull(fresh);
     g_assert_cmpint(err, ==, 0);
@@ -262,8 +277,9 @@ static void test_sinc_channel_change_at_stream_reset(void)
     src_delete(fresh);
 }
 
-static void test_full_reset_discards_resampler_history(void)
+static void test_full_reset_discards_resampler_history(gconstpointer opaque)
 {
+    int converter = GPOINTER_TO_INT(opaque);
     enum { INPUT_FRAMES = 512, OUTPUT_FRAMES = 32 };
     float signal_a[INPUT_FRAMES * 2];
     float signal_b[INPUT_FRAMES * 2];
@@ -288,7 +304,7 @@ static void test_full_reset_discards_resampler_history(void)
         };
         int err;
         SRC_STATE *resampler = src_callback_new(
-            sample_callback, SRC_SINC_FASTEST, channels, &err, &old_samples);
+            sample_callback, converter, channels, &err, &old_samples);
         int resampler_channels = channels;
         g_assert_nonnull(resampler);
         g_assert_cmpint(err, ==, 0);
@@ -310,12 +326,12 @@ static void test_full_reset_discards_resampler_history(void)
             .channels = channels,
         };
         TestSamples fresh_samples = reset_samples;
-        resampler = src_callback_new(sample_callback, SRC_SINC_FASTEST,
+        resampler = src_callback_new(sample_callback, converter,
                                      channels, &err, &reset_samples);
         resampler_channels = channels;
         g_assert_nonnull(resampler);
         g_assert_cmpint(err, ==, 0);
-        SRC_STATE *fresh = src_callback_new(sample_callback, SRC_SINC_FASTEST,
+        SRC_STATE *fresh = src_callback_new(sample_callback, converter,
                                             channels, &err, &fresh_samples);
         g_assert_nonnull(fresh);
         g_assert_cmpint(err, ==, 0);
@@ -347,16 +363,43 @@ static void test_full_reset_discards_resampler_history(void)
 
 int main(int argc, char **argv)
 {
+    if (argc > 1 && !strcmp(argv[1], "--linear-single-frame")) {
+        /* Explicit library diagnostic, not a production callback contract.
+         * libsamplerate 0.2.2 can read before a one-frame input buffer. */
+        linear_single_frame = true;
+        memmove(argv + 1, argv + 2, (argc - 1) * sizeof(*argv));
+        argc--;
+    }
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/mcpx/apu/resampler/pack-mono", test_pack_mono);
     g_test_add_func("/mcpx/apu/resampler/expand-mono", test_expand_mono);
-    g_test_add_func("/mcpx/apu/resampler/sinc-equivalence",
-                    test_sinc_mono_matches_duplicated_stereo);
-    g_test_add_func("/mcpx/apu/resampler/sinc-streaming-equivalence",
-                    test_sinc_streaming_mono_matches_duplicated_stereo);
-    g_test_add_func("/mcpx/apu/resampler/channel-change-at-stream-reset",
-                    test_sinc_channel_change_at_stream_reset);
-    g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",
-                    test_full_reset_discards_resampler_history);
+    static const struct {
+        const char *name;
+        int converter;
+    } converters[] = {
+        { "sinc", SRC_SINC_FASTEST },
+        { "linear", SRC_LINEAR },
+    };
+    for (unsigned i = 0; i < ARRAY_SIZE(converters); i++) {
+        gconstpointer data = GINT_TO_POINTER(converters[i].converter);
+        char *path = g_strdup_printf("/mcpx/apu/resampler/%s/equivalence",
+                                     converters[i].name);
+        g_test_add_data_func(path, data, test_mono_matches_duplicated_stereo);
+        g_free(path);
+        path = g_strdup_printf("/mcpx/apu/resampler/%s/streaming-equivalence",
+                                converters[i].name);
+        g_test_add_data_func(path, data,
+                             test_streaming_mono_matches_duplicated_stereo);
+        g_free(path);
+        path = g_strdup_printf("/mcpx/apu/resampler/%s/channel-change",
+                                converters[i].name);
+        g_test_add_data_func(path, data, test_channel_change_at_stream_reset);
+        g_free(path);
+        path = g_strdup_printf("/mcpx/apu/resampler/%s/full-reset",
+                                converters[i].name);
+        g_test_add_data_func(path, data,
+                             test_full_reset_discards_resampler_history);
+        g_free(path);
+    }
     return g_test_run();
 }
