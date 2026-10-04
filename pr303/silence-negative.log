@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S62f7057fbf35fa68b9d55e453e693ed2
+# Start of mcpx-apu tests
+# Start of resampler-state tests
+# Start of linear tests
+not ok /mcpx-apu/resampler-state/linear/mono-pcm - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/xbox/mcpx-apu/test-resampler-state.c:287:run_case: assertion failed (mixed_frames > 0): (0 > 0)
+Bail out!
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/xbox/mcpx-apu/test-resampler-state.c:287:run_case: assertion failed (mixed_frames > 0): (0 > 0)

@@ -1,0 +1,41 @@
+{
+  "scope": "secondary median of four canonical per-run statistics, not pooled intervals",
+  "rows": [
+    {
+      "metric": "CPU",
+      "before": 223.76334677419354,
+      "after": 220.29694262295084,
+      "improvementPercent": 1.5491384988716468
+    },
+    {
+      "metric": "cadence",
+      "before": 12.618637703613214,
+      "after": 12.53037457305492,
+      "improvementPercent": -0.6994663974940906
+    },
+    {
+      "metric": "avg",
+      "before": 76.53304998690713,
+      "after": 77.11899105243158,
+      "improvementPercent": -0.7656052720029992
+    },
+    {
+      "metric": "p95",
+      "before": 100.013475,
+      "after": 100.0159,
+      "improvementPercent": -0.0024246732752784984
+    },
+    {
+      "metric": "p99",
+      "before": 107.29208000000008,
+      "after": 114.29729999999975,
+      "improvementPercent": -6.529111934450019
+    },
+    {
+      "metric": "max",
+      "before": 163.9425,
+      "after": 173.675,
+      "improvementPercent": -5.936532625768191
+    }
+  ]
+}

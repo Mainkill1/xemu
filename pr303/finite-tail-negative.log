@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S2ff75604768e398419d97991f4ac7d0c
+# Start of mcpx-apu tests
+# Start of resampler-state tests
+# Start of linear tests
+not ok /mcpx-apu/resampler-state/linear/mono-pcm - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/xbox/mcpx-apu/test-resampler-state.c:298:run_case: assertion failed (duration_delta >= 0): (-4 >= 0)
+Bail out!
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/xbox/mcpx-apu/test-resampler-state.c:298:run_case: assertion failed (duration_delta >= 0): (-4 >= 0)

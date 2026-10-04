@@ -1,0 +1,54 @@
+{
+  "main-sinc": [
+    {
+      "runId": "20261004-012515547-8205c4faeb564b54963f3645108fd8a1",
+      "samples": 61,
+      "deviceGpuMean": 75.09836065573771,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f",
+      "samples": 62,
+      "deviceGpuMean": 68.14516129032258,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827",
+      "samples": 62,
+      "deviceGpuMean": 76.96774193548387,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-013016846-5d76042bbab745e9aa283982b099da2f",
+      "samples": 62,
+      "deviceGpuMean": 69.58064516129032,
+      "deviceGpuMax": 100.0
+    }
+  ],
+  "sinc": [
+    {
+      "runId": "20261004-012606274-88751e08472240d7a2beb84302b0a0b1",
+      "samples": 62,
+      "deviceGpuMean": 67.25806451612904,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-012656410-fe1541067f8d4752af0f437d2d94691b",
+      "samples": 61,
+      "deviceGpuMean": 72.26229508196721,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098",
+      "samples": 61,
+      "deviceGpuMean": 80.65573770491804,
+      "deviceGpuMax": 100.0
+    },
+    {
+      "runId": "20261004-013106814-722e4d48b948450d87c88ffa0c8addf1",
+      "samples": 62,
+      "deviceGpuMean": 77.75806451612904,
+      "deviceGpuMax": 100.0
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "comparisonEligible": false,
+  "statistic": "secondary median of four independent balanced per-run canonical statistics; not canonical pooled report",
+  "columns": [
+    "CPU%",
+    "READ3D/s",
+    "avgms",
+    "p95ms",
+    "p99ms",
+    "maxms"
+  ],
+  "medians": {
+    "main-sinc": [
+      274.3192540983606,
+      31.515948365991605,
+      31.567388038895366,
+      36.143074999999996,
+      50.032135,
+      50.48950000000001
+    ],
+    "sinc": [
+      278.29238524590164,
+      31.534682355530663,
+      31.72708339070014,
+      34.22194999999999,
+      50.02661,
+      50.2945
+    ]
+  }
+}

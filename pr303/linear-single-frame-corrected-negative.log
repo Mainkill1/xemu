@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02Sdf6133d3b4c155693b515b3acefd7fe9
+# Start of mcpx tests
+# Start of apu tests
+# Start of resampler tests
+# Start of linear tests
+# converter=4 chunk=1 block=0 rate=0.55 offset=57
+not ok /mcpx/apu/resampler/linear/streaming-equivalence - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/unit/test-xbox-mcpx-apu-resampler.c:181:run_streaming_equivalence: assertion failed (mono_output[i] == stereo_output[i][0] (+/- 1e-7f)): (0 == 0.589862287)
+Bail out!
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr303/tests/unit/test-xbox-mcpx-apu-resampler.c:181:run_streaming_equivalence: assertion failed (mono_output[i] == stereo_output[i][0] (+/- 1e-7f)): (0 == 0.589862287)

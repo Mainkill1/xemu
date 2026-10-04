@@ -1,0 +1,19 @@
+TAP version 14
+# random seed: R02S51b45751a03b5794b103893f8bbef8d8
+1..8
+# Start of mcpx-apu tests
+# Start of resampler-state tests
+# Start of sinc tests
+ok 1 /mcpx-apu/resampler-state/sinc/mono-pcm
+ok 2 /mcpx-apu/resampler-state/sinc/stereo-pcm
+ok 3 /mcpx-apu/resampler-state/sinc/mono-adpcm
+ok 4 /mcpx-apu/resampler-state/sinc/stereo-adpcm
+# End of sinc tests
+# Start of linear tests
+ok 5 /mcpx-apu/resampler-state/linear/mono-pcm
+ok 6 /mcpx-apu/resampler-state/linear/stereo-pcm
+ok 7 /mcpx-apu/resampler-state/linear/mono-adpcm
+ok 8 /mcpx-apu/resampler-state/linear/stereo-adpcm
+# End of linear tests
+# End of resampler-state tests
+# End of mcpx-apu tests

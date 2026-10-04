@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S85ee6e8d9cf34f8d0747b8c6d1b8d45f
+1..2
+# Start of xbox tests
+# Start of apu tests
+# Start of worker-wait tests
+ok 1 /xbox/apu/worker-wait/spurious-startup
+ok 2 /xbox/apu/worker-wait/spurious-dispatch
+# End of worker-wait tests
+# End of apu tests
+# End of xbox tests
