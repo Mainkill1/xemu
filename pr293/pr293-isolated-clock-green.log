@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S65f7c8c173e16fe526cc1fb53940c8ef
+# Start of texture-allocation tests
+ok 1 /texture-allocation/clock-failure
+# End of texture-allocation tests
+1..1

@@ -1,0 +1,14 @@
+............F...
+======================================================================
+FAIL: test_replacement_with_same_size_and_time_is_rejected (__main__.SummaryTests.test_replacement_with_same_size_and_time_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr293/tests/unit/test-vk-perf-summary.py", line 58, in test_replacement_with_same_size_and_time_is_rejected
+    with self.assertRaisesRegex(ValueError, 'changed'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.317s
+
+FAILED (failures=1)

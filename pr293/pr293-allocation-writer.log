@@ -1,0 +1,14 @@
+TAP version 14
+# random seed: R02Sccdbb27152834df7539109fb69776f54
+1..9
+# Start of texture-allocation tests
+ok 1 /texture-allocation/disabled
+ok 2 /texture-allocation/actual-configuration
+ok 3 /texture-allocation/allocation-failure
+ok 4 /texture-allocation/unsupported-key
+ok 5 /texture-allocation/teardown-and-counts
+ok 6 /texture-allocation/record-cap
+ok 7 /texture-allocation/null-destruction
+ok 8 /texture-allocation/shutdown-checkpoint
+ok 9 /texture-allocation/existing-output
+# End of texture-allocation tests

@@ -1,0 +1,17 @@
+TAP version 14
+# random seed: R02Sea4df1b81f979699570d73861b5fea42
+1..13
+# Start of texture-allocation tests
+ok 1 /texture-allocation/disabled
+ok 2 /texture-allocation/actual-configuration
+ok 3 /texture-allocation/allocation-failure
+ok 4 /texture-allocation/unsupported-key
+ok 5 /texture-allocation/teardown-and-counts
+ok 6 /texture-allocation/record-cap
+ok 7 /texture-allocation/null-destruction
+ok 8 /texture-allocation/shutdown-checkpoint
+ok 9 /texture-allocation/existing-output
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr293/tests/unit/test-xbox-vk-texture-allocation-trace.c:159:has: 'strstr(output, field)' should not be NULL
+not ok /texture-allocation/buffered-event-flush-failure - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr293/tests/unit/test-xbox-vk-texture-allocation-trace.c:159:has: 'strstr(output, field)' should not be NULL
+Bail out!

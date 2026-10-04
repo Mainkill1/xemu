@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S88992f4735b2a46e5455e350f923b9af
+# Start of texture-allocation tests
+ok 1 /texture-allocation/buffered-event-flush-failure
+# End of texture-allocation tests
+1..1
