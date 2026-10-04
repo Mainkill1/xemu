@@ -1,0 +1,10 @@
+{
+  "host": "deck",
+  "pr": 305,
+  "request": "pr305-deck-pgr2-balanced-03-candidate-v2-t001",
+  "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
+  "scene": "Black at recording start and end",
+  "execution": "completed; exit 0",
+  "correctness": "failed",
+  "interpretation": "Exclude performance as a gain; no causal attribution to PR305 established. Remaining original five scheduled cells pending; failed cell is retained."
+}

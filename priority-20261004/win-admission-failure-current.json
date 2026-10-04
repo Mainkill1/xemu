@@ -1,0 +1,16 @@
+{
+  "id": "pr302-win-morrowind-balanced-08-candidate-v2-t001",
+  "state": "failed",
+  "testId": "pr187-win-morrowind-qualified-v1",
+  "revision": "a52cd44bac83a858b2d86688db7c2b723ed4a4bbcea5f8bb12474e65ecf339ad",
+  "applicationJobId": "pr302-3da-win-morrowind-v2",
+  "runId": null,
+  "startRequested": true,
+  "createdUtc": "2026-10-04T22:55:24.4805399+00:00",
+  "startRequestedUtc": "2026-10-04T22:55:24.5277269+00:00",
+  "errorCode": "test_preparation_failed",
+  "error": "The package did not pass preflight.",
+  "application": "/api/v1/applications/pr302-3da-win-morrowind-v2",
+  "job": "/api/v1/jobs/pr302-win-morrowind-balanced-08-candidate-v2-t001?view=summary",
+  "result": null
+}

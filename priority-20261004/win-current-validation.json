@@ -1,0 +1,131 @@
+{
+  "passed": false,
+  "executableSha256": "a40591d64c8dcc0ec388c10055d4ec997cda41d386263c13214aa4adf149dc68",
+  "checks": [
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "LICENSE.txt"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "state/eeprom.bin"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "xemu.toml"
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.toml: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.toml: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "target_os",
+      "passed": true,
+      "detail": "Host: windows; requested: windows."
+    },
+    {
+      "name": "executable",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "executable_stable",
+      "passed": true,
+      "detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "name": "sha256",
+      "passed": true,
+      "detail": "a40591d64c8dcc0ec388c10055d4ec997cda41d386263c13214aa4adf149dc68"
+    },
+    {
+      "name": "working_directory",
+      "passed": true,
+      "detail": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Pending\\.agent-jobs\\pr302-win-morrowind-balanced-08-candidate-v2-t001\\payload"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "xemu.toml"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "state/eeprom.bin"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "pr267-candidate: xemu.exe"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "morrowind-vulkan-snapshot-config: xemu.toml"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "isolated-eeprom-seed: state/eeprom.bin"
+    },
+    {
+      "name": "runtime_seed",
+      "passed": true,
+      "detail": "state/eeprom.bin -> eeprom.bin"
+    },
+    {
+      "name": "free_space",
+      "passed": false,
+      "detail": "Available=1045032960; required=1073741824 bytes."
+    }
+  ]
+}
