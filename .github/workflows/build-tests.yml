@@ -72,3 +72,41 @@ jobs:
       run: |
         ./build/pyvenv/bin/meson test -C build --no-rebuild --print-errorlogs \
           test-xbox-mcpx-apu-sample-memory
+
+  resampler:
+    name: Run production resampler tests
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Download source package
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v4
+      with:
+        name: src
+    - name: Extract source package
+      run: |
+        mkdir src
+        tar -xf xemu-*.tar.zst -C src --strip-components=2
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qy update
+        pushd src
+        sudo apt-get -qy build-dep .
+        popd
+    - name: Configure Xbox runtime
+      working-directory: src
+      run: |
+        ./configure --target-list=i386-softmmu --disable-werror \
+          --extra-cflags=-DXBOX=1
+    - name: Build production fixtures
+      working-directory: src
+      run: |
+        ninja -C build -j$(nproc) \
+          test-xbox-mcpx-apu-resampler-state \
+          test-xbox-mcpx-apu-resampler-throughput \
+          tests/unit/test-xbox-mcpx-apu-resampler
+    - name: Require production resampler tests
+      working-directory: src
+      run: |
+        ./build/pyvenv/bin/meson test -C build --no-rebuild --print-errorlogs \
+          test-xbox-mcpx-apu-resampler-state \
+          test-xbox-mcpx-apu-resampler-throughput \
+          test-xbox-mcpx-apu-resampler
