@@ -1,0 +1,22 @@
+{
+  "id": "pr189-008-win-balanced-controls-v1",
+  "revision": "5680a36d1de9433201a841b647141ce0a95d0ded2dfb175e080ed56b55abeb5f",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 2,
+  "attemptCount": 16,
+  "finished": 16,
+  "passed": 16,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr189-008-win-balanced-controls-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr189-008-win-balanced-controls-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

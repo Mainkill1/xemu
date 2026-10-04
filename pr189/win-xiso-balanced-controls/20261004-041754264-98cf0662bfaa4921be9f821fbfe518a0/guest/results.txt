@@ -1,0 +1,37 @@
+[
+  {
+    "schema_version": 1,
+    "id": "pipeline_texture_switch.texture_switch",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "PipelineTextureSwitch::pipeline.texture-switch",
+    "outcome": "PASS",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 1628,
+    "total_us": 920546,
+    "average_us": 28767,
+    "min_us": 28311,
+    "max_us": 29244,
+    "median_us": 28713,
+    "p95_us": 29244,
+    "mad_us": 272,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      29171,
+      28696,
+      28311,
+      28405,
+      28730,
+      29244,
+      28949,
+      28628
+    ],
+    "framebuffer_fnv1a64": "8ae05d31fb00c325",
+    "metadata": {"schema_version":1,"kind":"pipeline_texture_switch_capsule","test_id":"pipeline.texture-switch","oracle_provenance":"REGRESSION_ONLY","seed":"50545357","phase":"texture_switch","phase_count":4,"texture_stage_count":1,"operations_per_iteration":512,"total_operations":16384,"draws":16384,"texture_switches":16384,"sampler_changes":16384,"address_changes":16384,"shader_state_writes":0,"input_kat":{"expected":2848616773,"actual":2848616773},"backing_kat":{"a_expected":3187228101,"a_actual":3187228101,"b_expected":3289038277,"b_actual":3289038277},"rendered_pixel_kat":{"expected":3138308333,"actual":3138308333},"expected_final_state":3340562134,"actual_final_state":3340562134,"terminal_fence":"F2 after F1","expected_framebuffer_fnv1a64":"8ae05d31fb00c325","framebuffer_contract":"FinishDraw framebuffer_fnv1a64"}
+  }
+]

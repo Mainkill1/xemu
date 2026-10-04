@@ -1,0 +1,62 @@
+{
+  "JobId": "pr189-200-deck-pcm-03-linear-auto4-v1-t001",
+  "CreatedUtc": "2026-10-04T04:22:28.3961788+00:00",
+  "PackageDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-pr189-200-deck-pcm-03-linear-auto4-v1-t001",
+  "JobManifestSha256": "29f4605bb5c017b4522b52c1b37373f185e25fdbecbd28a8047448b24fefc5e3",
+  "ExecutableSha256": "1b256c895f80a835770aaa4f7a1c2ac3a75bd1ac5e7b18ade268bc15f50b7319",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pr267-base-exact-appimage-embedded-elf",
+      "Bytes": 25525832,
+      "LastWriteUtc": "2026-10-04T04:22:26.0145324Z",
+      "Sha256": "1b256c895f80a835770aaa4f7a1c2ac3a75bd1ac5e7b18ade268bc15f50b7319",
+      "ExpectedSha256": "1b256c895f80a835770aaa4f7a1c2ac3a75bd1ac5e7b18ade268bc15f50b7319",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "deck-morrowind-vulkan-snapshot-config",
+      "Bytes": 586,
+      "LastWriteUtc": "2026-10-04T04:22:26.0422749Z",
+      "Sha256": "50021164a5f9c52db87aa100905c4d53e2c166722ad4f03df9134615966627cc",
+      "ExpectedSha256": "50021164a5f9c52db87aa100905c4d53e2c166722ad4f03df9134615966627cc",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "isolated-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-04T04:22:26.0005324Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "Verified": true
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-appimage-bundled-library",
+      "Bytes": 133360,
+      "LastWriteUtc": "2026-10-04T04:22:25.9875324Z",
+      "Sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "ExpectedSha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-deck-morrowind-user-snapshot-20260929-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 557449216,
+      "Sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "DiskAssetId": "pr267-deck-morrowind-user-snapshot-20260929-v1",
+      "AssetKind": "snapshot-carrier",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

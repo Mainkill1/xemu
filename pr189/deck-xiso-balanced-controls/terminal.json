@@ -1,0 +1,22 @@
+{
+  "id": "pr189-008-deck-balanced-controls-v1",
+  "revision": "68c98741ac6dbeff3497373f44b97a2b04b0c34c52940ec3a220d4ab0c5aee8e",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 2,
+  "attemptCount": 16,
+  "finished": 16,
+  "passed": 16,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr189-008-deck-balanced-controls-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr189-008-deck-balanced-controls-v1/attempts",
+  "comparisonEligible": 16,
+  "qualification": "unverified"
+}

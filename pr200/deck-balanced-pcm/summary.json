@@ -1,0 +1,310 @@
+[
+  {
+    "cell": 1,
+    "variant": "linear",
+    "runId": "20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1630,
+    "rmsS16": 322.7497116968778,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 16.0,
+    "burstsAtLeast1ms": [
+      {
+        "startFrame": 270848,
+        "endFrame": 271616,
+        "frames": 768,
+        "startMs": 5642.666666666667,
+        "durationMs": 16.0
+      }
+    ],
+    "recorderWallSeconds": 8.086565021891147,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 1,
+    "variant": "linear",
+    "runId": "20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1931,
+    "rmsS16": 333.8040163038656,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 5.333333333333333,
+    "burstsAtLeast1ms": [
+      {
+        "startFrame": 768,
+        "endFrame": 1024,
+        "frames": 256,
+        "startMs": 16.0,
+        "durationMs": 5.333333333333333
+      }
+    ],
+    "recorderWallSeconds": 8.095755018061027,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 2,
+    "variant": "linear-auto4",
+    "runId": "20261004-042942274-64e7281acccf4a1ea44073db438d03ef",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1649,
+    "rmsS16": 324.2790239243466,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.086782424012199,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 2,
+    "variant": "linear-auto4",
+    "runId": "20261004-042942274-64e7281acccf4a1ea44073db438d03ef",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1946,
+    "rmsS16": 331.5642577746033,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 26.666666666666668,
+    "burstsAtLeast1ms": [
+      {
+        "startFrame": 45568,
+        "endFrame": 46848,
+        "frames": 1280,
+        "startMs": 949.3333333333334,
+        "durationMs": 26.666666666666668
+      },
+      {
+        "startFrame": 48128,
+        "endFrame": 48384,
+        "frames": 256,
+        "startMs": 1002.6666666666666,
+        "durationMs": 5.333333333333333
+      },
+      {
+        "startFrame": 81920,
+        "endFrame": 82432,
+        "frames": 512,
+        "startMs": 1706.6666666666667,
+        "durationMs": 10.666666666666666
+      }
+    ],
+    "recorderWallSeconds": 8.10110879293643,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 3,
+    "variant": "linear-auto4",
+    "runId": "20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1636,
+    "rmsS16": 327.6899569368355,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.082260091090575,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 3,
+    "variant": "linear-auto4",
+    "runId": "20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1948,
+    "rmsS16": 329.418111108157,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.085168155143037,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 4,
+    "variant": "linear",
+    "runId": "20261004-043225021-85453b7319ae411ba3d37639596ee12d",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 3216,
+    "rmsS16": 612.924154880819,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 26.666666666666668,
+    "burstsAtLeast1ms": [
+      {
+        "startFrame": 71424,
+        "endFrame": 72704,
+        "frames": 1280,
+        "startMs": 1488.0,
+        "durationMs": 26.666666666666668
+      },
+      {
+        "startFrame": 74240,
+        "endFrame": 74496,
+        "frames": 256,
+        "startMs": 1546.6666666666667,
+        "durationMs": 5.333333333333333
+      }
+    ],
+    "recorderWallSeconds": 8.086854581953958,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 4,
+    "variant": "linear",
+    "runId": "20261004-043225021-85453b7319ae411ba3d37639596ee12d",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 962,
+    "rmsS16": 155.86524567534187,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.093742991099134,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 5,
+    "variant": "linear-auto4",
+    "runId": "20261004-043352660-2c3da2def2df43bd98094939c21c11fa",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1597,
+    "rmsS16": 324.18587951732366,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.091241739923134,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 5,
+    "variant": "linear-auto4",
+    "runId": "20261004-043352660-2c3da2def2df43bd98094939c21c11fa",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1926,
+    "rmsS16": 334.2560751239331,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.088755652075633,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 6,
+    "variant": "linear",
+    "runId": "20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1625,
+    "rmsS16": 323.09392372231054,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.085144320968539,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 6,
+    "variant": "linear",
+    "runId": "20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1944,
+    "rmsS16": 334.1979656474885,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 21.333333333333332,
+    "burstsAtLeast1ms": [
+      {
+        "startFrame": 30976,
+        "endFrame": 32000,
+        "frames": 1024,
+        "startMs": 645.3333333333334,
+        "durationMs": 21.333333333333332
+      },
+      {
+        "startFrame": 32768,
+        "endFrame": 33536,
+        "frames": 768,
+        "startMs": 682.6666666666666,
+        "durationMs": 16.0
+      }
+    ],
+    "recorderWallSeconds": 8.115558959776536,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 7,
+    "variant": "linear",
+    "runId": "20261004-043634130-1ca61a199ca94c68abce725e27eb8179",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1613,
+    "rmsS16": 325.7653770769687,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.085827409056947,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 7,
+    "variant": "linear",
+    "runId": "20261004-043634130-1ca61a199ca94c68abce725e27eb8179",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1958,
+    "rmsS16": 332.33970103895876,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.089225539937615,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 8,
+    "variant": "linear-auto4",
+    "runId": "20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1634,
+    "rmsS16": 329.711190087142,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.08409818308428,
+    "recorderStderr": ""
+  },
+  {
+    "cell": 8,
+    "variant": "linear-auto4",
+    "runId": "20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "seconds": 6.144,
+    "peakS16": 1950,
+    "rmsS16": 330.85927801758055,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "burstsAtLeast1ms": [],
+    "recorderWallSeconds": 8.083352679153904,
+    "recorderStderr": ""
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "cell": 1,
+    "variant": "sinc",
+    "request": "pr189-200-deck-pcm-01-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-200-deck-pcm-01-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "linear",
+    "request": "pr189-200-deck-pcm-02-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-200-deck-pcm-02-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-042106672-b98d5227a1f1413790e577668403b4ed",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-042106672-b98d5227a1f1413790e577668403b4ed?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-042106672-b98d5227a1f1413790e577668403b4ed",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-042106672-b98d5227a1f1413790e577668403b4ed/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-042106672-b98d5227a1f1413790e577668403b4ed/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "linear-auto4",
+    "request": "pr189-200-deck-pcm-03-linear-auto4-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-200-deck-pcm-03-linear-auto4-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-042227501-c4fbc6089e32481a85da22d431985c04",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-042227501-c4fbc6089e32481a85da22d431985c04?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-042227501-c4fbc6089e32481a85da22d431985c04",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-042227501-c4fbc6089e32481a85da22d431985c04/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-042227501-c4fbc6089e32481a85da22d431985c04/diagnostics"
+      }
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "canonicalCampaignStatus": "ineligible",
+  "indexedRecordsRetrieved": 16,
+  "explanation": "Campaign report intentionally excludes statuses whose Comparison != eligible before looking up persisted records; therefore it reports indexed attempt missing even though all16 exist. All16 are driver-cache state unqualified. Do not treat this as test execution failure or fabricate qualification.",
+  "source": "AgentJobStore.XisoCampaigns.cs:XisoCampaignReport",
+  "runnerChanged": false,
+  "baselineChanged": false
+}

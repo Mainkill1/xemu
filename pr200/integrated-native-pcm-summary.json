@@ -1,0 +1,80 @@
+[
+  {
+    "variant": "sinc",
+    "runId": "20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 1617,
+    "rmsS16": 331.5906486384971,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  },
+  {
+    "variant": "sinc",
+    "runId": "20261004-041943287-f2f6c1ea53c1476398dedfa528c6447b",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 1956,
+    "rmsS16": 327.2659673626727,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  },
+  {
+    "variant": "linear",
+    "runId": "20261004-042106672-b98d5227a1f1413790e577668403b4ed",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 1655,
+    "rmsS16": 323.1660933454234,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  },
+  {
+    "variant": "linear",
+    "runId": "20261004-042106672-b98d5227a1f1413790e577668403b4ed",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 1934,
+    "rmsS16": 331.7393421082742,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.0,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  },
+  {
+    "variant": "linear-auto4",
+    "runId": "20261004-042227501-c4fbc6089e32481a85da22d431985c04",
+    "stage": "pcm-before",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 1608,
+    "rmsS16": 323.79332514938534,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 0.020833333333333332,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  },
+  {
+    "variant": "linear-auto4",
+    "runId": "20261004-042227501-c4fbc6089e32481a85da22d431985c04",
+    "stage": "pcm-after",
+    "frames": 294912,
+    "sampleRate": 48000,
+    "seconds": 6.144,
+    "peakS16": 2000,
+    "rmsS16": 332.74776753448066,
+    "clippedSamples": 0,
+    "longestStereoSilentMs": 21.333333333333332,
+    "provenance": "native process-isolated PulseAudio stream; after-recording begins five seconds after load, not at restore boundary"
+  }
+]

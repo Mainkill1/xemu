@@ -1,0 +1,282 @@
+[
+  {
+    "cell": 1,
+    "variant": "linear",
+    "request": "pr200-deck-pcm-abba-01-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-01-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-042821512-0b979cf5d6084e7383178a76e6f5e0ea/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "linear-auto4",
+    "request": "pr200-deck-pcm-abba-02-linear-auto4-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-02-linear-auto4-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-042942274-64e7281acccf4a1ea44073db438d03ef",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-042942274-64e7281acccf4a1ea44073db438d03ef?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-042942274-64e7281acccf4a1ea44073db438d03ef",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-042942274-64e7281acccf4a1ea44073db438d03ef/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-042942274-64e7281acccf4a1ea44073db438d03ef/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "linear-auto4",
+    "request": "pr200-deck-pcm-abba-03-linear-auto4-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-03-linear-auto4-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043103547-078a8a9bf37e4fe39aa7f2982ee81a92/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "linear",
+    "request": "pr200-deck-pcm-abba-04-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-04-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043225021-85453b7319ae411ba3d37639596ee12d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043225021-85453b7319ae411ba3d37639596ee12d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043225021-85453b7319ae411ba3d37639596ee12d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043225021-85453b7319ae411ba3d37639596ee12d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043225021-85453b7319ae411ba3d37639596ee12d/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "linear-auto4",
+    "request": "pr200-deck-pcm-abba-05-linear-auto4-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-05-linear-auto4-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043352660-2c3da2def2df43bd98094939c21c11fa",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043352660-2c3da2def2df43bd98094939c21c11fa?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043352660-2c3da2def2df43bd98094939c21c11fa",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043352660-2c3da2def2df43bd98094939c21c11fa/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043352660-2c3da2def2df43bd98094939c21c11fa/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "linear",
+    "request": "pr200-deck-pcm-abba-06-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-06-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043513508-ae3b1c0804aa4e2d87e198ac13eb8e33/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "linear",
+    "request": "pr200-deck-pcm-abba-07-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-07-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043634130-1ca61a199ca94c68abce725e27eb8179",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043634130-1ca61a199ca94c68abce725e27eb8179?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043634130-1ca61a199ca94c68abce725e27eb8179",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043634130-1ca61a199ca94c68abce725e27eb8179/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043634130-1ca61a199ca94c68abce725e27eb8179/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "linear-auto4",
+    "request": "pr200-deck-pcm-abba-08-linear-auto4-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-deck-pcm-abba-08-linear-auto4-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-043755448-1a58b9a78a794e5b83b4c8cacbf491ae/diagnostics"
+      }
+    }
+  }
+]

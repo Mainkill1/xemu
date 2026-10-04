@@ -1,0 +1,834 @@
+[
+  {
+    "runId": "20261004-041334765-7193ab27da944d958195efd1714181e0",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 541067,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 528584,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 531559.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 510202,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 541067,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041334765-7193ab27da944d958195efd1714181e0/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041503667-4f3443057cd344e694ab0504c41d5c8c",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 546695,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 529855.4,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 529959.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 511118,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 546695,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041503667-4f3443057cd344e694ab0504c41d5c8c/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041603102-2fc64d72197e487ca883a71c24dadcd4",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 517663,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 505424.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 503837,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 496925,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 517663,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041603102-2fc64d72197e487ca883a71c24dadcd4/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041631753-aa58bc9895934e8e971edce265bab7ef",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 540812,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 510576.6,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 504107.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 497311,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 540812,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041631753-aa58bc9895934e8e971edce265bab7ef/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041730195-4994a3b9430245c3962adfa0dd4b29fe",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 29784,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 28716.875,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 28596.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 28286,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 29784,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041730195-4994a3b9430245c3962adfa0dd4b29fe/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041754264-98cf0662bfaa4921be9f821fbfe518a0",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 29244,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 28766.75,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 28713,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 28311,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 29244,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041754264-98cf0662bfaa4921be9f821fbfe518a0/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041810360-a2ec3797e46341a58f16770e486317d7",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 29202,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 27841,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 27722.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27239,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 29202,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041810360-a2ec3797e46341a58f16770e486317d7/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041818334-517c574f808a4f67a9f29097a9f8269e",
+    "sha256": "a1d22e3c6256eabc73c2f6ea5bbeee5ee6998eb89295210b492a919c8c43a51b",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "bcf94b2333a0f13c041e0ee45651d5f8af0be64710c007fd40dba1c65f2f76db",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 28509,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 27970.875,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 27913,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27555,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 28509,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041818334-517c574f808a4f67a9f29097a9f8269e/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041405127-52e6351d89f94278a9620b071e28ba01",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 538015,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 527264,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 530509.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 509999,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 538015,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041405127-52e6351d89f94278a9620b071e28ba01/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041434781-8fff9eb5e938412abf624632b09913cf",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 527905,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 507759.4,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 503076.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 492631,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 527905,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041434781-8fff9eb5e938412abf624632b09913cf/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041533425-35bc98bba2534d719229e6069b50067e",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 542358,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 526733.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 527425,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 506881,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 542358,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041533425-35bc98bba2534d719229e6069b50067e/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041700766-8e40bed1ff714ad693c6e10c6aff75dc",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "502867fa7bb9578af64de11ff7565c597916f671eba3fb0e398c50edd8a1815f",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-96e928183d9a58aa9cc229bd8634089b",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "value": 531395,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "value": 519395.8,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "value": 520796.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "value": 504777,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "value": 531395,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041700766-8e40bed1ff714ad693c6e10c6aff75dc/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041738229-88dcce87fa1047fa86c7fbb41835161c",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 28006,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 27677.625,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 27611.5,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27555,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 28006,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041738229-88dcce87fa1047fa86c7fbb41835161c/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041746221-70b1058aaf2745179278ff55ea525bc5",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 29047,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 28457.125,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 28401,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27967,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 29047,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041746221-70b1058aaf2745179278ff55ea525bc5/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041802311-04dacd24aea24a4d8436d2dc80f0e231",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 28918,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 28357.25,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 28430,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27628,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 28918,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041802311-04dacd24aea24a4d8436d2dc80f0e231/artifacts/metrics.csv"
+  },
+  {
+    "runId": "20261004-041826372-e960218a18e64a0d8c41c91d57000454",
+    "sha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "testKey": "086716c3a750dbc64636e946df59e64b19e933c944d813e8fa78046982993a88",
+    "environmentKey": "42d560288890e10f3a0f23d336315b275891cd6fa675e1ae038fd02906283ea2",
+    "buildKey": "3aee568803ec28181aaba2f12b586ffd0d9dff7761efbc224a92ae5c1da69b0c",
+    "test": "xiso-88354cedbc68e27a62dd689369768455",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    },
+    "eligible": false,
+    "issues": [
+      "assessment_ineligible",
+      "state_not_qualified"
+    ],
+    "metrics": [
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "value": 29509,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "value": 28317.25,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "value": 28291,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "value": 27567,
+        "unit": "us",
+        "direction": "lower"
+      },
+      {
+        "name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "value": 29509,
+        "unit": "us",
+        "direction": "lower"
+      }
+    ],
+    "rawCsv": "/api/v1/runs/20261004-041826372-e960218a18e64a0d8c41c91d57000454/artifacts/metrics.csv"
+  }
+]
