@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "executableSha256": "1f9bee1c858bedf8971fbe00741ae483ba5dfe79977f2424dc045fd9bfaf01e5",
+  "failedChecks": [
+    {
+      "name": "free_space",
+      "passed": false,
+      "detail": "Available=1024937984; required=1073741824 bytes."
+    }
+  ],
+  "scope": "Failed before xemu launch; no guest performance row"
+}

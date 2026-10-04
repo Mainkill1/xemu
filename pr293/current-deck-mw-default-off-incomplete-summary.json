@@ -1,0 +1,173 @@
+{
+  "host": "deck",
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "candidate": "4b2b3a57879731228aa1ecac0bd06026ae931b0d",
+  "scope": "Original Morrowind procedure; collector default OFF. READ3D cadence is not presented FPS. No test-input or boundary changes.",
+  "balancedComplete": false,
+  "comparisonEligible": false,
+  "runs": [
+    {
+      "cell": 1,
+      "variant": "parent",
+      "runId": "20261004-194155007-bcce99bbb4f14719aea180bfddc338aa",
+      "cpu": 219.06273770491802,
+      "gpu": 75.8688524590164,
+      "cadence": 12.786153723240606,
+      "avg": 75.62939879154082,
+      "p95": 99.9865,
+      "p99": 100.223,
+      "max": 133.286,
+      "frameSamples": 331,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a"
+    },
+    {
+      "cell": 2,
+      "variant": "candidate",
+      "runId": "20261004-194249196-7271ddd8feef4d2d8c25880f3fa7c6f5",
+      "cpu": 223.19293442622947,
+      "gpu": 76.26229508196721,
+      "cadence": 13.142902862234385,
+      "avg": 74.55772321428567,
+      "p95": 99.97825,
+      "p99": 114.56304999999986,
+      "max": 143.868,
+      "frameSamples": 336,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "86aca234b6a795fd7342d2e20dbf7729ca3673c602a724fde9f601ce073e309e"
+    },
+    {
+      "cell": 3,
+      "variant": "candidate",
+      "runId": "20261004-194344241-174469625c094b06b638db4b1ef333d2",
+      "cpu": 222.70508064516125,
+      "gpu": 72.43548387096774,
+      "cadence": 13.098819083729245,
+      "avg": 74.45434821428573,
+      "p95": 99.99974999999999,
+      "p99": 100.18245,
+      "max": 150.029,
+      "frameSamples": 336,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "86aca234b6a795fd7342d2e20dbf7729ca3673c602a724fde9f601ce073e309e"
+    },
+    {
+      "cell": 4,
+      "variant": "parent",
+      "runId": "20261004-194435018-03e2b40333b941699f6621187af7ccce",
+      "cpu": 199.18706557377055,
+      "gpu": 68.91803278688525,
+      "cadence": 13.332193219190978,
+      "avg": 75.50914457831331,
+      "p95": 99.995,
+      "p99": 110.21483999999997,
+      "max": 133.388,
+      "frameSamples": 332,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a"
+    },
+    {
+      "cell": 5,
+      "variant": "candidate",
+      "runId": "20261004-194529172-dc9fb3c46e59474f84c57bcc31fa9608",
+      "cpu": 215.05853225806456,
+      "gpu": 75.19354838709677,
+      "cadence": 13.327557000890328,
+      "avg": 73.44399120234608,
+      "p95": 99.943,
+      "p99": 116.65220000000001,
+      "max": 133.408,
+      "frameSamples": 341,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "86aca234b6a795fd7342d2e20dbf7729ca3673c602a724fde9f601ce073e309e"
+    },
+    {
+      "cell": 6,
+      "variant": "parent",
+      "runId": "20261004-194619079-c5e47ca8aeeb40528c3097da46623d65",
+      "cpu": 225.70749999999995,
+      "gpu": 73.54838709677419,
+      "cadence": 13.039678708677437,
+      "avg": 74.78801492537312,
+      "p95": 100.0165,
+      "p99": 116.65134,
+      "max": 153.825,
+      "frameSamples": 335,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a"
+    },
+    {
+      "cell": 7,
+      "variant": "parent",
+      "runId": "20261004-194708927-856317af29414c1bad33bf342a6931a5",
+      "cpu": 221.9976290322581,
+      "gpu": 75.20967741935483,
+      "cadence": 12.616182443963222,
+      "avg": 75.97678787878787,
+      "p95": 100.0051,
+      "p99": 116.69107,
+      "max": 155.79,
+      "frameSamples": 330,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a"
+    }
+  ],
+  "preflightFailures": [],
+  "executionFailures": [
+    {
+      "cell": 8,
+      "variant": "candidate",
+      "runId": "20261004-194758779-625f0a9ee1a040f0a8c75dd8f93083a9",
+      "status": "control_error",
+      "detail": "xemu launched, but runner control initialization failed: System.TimeoutException: xemu QMP did not become ready at 127.0.0.1:36223 within 10000 ms.\n ---> System.TimeoutException: QMP query-status exceeded 1500 ms.\n   at XemuTestRunner.Control.XemuQmpClient.ExecuteAsync(String command, Object arguments, TimeSpan timeout, CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuQmpClient.cs:line 38\n   at XemuTestRunner.Control.XemuControlManager.WaitUntilReadyAsync(CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 116\n   --- End of inner exception stack trace ---\n   at XemuTestRunner.Control.XemuControlManager.WaitUntilReadyAsync(CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 133\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 710 Target intentionally left running because Reliability.PreserveTargetOnRunnerError is enabled. The package remains in Testing for inspection; stop xemu manually before retrying.",
+      "wallMs": 16303.7379,
+      "outcome": {
+        "execution": "runnerFailure",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "analysisErrors": [
+        "monitor: Selected segment has insufficient CPU/duty samples.",
+        "flips: Analysis source is missing: guest-flips.log",
+        "frames: Analysis source is missing: guest-frames.log"
+      ]
+    }
+  ],
+  "summary": {}
+}

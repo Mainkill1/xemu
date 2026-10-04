@@ -1,0 +1,60 @@
+{
+  "host": "win",
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "candidate": "4b2b3a57879731228aa1ecac0bd06026ae931b0d",
+  "scope": "Original Morrowind procedure; collector default OFF. READ3D cadence is not presented FPS. No test-input or boundary changes.",
+  "balancedComplete": false,
+  "comparisonEligible": false,
+  "runs": [
+    {
+      "cell": 1,
+      "variant": "parent",
+      "runId": "20261004-192506972-7caaae460b8f4c1c9bdd749907985956",
+      "cpu": 282.1695737704917,
+      "gpu": 66.8688524590164,
+      "cadence": 32.50970500351053,
+      "avg": 30.582360635696837,
+      "p95": 36.390699999999654,
+      "p99": 50.15116,
+      "max": 50.495,
+      "frameSamples": 818,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43"
+    },
+    {
+      "cell": 2,
+      "variant": "candidate",
+      "runId": "20261004-192554735-a68491ab20814ab19aaa1f6f7dfb0155",
+      "cpu": 274.1211803278689,
+      "gpu": 67.85245901639344,
+      "cadence": 31.872506150696477,
+      "avg": 31.213667082294243,
+      "p95": 33.79435,
+      "p99": 50.03596,
+      "max": 50.376,
+      "frameSamples": 802,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "1f9bee1c858bedf8971fbe00741ae483ba5dfe79977f2424dc045fd9bfaf01e5"
+    }
+  ],
+  "preflightFailures": [
+    {
+      "cell": 3,
+      "variant": "candidate",
+      "request": "pr293-win-mw-off-balanced-03-candidate-v1-t001",
+      "reason": "preflight failed before launch; no timings"
+    }
+  ],
+  "executionFailures": [],
+  "summary": {}
+}
