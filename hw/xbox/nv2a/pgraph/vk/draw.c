@@ -3576,6 +3576,9 @@ void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
     }
 
     if (r->zeta_binding) {
+        if (zeta) {
+            pgraph_vk_surface_invalidate_depth_views(pg, r->zeta_binding);
+        }
         r->zeta_binding->draw_dirty |= zeta;
         r->zeta_binding->frame_time = pg->frame_time;
         r->zeta_binding->cleared = false;

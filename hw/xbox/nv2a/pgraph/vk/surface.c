@@ -1016,6 +1016,32 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
     QTAILQ_INSERT_HEAD(&r->invalid_surfaces, surface, entry);
 }
 
+void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
+                                              SurfaceBinding *producer)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    SurfaceBinding *view, *next;
+
+    if (producer->color || producer->swizzle) {
+        return;
+    }
+
+    /*
+     * Only a read-only swizzled view may coexist with its linear owner.
+     * Recorded writes to that owner make the converted image stale. Retire
+     * it before any later texture or surface lookup can reuse the image;
+     * invalidate_surface finishes outstanding use before retiring it.
+     */
+    QTAILQ_FOREACH_SAFE(view, &r->surfaces, entry, next) {
+        if (!view->color && view->swizzle &&
+            view->vram_addr == producer->vram_addr) {
+            assert(!view->draw_dirty);
+            invalidate_surface(d, view);
+        }
+    }
+}
+
 static bool check_surfaces_overlap(const SurfaceBinding *surface,
                                    const SurfaceBinding *other_surface)
 {
