@@ -173,7 +173,7 @@ static void test_invalid_glsl_returns_failure(void)
 static void test_depth_alias_compute_compiles(void)
 {
     PGRAPHVkGlslCompileConfig config = { .api_version = VK_API_VERSION_1_1 };
-    const unsigned int workgroup_sizes[] = { 1, 256 };
+    const unsigned int workgroup_sizes[] = { 1, 64, 256 };
 
     pgraph_vk_init_glsl_compiler();
     for (size_t i = 0; i < G_N_ELEMENTS(workgroup_sizes); i++) {
@@ -184,6 +184,13 @@ static void test_depth_alias_compute_compiles(void)
 
         g_assert_nonnull(spirv);
         g_assert_cmpuint(spirv->len, >, sizeof(uint32_t));
+        ShaderModuleInfo info = { .spirv = spirv };
+        g_assert_true(pgraph_vk_init_shader_module_layout_from_spv(
+            &info, VK_SHADER_STAGE_COMPUTE_BIT));
+        g_assert_nonnull(find_binding(&info, 0, 0));
+        g_assert_null(find_binding(&info, 0, 1));
+        g_assert_nonnull(find_binding(&info, 0, 2));
+        pgraph_vk_clear_shader_module_layout(&info);
         g_byte_array_unref(spirv);
     }
     pgraph_vk_finalize_glsl_compiler();
