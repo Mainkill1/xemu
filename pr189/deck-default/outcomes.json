@@ -1,0 +1,422 @@
+[
+  {
+    "cell": 1,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-01-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-01-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233008032-5b930cca582c4669b51c1bf618c8bd8d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233008032-5b930cca582c4669b51c1bf618c8bd8d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233008032-5b930cca582c4669b51c1bf618c8bd8d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233008032-5b930cca582c4669b51c1bf618c8bd8d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233008032-5b930cca582c4669b51c1bf618c8bd8d/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-02-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-02-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233059744-b8630589d3c34c0f9ba01caf174b63b7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233059744-b8630589d3c34c0f9ba01caf174b63b7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233059744-b8630589d3c34c0f9ba01caf174b63b7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233059744-b8630589d3c34c0f9ba01caf174b63b7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233059744-b8630589d3c34c0f9ba01caf174b63b7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-03-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-03-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233150935-f30851d517d04ed3aaf3a52084edcade",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233150935-f30851d517d04ed3aaf3a52084edcade?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233150935-f30851d517d04ed3aaf3a52084edcade",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233150935-f30851d517d04ed3aaf3a52084edcade/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233150935-f30851d517d04ed3aaf3a52084edcade/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-04-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-04-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233242559-7ecae3c8cc6b4678bfe3ccb182917fa7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233242559-7ecae3c8cc6b4678bfe3ccb182917fa7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233242559-7ecae3c8cc6b4678bfe3ccb182917fa7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233242559-7ecae3c8cc6b4678bfe3ccb182917fa7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233242559-7ecae3c8cc6b4678bfe3ccb182917fa7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-05-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-05-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233333861-191a6c0b114542a88167e7b9b477d526",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233333861-191a6c0b114542a88167e7b9b477d526?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233333861-191a6c0b114542a88167e7b9b477d526",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233333861-191a6c0b114542a88167e7b9b477d526/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233333861-191a6c0b114542a88167e7b9b477d526/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-06-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-06-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233430739-bc4faa422ab146cd8479fa45333e9f32",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233430739-bc4faa422ab146cd8479fa45333e9f32?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233430739-bc4faa422ab146cd8479fa45333e9f32",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233430739-bc4faa422ab146cd8479fa45333e9f32/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233430739-bc4faa422ab146cd8479fa45333e9f32/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-07-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-07-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233521602-abb31b2ca858418d967720f921d2c7b7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233521602-abb31b2ca858418d967720f921d2c7b7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233521602-abb31b2ca858418d967720f921d2c7b7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233521602-abb31b2ca858418d967720f921d2c7b7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233521602-abb31b2ca858418d967720f921d2c7b7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-08-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-08-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233618293-26218c77261e4f35b9964b05b943c172",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233618293-26218c77261e4f35b9964b05b943c172?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233618293-26218c77261e4f35b9964b05b943c172",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233618293-26218c77261e4f35b9964b05b943c172/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233618293-26218c77261e4f35b9964b05b943c172/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-09-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-09-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233709767-c3d3c2a21c2342808f57532bff20be23",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233709767-c3d3c2a21c2342808f57532bff20be23?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233709767-c3d3c2a21c2342808f57532bff20be23",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233709767-c3d3c2a21c2342808f57532bff20be23/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233709767-c3d3c2a21c2342808f57532bff20be23/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-10-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-10-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233801009-38fc2a10d5104653bb3c9534ee9b7e78",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233801009-38fc2a10d5104653bb3c9534ee9b7e78?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233801009-38fc2a10d5104653bb3c9534ee9b7e78",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233801009-38fc2a10d5104653bb3c9534ee9b7e78/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233801009-38fc2a10d5104653bb3c9534ee9b7e78/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "main-sinc",
+    "request": "pr189-5fc-deck-default-mw-11-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-11-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233852739-1dcdb4312fc54e368e3814b21b32abd5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233852739-1dcdb4312fc54e368e3814b21b32abd5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233852739-1dcdb4312fc54e368e3814b21b32abd5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233852739-1dcdb4312fc54e368e3814b21b32abd5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233852739-1dcdb4312fc54e368e3814b21b32abd5/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "sinc",
+    "request": "pr189-5fc-deck-default-mw-12-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-5fc-deck-default-mw-12-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261003-233944164-58d2d7c6ce6d4c3697307664e783c178",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261003-233944164-58d2d7c6ce6d4c3697307664e783c178?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261003-233944164-58d2d7c6ce6d4c3697307664e783c178",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261003-233944164-58d2d7c6ce6d4c3697307664e783c178/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261003-233944164-58d2d7c6ce6d4c3697307664e783c178/diagnostics"
+      }
+    }
+  }
+]

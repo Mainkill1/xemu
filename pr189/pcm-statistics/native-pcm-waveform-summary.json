@@ -1,0 +1,94 @@
+[
+  {
+    "variant": "sinc",
+    "runId": "20261004-001731751-bd1b305d7f0e435f98a127a73ba4feb5",
+    "phase": "pcm-before",
+    "sampleRate": 48000,
+    "frames": 294912,
+    "channels": [
+      {
+        "rmsNormalized": 0.00919193926518783,
+        "peakNormalized": 0.043701171875,
+        "clippedSamples": 0,
+        "exactSilentFrames": 456,
+        "largestStepNormalized": 0.004180908203125
+      },
+      {
+        "rmsNormalized": 0.010563601418538389,
+        "peakNormalized": 0.049224853515625,
+        "clippedSamples": 0,
+        "exactSilentFrames": 363,
+        "largestStepNormalized": 0.00482177734375
+      }
+    ]
+  },
+  {
+    "variant": "sinc",
+    "runId": "20261004-001731751-bd1b305d7f0e435f98a127a73ba4feb5",
+    "phase": "pcm-after",
+    "sampleRate": 48000,
+    "frames": 294912,
+    "channels": [
+      {
+        "rmsNormalized": 0.010905692484949403,
+        "peakNormalized": 0.058135986328125,
+        "clippedSamples": 0,
+        "exactSilentFrames": 3713,
+        "largestStepNormalized": 0.015716552734375
+      },
+      {
+        "rmsNormalized": 0.009422596808555518,
+        "peakNormalized": 0.059722900390625,
+        "clippedSamples": 0,
+        "exactSilentFrames": 3729,
+        "largestStepNormalized": 0.02435302734375
+      }
+    ]
+  },
+  {
+    "variant": "linear",
+    "runId": "20261004-001853380-d503cf49abc04b9886dc29051b380f07",
+    "phase": "pcm-before",
+    "sampleRate": 48000,
+    "frames": 294912,
+    "channels": [
+      {
+        "rmsNormalized": 0.009161587439074453,
+        "peakNormalized": 0.04376220703125,
+        "clippedSamples": 0,
+        "exactSilentFrames": 465,
+        "largestStepNormalized": 0.0042724609375
+      },
+      {
+        "rmsNormalized": 0.010543885980855325,
+        "peakNormalized": 0.050750732421875,
+        "clippedSamples": 0,
+        "exactSilentFrames": 361,
+        "largestStepNormalized": 0.004791259765625
+      }
+    ]
+  },
+  {
+    "variant": "linear",
+    "runId": "20261004-001853380-d503cf49abc04b9886dc29051b380f07",
+    "phase": "pcm-after",
+    "sampleRate": 48000,
+    "frames": 294912,
+    "channels": [
+      {
+        "rmsNormalized": 0.011038058561086648,
+        "peakNormalized": 0.06011962890625,
+        "clippedSamples": 0,
+        "exactSilentFrames": 397,
+        "largestStepNormalized": 0.003662109375
+      },
+      {
+        "rmsNormalized": 0.009573102644516086,
+        "peakNormalized": 0.059326171875,
+        "clippedSamples": 0,
+        "exactSilentFrames": 424,
+        "largestStepNormalized": 0.00390625
+      }
+    ]
+  }
+]

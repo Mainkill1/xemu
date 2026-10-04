@@ -1,0 +1,422 @@
+[
+  {
+    "cell": 1,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-01-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-01-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000535279-4bbb925a2e0940e7bbac116cdf350b8f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000535279-4bbb925a2e0940e7bbac116cdf350b8f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000535279-4bbb925a2e0940e7bbac116cdf350b8f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000535279-4bbb925a2e0940e7bbac116cdf350b8f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000535279-4bbb925a2e0940e7bbac116cdf350b8f/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-02-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-02-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000624722-c71898a2ad9d47e3a7f355c5637bf1c7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000624722-c71898a2ad9d47e3a7f355c5637bf1c7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000624722-c71898a2ad9d47e3a7f355c5637bf1c7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000624722-c71898a2ad9d47e3a7f355c5637bf1c7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000624722-c71898a2ad9d47e3a7f355c5637bf1c7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-03-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-03-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000714181-54b9ce85e02c468391207929099c1938",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000714181-54b9ce85e02c468391207929099c1938?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000714181-54b9ce85e02c468391207929099c1938",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000714181-54b9ce85e02c468391207929099c1938/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000714181-54b9ce85e02c468391207929099c1938/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-04-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-04-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000803454-2b3eb44d68a84b88890e28d93b6054a5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000803454-2b3eb44d68a84b88890e28d93b6054a5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000803454-2b3eb44d68a84b88890e28d93b6054a5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000803454-2b3eb44d68a84b88890e28d93b6054a5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000803454-2b3eb44d68a84b88890e28d93b6054a5/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-05-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-05-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000852858-1928525062204da5a3e0c94b7cdb9749",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000852858-1928525062204da5a3e0c94b7cdb9749?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000852858-1928525062204da5a3e0c94b7cdb9749",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000852858-1928525062204da5a3e0c94b7cdb9749/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000852858-1928525062204da5a3e0c94b7cdb9749/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-06-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-06-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000942109-07131474829040dc844696a9d6aeaefa",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000942109-07131474829040dc844696a9d6aeaefa?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000942109-07131474829040dc844696a9d6aeaefa",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-000942109-07131474829040dc844696a9d6aeaefa/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000942109-07131474829040dc844696a9d6aeaefa/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-07-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-07-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001032190-5924884c76964379b894a9c13c0a4ebe",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001032190-5924884c76964379b894a9c13c0a4ebe?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001032190-5924884c76964379b894a9c13c0a4ebe",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001032190-5924884c76964379b894a9c13c0a4ebe/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001032190-5924884c76964379b894a9c13c0a4ebe/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-08-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-08-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001122010-a07817474a7d4071baa110e9b6f91a6c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001122010-a07817474a7d4071baa110e9b6f91a6c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001122010-a07817474a7d4071baa110e9b6f91a6c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001122010-a07817474a7d4071baa110e9b6f91a6c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001122010-a07817474a7d4071baa110e9b6f91a6c/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-09-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-09-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001212181-eb01a09803c5429cbccd429b68d7c3cb",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001212181-eb01a09803c5429cbccd429b68d7c3cb?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001212181-eb01a09803c5429cbccd429b68d7c3cb",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001212181-eb01a09803c5429cbccd429b68d7c3cb/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001212181-eb01a09803c5429cbccd429b68d7c3cb/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-10-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-10-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001301969-36ab5c5147d04cedb4b40706894376d4",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001301969-36ab5c5147d04cedb4b40706894376d4?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001301969-36ab5c5147d04cedb4b40706894376d4",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001301969-36ab5c5147d04cedb4b40706894376d4/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001301969-36ab5c5147d04cedb4b40706894376d4/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "parent-linear",
+    "request": "pr200-aac-deck-workers-mw-11-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-11-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001351691-1e101c2b40784a05ab53175bb71a7cb1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001351691-1e101c2b40784a05ab53175bb71a7cb1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001351691-1e101c2b40784a05ab53175bb71a7cb1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001351691-1e101c2b40784a05ab53175bb71a7cb1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001351691-1e101c2b40784a05ab53175bb71a7cb1/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "child-linear",
+    "request": "pr200-aac-deck-workers-mw-12-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-deck-workers-mw-12-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001441669-c15f0880f2de474aaa110ece85fb6fa6",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001441669-c15f0880f2de474aaa110ece85fb6fa6?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001441669-c15f0880f2de474aaa110ece85fb6fa6",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-001441669-c15f0880f2de474aaa110ece85fb6fa6/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001441669-c15f0880f2de474aaa110ece85fb6fa6/diagnostics"
+      }
+    }
+  }
+]

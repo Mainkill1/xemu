@@ -1,0 +1,518 @@
+[
+  {
+    "cell": 1,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-01-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-01-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000615578-04550e56f71b429981bd0981d169e6d1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000615578-04550e56f71b429981bd0981d169e6d1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000615578-04550e56f71b429981bd0981d169e6d1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-000615578-04550e56f71b429981bd0981d169e6d1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000615578-04550e56f71b429981bd0981d169e6d1/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-02-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-02-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000703964-8b546701078a4e709d7e94681bd840bb",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000703964-8b546701078a4e709d7e94681bd840bb?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000703964-8b546701078a4e709d7e94681bd840bb",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-000703964-8b546701078a4e709d7e94681bd840bb/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000703964-8b546701078a4e709d7e94681bd840bb/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-03-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-03-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000752517-5949430ca476440380be23f8aaa47465",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000752517-5949430ca476440380be23f8aaa47465?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000752517-5949430ca476440380be23f8aaa47465",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-000752517-5949430ca476440380be23f8aaa47465/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000752517-5949430ca476440380be23f8aaa47465/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-04-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-04-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000840539-d8a06477d96f4f5895e6bf9bd0643153",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000840539-d8a06477d96f4f5895e6bf9bd0643153?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000840539-d8a06477d96f4f5895e6bf9bd0643153",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-000840539-d8a06477d96f4f5895e6bf9bd0643153/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000840539-d8a06477d96f4f5895e6bf9bd0643153/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-05-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-05-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-000928983-50fc09d2a8a547049aa5deb9021a9427",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-000928983-50fc09d2a8a547049aa5deb9021a9427?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-000928983-50fc09d2a8a547049aa5deb9021a9427",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-000928983-50fc09d2a8a547049aa5deb9021a9427/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-000928983-50fc09d2a8a547049aa5deb9021a9427/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-06-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-06-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001016886-77de29dbd53d46f0a8a189d17d39f4a2",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001016886-77de29dbd53d46f0a8a189d17d39f4a2?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001016886-77de29dbd53d46f0a8a189d17d39f4a2",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001016886-77de29dbd53d46f0a8a189d17d39f4a2/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001016886-77de29dbd53d46f0a8a189d17d39f4a2/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-07-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-07-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001104423-665e0798a84647429614ebf8ee038bd0",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001104423-665e0798a84647429614ebf8ee038bd0?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001104423-665e0798a84647429614ebf8ee038bd0",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001104423-665e0798a84647429614ebf8ee038bd0/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001104423-665e0798a84647429614ebf8ee038bd0/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-08-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-08-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001152094-aa12549df0094a459b5d73b7addc2d4a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001152094-aa12549df0094a459b5d73b7addc2d4a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001152094-aa12549df0094a459b5d73b7addc2d4a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001152094-aa12549df0094a459b5d73b7addc2d4a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001152094-aa12549df0094a459b5d73b7addc2d4a/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-09-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-09-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001240578-bd41611c1ef445a69cc0a6b3cd7ff69d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001240578-bd41611c1ef445a69cc0a6b3cd7ff69d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001240578-bd41611c1ef445a69cc0a6b3cd7ff69d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001240578-bd41611c1ef445a69cc0a6b3cd7ff69d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001240578-bd41611c1ef445a69cc0a6b3cd7ff69d/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-10-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-10-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001328955-901f2a27f02a41f4859fc4a2ab1b3937",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001328955-901f2a27f02a41f4859fc4a2ab1b3937?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001328955-901f2a27f02a41f4859fc4a2ab1b3937",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001328955-901f2a27f02a41f4859fc4a2ab1b3937/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001328955-901f2a27f02a41f4859fc4a2ab1b3937/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "parent-linear",
+    "request": "pr200-aac-win-workers-mw-11-parent-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-11-parent-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001416693-45b6939bc9b44a39a2ff0e73a4423dd4",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001416693-45b6939bc9b44a39a2ff0e73a4423dd4?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001416693-45b6939bc9b44a39a2ff0e73a4423dd4",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001416693-45b6939bc9b44a39a2ff0e73a4423dd4/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001416693-45b6939bc9b44a39a2ff0e73a4423dd4/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "child-linear",
+    "request": "pr200-aac-win-workers-mw-12-child-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-aac-win-workers-mw-12-child-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-001504584-08395c8384f541eca90df1794c62c27d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-001504584-08395c8384f541eca90df1794c62c27d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-001504584-08395c8384f541eca90df1794c62c27d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-001504584-08395c8384f541eca90df1794c62c27d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-001504584-08395c8384f541eca90df1794c62c27d/diagnostics"
+      }
+    }
+  }
+]

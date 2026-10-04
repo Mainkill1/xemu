@@ -1,0 +1,37 @@
+[
+  {
+    "schema_version": 1,
+    "id": "texture_cubemap_fallback.bordered_r6g5b5_size8",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "TextureCubemapFallback::BorderedR6G5B5Size8",
+    "outcome": "PASS",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 769,
+    "total_us": 531207,
+    "average_us": 16600,
+    "min_us": 16403,
+    "max_us": 16918,
+    "median_us": 16537,
+    "p95_us": 16918,
+    "mad_us": 126,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      16403,
+      16568,
+      16419,
+      16918,
+      16432,
+      16860,
+      16507,
+      16692
+    ],
+    "framebuffer_fnv1a64": "3213d7d76a82a39f",
+    "metadata": {"schema_version":1,"kind":"bordered_uncompressed_cubemap_mips","oracle_status":"PASS","source_kat":1796360377,"guest_format":39,"logical_size":8,"levels":4,"faces":6,"face_stride":768,"samples_per_cell":5,"failure_count":0,"failure_mask":0,"observed_rgb565":[63520,32,63,2016,63,63,2016,32,31703,32,32,31703,2016,63520,2016,2016,63520,31703,63,31703,31703,63,63520,31703,63520,63520,32,2016,63520,2016,32,63520,63,31703,63520,2016,63,32,63520,63,31703,32,2016,63,32,63520,2016,31703,32,2016,63,31703,63520,2016,31703,32,63520,63,63,63520,31703,63520,32,2016,2016,63520,63,2016,31703,31703,63,32,31703,63520,63520,32,2016,63520,63,63,2016,31703,63,32,32,31703,63520,32,2016,2016,63,63,63,63,63,32,32,32,32,32,2016,2016,2016,2016,2016,31703,31703,31703,31703,31703,63520,63520,63520,63520,63520,63,63,63,63,63]}
+  }
+]

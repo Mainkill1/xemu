@@ -1,0 +1,653 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-003733071-b6019723841440a4a2941616352049a4",
+  "sourceSha256": "4f426512a49e6c82d5cd4b7a205be5e903b80d66907c2a575fa0da28663fd8d1",
+  "records": [
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size1",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16609.5,
+      "MedianUs": 16576.5,
+      "MinUs": 16394,
+      "MaxUs": 16880,
+      "P95Us": 16880
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size2",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16698.625,
+      "MedianUs": 16752,
+      "MinUs": 16095,
+      "MaxUs": 17276,
+      "P95Us": 17276
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size4",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16685.125,
+      "MedianUs": 16638,
+      "MinUs": 15985,
+      "MaxUs": 17499,
+      "P95Us": 17499
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size8",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16645.625,
+      "MedianUs": 16632,
+      "MinUs": 16586,
+      "MaxUs": 16736,
+      "P95Us": 16736
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size1",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16664.75,
+      "MedianUs": 16676.5,
+      "MinUs": 16522,
+      "MaxUs": 16812,
+      "P95Us": 16812
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size2",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16677.5,
+      "MedianUs": 16685.5,
+      "MinUs": 16589,
+      "MaxUs": 16764,
+      "P95Us": 16764
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size4",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16652,
+      "MedianUs": 16647,
+      "MinUs": 16507,
+      "MaxUs": 16802,
+      "P95Us": 16802
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size1",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16649.875,
+      "MedianUs": 16655.5,
+      "MinUs": 16531,
+      "MaxUs": 16822,
+      "P95Us": 16822
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size2",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16652.125,
+      "MedianUs": 16623.5,
+      "MinUs": 16539,
+      "MaxUs": 16803,
+      "P95Us": 16803
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size4",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16656.25,
+      "MedianUs": 16689.5,
+      "MinUs": 16438,
+      "MaxUs": 16780,
+      "P95Us": 16780
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size8",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16632.5,
+      "MedianUs": 16622,
+      "MinUs": 16451,
+      "MaxUs": 16791,
+      "P95Us": 16791
+    },
+    {
+      "Id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16672.625,
+      "MedianUs": 16654,
+      "MinUs": 16530,
+      "MaxUs": 16827,
+      "P95Us": 16827
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size2",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size4",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size2",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size4",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size8",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size1/mean_us",
+      "Value": 16609.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size1/median_us",
+      "Value": 16576.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size1/min_us",
+      "Value": 16394,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size1/max_us",
+      "Value": 16880,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size1/p95_us",
+      "Value": 16880,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size2/mean_us",
+      "Value": 16698.625,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size2/median_us",
+      "Value": 16752,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size2/min_us",
+      "Value": 16095,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size2/max_us",
+      "Value": 17276,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size2/p95_us",
+      "Value": 17276,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size4/mean_us",
+      "Value": 16685.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size4/median_us",
+      "Value": 16638,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size4/min_us",
+      "Value": 15985,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size4/max_us",
+      "Value": 17499,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size4/p95_us",
+      "Value": 17499,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size8/mean_us",
+      "Value": 16645.625,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size8/median_us",
+      "Value": 16632,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size8/min_us",
+      "Value": 16586,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size8/max_us",
+      "Value": 16736,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_palette_size8/p95_us",
+      "Value": 16736,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_palette_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size1/mean_us",
+      "Value": 16664.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size1/median_us",
+      "Value": 16676.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size1/min_us",
+      "Value": 16522,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size1/max_us",
+      "Value": 16812,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size1/p95_us",
+      "Value": 16812,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size2/mean_us",
+      "Value": 16677.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size2/median_us",
+      "Value": 16685.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size2/min_us",
+      "Value": 16589,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size2/max_us",
+      "Value": 16764,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size2/p95_us",
+      "Value": 16764,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size4/mean_us",
+      "Value": 16652,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size4/median_us",
+      "Value": 16647,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size4/min_us",
+      "Value": 16507,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size4/max_us",
+      "Value": 16802,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size4/p95_us",
+      "Value": 16802,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size1/mean_us",
+      "Value": 16649.875,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size1/median_us",
+      "Value": 16655.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size1/min_us",
+      "Value": 16531,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size1/max_us",
+      "Value": 16822,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size1/p95_us",
+      "Value": 16822,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size2/mean_us",
+      "Value": 16652.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size2/median_us",
+      "Value": 16623.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size2/min_us",
+      "Value": 16539,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size2/max_us",
+      "Value": 16803,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size2/p95_us",
+      "Value": 16803,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size2"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size4/mean_us",
+      "Value": 16656.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size4/median_us",
+      "Value": 16689.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size4/min_us",
+      "Value": 16438,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size4/max_us",
+      "Value": 16780,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size4/p95_us",
+      "Value": 16780,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size4"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size8/mean_us",
+      "Value": 16632.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size8/median_us",
+      "Value": 16622,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size8/min_us",
+      "Value": 16451,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size8/max_us",
+      "Value": 16791,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_rgba8_size8/p95_us",
+      "Value": 16791,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_rgba8_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/unbordered_subblock_dxt1/mean_us",
+      "Value": 16672.625,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.unbordered_subblock_dxt1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/unbordered_subblock_dxt1/median_us",
+      "Value": 16654,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.unbordered_subblock_dxt1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/unbordered_subblock_dxt1/min_us",
+      "Value": 16530,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.unbordered_subblock_dxt1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/unbordered_subblock_dxt1/max_us",
+      "Value": 16827,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.unbordered_subblock_dxt1"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/unbordered_subblock_dxt1/p95_us",
+      "Value": 16827,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.unbordered_subblock_dxt1"
+    }
+  ]
+}

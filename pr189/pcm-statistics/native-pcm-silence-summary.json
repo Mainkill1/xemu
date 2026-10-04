@@ -1,0 +1,30 @@
+[
+  {
+    "variant": "sinc",
+    "phase": "pcm-before",
+    "longestStereoZeroFrames": 1,
+    "startMs": 2187.75,
+    "endMs": 2187.7708333333335
+  },
+  {
+    "variant": "sinc",
+    "phase": "pcm-after",
+    "longestStereoZeroFrames": 2304,
+    "startMs": 426.6666666666667,
+    "endMs": 474.6666666666667
+  },
+  {
+    "variant": "linear",
+    "phase": "pcm-before",
+    "longestStereoZeroFrames": 1,
+    "startMs": 1415.1875,
+    "endMs": 1415.2083333333333
+  },
+  {
+    "variant": "linear",
+    "phase": "pcm-after",
+    "longestStereoZeroFrames": 0,
+    "startMs": 0.0,
+    "endMs": 0.0
+  }
+]

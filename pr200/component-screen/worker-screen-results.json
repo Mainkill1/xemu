@@ -1,0 +1,538 @@
+[
+  {
+    "workers": 1,
+    "grouped": 0,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 537018373,
+    "schedule_ns": 34121190,
+    "completion_wait_ns": 497381883,
+    "worker_reduction_ns": 4614230,
+    "cell": 1
+  },
+  {
+    "workers": 2,
+    "grouped": 0,
+    "queues": [
+      23,
+      22
+    ],
+    "busy": 2,
+    "blocks": 5000,
+    "total_ns": 293406671,
+    "schedule_ns": 30495889,
+    "completion_wait_ns": 260380491,
+    "worker_reduction_ns": 2868897,
+    "cell": 2
+  },
+  {
+    "workers": 4,
+    "grouped": 0,
+    "queues": [
+      12,
+      11,
+      11,
+      11
+    ],
+    "busy": 4,
+    "blocks": 5000,
+    "total_ns": 223633541,
+    "schedule_ns": 35230532,
+    "completion_wait_ns": 184531633,
+    "worker_reduction_ns": 8900327,
+    "cell": 3
+  },
+  {
+    "workers": 8,
+    "grouped": 0,
+    "queues": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5
+    ],
+    "busy": 8,
+    "blocks": 5000,
+    "total_ns": 167191890,
+    "schedule_ns": 32367817,
+    "completion_wait_ns": 131191077,
+    "worker_reduction_ns": 13995683,
+    "cell": 4
+  },
+  {
+    "workers": 8,
+    "grouped": 0,
+    "queues": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5
+    ],
+    "busy": 8,
+    "blocks": 5000,
+    "total_ns": 149530593,
+    "schedule_ns": 31398874,
+    "completion_wait_ns": 115051209,
+    "worker_reduction_ns": 11343887,
+    "cell": 5
+  },
+  {
+    "workers": 4,
+    "grouped": 0,
+    "queues": [
+      12,
+      11,
+      11,
+      11
+    ],
+    "busy": 4,
+    "blocks": 5000,
+    "total_ns": 202514406,
+    "schedule_ns": 31691912,
+    "completion_wait_ns": 167754062,
+    "worker_reduction_ns": 6191037,
+    "cell": 6
+  },
+  {
+    "workers": 2,
+    "grouped": 0,
+    "queues": [
+      23,
+      22
+    ],
+    "busy": 2,
+    "blocks": 5000,
+    "total_ns": 294702051,
+    "schedule_ns": 29873071,
+    "completion_wait_ns": 262375403,
+    "worker_reduction_ns": 2873595,
+    "cell": 7
+  },
+  {
+    "workers": 1,
+    "grouped": 0,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 535164230,
+    "schedule_ns": 34776061,
+    "completion_wait_ns": 496008608,
+    "worker_reduction_ns": 3458198,
+    "cell": 8
+  },
+  {
+    "workers": 8,
+    "grouped": 0,
+    "queues": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5
+    ],
+    "busy": 8,
+    "blocks": 5000,
+    "total_ns": 176274406,
+    "schedule_ns": 34664078,
+    "completion_wait_ns": 137679604,
+    "worker_reduction_ns": 13798243,
+    "cell": 9
+  },
+  {
+    "workers": 4,
+    "grouped": 0,
+    "queues": [
+      12,
+      11,
+      11,
+      11
+    ],
+    "busy": 4,
+    "blocks": 5000,
+    "total_ns": 211109250,
+    "schedule_ns": 33755983,
+    "completion_wait_ns": 173934987,
+    "worker_reduction_ns": 8070595,
+    "cell": 10
+  },
+  {
+    "workers": 2,
+    "grouped": 0,
+    "queues": [
+      23,
+      22
+    ],
+    "busy": 2,
+    "blocks": 5000,
+    "total_ns": 294226580,
+    "schedule_ns": 29865712,
+    "completion_wait_ns": 261796932,
+    "worker_reduction_ns": 2871922,
+    "cell": 11
+  },
+  {
+    "workers": 1,
+    "grouped": 0,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 515090558,
+    "schedule_ns": 31926399,
+    "completion_wait_ns": 480450371,
+    "worker_reduction_ns": 1864151,
+    "cell": 12
+  },
+  {
+    "workers": 1,
+    "grouped": 0,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 520178707,
+    "schedule_ns": 32188375,
+    "completion_wait_ns": 484795892,
+    "worker_reduction_ns": 2160134,
+    "cell": 13
+  },
+  {
+    "workers": 2,
+    "grouped": 0,
+    "queues": [
+      23,
+      22
+    ],
+    "busy": 2,
+    "blocks": 5000,
+    "total_ns": 318866823,
+    "schedule_ns": 31673512,
+    "completion_wait_ns": 284280802,
+    "worker_reduction_ns": 3391218,
+    "cell": 14
+  },
+  {
+    "workers": 4,
+    "grouped": 0,
+    "queues": [
+      12,
+      11,
+      11,
+      11
+    ],
+    "busy": 4,
+    "blocks": 5000,
+    "total_ns": 234302958,
+    "schedule_ns": 39086208,
+    "completion_wait_ns": 191325494,
+    "worker_reduction_ns": 7860674,
+    "cell": 15
+  },
+  {
+    "workers": 8,
+    "grouped": 0,
+    "queues": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5
+    ],
+    "busy": 8,
+    "blocks": 5000,
+    "total_ns": 163813920,
+    "schedule_ns": 32594323,
+    "completion_wait_ns": 128058493,
+    "worker_reduction_ns": 13103202,
+    "cell": 16
+  },
+  {
+    "workers": 1,
+    "grouped": 1,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 533835346,
+    "schedule_ns": 39702458,
+    "completion_wait_ns": 488824381,
+    "worker_reduction_ns": 4290157,
+    "cell": 1
+  },
+  {
+    "workers": 2,
+    "grouped": 1,
+    "queues": [
+      45,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 509449694,
+    "schedule_ns": 29085563,
+    "completion_wait_ns": 477941350,
+    "worker_reduction_ns": 1401546,
+    "cell": 2
+  },
+  {
+    "workers": 4,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 520460990,
+    "schedule_ns": 29795987,
+    "completion_wait_ns": 487872557,
+    "worker_reduction_ns": 1460216,
+    "cell": 3
+  },
+  {
+    "workers": 8,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 543961924,
+    "schedule_ns": 31012574,
+    "completion_wait_ns": 509595525,
+    "worker_reduction_ns": 2278077,
+    "cell": 4
+  },
+  {
+    "workers": 8,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 538593484,
+    "schedule_ns": 29877538,
+    "completion_wait_ns": 505834747,
+    "worker_reduction_ns": 1939582,
+    "cell": 5
+  },
+  {
+    "workers": 4,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 525933987,
+    "schedule_ns": 30616534,
+    "completion_wait_ns": 492359560,
+    "worker_reduction_ns": 1825722,
+    "cell": 6
+  },
+  {
+    "workers": 2,
+    "grouped": 1,
+    "queues": [
+      45,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 518585000,
+    "schedule_ns": 30281013,
+    "completion_wait_ns": 485489339,
+    "worker_reduction_ns": 1636661,
+    "cell": 7
+  },
+  {
+    "workers": 1,
+    "grouped": 1,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 528524750,
+    "schedule_ns": 33801178,
+    "completion_wait_ns": 489130992,
+    "worker_reduction_ns": 4704343,
+    "cell": 8
+  },
+  {
+    "workers": 8,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 543123867,
+    "schedule_ns": 29392822,
+    "completion_wait_ns": 510928316,
+    "worker_reduction_ns": 2048478,
+    "cell": 9
+  },
+  {
+    "workers": 4,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 524637762,
+    "schedule_ns": 30832552,
+    "completion_wait_ns": 490696777,
+    "worker_reduction_ns": 1796468,
+    "cell": 10
+  },
+  {
+    "workers": 2,
+    "grouped": 1,
+    "queues": [
+      45,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 520144302,
+    "schedule_ns": 32897147,
+    "completion_wait_ns": 483615965,
+    "worker_reduction_ns": 2778058,
+    "cell": 11
+  },
+  {
+    "workers": 1,
+    "grouped": 1,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 531845318,
+    "schedule_ns": 35336333,
+    "completion_wait_ns": 490894409,
+    "worker_reduction_ns": 4797428,
+    "cell": 12
+  },
+  {
+    "workers": 1,
+    "grouped": 1,
+    "queues": [
+      45
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 509022433,
+    "schedule_ns": 30612520,
+    "completion_wait_ns": 475452132,
+    "worker_reduction_ns": 2257736,
+    "cell": 13
+  },
+  {
+    "workers": 2,
+    "grouped": 1,
+    "queues": [
+      45,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 515021552,
+    "schedule_ns": 29283712,
+    "completion_wait_ns": 482641715,
+    "worker_reduction_ns": 1520389,
+    "cell": 14
+  },
+  {
+    "workers": 4,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 525116023,
+    "schedule_ns": 30162924,
+    "completion_wait_ns": 491965571,
+    "worker_reduction_ns": 1803864,
+    "cell": 15
+  },
+  {
+    "workers": 8,
+    "grouped": 1,
+    "queues": [
+      45,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "busy": 1,
+    "blocks": 5000,
+    "total_ns": 536914099,
+    "schedule_ns": 30107384,
+    "completion_wait_ns": 503799465,
+    "worker_reduction_ns": 1866216,
+    "cell": 16
+  }
+]

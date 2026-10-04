@@ -1,0 +1,5 @@
+{
+  "product": "aac7fbd9fcc4db6e8ba66c8cdddaac71b4abb2b6",
+  "sourceSha256": "f53cfb25b595cffd1a2a1fdd4f9e571bdcc5af95845c77cdb1d6f0df0b105228",
+  "note": "Private instrumented component fixture: unchanged scheduling and mixing; adds monotonic timing around scheduling, completion wait (includes reduction), and worker reduction. Not an emulator binary or native game performance."
+}

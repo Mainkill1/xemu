@@ -1,0 +1,1604 @@
+[
+  {
+    "id": "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 0,
+      "selected_record_ordinal": 1,
+      "stage_key": "dxt1_same_address_wait",
+      "texture_representation": "dxt1",
+      "revalidation_route": "same_address_changing_overwrite",
+      "synchronization": "same_address_per_draw_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 512,
+        "gpu_waits": 544,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "bf535537",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 0,
+      "selected_record_ordinal": 1,
+      "stage_key": "dxt1_same_address_wait",
+      "texture_representation": "dxt1",
+      "revalidation_route": "same_address_changing_overwrite",
+      "synchronization": "same_address_per_draw_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 512,
+        "gpu_waits": 544,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "bf535537",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "9998993e8dcf6939",
+        "actual": "c7bd5d70537f5f19"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 1,
+      "selected_record_ordinal": 2,
+      "stage_key": "dxt1_same_address_queued",
+      "texture_representation": "dxt1",
+      "revalidation_route": "same_address_changing_payload_queued",
+      "synchronization": "same_address_no_per_draw_wait_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "55dc6a37",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": false,
+      "framebuffer_comparison_eligible": false,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1",
+      "framebuffer_comparison_reason": "unsynchronized same-address writes have no defined per-draw source generation"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 1,
+      "selected_record_ordinal": 2,
+      "stage_key": "dxt1_same_address_queued",
+      "texture_representation": "dxt1",
+      "revalidation_route": "same_address_changing_payload_queued",
+      "synchronization": "same_address_no_per_draw_wait_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "55dc6a37",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "c8bd2b0c",
+      "oracle_status": "FAIL",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 16,
+      "oracle_failure_mask": "000000017fff0000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1",
+      "oracle_failure_reason": "source-precision tile readback mismatch"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 2,
+      "selected_record_ordinal": 3,
+      "stage_key": "dxt1_ring",
+      "texture_representation": "dxt1",
+      "revalidation_route": "ring_changing_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "052cdb73",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 2,
+      "selected_record_ordinal": 3,
+      "stage_key": "dxt1_ring",
+      "texture_representation": "dxt1",
+      "revalidation_route": "ring_changing_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0ea3ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 16777216,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "052cdb73",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "719d8f45c46b69f6",
+        "actual": "d6869d5db934b275"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 5,
+      "selected_record_ordinal": 6,
+      "stage_key": "rgba8_same_address_queued",
+      "texture_representation": "rgba8",
+      "revalidation_route": "same_address_changing_payload_queued",
+      "synchronization": "same_address_no_per_draw_wait_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "decoded_control",
+      "source_kat": "9b909dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "d3be0b5e",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": false,
+      "framebuffer_comparison_eligible": false,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1",
+      "framebuffer_comparison_reason": "unsynchronized same-address writes have no defined per-draw source generation"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 5,
+      "selected_record_ordinal": 6,
+      "stage_key": "rgba8_same_address_queued",
+      "texture_representation": "rgba8",
+      "revalidation_route": "same_address_changing_payload_queued",
+      "synchronization": "same_address_no_per_draw_wait_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "decoded_control",
+      "source_kat": "9b909dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 1,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "d3be0b5e",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.bc2_native_eligible",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 8,
+      "selected_record_ordinal": 9,
+      "stage_key": "bc2_native_eligible",
+      "texture_representation": "bc2_dxt3",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0330ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 33554432,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "51794d40",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 8,
+      "selected_record_ordinal": 9,
+      "stage_key": "bc2_native_eligible",
+      "texture_representation": "bc2_dxt3",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "0330ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 33554432,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "51794d40",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 9,
+      "selected_record_ordinal": 10,
+      "stage_key": "bc2_bordered_fallback",
+      "texture_representation": "bc2_dxt3",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "bordered_2d",
+      "upload_expectation": "decoded_fallback_required",
+      "source_kat": "896d9dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "f30396db",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 9,
+      "selected_record_ordinal": 10,
+      "stage_key": "bc2_bordered_fallback",
+      "texture_representation": "bc2_dxt3",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "bordered_2d",
+      "upload_expectation": "decoded_fallback_required",
+      "source_kat": "896d9dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "f30396db",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.bc3_native_eligible",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 10,
+      "selected_record_ordinal": 11,
+      "stage_key": "bc3_native_eligible",
+      "texture_representation": "bc3_dxt5",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "10e7ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 33554432,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "cbeee2b5",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 10,
+      "selected_record_ordinal": 11,
+      "stage_key": "bc3_native_eligible",
+      "texture_representation": "bc3_dxt5",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "borderless_2d",
+      "upload_expectation": "native_bc_eligible",
+      "source_kat": "10e7ddc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 33554432,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "cbeee2b5",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.bc3_bordered_fallback",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "db28300321744de5",
+        "actual": "3403675459d4d3d5"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 11,
+      "selected_record_ordinal": 12,
+      "stage_key": "bc3_bordered_fallback",
+      "texture_representation": "bc3_dxt5",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "bordered_2d",
+      "upload_expectation": "decoded_fallback_required",
+      "source_kat": "c0499dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "8cf302d2",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_applicable": true,
+      "framebuffer_comparison_eligible": true,
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "s3tc_sync_factor",
+      "stage_index": 11,
+      "selected_record_ordinal": 12,
+      "stage_key": "bc3_bordered_fallback",
+      "texture_representation": "bc3_dxt5",
+      "revalidation_route": "format_kat_ring_payload_generations",
+      "synchronization": "distinct_address_ring_final_wait",
+      "texture_shape": "bordered_2d",
+      "upload_expectation": "decoded_fallback_required",
+      "source_kat": "c0499dc5",
+      "seed": "46544352",
+      "iterations": 32,
+      "work": {
+        "draws": 512,
+        "texture_writes": 512,
+        "texture_bytes": 134217728,
+        "texture_binds": 512,
+        "payload_generations": 512,
+        "no_write_redraws": 0,
+        "distinct_addresses": 16,
+        "per_draw_waits": 0,
+        "gpu_waits": 32,
+        "vertex_bytes": 81920,
+        "visible_tiles": 16,
+        "unique_colors": 16,
+        "pattern_checksum": "1a4ff923",
+        "overwrite_only_oracle": false
+      },
+      "work_checksum": "8cf302d2",
+      "result_checksum": "1a4ff923",
+      "tile_center_kat": "acc7c6b0",
+      "oracle_status": "PASS",
+      "oracle_provenance": "regression_only",
+      "oracle_failure_count": 0,
+      "oracle_failure_mask": "0000000000000000",
+      "oracle_compatibility_key": "s3tc-factor-source-precision-v1"
+    }
+  },
+  {
+    "id": "high_vertex_count.arrays",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "cd6d0d64451d191b",
+        "actual": "a27c67890c2d9083"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "high_vertex_count.inline_arrays",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "31a890c7f71db193",
+        "actual": "a27c67890c2d9083"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "high_vertex_count.inline_buffers",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "f320b0df5ba62943",
+        "actual": "a27c67890c2d9083"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "high_vertex_count.inline_elements",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "b24516b5372da0f3",
+        "actual": "a27c67890c2d9083"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.line_loop.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "d48f43c09e534094",
+        "actual": "e029a36a3b91c6cc"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.line_loop.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "47373dc0c7be28f8",
+        "actual": "e029a36a3b91c6cc"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.line_strip.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "0964935c28234a4a",
+        "actual": "05e55de77521d31a"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.line_strip.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "94b433237d71b182",
+        "actual": "05e55de77521d31a"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.lines.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "6c16b2698ec4e26b",
+        "actual": "e1c19d5c7e7898ab"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.lines.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "53924aa6f5e55b57",
+        "actual": "e1c19d5c7e7898ab"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.points.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "7400f7a8ac9d8c86",
+        "actual": "5b296619f665c070"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.points.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "f1d83724373d0036",
+        "actual": "5b296619f665c070"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.polygon.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "515407015a00c880",
+        "actual": "2c4beaa06aba1000"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.polygon.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "4376cbfa562c7d14",
+        "actual": "2c4beaa06aba1000"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.quad_strip.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "190c4f06474f8467",
+        "actual": "f64b4495347cec73"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.quad_strip.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "d5cf212c5788c3df",
+        "actual": "f64b4495347cec73"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.quads.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "b52448622bc1c001",
+        "actual": "114a1419338256e5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.quads.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "fbac823960948b69",
+        "actual": "114a1419338256e5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangle_fan.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "ba0d8daf7940c5d2",
+        "actual": "36644f0fd11db166"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangle_fan.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "134a22bd3882e48e",
+        "actual": "36644f0fd11db166"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangle_strip.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "d15b03d8ead6bb03",
+        "actual": "d7b289579fdaa1ab"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangle_strip.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "f7cfda74a4111eff",
+        "actual": "d7b289579fdaa1ab"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangles.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "4521bcfbdb43e248",
+        "actual": "72f05baf369ceb60"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "primitive_type.triangles.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "d86abc6e019e36fc",
+        "actual": "72f05baf369ceb60"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.basic",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "6f90d43f59b710fa",
+        "actual": "d5b9147cf7ccc994"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.framebuffer_working_set_002",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "ab1fa4b103c05f05",
+        "actual": "9f3b0609a42777d5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.framebuffer_working_set_008",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "8393e7935b67da71",
+        "actual": "64cbf95dec8f59e5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.framebuffer_working_set_032",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "4e53301a279a7e09",
+        "actual": "a6116feb11a28c25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.framebuffer_working_set_064",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "dbdfafa7ed2f28c9",
+        "actual": "a6116feb11a28c25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.full_clear_elision_guard",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "01a1571033aa9dfd",
+        "actual": "d91a0e75979a1f25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.overlapping_surface_churn_representative",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "7b4f2884714177a5",
+        "actual": "caf66d4bf5691525"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.overlapping_surface_churn_stress",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "19890b325809498d",
+        "actual": "caf66d4bf5691525"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.partial_channel_clear_guard",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "31d730ce613f92bd",
+        "actual": "eb2cb498aa73af25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.surface_download_path",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "eb6604c45975bcec",
+        "actual": "2b0e8aac0f8838e8"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.surface_list_lookup_002",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "26ff617c53458a53",
+        "actual": "fa475bc695046525"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.surface_list_lookup_008",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "18e8676fcc804922",
+        "actual": "eaf6788dfe8d2f25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.surface_list_lookup_032",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "1bc652a47e609cf5",
+        "actual": "c6275b91195a5325"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.surface_list_lookup_128",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "4b4650aa45e0be8d",
+        "actual": "c6275b91195a5325"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.representative.growth",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "a1ce1e9182d42125",
+        "actual": "1b85a83206804325"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "growth",
+      "expected_memory_behavior": "growth_from_unique_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 16,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "growth",
+      "expected_memory_behavior": "growth_from_unique_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 16,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.representative.plateau",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "c00be5b19acc4e6f",
+        "actual": "94973dc83ee12325"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "plateau",
+      "expected_memory_behavior": "plateau_no_new_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "plateau",
+      "expected_memory_behavior": "plateau_no_new_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.representative.alias_resize",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "0247ea98d29062c5",
+        "actual": "7e3cba40d2e56b25"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "alias_resize",
+      "expected_memory_behavior": "cache_retention_allowed_for_overlapping_alias_resize_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 16,
+      "alias_offset": 6144,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "alias_resize",
+      "expected_memory_behavior": "cache_retention_allowed_for_overlapping_alias_resize_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 16,
+      "alias_offset": 6144,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.representative.reuse",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "d885d846be04bb3d",
+        "actual": "834dc31dcb46cb25"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "reuse",
+      "expected_memory_behavior": "plateau_reuse_of_original_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "reuse",
+      "expected_memory_behavior": "plateau_reuse_of_original_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 64,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.representative.idle_retention",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "4ab34638455a76e1",
+        "actual": "e45ec923aeb05125"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "idle_retention",
+      "expected_memory_behavior": "cache_retention_observable_without_new_work_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 16,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "idle_retention",
+      "expected_memory_behavior": "cache_retention_observable_without_new_work_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 1,
+      "guest_identity_count": 16,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 16,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.stress.growth",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "063949c8ff1686f9",
+        "actual": "16b728a467be7f25"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "growth",
+      "expected_memory_behavior": "growth_from_unique_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 64,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "growth",
+      "expected_memory_behavior": "growth_from_unique_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 64,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.stress.plateau",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "769bf225e8cc48d5",
+        "actual": "2936a367d6aa6725"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "plateau",
+      "expected_memory_behavior": "plateau_no_new_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "plateau",
+      "expected_memory_behavior": "plateau_no_new_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.stress.alias_resize",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "c1ab77f18dbbc86d",
+        "actual": "d5ab377572e54f25"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "alias_resize",
+      "expected_memory_behavior": "cache_retention_allowed_for_overlapping_alias_resize_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 64,
+      "alias_offset": 6144,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "alias_resize",
+      "expected_memory_behavior": "cache_retention_allowed_for_overlapping_alias_resize_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 64,
+      "alias_offset": 6144,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.stress.reuse",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "837b6a123bb12a09",
+        "actual": "12e4fbb929c6c725"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "reuse",
+      "expected_memory_behavior": "plateau_reuse_of_original_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "reuse",
+      "expected_memory_behavior": "plateau_reuse_of_original_surface_texture_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 256,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "surface.vulkan_memory_pressure.stress.idle_retention",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "a24e2d9ee2191cd8",
+        "actual": "0289a35e3cbf6925"
+      }
+    },
+    "actualMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "idle_retention",
+      "expected_memory_behavior": "cache_retention_observable_without_new_work_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 16,
+      "fixed_profile_samples": 4
+    },
+    "oracleMetadata": {
+      "schema_version": 1,
+      "kind": "vulkan_memory_pressure_checkpoint",
+      "checkpoint": "idle_retention",
+      "expected_memory_behavior": "cache_retention_observable_without_new_work_keys",
+      "seed": "564d5052",
+      "guest_pressure_multiplier": 4,
+      "guest_identity_count": 64,
+      "xemu_render_scale": "external",
+      "new_surface_texture_keys": 0,
+      "alias_offset": 0,
+      "transitions_per_work_iteration": 16,
+      "fixed_profile_samples": 4
+    }
+  },
+  {
+    "id": "tiny_draw.arrays.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "5636eabc173a3691",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.arrays.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "5528df4b56e8f75d",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_arrays.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "24f378fc9981dad5",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_arrays.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "1f7bd52bdb2ddb2d",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_buffers.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "1d33c1f03f3df5d5",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_buffers.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "98123d79a8ae06a5",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_elements.fixed_function",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "cd0e5481b375a40d",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "tiny_draw.inline_elements.vertex_shader",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "0539f844d85cc73d",
+        "actual": "acf025546cf667b5"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  },
+  {
+    "id": "uniform_thrash.uniform_thrash",
+    "delta": {
+      "framebuffer_fnv1a64": {
+        "oracle": "e643e886c2ebbdd5",
+        "actual": "09eb5907ef624c25"
+      }
+    },
+    "actualMetadata": null,
+    "oracleMetadata": null
+  }
+]
