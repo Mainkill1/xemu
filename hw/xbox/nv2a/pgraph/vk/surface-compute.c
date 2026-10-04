@@ -548,8 +548,8 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
 
     uint64_t units = (uint64_t)width * height;
     uint64_t bytes = units * sizeof(uint32_t);
-    uint32_t workgroup_size;
-    uint32_t groups;
+    uint32_t workgroup_size = 0;
+    uint32_t groups = 0;
     bool dispatch_valid = pgraph_vk_compute_dispatch_plan(
         units, r->device_props.limits.maxComputeWorkGroupSize[0],
         r->device_props.limits.maxComputeWorkGroupInvocations,
