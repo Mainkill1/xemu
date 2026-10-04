@@ -1,0 +1,82 @@
+{
+  "Execution": "failed",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is Failed.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "flips: Insufficient flip tail records."
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "scene-entry-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "PNG scene fingerprint distance is 15; expected at most 8. Expected c655d5868ee66620; actual 86c25546ccc644a0."
+    },
+    {
+      "Name": "scene-end-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\scene-end.png"
+    },
+    {
+      "Name": "measurement-ready",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\measurement-ready.png"
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:guest-frames.log satisfied the declared requirement."
+    },
+    {
+      "Name": "measurement-segment",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Artifact has 0 bytes; expected at least 20."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 55; actual 52."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "The declared plan did not complete."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": false
+}

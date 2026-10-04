@@ -1,0 +1,422 @@
+[
+  {
+    "cell": 1,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-01-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-01-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040002740-7cc2b05dd5de4c0eba389592848a557b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040002740-7cc2b05dd5de4c0eba389592848a557b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040002740-7cc2b05dd5de4c0eba389592848a557b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040002740-7cc2b05dd5de4c0eba389592848a557b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040002740-7cc2b05dd5de4c0eba389592848a557b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-02-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-02-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040051050-c878037cd77744c3962d394d79a1d5a5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040051050-c878037cd77744c3962d394d79a1d5a5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040051050-c878037cd77744c3962d394d79a1d5a5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040051050-c878037cd77744c3962d394d79a1d5a5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040051050-c878037cd77744c3962d394d79a1d5a5/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-03-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-03-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040139367-ac8d3ff1c86344dbbd9e5a0be19073a5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040139367-ac8d3ff1c86344dbbd9e5a0be19073a5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040139367-ac8d3ff1c86344dbbd9e5a0be19073a5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040139367-ac8d3ff1c86344dbbd9e5a0be19073a5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040139367-ac8d3ff1c86344dbbd9e5a0be19073a5/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-04-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-04-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040228379-fe17ffdeaeaa4ea2bc2c79b7a0151703",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040228379-fe17ffdeaeaa4ea2bc2c79b7a0151703?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040228379-fe17ffdeaeaa4ea2bc2c79b7a0151703",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040228379-fe17ffdeaeaa4ea2bc2c79b7a0151703/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040228379-fe17ffdeaeaa4ea2bc2c79b7a0151703/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-05-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-05-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040317603-6c48ce6abb65427eb520e1c5261fb77b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040317603-6c48ce6abb65427eb520e1c5261fb77b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040317603-6c48ce6abb65427eb520e1c5261fb77b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040317603-6c48ce6abb65427eb520e1c5261fb77b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040317603-6c48ce6abb65427eb520e1c5261fb77b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-06-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-06-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040406387-c3fd7cc6f7a2432995f3f5eb7465d856",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040406387-c3fd7cc6f7a2432995f3f5eb7465d856?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040406387-c3fd7cc6f7a2432995f3f5eb7465d856",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040406387-c3fd7cc6f7a2432995f3f5eb7465d856/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040406387-c3fd7cc6f7a2432995f3f5eb7465d856/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-07-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-07-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040454595-200ebd046e084dbcaa57163696a6431c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040454595-200ebd046e084dbcaa57163696a6431c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040454595-200ebd046e084dbcaa57163696a6431c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040454595-200ebd046e084dbcaa57163696a6431c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040454595-200ebd046e084dbcaa57163696a6431c/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-08-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-08-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040543282-585290baa8654e2a91a933d845212cb8",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040543282-585290baa8654e2a91a933d845212cb8?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040543282-585290baa8654e2a91a933d845212cb8",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040543282-585290baa8654e2a91a933d845212cb8/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040543282-585290baa8654e2a91a933d845212cb8/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-09-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-09-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040631877-dcb9761273fe4f3a80678364a1e89c3e",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040631877-dcb9761273fe4f3a80678364a1e89c3e?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040631877-dcb9761273fe4f3a80678364a1e89c3e",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040631877-dcb9761273fe4f3a80678364a1e89c3e/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040631877-dcb9761273fe4f3a80678364a1e89c3e/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-10-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-10-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040720411-0d32dc6b236b4c409980bbe8f2768297",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040720411-0d32dc6b236b4c409980bbe8f2768297?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040720411-0d32dc6b236b4c409980bbe8f2768297",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040720411-0d32dc6b236b4c409980bbe8f2768297/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040720411-0d32dc6b236b4c409980bbe8f2768297/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "parent-linear",
+    "request": "pr200-683-deck-workers-gl-mw-11-parent-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-11-parent-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040808534-79745c297dc74b11b67cc25bf23f9d35",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040808534-79745c297dc74b11b67cc25bf23f9d35?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040808534-79745c297dc74b11b67cc25bf23f9d35",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040808534-79745c297dc74b11b67cc25bf23f9d35/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040808534-79745c297dc74b11b67cc25bf23f9d35/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "child-linear",
+    "request": "pr200-683-deck-workers-gl-mw-12-child-linear-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr200-683-deck-workers-gl-mw-12-child-linear-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-040857124-3e546014898a4f8f863b8c5d11c19812",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-040857124-3e546014898a4f8f863b8c5d11c19812?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-040857124-3e546014898a4f8f863b8c5d11c19812",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-040857124-3e546014898a4f8f863b8c5d11c19812/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-040857124-3e546014898a4f8f863b8c5d11c19812/diagnostics"
+      }
+    }
+  }
+]

@@ -1,0 +1,360 @@
+{
+  "runId": "20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42",
+  "job": "pr200-683-win-workers-gl-mw-01-parent-linear-v1-t001",
+  "jobPackage": "agent-pr200-683-win-workers-gl-mw-01-parent-linear-v1-t001",
+  "attempt": 1,
+  "status": "plan_failed",
+  "detail": "System.TimeoutException: wait_for_scene timed out after 15000 ms for \u0027result:screenshots/measurement-ready.png\u0027. Last state: PNG scene fingerprint distance is 17; expected at most 8. Expected c655d5868ee66620; actual c2d54fcc8c6420a8. Last mismatching frame: screenshots/measurement-ready.last-mismatch.png\r\n   at XemuTestRunner.Runtime.LiveSceneConditionWaiter.WaitAsync(ArtifactCheckDefinition condition, Int32 timeoutMs, Int32 pollIntervalMs, String resultDirectory, Func\u00602 capture, CancellationToken cancellationToken) in /_/src/XemuTestRunner/Runtime/LiveSceneConditionWaiter.cs:line 93\r\n   at XemuTestRunner.Runtime.RunnerEngine.\u003C\u003Ec__DisplayClass13_1.\u003C\u003CExecuteJobAsync\u003Eb__11\u003Ed.MoveNext() in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 781\r\n--- End of stack trace from previous location ---\r\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter, Func\u00605 sceneWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 625\r\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter, Func\u00605 sceneWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 646\r\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 852 plan: wait_for_scene timed out after 15000 ms for \u0027result:screenshots/measurement-ready.png\u0027. Last state: PNG scene fingerprint distance is 17; expected at most 8. Expected c655d5868ee66620; actual c2d54fcc8c6420a8. Last mismatching frame: screenshots/measurement-ready.last-mismatch.png",
+  "startedUtc": "2026-10-04T01:46:22.7266099+00:00",
+  "endedUtc": "2026-10-04T01:46:53.4122084+00:00",
+  "durationMs": 30685.5991,
+  "processId": 310992,
+  "exitCode": -1,
+  "crash": {
+    "RunId": "20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42",
+    "ExecutableSha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+    "Platform": "windows",
+    "ProcessId": 310992,
+    "ExitCode": -1,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "windows_event_unavailable",
+      "matching_windows_dump_unavailable"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": "vm-20260929162035",
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "37665a883638e5cd3ed93712cc56244413ce7c194e7c4b1554541406e1578238",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-pr200-683-win-workers-gl-mw-01-parent-linear-v1-t001\\xemu.toml",
+    "-drive",
+    "index=0,media=disk,file=C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\hdd.qcow2,locked=on",
+    "-name",
+    "xemu-pr267-morrowind,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-loadvm",
+    "vm-20260929162035",
+    "-qmp",
+    "tcp:127.0.0.1:51979,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Insufficient flip tail records."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG scene fingerprint distance is 15; expected at most 8. Expected c655d5868ee66620; actual 86c25546ccc644a0."
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\scene-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\measurement-ready.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 52."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 36.84559223300972,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 33.333,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 50.0567,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 150.03745,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 618,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Insufficient flip tail records."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG scene fingerprint distance is 15; expected at most 8. Expected c655d5868ee66620; actual 86c25546ccc644a0."
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\scene-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42\\screenshots\\measurement-ready.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 52."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr267-morrowind-user-snapshot-start-b-v12",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "morrowind-goty-disc",
+      "snapshot-vm-20260929162035",
+      "vulkan-renderer",
+      "64mb-ram",
+      "controller-connected",
+      "start-then-2s-then-b",
+      "30-second-scene-window"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-014622726-f0fc1aec8c264ba29b18cb3ede3a3e42",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 103,
+    "TimestampUtc": "2026-10-04T01:46:24.3347441+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 23,
+    "TimestampUtc": "2026-10-04T01:46:53.3446661+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 52,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 11.45803269230769,
+    "maxCollectorDutyPercent": 22.90456,
+    "maxCollectorDurationMs": 114.5228,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}
