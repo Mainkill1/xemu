@@ -17,8 +17,50 @@ typedef struct __attribute__((packed)) FpuEnvironment {
     uint16_t reserved_status;
     uint16_t tags;
     uint16_t reserved_tags;
-    uint32_t ignored[4];
+    uint32_t fip;
+    uint16_t fcs;
+    uint16_t opcode;
+    uint32_t fdp;
+    uint16_t fds;
+    uint16_t reserved_data;
 } FpuEnvironment;
+
+_Static_assert(sizeof(FpuEnvironment) == 28, "FNSTENV layout");
+
+static int test_pointer_preservation(void)
+{
+    FpuEnvironment before, after;
+    uint32_t status;
+
+    /* No C call or other x87 instruction intervenes at the status boundary. */
+    __asm__ volatile("fninit\n\tfld1\n\tfnstenv %1\n\t"
+                     "movl $0xa5b60000, %%eax\n\tfnstsw %%ax\n\t"
+                     "fnstenv %2\n\tfninit"
+                     : "=&a"(status), "=m"(before), "=m"(after)
+                     : : "st", "memory");
+    if (status != 0xa5b63800 || before.fip != after.fip ||
+        before.fcs != after.fcs || before.fdp != after.fdp ||
+        before.fds != after.fds) {
+        printf("FAIL AX pointer eax=%08x fip=%08x/%08x fcs=%04x/%04x\n",
+               status, before.fip, after.fip, before.fcs, after.fcs);
+        return 1;
+    }
+
+    /* Retain the unchanged memory form as a separately executed reference. */
+    uint16_t memory_status;
+    __asm__ volatile("fninit\n\tfld1\n\tfnstenv %0\n\t"
+                     "fnstsw %2\n\tfnstenv %1\n\tfninit"
+                     : "=m"(before), "=m"(after), "=m"(memory_status)
+                     : : "st", "memory");
+    if (memory_status != 0x3800 || before.fip != after.fip ||
+        before.fcs != after.fcs || before.fdp != after.fdp ||
+        before.fds != after.fds) {
+        printf("FAIL memory pointer status=%04x fip=%08x/%08x\n",
+               memory_status, before.fip, after.fip);
+        return 1;
+    }
+    return 0;
+}
 
 static uint32_t read_ax_status(void)
 {
@@ -117,7 +159,7 @@ static uint16_t read_memory_status(void)
 
 int main(void)
 {
-    if (test_fault_checkpoint()) {
+    if (test_pointer_preservation() || test_fault_checkpoint()) {
         return 1;
     }
     static const uint16_t condition_bits[] = {

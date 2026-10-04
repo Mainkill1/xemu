@@ -3458,6 +3458,7 @@ static void gen_x87(DisasContext *s, X86DecodedInsn *decode)
                 gen_fnstsw_ax(s, s->tmp2_i32);
                 tcg_gen_extu_i32_tl(s->T0, s->tmp2_i32);
                 gen_op_mov_reg_v(s, MO_16, R_EAX, s->T0);
+                update_fip = false;
                 break;
             default:
                 goto illegal_op;
