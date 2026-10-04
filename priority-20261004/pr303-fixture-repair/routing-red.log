@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02Sd8003fda1ba581cfdc6389aa02aa8dcb
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+**
+ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:42:__wrap_qemu_cond_broadcast: assertion failed (distribution[w] == expected): (45 == 6)
+not ok /mcpx-apu/voice-frame/independent-v2 - ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:42:__wrap_qemu_cond_broadcast: assertion failed (distribution[w] == expected): (45 == 6)
+Bail out!

@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S2f837160612b4ef5aca18e8a710dad05
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+# Start of signed-reduction tests
+ok 1 /mcpx-apu/voice-frame/signed-reduction/sinc
+ok 2 /mcpx-apu/voice-frame/signed-reduction/linear
+# End of signed-reduction tests
+# End of voice-frame tests
+# End of mcpx-apu tests
+1..2

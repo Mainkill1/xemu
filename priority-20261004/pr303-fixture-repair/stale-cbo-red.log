@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02Sfb48aa66511781e5f151483bd00e5040
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+not ok /mcpx-apu/voice-frame/mono-pcm-worker1 - ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:264:run_workload: assertion failed (ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff == expected_cbo): (0 == 192)
+Bail out!
+**
+ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:264:run_workload: assertion failed (ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff == expected_cbo): (0 == 192)

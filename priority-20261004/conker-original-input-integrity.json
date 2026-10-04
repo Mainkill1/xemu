@@ -1,0 +1,8 @@
+{
+  "deckOriginalRevision": "6556841fda13f9b1058742f149e16751808e2d901e380bdcca52693a90158e54",
+  "deckPackagingRevision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+  "inputsWaitsAndMeasurementBoundaryIdentical": true,
+  "packagingChange": "Only executable/config are replaceable slots; shared libraries remain immutable test files",
+  "winOriginalRevision": "19b869c5612b8c70e287bdaa4d8aa214329c5ca014aecd98e76d2b1dbd2c13f2",
+  "failingReusedRevisions": "Omitted second A and inserted scene gate; retained separately; never pooled"
+}

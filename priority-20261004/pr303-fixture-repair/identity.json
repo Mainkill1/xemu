@@ -1,0 +1,18 @@
+{
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "candidate": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+  "ci": {
+    "push": 37234136673,
+    "pull_request": 37234140566,
+    "checks": 42,
+    "all": "success"
+  },
+  "runtime_changes": false,
+  "focused_targets": {
+    "unit": 10,
+    "state_cases": 600,
+    "throughput": 16
+  },
+  "native_three_title_matrix": "Pending; do not infer emulator performance from these fixture checks",
+  "checkpatch": "Two required GNU wrap prototype flags; no formatting warnings"
+}

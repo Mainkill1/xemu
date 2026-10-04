@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S889e8f5ae5917f79209ab9174a72e87a
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+ok 1 /mcpx-apu/voice-frame/mono-pcm-worker1
+# End of voice-frame tests
+# End of mcpx-apu tests
+1..1

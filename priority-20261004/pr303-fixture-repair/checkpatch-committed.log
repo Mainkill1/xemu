@@ -1,0 +1,13 @@
+ERROR: externs should be avoided in .c files
+#157: FILE: tests/xbox/mcpx-apu/test-resampler-throughput.c:28:
++void __real_qemu_cond_broadcast(QemuCond *cond);
+
+ERROR: externs should be avoided in .c files
+#158: FILE: tests/xbox/mcpx-apu/test-resampler-throughput.c:29:
++void __wrap_qemu_cond_broadcast(QemuCond *cond);
+
+total: 2 errors, 0 warnings, 454 lines checked
+
+.scratch/priority-apu-merge/pr303/committed-repair.patch has style problems, please review.  If any of these errors
+are false positives report them to the maintainer, see
+CHECKPATCH in MAINTAINERS.

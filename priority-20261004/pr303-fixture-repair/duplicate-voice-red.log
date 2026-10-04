@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S9262651233155fe31db1137caf0752eb
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+# Start of independent-v2 tests
+not ok /mcpx-apu/voice-frame/independent-v2/sinc - ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:54:__wrap_qemu_cond_broadcast: 'seen[id]' should be FALSE
+Bail out!
+**
+ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:54:__wrap_qemu_cond_broadcast: 'seen[id]' should be FALSE

@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S6af7e3aedde95f72ae602ba3b6fe754f
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+**
+ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:253:run_workload: assertion failed (checksum == frames * 184320): (79144456 == 24330240)
+not ok /mcpx-apu/voice-frame/mono-pcm-worker1 - ERROR:../tests/xbox/mcpx-apu/test-resampler-throughput.c:253:run_workload: assertion failed (checksum == frames * 184320): (79144456 == 24330240)
+Bail out!
