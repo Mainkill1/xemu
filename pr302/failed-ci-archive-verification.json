@@ -1,0 +1,5 @@
+{
+  "command": "tar --zstd -tf <downloaded-src>",
+  "exit": 0,
+  "stderr": ""
+}

@@ -1,0 +1,1 @@
+{"converter":"linear","profile":"stereo-adpcm","voices":45,"workers":8,"warmup_frames":256,"frames":2000,"samples_per_voice_frame":32,"elapsed_us":240424,"checksum":368640000,"expected_checksum":368640000,"final_cbo":2592,"maximum_error_24bit_units":0,"correctness":"PASS"}

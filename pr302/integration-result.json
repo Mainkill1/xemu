@@ -1,0 +1,19 @@
+{
+  "readerDelta": "#302 is a strict additive extension of current #293 reader, retaining identical parse/hash/source-identity code. Merge conflict resolution should keep #302 reader, its finish tests plus #293\u2019s Python 3.10 hashing compatibility check, and single Meson reader registration plus #293 allocation target.",
+  "checks": [
+    {
+      "suite": 293,
+      "reader": "3dab87bee15c0ad8c0464f76ba74204c8d5d3db4",
+      "exit": 0
+    },
+    {
+      "suite": 302,
+      "reader": "3dab87bee15c0ad8c0464f76ba74204c8d5d3db4",
+      "exit": 0
+    }
+  ],
+  "productMutation": false,
+  "retained293OnlyChecks": [
+    "test_finalized_hash_without_python_311_file_digest"
+  ]
+}

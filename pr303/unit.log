@@ -1,0 +1,151 @@
+TAP version 14
+# random seed: R02Scebd60c3b0a1b6b15968548554daa1dd
+1..10
+# Start of mcpx tests
+# Start of apu tests
+# Start of resampler tests
+ok 1 /mcpx/apu/resampler/pack-mono
+ok 2 /mcpx/apu/resampler/expand-mono
+# Start of sinc tests
+ok 3 /mcpx/apu/resampler/sinc/equivalence
+# converter=2 chunk=1 block=0 rate=0.55 offset=93
+# converter=2 chunk=1 block=1 rate=0.83 offset=151
+# converter=2 chunk=1 block=2 rate=1.00 offset=209
+# converter=2 chunk=1 block=3 rate=1.19 offset=267
+# converter=2 chunk=1 block=4 rate=1.71 offset=326
+# converter=2 chunk=1 block=5 rate=0.55 offset=384
+# converter=2 chunk=1 block=6 rate=0.83 offset=442
+# converter=2 chunk=1 block=7 rate=1.00 offset=500
+# converter=2 chunk=1 block=8 rate=1.19 offset=558
+# converter=2 chunk=1 block=9 rate=1.71 offset=616
+# converter=2 chunk=1 block=10 rate=0.55 offset=675
+# converter=2 chunk=1 block=11 rate=0.83 offset=733
+# converter=2 chunk=1 block=12 rate=1.00 offset=791
+# converter=2 chunk=1 block=13 rate=1.19 offset=849
+# converter=2 chunk=1 block=14 rate=1.71 offset=907
+# converter=2 chunk=1 block=15 rate=0.55 offset=966
+# converter=2 chunk=7 block=0 rate=0.55 offset=98
+# converter=2 chunk=7 block=1 rate=0.83 offset=133
+# converter=2 chunk=7 block=2 rate=1.00 offset=168
+# converter=2 chunk=7 block=3 rate=1.19 offset=196
+# converter=2 chunk=7 block=4 rate=1.71 offset=217
+# converter=2 chunk=7 block=5 rate=0.55 offset=259
+# converter=2 chunk=7 block=6 rate=0.83 offset=301
+# converter=2 chunk=7 block=7 rate=1.00 offset=329
+# converter=2 chunk=7 block=8 rate=1.19 offset=357
+# converter=2 chunk=7 block=9 rate=1.71 offset=378
+# converter=2 chunk=7 block=10 rate=0.55 offset=427
+# converter=2 chunk=7 block=11 rate=0.83 offset=462
+# converter=2 chunk=7 block=12 rate=1.00 offset=490
+# converter=2 chunk=7 block=13 rate=1.19 offset=518
+# converter=2 chunk=7 block=14 rate=1.71 offset=546
+# converter=2 chunk=7 block=15 rate=0.55 offset=588
+# converter=2 chunk=17 block=0 rate=0.55 offset=102
+# converter=2 chunk=17 block=1 rate=0.83 offset=136
+# converter=2 chunk=17 block=2 rate=1.00 offset=170
+# converter=2 chunk=17 block=3 rate=1.19 offset=204
+# converter=2 chunk=17 block=4 rate=1.71 offset=221
+# converter=2 chunk=17 block=5 rate=0.55 offset=272
+# converter=2 chunk=17 block=6 rate=0.83 offset=306
+# converter=2 chunk=17 block=7 rate=1.00 offset=340
+# converter=2 chunk=17 block=8 rate=1.19 offset=357
+# converter=2 chunk=17 block=9 rate=1.71 offset=391
+# converter=2 chunk=17 block=10 rate=0.55 offset=425
+# converter=2 chunk=17 block=11 rate=0.83 offset=476
+# converter=2 chunk=17 block=12 rate=1.00 offset=493
+# converter=2 chunk=17 block=13 rate=1.19 offset=527
+# converter=2 chunk=17 block=14 rate=1.71 offset=544
+# converter=2 chunk=17 block=15 rate=0.55 offset=595
+# converter=2 chunk=31 block=0 rate=0.55 offset=93
+# converter=2 chunk=31 block=1 rate=0.83 offset=155
+# converter=2 chunk=31 block=2 rate=1.00 offset=186
+# converter=2 chunk=31 block=3 rate=1.19 offset=217
+# converter=2 chunk=31 block=4 rate=1.71 offset=248
+# converter=2 chunk=31 block=5 rate=0.55 offset=279
+# converter=2 chunk=31 block=6 rate=0.83 offset=310
+# converter=2 chunk=31 block=7 rate=1.00 offset=341
+# converter=2 chunk=31 block=8 rate=1.19 offset=372
+# converter=2 chunk=31 block=9 rate=1.71 offset=403
+# converter=2 chunk=31 block=10 rate=0.55 offset=434
+# converter=2 chunk=31 block=11 rate=0.83 offset=496
+# converter=2 chunk=31 block=12 rate=1.00 offset=496
+# converter=2 chunk=31 block=13 rate=1.19 offset=527
+# converter=2 chunk=31 block=14 rate=1.71 offset=558
+# converter=2 chunk=31 block=15 rate=0.55 offset=589
+# converter=2 chunk=32 block=0 rate=0.55 offset=96
+# converter=2 chunk=32 block=1 rate=0.83 offset=160
+# converter=2 chunk=32 block=2 rate=1.00 offset=192
+# converter=2 chunk=32 block=3 rate=1.19 offset=224
+# converter=2 chunk=32 block=4 rate=1.71 offset=224
+# converter=2 chunk=32 block=5 rate=0.55 offset=288
+# converter=2 chunk=32 block=6 rate=0.83 offset=320
+# converter=2 chunk=32 block=7 rate=1.00 offset=352
+# converter=2 chunk=32 block=8 rate=1.19 offset=384
+# converter=2 chunk=32 block=9 rate=1.71 offset=416
+# converter=2 chunk=32 block=10 rate=0.55 offset=448
+# converter=2 chunk=32 block=11 rate=0.83 offset=480
+# converter=2 chunk=32 block=12 rate=1.00 offset=512
+# converter=2 chunk=32 block=13 rate=1.19 offset=544
+# converter=2 chunk=32 block=14 rate=1.71 offset=576
+# converter=2 chunk=32 block=15 rate=0.55 offset=608
+# converter=2 chunk=33 block=0 rate=0.55 offset=99
+# converter=2 chunk=33 block=1 rate=0.83 offset=165
+# converter=2 chunk=33 block=2 rate=1.00 offset=165
+# converter=2 chunk=33 block=3 rate=1.19 offset=198
+# converter=2 chunk=33 block=4 rate=1.71 offset=231
+# converter=2 chunk=33 block=5 rate=0.55 offset=264
+# converter=2 chunk=33 block=6 rate=0.83 offset=330
+# converter=2 chunk=33 block=7 rate=1.00 offset=330
+# converter=2 chunk=33 block=8 rate=1.19 offset=363
+# converter=2 chunk=33 block=9 rate=1.71 offset=396
+# converter=2 chunk=33 block=10 rate=0.55 offset=429
+# converter=2 chunk=33 block=11 rate=0.83 offset=495
+# converter=2 chunk=33 block=12 rate=1.00 offset=495
+# converter=2 chunk=33 block=13 rate=1.19 offset=528
+# converter=2 chunk=33 block=14 rate=1.71 offset=561
+# converter=2 chunk=33 block=15 rate=0.55 offset=594
+# converter=2 chunk=64 block=0 rate=0.55 offset=128
+# converter=2 chunk=64 block=1 rate=0.83 offset=192
+# converter=2 chunk=64 block=2 rate=1.00 offset=256
+# converter=2 chunk=64 block=3 rate=1.19 offset=256
+# converter=2 chunk=64 block=4 rate=1.71 offset=256
+# converter=2 chunk=64 block=5 rate=0.55 offset=320
+# converter=2 chunk=64 block=6 rate=0.83 offset=384
+# converter=2 chunk=64 block=7 rate=1.00 offset=384
+# converter=2 chunk=64 block=8 rate=1.19 offset=448
+# converter=2 chunk=64 block=9 rate=1.71 offset=448
+# converter=2 chunk=64 block=10 rate=0.55 offset=448
+# converter=2 chunk=64 block=11 rate=0.83 offset=512
+# converter=2 chunk=64 block=12 rate=1.00 offset=576
+# converter=2 chunk=64 block=13 rate=1.19 offset=576
+# converter=2 chunk=64 block=14 rate=1.71 offset=640
+# converter=2 chunk=64 block=15 rate=0.55 offset=640
+ok 4 /mcpx/apu/resampler/sinc/streaming-equivalence
+ok 5 /mcpx/apu/resampler/sinc/channel-change
+ok 6 /mcpx/apu/resampler/sinc/full-reset
+# End of sinc tests
+# Start of linear tests
+ok 7 /mcpx/apu/resampler/linear/equivalence
+# converter=4 chunk=32 block=0 rate=0.55 offset=64
+# converter=4 chunk=32 block=1 rate=0.83 offset=128
+# converter=4 chunk=32 block=2 rate=1.00 offset=160
+# converter=4 chunk=32 block=3 rate=1.19 offset=192
+# converter=4 chunk=32 block=4 rate=1.71 offset=224
+# converter=4 chunk=32 block=5 rate=0.55 offset=224
+# converter=4 chunk=32 block=6 rate=0.83 offset=288
+# converter=4 chunk=32 block=7 rate=1.00 offset=320
+# converter=4 chunk=32 block=8 rate=1.19 offset=352
+# converter=4 chunk=32 block=9 rate=1.71 offset=384
+# converter=4 chunk=32 block=10 rate=0.55 offset=416
+# converter=4 chunk=32 block=11 rate=0.83 offset=448
+# converter=4 chunk=32 block=12 rate=1.00 offset=480
+# converter=4 chunk=32 block=13 rate=1.19 offset=512
+# converter=4 chunk=32 block=14 rate=1.71 offset=544
+# converter=4 chunk=32 block=15 rate=0.55 offset=576
+ok 8 /mcpx/apu/resampler/linear/streaming-equivalence
+ok 9 /mcpx/apu/resampler/linear/channel-change
+ok 10 /mcpx/apu/resampler/linear/full-reset
+# End of linear tests
+# End of resampler tests
+# End of apu tests
+# End of mcpx tests

@@ -1,0 +1,1 @@
+Initial macOS x86_64 debug job111489720484 failed at tar extraction before compilation on workflow37220293118. Downloaded identical source archive lists successfully locally. Same-head failed/cancelled-job retry passes20/20; push37220289991 also20/20. No source or workflow change was needed. Original failure retained in Actions attempt1.
