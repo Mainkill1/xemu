@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "selectedRows": 342,
+  "perHostSelected": 171,
+  "bothSidesUnavailableExplicitRows": 12,
+  "inventedTimes": 0,
+  "availableParentTailMetadataVerifiedAgainstRaw": 11,
+  "tailHashesMatch": 11,
+  "regressionBefore": "Incomplete-row export lost available parent hash; tail falsely compared against None",
+  "after": "Preserve each available side metadata; missing evidence never becomes false hash parity; original failedcampaign unchanged"
+}

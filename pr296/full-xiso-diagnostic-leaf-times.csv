@@ -310,6 +310,18 @@ win,surface.vulkan_memory_pressure.stress.idle_retention,593.25,607.5,14.25,-2.4
 win,surface.vulkan_memory_pressure.stress.plateau,48654,47929.25,-724.75,1.4896000328852714,True,failed,failed,PASS,PASS,True,2936a367d6aa6725,2936a367d6aa6725,True,769bf225e8cc48d5,778471,766872,18614.4323,18214.6657
 win,surface.vulkan_memory_pressure.stress.reuse,53249.5,53075.5,-174.0,0.32676363158339516,True,failed,failed,PASS,PASS,True,12e4fbb929c6c725,12e4fbb929c6c725,True,837b6a123bb12a09,852002,849216,18614.4323,18214.6657
 win,texture_cubemap_fallback.bordered_palette_size1,16649.25,16639.25,-10.0,0.060062765590041596,True,not evaluated,not evaluated,FAIL,FAIL,True,56d00ed89334a325,56d00ed89334a325,True,,532789,532463,27482.9367,27017.6958
+win,texture_cubemap_fallback.bordered_palette_size2,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_palette_size4,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_palette_size8,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_r6g5b5_size1,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_r6g5b5_size2,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_r6g5b5_size4,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_r6g5b5_size8,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_rgba8_size1,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_rgba8_size2,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_rgba8_size4,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.bordered_rgba8_size8,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
+win,texture_cubemap_fallback.unbordered_subblock_dxt1,,,,,,unavailable,unavailable,unavailable,unavailable,True,,,,,,,,
 win,tiny_draw.arrays.fixed_function,34176.7,32776.2,-1400.5,4.09782103011701,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,5636eabc173a3691,1367074,1311064,21074.6425,20728.4852
 win,tiny_draw.arrays.vertex_shader,23736.5,23319.1,-417.40000000000146,1.7584732374191707,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,5528df4b56e8f75d,949477,932778,21074.6425,20728.4852
 win,tiny_draw.inline_arrays.fixed_function,29482,28742.8,-739.2000000000007,2.507292585306291,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,24f378fc9981dad5,1179291,1149726,21074.6425,20728.4852
@@ -318,14 +330,14 @@ win,tiny_draw.inline_buffers.fixed_function,18278.2,17732.6,-545.6000000000022,2
 win,tiny_draw.inline_buffers.vertex_shader,18343.4,17789.4,-554.0,3.020159839506307,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,98123d79a8ae06a5,733750,711593,21074.6425,20728.4852
 win,tiny_draw.inline_elements.fixed_function,23375.4,23151.8,-223.60000000000218,0.9565611711457437,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,cd0e5481b375a40d,935031,926094,21074.6425,20728.4852
 win,tiny_draw.inline_elements.vertex_shader,23589.6,23386.6,-203.0,0.8605487163834911,True,failed,failed,PASS,PASS,True,acf025546cf667b5,acf025546cf667b5,True,0539f844d85cc73d,943595,935476,21074.6425,20728.4852
-win,uniform_thrash.uniform_thrash,1707.1,,,,,failed,unavailable,PASS,unavailable,True,,,,e643e886c2ebbdd5,,,,
-win,vertex_buffer_allocation.disjoint_same_page,30859.1,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,d93bb411fee61f6d,,,,
-win,vertex_buffer_allocation.mixed.arrays,30092,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.mixed.inline_arrays,222758.1,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.mixed.inline_buffers,645733.4,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.mixed.inline_elements,32719.9,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.rising_transient_growth,665953,,,,,not evaluated,unavailable,PASS,unavailable,False,,,,,,,,
-win,vertex_buffer_allocation.tiny.arrays,33529.7,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.tiny.inline_arrays,36565.8,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.tiny.inline_buffers,36419.8,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
-win,vertex_buffer_allocation.tiny.inline_elements,33636.2,,,,,not evaluated,unavailable,PASS,unavailable,True,,,,377e6c029807f325,,,,
+win,uniform_thrash.uniform_thrash,1707.1,,,,,failed,unavailable,PASS,unavailable,True,09eb5907ef624c25,,,e643e886c2ebbdd5,68300,,12101.6139,
+win,vertex_buffer_allocation.disjoint_same_page,30859.1,,,,,not evaluated,unavailable,PASS,unavailable,True,fdcd25a37910bb25,,,d93bb411fee61f6d,1234377,,64837.964,
+win,vertex_buffer_allocation.mixed.arrays,30092,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1203699,,64837.964,
+win,vertex_buffer_allocation.mixed.inline_arrays,222758.1,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,8910345,,64837.964,
+win,vertex_buffer_allocation.mixed.inline_buffers,645733.4,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,25829347,,64837.964,
+win,vertex_buffer_allocation.mixed.inline_elements,32719.9,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1308810,,64837.964,
+win,vertex_buffer_allocation.rising_transient_growth,665953,,,,,not evaluated,unavailable,PASS,unavailable,False,377e6c029807f325,,,,2663815,,64837.964,
+win,vertex_buffer_allocation.tiny.arrays,33529.7,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1341206,,64837.964,
+win,vertex_buffer_allocation.tiny.inline_arrays,36565.8,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1462639,,64837.964,
+win,vertex_buffer_allocation.tiny.inline_buffers,36419.8,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1456810,,64837.964,
+win,vertex_buffer_allocation.tiny.inline_elements,33636.2,,,,,not evaluated,unavailable,PASS,unavailable,True,377e6c029807f325,,,377e6c029807f325,1345461,,64837.964,
