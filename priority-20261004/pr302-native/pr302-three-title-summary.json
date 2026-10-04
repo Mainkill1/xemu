@@ -100,7 +100,9 @@
         "ABBA": -4.035308953341739,
         "BAAB": -3.181618813050382
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
@@ -203,43 +205,173 @@
         "ABBA": 4.37121968575331,
         "BAAB": 1.3905290736323475
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
     "title": "pgr2",
-    "attempted": 3,
-    "completed": 3,
+    "attempted": 6,
+    "completed": 5,
     "completeOrder": false,
-    "runnerEligible": 3,
+    "runnerEligible": 5,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {}
+    "metrics": {},
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-230418583-fa7debe565944aeea96b22d493adaa40",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 4,
+            "variant": "parent",
+            "request": "pr302-deck-pgr2-balanced-04-parent-v2-t001",
+            "runId": "20261004-230418583-fa7debe565944aeea96b22d493adaa40",
+            "runnerCorrectness": "passed",
+            "manualScene": "recording start: opening movie; recording end: PGR2 title/Press Start",
+            "interpretation": "Invalid matched parked-start comparison despite runner visibility PASS. Preserve canonical status/metrics; not a candidate regression. Remaining scheduled inputs unchanged."
+          }
+        ]
+      },
+      {
+        "runId": "20261004-230923960-37c5bebc6a0d4ac2aabcf57ee0b986b4",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 6,
+            "variant": "parent",
+            "runId": "20261004-230923960-37c5bebc6a0d4ac2aabcf57ee0b986b4",
+            "manualQualification": "START_FAILED: xemu was never launched",
+            "cause": "SharedReadOnlyInputs.HashAsync canceled during launch preparation after23.03s; processId/exitCode null; not an emulator crash or measured performance run."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true
   },
   {
     "host": "win",
     "title": "morrowind",
-    "attempted": 8,
-    "completed": 7,
-    "completeOrder": false,
+    "attempted": 9,
+    "completed": 8,
+    "completeOrder": true,
     "runnerEligible": 0,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": null,
-    "metrics": {}
+    "metrics": {
+      "cpu": {
+        "A": 281.15760655737705,
+        "B": 285.31096721311485,
+        "improvementPercent": -1.4772357421139894,
+        "rangeA": [
+          270.7530491803278,
+          285.22245901639343
+        ],
+        "rangeB": [
+          271.55608333333333,
+          288.7068852459015
+        ],
+        "ABBA": -2.6765991684620807,
+        "BAAB": 0.4054675650135766
+      },
+      "guestFlipCadence": {
+        "A": 32.024034702243334,
+        "B": 32.08277811785183,
+        "improvementPercent": 0.18343539830220595,
+        "rangeA": [
+          31.15536234981233,
+          32.27409024465955
+        ],
+        "rangeB": [
+          31.49656843090563,
+          32.574770975607606
+        ],
+        "ABBA": 1.011969654137137,
+        "BAAB": 0.18343539830220595
+      },
+      "avgFrameMs": {
+        "A": 31.116817237538292,
+        "B": 31.150383984093,
+        "improvementPercent": -0.10787332874846356,
+        "rangeA": [
+          30.82614180024662,
+          32.13524133504493
+        ],
+        "rangeB": [
+          30.712582309582267,
+          31.787744599745864
+        ],
+        "ABBA": 0.7322841446680204,
+        "BAAB": -0.10787332874846356
+      },
+      "p95FrameMs": {
+        "A": 41.691725000000005,
+        "B": 33.767799999999994,
+        "improvementPercent": 19.005989797735666,
+        "rangeA": [
+          33.7,
+          49.8306
+        ],
+        "rangeB": [
+          33.67055,
+          49.8212
+        ],
+        "ABBA": -0.01676032495876961,
+        "BAAB": 19.06937167987174
+      },
+      "p99FrameMs": {
+        "A": 50.035309999999996,
+        "B": 50.046265000000005,
+        "improvementPercent": -0.0218945380772295,
+        "rangeA": [
+          50.0109,
+          50.09639
+        ],
+        "rangeB": [
+          50.0402,
+          50.1194
+        ],
+        "ABBA": -0.10354489097255976,
+        "BAAB": 0.029356231526866904
+      },
+      "maxFrameMs": {
+        "A": 50.3365,
+        "B": 50.293499999999995,
+        "improvementPercent": 0.08542508915003301,
+        "rangeA": [
+          50.234,
+          66.2
+        ],
+        "rangeB": [
+          50.184,
+          66.655
+        ],
+        "ABBA": -16.301115056747527,
+        "BAAB": 13.78437730540259
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "win",
     "title": "conker",
-    "attempted": 1,
-    "completed": 0,
+    "attempted": 7,
+    "completed": 6,
     "completeOrder": false,
-    "runnerEligible": 0,
+    "runnerEligible": 6,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": null,
-    "metrics": {}
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "win",
@@ -251,6 +383,8 @@
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {}
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   }
 ]

@@ -1,0 +1,22 @@
+[
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 4,
+    "variant": "parent",
+    "request": "pr302-deck-pgr2-balanced-04-parent-v2-t001",
+    "runId": "20261004-230418583-fa7debe565944aeea96b22d493adaa40",
+    "runnerCorrectness": "passed",
+    "manualScene": "recording start: opening movie; recording end: PGR2 title/Press Start",
+    "interpretation": "Invalid matched parked-start comparison despite runner visibility PASS. Preserve canonical status/metrics; not a candidate regression. Remaining scheduled inputs unchanged."
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 6,
+    "variant": "parent",
+    "runId": "20261004-230923960-37c5bebc6a0d4ac2aabcf57ee0b986b4",
+    "manualQualification": "START_FAILED: xemu was never launched",
+    "cause": "SharedReadOnlyInputs.HashAsync canceled during launch preparation after23.03s; processId/exitCode null; not an emulator crash or measured performance run."
+  }
+]
