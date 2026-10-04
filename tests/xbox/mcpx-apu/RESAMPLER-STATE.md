@@ -28,7 +28,10 @@ meson test --no-rebuild --print-errorlogs test-xbox-mcpx-apu-resampler-state tes
 ```
 
 The Meson fixture is currently Linux-only because it uses GNU linker wrapping.
-`--matrix` emits one row per case and a final summary. `--trace` additionally
+`--matrix` emits one result row per completed case and a final summary only
+when every case succeeds. Each cell prints and flushes its converter, payload,
+length and pitch to stderr before execution. A failed assertion stops the
+matrix; it is not a complete collection of outcomes for all 600 cells. `--trace` additionally
 emits a begin record, each callback, and each completed VP output block. There
 are 600 cases: two converters, four payloads, 15 finite source lengths and five
 pitches. Payloads are mono/stereo S16 PCM and mono/stereo IMA ADPCM. Lengths are
@@ -107,13 +110,43 @@ relaxed to convert the one-frame failure into a pass; the diagnostic is retained
 same production VP frame API. Its constructor-only linker wrapper selects sinc
 or linear before measured work; callbacks, sample fetch, worker dispatch and
 mixing are production code. It supports mono/stereo ADPCM and mono S16 PCM with
-1–16 workers. Each invocation warms 256 VP frames, checks the first measured
+a requested pool of 1–16 workers. The historical `--benchmark` route remains
+unchanged: muted sends use bin 31, which establishes a multipass group, so all
+45 voices run on worker 0. It is a grouped, one-busy-worker control, not an
+eight-way scaling result. `--benchmark-v2` uses muted non-multipass bin 2 and
+is a separately identified independent-voice workload. Each invocation warms 256 VP frames, checks the first measured
 frame, then reports elapsed microseconds and a fixed output checksum for the
 declared frame count. The timed region contains no tracing or per-frame output.
 
-The six registered throughput checks use sinc at one and eight workers.
-Linear throughput requires explicit `--benchmark linear` invocations; the
-finite-state matrix independently exercises both converters. Elapsed time
+Twelve grouped throughput checks cover both converters and one/eight-worker
+pools, plus two independent-v2 checks at eight workers and two distinct signed-PCM
+reduction checks comparing one and eight workers. The fourteen constant
+checks observe 132 frames after warmup and the probe, covering a full additional
+4096-sample loop at unity rate. Mono PCM and stereo ADPCM cross mapped pages;
+mono ADPCM's 2304 encoded bytes fit in one page. These bounds are not valid for
+arbitrary pitches.
+The signed-PCM checks reuse #200’s per-voice phase/amplitude pattern and require
+finite, non-silent output, matching independent cursors, silent unused bins and
+parallel reduction within 0.00002 of serial output (45 reordered FP additions).
+They inspect exactly-once membership on every untimed batch: sixteen VP
+frames, no warmup/probe, and 128-sample per-voice loops. Their cursor oracle
+uses independently requested input frames modulo 128.
+
+An untimed pre-broadcast probe inspects actual production queues under the
+dispatch mutex: every voice must occur exactly once and assigned counts and
+pending bits must match the grouped/independent profile. No scheduling probe
+runs in the measured region. Output reports requested/actual pools, busy
+workers and distribution.
+
+For the constant workloads, final CBO is compared with an independent libsamplerate callback's actual
+input consumption modulo 4096, including 256 warmups, one probe and all
+measured frames. That oracle bypasses the constructor override and never reads
+VP state; it is a fixture/library contract, not hardware timing. Constant IMA
+blocks are encoded-byte-cache hits after initial decoding, including across
+addresses. These ADPCM profiles measure fetch/SRC/mixing on cache hits, not
+decoder throughput. Changing-block decoder workloads belong to their owning
+optimization PRs. JSON also names converter/library, workload version, routing,
+pitch/ratio, warmup/probe/measured counts and timing scope. Elapsed time
 includes bin initialization, 32-bin validation and checksum arithmetic as
 well as VP processing. It is not isolated VP API execution time.
 
@@ -136,3 +169,18 @@ Before considering PR #189 ready, qualify its actual draining runtime and PCM,
 then use matching native builds/settings with fresh A/A and ABBA/BAAB. Loops,
 stream starvation/recovery, reuse, pause, reset, save/load and representative
 audio remain separate requirements; the 600 finite cases do not replace them.
+
+### Throughput negative control and independent profile
+
+```sh
+./test-xbox-mcpx-apu-resampler-throughput --benchmark-v2 sinc mono-pcm 20000 8
+./test-xbox-mcpx-apu-resampler-throughput --negative-page-boundary --tap -p /mcpx-apu/voice-frame/mono-pcm-worker1
+```
+
+The second deliberately redirects the next page to poison **after** warmup and
+the probe. Four checked frames miss this corruption; the full checked loop
+rejects it. Run negative controls separately, retaining their nonzero exits.
+A scoped production mutation dropping CBO stores is likewise rejected even
+when ACTIVE and output remain valid; matching cursors alone previously missed
+that failure. No emulator runtime, guest input, or approved game benchmark is
+modified by these fixture changes.

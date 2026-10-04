@@ -208,6 +208,10 @@ static MCPXAPUState *prepare(enum Payload payload, unsigned frames, int pitch)
 
 static void run_case(enum Payload payload, unsigned frames, int pitch)
 {
+    fprintf(stderr, "state case: converter=%s payload=%s frames=%u pitch=%d\n",
+            converter == SRC_LINEAR ? "linear" : "sinc",
+            payload_names[payload], frames, pitch);
+    fflush(stderr);
     MCPXAPUState *d = prepare(payload, frames, pitch);
     if (report_trace) {
         printf("{\"kind\":\"begin\",\"converter\":\"%s\","

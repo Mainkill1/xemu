@@ -4680,7 +4680,8 @@ foreach target : target_dirs
       include_directories: target_inc,
       link_depends: [block_syms, qemu_syms],
       link_args: link_args + ['-Wl,--wrap=main',
-                             '-Wl,--wrap=src_callback_new'],
+                             '-Wl,--wrap=src_callback_new',
+                             '-Wl,--wrap=qemu_cond_broadcast'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-resampler-throughput',
       resampler_throughput_test, args: ['--tap', '-k'], protocol: 'tap',

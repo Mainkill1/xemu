@@ -8,15 +8,62 @@
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
 
-/* This fixture drives the production VP API directly. It has no timer,
- * device frame thread, GP/EP DSP program, sound stream, ROM or renderer. */
+/*
+ * Drive the production VP API without a timer, device frame thread, GP/EP DSP
+ * program, sound stream, ROM or renderer.
+ */
 static MemoryRegion ram;
 static const hwaddr ram_base = 0x100000;
 static const unsigned voice_count = 45;
 static const unsigned first_voice = 64;
 static const unsigned warmup_frames = 256;
 static bool negative_silence;
+static bool negative_page_boundary;
 static int converter = SRC_SINC_FASTEST;
+static bool independent_profile;
+static MCPXAPUState *assignment_probe;
+static unsigned actual_pool, busy_workers;
+static unsigned distribution[MAX_VOICE_WORKERS];
+
+void __real_qemu_cond_broadcast(QemuCond *cond);
+void __wrap_qemu_cond_broadcast(QemuCond *cond);
+void __wrap_qemu_cond_broadcast(QemuCond *cond)
+{
+    if (assignment_probe &&
+        cond == &assignment_probe->vp.voice_work_dispatch.work_pending) {
+        /*
+         * Production dispatch owns its mutex; inspect before waking workers.
+         * Constant workloads probe once; signed checks probe every
+         * untimed batch.
+         */
+        VoiceWorkDispatch *vwd = &assignment_probe->vp.voice_work_dispatch;
+        bool seen[45] = { 0 };
+        actual_pool = vwd->num_workers;
+        busy_workers = 0;
+        for (unsigned w = 0; w < actual_pool; w++) {
+            VoiceWorker *worker = &vwd->workers[w];
+            unsigned expected = independent_profile ?
+                45 / actual_pool + (w < 45 % actual_pool) : (w == 0 ? 45 : 0);
+            distribution[w] = worker->queue_len;
+            g_assert_cmpuint(distribution[w], ==, expected);
+            busy_workers += worker->queue_len != 0;
+            for (int i = 0; i < worker->queue_len; i++) {
+                int id = worker->queue[i].voice - (int)first_voice;
+                g_assert_cmpint(id, >=, 0);
+                g_assert_cmpint(id, <, 45);
+                g_assert_false(seen[id]);
+                seen[id] = true;
+            }
+        }
+        for (unsigned i = 0; i < 45; i++) {
+            g_assert_true(seen[i]);
+        }
+        g_assert_cmpuint(vwd->workers_pending, ==,
+                         (UINT64_C(1) << busy_workers) - 1);
+        assignment_probe = NULL;
+    }
+    __real_qemu_cond_broadcast(cond);
+}
 
 enum Payload { MONO_ADPCM, STEREO_ADPCM, MONO_PCM };
 
@@ -27,9 +74,13 @@ SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
 SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
                                    int channels, int *error, void *opaque)
 {
+    #ifdef MCPX_TEST_RESAMPLER_SELECTOR
+    g_assert_cmpint(type, ==, converter);
+#else
     g_assert_cmpint(type, ==, SRC_SINC_FASTEST);
-    return __real_src_callback_new(callback, converter, channels, error,
-                                   opaque);
+    type = converter;
+#endif
+    return __real_src_callback_new(callback, type, channels, error, opaque);
 }
 
 static void set_voice_field(uint8_t *voice, unsigned offset, uint32_t mask,
@@ -48,6 +99,7 @@ static MCPXAPUState *prepare_voice_frame(enum Payload payload, unsigned workers)
     bool stereo = payload == STEREO_ADPCM;
     bool pcm = payload == MONO_PCM;
     unsigned block_bytes = stereo ? 72 : 36;
+    unsigned unused_bin = independent_profile ? 2 : 31;
     /* Three logical pages map to physical pages 0/2/4; holes are poison. */
     memset(data + 0x9000, 0xa5, 5 * 4096);
     for (unsigned page = 0; page < 3; page++) {
@@ -68,11 +120,11 @@ static MCPXAPUState *prepare_voice_frame(enum Payload payload, unsigned workers)
     for (unsigned i = 0; i < voice_count; i++) {
         uint8_t *voice = data + (first_voice + i) * NV_PAVS_SIZE;
         /* Bin 0 takes left, bin 1 takes right; all other sends are muted. */
-        stl_le_p(voice + NV_PAVS_VOICE_CFG_VBIN, (1U << 5) | (31U << 10) |
-                                                     (31U << 16) | (31U << 21) |
-                                                     (31U << 26));
+        stl_le_p(voice + NV_PAVS_VOICE_CFG_VBIN,
+                 (1U << 5) | (unused_bin << 10) | (unused_bin << 16) |
+                 (unused_bin << 21) | (unused_bin << 26));
         stl_le_p(voice + NV_PAVS_VOICE_CFG_FMT,
-                 31U | (31U << 5) | NV_PAVS_VOICE_CFG_FMT_LOOP);
+                 unused_bin | (unused_bin << 5) | NV_PAVS_VOICE_CFG_FMT_LOOP);
         set_voice_field(voice, NV_PAVS_VOICE_CFG_FMT,
                         NV_PAVS_VOICE_CFG_FMT_STEREO, stereo);
         set_voice_field(voice, NV_PAVS_VOICE_CFG_FMT,
@@ -103,6 +155,10 @@ static MCPXAPUState *prepare_voice_frame(enum Payload payload, unsigned workers)
     d->monitor.point =
         negative_silence ? MCPX_APU_DEBUG_MON_VP : MCPX_APU_DEBUG_MON_GP_OR_EP;
     g_config.audio.vp.num_workers = workers;
+#ifdef MCPX_TEST_RESAMPLER_SELECTOR
+    g_config.audio.vp.resampler = converter == SRC_LINEAR ?
+        CONFIG_AUDIO_VP_RESAMPLER_LINEAR : CONFIG_AUDIO_VP_RESAMPLER_SINC;
+#endif
     mcpx_apu_vp_init(d);
     return d;
 }
@@ -137,10 +193,48 @@ static uint64_t run_voice_frame(MCPXAPUState *d, enum Payload payload,
     return checksum;
 }
 
+typedef struct ProgressOracle {
+    uint64_t supplied_frames;
+    float input[NUM_SAMPLES_PER_FRAME * 2];
+} ProgressOracle;
+
+static long oracle_input(void *opaque, float **data)
+{
+    ProgressOracle *oracle = opaque;
+    *data = oracle->input;
+    oracle->supplied_frames += NUM_SAMPLES_PER_FRAME;
+    return NUM_SAMPLES_PER_FRAME;
+}
+
+static uint32_t expected_buffer_offset(int channels, uint64_t vp_frames)
+{
+    /*
+     * Independent SRC callback: no guest cursor or VP reader is consulted.
+     * Count actual input requests, including converter-specific read-ahead.
+     */
+    ProgressOracle oracle = { 0 };
+    for (unsigned i = 0; i < ARRAY_SIZE(oracle.input); i++) {
+        oracle.input[i] = 0.125f;
+    }
+    int error;
+    SRC_STATE *src = __real_src_callback_new(oracle_input, converter, channels,
+                                            &error, &oracle);
+    g_assert_nonnull(src);
+    g_assert_cmpint(error, ==, 0);
+    for (uint64_t i = 0; i < vp_frames; i++) {
+        float output[NUM_SAMPLES_PER_FRAME * 2];
+        g_assert_cmpint(src_callback_read(src, 1.0, NUM_SAMPLES_PER_FRAME,
+                                         output), ==, NUM_SAMPLES_PER_FRAME);
+    }
+    src_delete(src);
+    return oracle.supplied_frames % 4096;
+}
+
 static void run_workload(enum Payload payload, unsigned workers,
                          uint64_t frames, bool report)
 {
     MCPXAPUState *d = prepare_voice_frame(payload, workers);
+    assignment_probe = d;
     double max_error = 0;
     for (unsigned i = 0; i < warmup_frames; i++) {
         run_voice_frame(d, payload, &max_error);
@@ -150,6 +244,14 @@ static void run_workload(enum Payload payload, unsigned workers,
     uint64_t checksum = run_voice_frame(d, payload, &max_error);
     g_assert_cmpuint(checksum, ==, 184320);
     g_assert_cmpfloat(max_error * 8388608.0, <=, 32);
+    if (negative_page_boundary) {
+        /*
+         * Corrupt only the next logical page after all warmup/probe work.
+         * Four checked frames cannot reach it; a full checked loop must.
+         */
+        uint8_t *data = memory_region_get_ram_ptr(&ram);
+        stl_le_p(data + 0x8000 + 8, ram_base + 0xa000);
+    }
     max_error = 0;
     checksum = 0;
     int64_t started = g_get_monotonic_time();
@@ -159,13 +261,10 @@ static void run_workload(enum Payload payload, unsigned workers,
     int64_t elapsed = g_get_monotonic_time() - started;
     g_assert_cmpuint(checksum, ==, frames * 184320);
     g_assert_cmpfloat(max_error * 8388608.0, <=, 32);
-    unsigned processed = 0;
-    for (unsigned i = 0; i < workers; i++) {
-        processed += g_dbg.vp.workers[i].num_voices;
-    }
-    g_assert_cmpuint(processed, ==, voice_count);
     mcpx_apu_vp_finalize(d);
     uint8_t *data = memory_region_get_ram_ptr(&ram);
+    uint32_t expected_cbo = expected_buffer_offset(
+        payload == STEREO_ADPCM ? 2 : 1, warmup_frames + 1 + frames);
     uint32_t final_cbo =
         ldl_le_p(data + first_voice * NV_PAVS_SIZE + NV_PAVS_VOICE_PAR_OFFSET) &
         0xffffff;
@@ -174,7 +273,7 @@ static void run_workload(enum Payload payload, unsigned workers,
         g_assert_true(ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE) &
                       NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
         g_assert_cmpuint(ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff,
-                         ==, final_cbo);
+                         ==, expected_cbo);
     }
     for (unsigned page = 1; page <= 3; page += 2) {
         for (unsigned i = 0; i < 4096; i++) {
@@ -188,34 +287,121 @@ static void run_workload(enum Payload payload, unsigned workers,
                "\"warmup_frames\":256,\"frames\":%" PRIu64 ","
                "\"samples_per_voice_frame\":32,\"elapsed_us\":%" PRId64 ","
                "\"checksum\":%" PRIu64 ",\"expected_checksum\":%" PRIu64 ","
-               "\"final_cbo\":%u,"
-               "\"maximum_error_24bit_units\":%.9g,\"correctness\":\"PASS\"}\n",
+               "\"final_cbo\":%u,\"expected_cbo\":%u,"
+               "\"workload_version\":%u,\"routing\":\"%s\","
+               "\"actual_workers\":%u,\"busy_workers\":%u,"
+               "\"probe_frames\":1,\"pitch\":0,\"ratio\":1,"
+               "\"adpcm_decode\":\"%s\",\"library\":\"%s\","
+               "\"timing_scope\":\"VP+clear+validation+checksum\","
+               "\"distribution\":[",
                converter == SRC_LINEAR ? "linear" : "sinc",
                payload == MONO_PCM     ? "mono-pcm" :
                payload == STEREO_ADPCM ? "stereo-adpcm" :
                                          "mono-adpcm",
                workers, frames, elapsed, checksum, frames * 184320, final_cbo,
-               max_error * 8388608.0);
+               expected_cbo, independent_profile ? 2 : 1,
+               independent_profile ? "independent" : "grouped-one-busy-worker",
+               actual_pool, busy_workers, payload == MONO_PCM ? "N/A" :
+                   "encoded-byte-cache-hit", src_get_version());
+        for (unsigned w = 0; w < actual_pool; w++) {
+            printf("%s%u", w ? "," : "", distribution[w]);
+        }
+        printf("],\"maximum_error_24bit_units\":%.9g,"
+               "\"correctness\":\"PASS\"}\n", max_error * 8388608.0);
     }
 }
 
 static void test_voice_frame(gconstpointer opaque)
 {
     unsigned variant = GPOINTER_TO_UINT(opaque);
-    run_workload(variant % 3, variant < 3 ? 1 : 8, 4, false);
+    converter = variant < 6 ? SRC_SINC_FASTEST : SRC_LINEAR;
+    variant %= 6;
+    run_workload(variant % 3, variant < 3 ? 1 : 8, 132, false);
+}
+
+static void test_independent_workers(gconstpointer opaque)
+{
+    independent_profile = true;
+    converter = GPOINTER_TO_UINT(opaque) ? SRC_LINEAR : SRC_SINC_FASTEST;
+    run_workload(MONO_PCM, 8, 132, false);
+    independent_profile = false;
+}
+
+/* Independent queues also need a reduction check with nonidentical voices. */
+static void test_signed_reduction(gconstpointer opaque)
+{
+    float reference[16][2][NUM_SAMPLES_PER_FRAME];
+    const unsigned pools[] = { 1, 8 };
+    converter = GPOINTER_TO_UINT(opaque) ? SRC_LINEAR : SRC_SINC_FASTEST;
+    independent_profile = true;
+    for (unsigned r = 0; r < ARRAY_SIZE(pools); r++) {
+        MCPXAPUState *d = prepare_voice_frame(MONO_PCM, pools[r]);
+        uint8_t *data = memory_region_get_ram_ptr(&ram);
+        d->vp.submix_headroom[0] = d->vp.submix_headroom[1] = 0;
+        for (unsigned v = 0; v < voice_count; v++) {
+            uint8_t *voice = data + (first_voice + v) * NV_PAVS_SIZE;
+            set_voice_field(voice, NV_PAVS_VOICE_CUR_PSL_START,
+                            NV_PAVS_VOICE_CUR_PSL_START_BA, v * 256);
+            set_voice_field(voice, NV_PAVS_VOICE_PAR_NEXT,
+                            NV_PAVS_VOICE_PAR_NEXT_EBO, 127);
+            for (unsigned sample = 0; sample < 128; sample++) {
+                int sign = (sample + v * 3) % 128 < 64 ? 1 : -1;
+                unsigned offset = v * 256 + sample * 2;
+                stw_le_p(data + 0x9000 + offset / 4096 * 8192 + offset % 4096,
+                         (uint16_t)(sign * (32000 - v * 71)));
+            }
+        }
+        float peak = 0;
+        for (unsigned frame = 0; frame < ARRAY_SIZE(reference); frame++) {
+            float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+            /* Untimed, exactly-once membership per batch. */
+            assignment_probe = d;
+            mcpx_apu_vp_frame(d, bins);
+            for (unsigned b = 0; b < NUM_MIXBINS; b++) {
+                for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
+                    g_assert_true(isfinite(bins[b][i]));
+                    if (b < 2) {
+                        peak = fmaxf(peak, fabsf(bins[b][i]));
+                        if (!r) {
+                            reference[frame][b][i] = bins[b][i];
+                        } else {
+                            /* Forty-five FP additions in different orders. */
+                            g_assert_cmpfloat_with_epsilon(
+                                bins[b][i], reference[frame][b][i], 0.00002f);
+                        }
+                    } else {
+                        g_assert_cmpfloat(bins[b][i], ==, 0);
+                    }
+                }
+            }
+        }
+        g_assert_cmpfloat(peak, >, 0.9f);
+        mcpx_apu_vp_finalize(d);
+        uint32_t expected_cbo = expected_buffer_offset(1, 16) % 128;
+        for (unsigned v = 0; v < voice_count; v++) {
+            uint8_t *voice = data + (first_voice + v) * NV_PAVS_SIZE;
+            g_assert_cmpuint(ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) &
+                             0xffffff, ==, expected_cbo);
+        }
+        g_free(d);
+    }
+    independent_profile = false;
 }
 
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
-    bool benchmark = argc > 1 && !strcmp(argv[1], "--benchmark");
+    bool benchmark = argc > 1 &&
+        (!strcmp(argv[1], "--benchmark") ||
+         !strcmp(argv[1], "--benchmark-v2"));
+    independent_profile = benchmark && !strcmp(argv[1], "--benchmark-v2");
     enum Payload payload = MONO_ADPCM;
     uint64_t frames = 0, workers = 0;
     if (benchmark) {
         if (argc != 6 || qemu_strtou64(argv[4], NULL, 10, &frames) ||
             qemu_strtou64(argv[5], NULL, 10, &workers) || !frames ||
             frames > 1000000 || !workers || workers > MAX_VOICE_WORKERS) {
-            fprintf(stderr, "usage: --benchmark sinc|linear "
+            fprintf(stderr, "usage: --benchmark[-v2] sinc|linear "
                             "mono-adpcm|stereo-adpcm|mono-pcm "
                             "frames(1..1000000) workers(1..16)\n");
             return 2;
@@ -235,8 +421,11 @@ int __wrap_main(int argc, char **argv)
             return 2;
         }
     } else {
-        if (argc > 1 && !strcmp(argv[1], "--negative-silence")) {
-            negative_silence = true;
+        if (argc > 1 && (!strcmp(argv[1], "--negative-silence") ||
+                         !strcmp(argv[1], "--negative-page-boundary"))) {
+            negative_silence = !strcmp(argv[1], "--negative-silence");
+            negative_page_boundary =
+                !strcmp(argv[1], "--negative-page-boundary");
             memmove(argv + 1, argv + 2, (argc - 1) * sizeof(*argv));
             argc--;
         }
@@ -264,9 +453,23 @@ int __wrap_main(int argc, char **argv)
         "/mcpx-apu/voice-frame/mono-adpcm-worker8",
         "/mcpx-apu/voice-frame/stereo-adpcm-worker8",
         "/mcpx-apu/voice-frame/mono-pcm-worker8",
+        "/mcpx-apu/voice-frame/linear/mono-adpcm-worker1",
+        "/mcpx-apu/voice-frame/linear/stereo-adpcm-worker1",
+        "/mcpx-apu/voice-frame/linear/mono-pcm-worker1",
+        "/mcpx-apu/voice-frame/linear/mono-adpcm-worker8",
+        "/mcpx-apu/voice-frame/linear/stereo-adpcm-worker8",
+        "/mcpx-apu/voice-frame/linear/mono-pcm-worker8",
     };
     for (unsigned i = 0; i < ARRAY_SIZE(names); i++) {
         g_test_add_data_func(names[i], GUINT_TO_POINTER(i), test_voice_frame);
     }
+    g_test_add_data_func("/mcpx-apu/voice-frame/independent-v2/sinc",
+                         GUINT_TO_POINTER(0), test_independent_workers);
+    g_test_add_data_func("/mcpx-apu/voice-frame/independent-v2/linear",
+                         GUINT_TO_POINTER(1), test_independent_workers);
+    g_test_add_data_func("/mcpx-apu/voice-frame/signed-reduction/sinc",
+                         GUINT_TO_POINTER(0), test_signed_reduction);
+    g_test_add_data_func("/mcpx-apu/voice-frame/signed-reduction/linear",
+                         GUINT_TO_POINTER(1), test_signed_reduction);
     return g_test_run();
 }
