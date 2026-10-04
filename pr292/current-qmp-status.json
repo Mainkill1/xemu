@@ -1,0 +1,7 @@
+{
+  "return": {
+    "status": "paused",
+    "running": false
+  },
+  "id": "query-status"
+}
