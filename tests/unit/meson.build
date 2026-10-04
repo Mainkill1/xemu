@@ -232,6 +232,7 @@ if vulkan.found()
       nv2a_vk_runtime_prod = declare_dependency(
         sources: config_target_h['i386-softmmu'],
         compile_args: [
+          '-DXBOX',
           '-DCOMPILING_PER_TARGET',
           '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
         ] + nv2a_vk_runtime_section_args,
