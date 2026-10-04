@@ -1,0 +1,14 @@
+xemu_version: 0.8.136-0-g00835a42f14e
+xemu_commit: 00835a42f14e21fd6aa823b07028f5d85b2fce49
+xemu_date: Sun Oct  4 00:49:40 UTC 2026
+xemu_settings_set_path: config path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f/diagnostics/run-state/effective-live.toml
+CPU: AMD Custom APU 0405
+OS_Version: SteamOS
+GL_VENDOR: AMD
+GL_RENDERER: AMD Custom GPU 0405 (radeonsi, vangogh, LLVM 20.1.8, DRM 3.64, 6.16.12-valve24.5-1-neptune-616-gb2f7cfe85e45)
+GL_VERSION: 4.6 (Core Profile) Mesa 25.3.0 (git-59b552c765)
+GL_SHADING_LANGUAGE_VERSION: 4.60
+GL geometry shader winding: 0, 0, 0, 0
+2026-10-04T01:18:33.952449Z xemu: info: MCPX APU voice resampler: requested=linear effective=Linear Interpolator libsamplerate=libsamplerate-0.2.2 (c) 2002-2008 Erik de Castro Lopo
+xemu_settings_get_base_path: base path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-pr189-008-deck-linear-gl-mw-09-linear-v1-t001/
+2026-10-04T01:19:16.591318Z xemu: GLib: g_source_destroy: assertion 'g_atomic_int_get (&source->ref_count) > 0' failed

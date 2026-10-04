@@ -33,3 +33,11 @@ Corrected worker screen:45independent voices across1/2/4/8busy workers, old all-
 PCM numeric summaries retain two correctly configured Deck diagnostics, verified sinc/linear, non-silent/no-clipping PCM before/after active full-VM save/load. Windows also restores both modes with actual startup mode confirmation. PCM recordings are private. Recorderwall8s produced294912frames (6.144s at48kHz). After-capture starts5seconds after load: sinc contains a48ms stereo-silent interval within that later capture; this does not prove a48ms gap exactly at restore. No listening-quality or continuity qualification is claimed. Host filter history is not serialized; final-only impulse behavior and ratio-dependent synthetic guard output remain documented limits.
 
 No firmware, commercial game resource bytes, binaries, snapshots or PCM payloads are in this evidence branch. Remaining full native renderer/title qualification, final-stack CI and accepted XISO before/after timing gates prevent a MERGE recommendation at this checkpoint.
+
+## Integrated native follow-up
+
+`integrated-canonical-per-run-results.csv` adds 48 actual runs: #189 current-head OpenGL sinc/linear Morrowind (12 per host) and the independent #305 main/candidate Vulkan Morrowind (12 per host). Their per-run canonical reports and numeric telemetry are under the matching `*-integrated` directories. Procedures are unchanged, with four A/A runs followed by ABBA/BAAB. Deck is comparison-eligible; Windows remains cache-ineligible.
+
+#189 exact-head Deck OpenGL has mixed secondary medians: CPU183.877→176.703% (+3.90%), cadence14.074→14.068/s, p9592.661→96.289ms (-3.91%), p99100.092→115.509ms (-15.40%). The #200 Auto4 OpenGL follow-up is in progress; no result is claimed for it here. #305 Deck secondary medians CPU223.763→220.297% (+1.55%), cadence12.619→12.530/s (-0.70%), average76.533→77.119ms (-0.77%), p99107.292→114.297ms (-6.53%), median maxima163.943→173.675ms (-5.93%). These distributions remain primary; mixed medians do not alone establish causation.
+
+Two original PGR2 Deck starts completed with runner PASS but failed manual scene qualification: measurement-start image is still the Hong Kong flyover, not the parked car. They are not accepted stationary benchmark evidence. Inputs, timings and measurement boundary were not changed. Screenshots remain private local evidence.

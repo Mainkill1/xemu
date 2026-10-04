@@ -1,0 +1,422 @@
+[
+  {
+    "cell": 1,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-01-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-01-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011200802-f7ea3c54f560496194def823e527f0b1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011200802-f7ea3c54f560496194def823e527f0b1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011200802-f7ea3c54f560496194def823e527f0b1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011200802-f7ea3c54f560496194def823e527f0b1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011200802-f7ea3c54f560496194def823e527f0b1/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-02-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-02-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011251026-ac36baff51a2429882b52c62fe3fe935",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011251026-ac36baff51a2429882b52c62fe3fe935?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011251026-ac36baff51a2429882b52c62fe3fe935",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011251026-ac36baff51a2429882b52c62fe3fe935/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011251026-ac36baff51a2429882b52c62fe3fe935/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-03-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-03-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011339897-44eb9af456e248f5a5dbe7498875d743",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011339897-44eb9af456e248f5a5dbe7498875d743?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011339897-44eb9af456e248f5a5dbe7498875d743",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011339897-44eb9af456e248f5a5dbe7498875d743/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011339897-44eb9af456e248f5a5dbe7498875d743/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-04-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-04-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011428923-df1cbecc83ac492e82334ffcc0c41322",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011428923-df1cbecc83ac492e82334ffcc0c41322?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011428923-df1cbecc83ac492e82334ffcc0c41322",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011428923-df1cbecc83ac492e82334ffcc0c41322/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011428923-df1cbecc83ac492e82334ffcc0c41322/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-05-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-05-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011517602-a6d3055e86784c7bbfdeac6e1c977df0",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011517602-a6d3055e86784c7bbfdeac6e1c977df0?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011517602-a6d3055e86784c7bbfdeac6e1c977df0",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011517602-a6d3055e86784c7bbfdeac6e1c977df0/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011517602-a6d3055e86784c7bbfdeac6e1c977df0/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-06-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-06-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011605805-c7f6a81eedfa46adb620868bc43c6a29",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011605805-c7f6a81eedfa46adb620868bc43c6a29?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011605805-c7f6a81eedfa46adb620868bc43c6a29",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011605805-c7f6a81eedfa46adb620868bc43c6a29/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011605805-c7f6a81eedfa46adb620868bc43c6a29/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-07-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-07-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011654385-2a83674864fd4edb9eb222cf70a73cf0",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011654385-2a83674864fd4edb9eb222cf70a73cf0?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011654385-2a83674864fd4edb9eb222cf70a73cf0",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011654385-2a83674864fd4edb9eb222cf70a73cf0/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011654385-2a83674864fd4edb9eb222cf70a73cf0/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-08-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-08-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-09-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-09-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011831385-f6ddd92bf53e436aba9726f9142bc50f/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-10-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-10-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011920431-cc7619778ecc4bf2b01355465411f6c7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011920431-cc7619778ecc4bf2b01355465411f6c7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011920431-cc7619778ecc4bf2b01355465411f6c7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-011920431-cc7619778ecc4bf2b01355465411f6c7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011920431-cc7619778ecc4bf2b01355465411f6c7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "sinc",
+    "request": "pr189-008-deck-linear-gl-mw-11-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-11-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012008788-010c54003ab94ce9a7515781da94d070",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012008788-010c54003ab94ce9a7515781da94d070?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012008788-010c54003ab94ce9a7515781da94d070",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012008788-010c54003ab94ce9a7515781da94d070/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012008788-010c54003ab94ce9a7515781da94d070/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "linear",
+    "request": "pr189-008-deck-linear-gl-mw-12-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-deck-linear-gl-mw-12-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012057755-98c7c79c5c7540299cb2df27077c9ea2",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012057755-98c7c79c5c7540299cb2df27077c9ea2?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012057755-98c7c79c5c7540299cb2df27077c9ea2",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012057755-98c7c79c5c7540299cb2df27077c9ea2/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012057755-98c7c79c5c7540299cb2df27077c9ea2/diagnostics"
+      }
+    }
+  }
+]

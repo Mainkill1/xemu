@@ -1,0 +1,422 @@
+[
+  {
+    "cell": 1,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-01-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-01-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012156265-e4eb49215ac84d549e01b733657c4c1a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012156265-e4eb49215ac84d549e01b733657c4c1a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012156265-e4eb49215ac84d549e01b733657c4c1a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012156265-e4eb49215ac84d549e01b733657c4c1a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012156265-e4eb49215ac84d549e01b733657c4c1a/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-02-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-02-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012246270-3f52cb29b56c4944998b205633439bdf",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012246270-3f52cb29b56c4944998b205633439bdf?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012246270-3f52cb29b56c4944998b205633439bdf",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012246270-3f52cb29b56c4944998b205633439bdf/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012246270-3f52cb29b56c4944998b205633439bdf/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-03-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-03-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012335975-a8e006cd1d064417b85ac81da7a8a03d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012335975-a8e006cd1d064417b85ac81da7a8a03d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012335975-a8e006cd1d064417b85ac81da7a8a03d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012335975-a8e006cd1d064417b85ac81da7a8a03d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012335975-a8e006cd1d064417b85ac81da7a8a03d/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-04-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-04-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012425722-31a3c9c341e74f448aafd882ab725190",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012425722-31a3c9c341e74f448aafd882ab725190?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012425722-31a3c9c341e74f448aafd882ab725190",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012425722-31a3c9c341e74f448aafd882ab725190/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012425722-31a3c9c341e74f448aafd882ab725190/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-05-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-05-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012515547-8205c4faeb564b54963f3645108fd8a1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012515547-8205c4faeb564b54963f3645108fd8a1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012515547-8205c4faeb564b54963f3645108fd8a1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012515547-8205c4faeb564b54963f3645108fd8a1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012515547-8205c4faeb564b54963f3645108fd8a1/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-06-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-06-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012606274-88751e08472240d7a2beb84302b0a0b1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012606274-88751e08472240d7a2beb84302b0a0b1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012606274-88751e08472240d7a2beb84302b0a0b1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012606274-88751e08472240d7a2beb84302b0a0b1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012606274-88751e08472240d7a2beb84302b0a0b1/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-07-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-07-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012656410-fe1541067f8d4752af0f437d2d94691b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012656410-fe1541067f8d4752af0f437d2d94691b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012656410-fe1541067f8d4752af0f437d2d94691b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012656410-fe1541067f8d4752af0f437d2d94691b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012656410-fe1541067f8d4752af0f437d2d94691b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-08-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-08-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012747367-364f3f360caa4d23b0d1d0d02cf8237f/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-09-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-09-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012836559-382f640d7dbc4bdc808f3dc2db81b098/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-10-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-10-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-012926262-532eea8bd3dd4ef4b5714a5dd1721827/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "main-sinc",
+    "request": "pr305-abd-deck-default-mw-11-main-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-11-main-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-013016846-5d76042bbab745e9aa283982b099da2f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-013016846-5d76042bbab745e9aa283982b099da2f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-013016846-5d76042bbab745e9aa283982b099da2f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-013016846-5d76042bbab745e9aa283982b099da2f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-013016846-5d76042bbab745e9aa283982b099da2f/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "sinc",
+    "request": "pr305-abd-deck-default-mw-12-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr305-abd-deck-default-mw-12-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-013106814-722e4d48b948450d87c88ffa0c8addf1",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-013106814-722e4d48b948450d87c88ffa0c8addf1?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-013106814-722e4d48b948450d87c88ffa0c8addf1",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-013106814-722e4d48b948450d87c88ffa0c8addf1/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-013106814-722e4d48b948450d87c88ffa0c8addf1/diagnostics"
+      }
+    }
+  }
+]

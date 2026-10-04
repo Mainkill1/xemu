@@ -1,0 +1,107 @@
+{
+  "available": true,
+  "runId": "20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01",
+  "code": null,
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "9f06c04e44d587f92eb3905827df9d93f0ad081bb4dac5e0cb1941f9c6abb34b",
+    "profile": {
+      "segment": "morrowind-user-scene",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": {
+      "segment": "morrowind-user-scene",
+      "rows": 62,
+      "missingCpuSamples": 0,
+      "missingDutySamples": 0,
+      "cpu": {
+        "count": 62,
+        "mean": 181.7025967741935,
+        "median": 182.0495,
+        "min": 155.938,
+        "max": 204.419,
+        "p95": 189.96245,
+        "p99": 198.30009
+      },
+      "collectorDuty": {
+        "count": 62,
+        "mean": 0.377483870967742,
+        "median": 0.3235,
+        "min": 0.222,
+        "max": 2.716,
+        "p95": 0.5197999999999998,
+        "p99": 1.4587900000000011
+      },
+      "overruns": 0
+    },
+    "flips": {
+      "samples": 5,
+      "frames": 355,
+      "elapsedUs": 25182277,
+      "cadenceFps": 14.097216069857383
+    },
+    "frames": {
+      "windowStartUs": 1080528332261,
+      "windowEndUs": 1080553332261,
+      "firstSampleUs": 1080528349884,
+      "lastSampleUs": 1080553332261,
+      "zeroIntervals": 0,
+      "intervalsMs": {
+        "count": 352,
+        "mean": 71.16140909090913,
+        "median": 66.6895,
+        "min": 48.81,
+        "max": 173.797,
+        "p95": 99.9167,
+        "p99": 100.1184
+      }
+    },
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 16907,
+        "sha256": "b4878faab748b55997490631c9965fd12ed6663bfabdf0616046ce453d83abd3",
+        "records": 86,
+        "ignoredRecords": 23
+      },
+      {
+        "path": "guest-flips.log",
+        "bytes": 280,
+        "sha256": "bfbb428ddd12e5cf055a026a2f523b7f1f40918508d4714588cb98286ce6f9af",
+        "records": 7,
+        "ignoredRecords": 0
+      },
+      {
+        "path": "guest-frames.log",
+        "bytes": 25752,
+        "sha256": "336cb97a91035393a8ee9a26d0abc32be81c174ee8c46b15afd82ecb0181f703",
+        "records": 497,
+        "ignoredRecords": 0
+      }
+    ],
+    "errors": [],
+    "complete": true
+  },
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "complete",
+    "comparison": "eligible"
+  },
+  "executableSha256": "36196bcbba83775dde98ecc5131b119f3129adf777352df16805b30ebb2a2929",
+  "launchExecutableSha256": "36196bcbba83775dde98ecc5131b119f3129adf777352df16805b30ebb2a2929",
+  "identityCode": null,
+  "cleanup": {
+    "state": "complete",
+    "files": 1,
+    "deletedFiles": 1,
+    "hddDeleted": true
+  },
+  "detail": "/api/v1/runs/20261004-011742725-c08e88a8bc1e46e8943000be6bd1af01?view=summary"
+}

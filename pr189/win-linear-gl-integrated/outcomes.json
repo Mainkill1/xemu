@@ -1,0 +1,518 @@
+[
+  {
+    "cell": 1,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-01-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-01-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010550894-6daa7598751547b38c411512072d6e61",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010550894-6daa7598751547b38c411512072d6e61?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010550894-6daa7598751547b38c411512072d6e61",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010550894-6daa7598751547b38c411512072d6e61/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010550894-6daa7598751547b38c411512072d6e61/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-02-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-02-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010639039-2bd40e3059d7458996afb8228fc85612",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010639039-2bd40e3059d7458996afb8228fc85612?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010639039-2bd40e3059d7458996afb8228fc85612",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010639039-2bd40e3059d7458996afb8228fc85612/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010639039-2bd40e3059d7458996afb8228fc85612/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-03-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-03-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010726761-9829cf30ecc041f4862296bc6f2e7301",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010726761-9829cf30ecc041f4862296bc6f2e7301?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010726761-9829cf30ecc041f4862296bc6f2e7301",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010726761-9829cf30ecc041f4862296bc6f2e7301/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010726761-9829cf30ecc041f4862296bc6f2e7301/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-04-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-04-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010814865-792c68e229b541939ed46c9f2714d4ab",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010814865-792c68e229b541939ed46c9f2714d4ab?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010814865-792c68e229b541939ed46c9f2714d4ab",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010814865-792c68e229b541939ed46c9f2714d4ab/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010814865-792c68e229b541939ed46c9f2714d4ab/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-05-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-05-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010902570-e3ef885c67a14b67b9e45f42163665ea",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010902570-e3ef885c67a14b67b9e45f42163665ea?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010902570-e3ef885c67a14b67b9e45f42163665ea",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010902570-e3ef885c67a14b67b9e45f42163665ea/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010902570-e3ef885c67a14b67b9e45f42163665ea/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-06-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-06-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-010950881-1ccb598d74424d52b8d7ffc89f599965",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-010950881-1ccb598d74424d52b8d7ffc89f599965?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-010950881-1ccb598d74424d52b8d7ffc89f599965",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-010950881-1ccb598d74424d52b8d7ffc89f599965/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-010950881-1ccb598d74424d52b8d7ffc89f599965/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-07-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-07-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011038509-338d20fd2d2340bda967b6aa61b7009a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011038509-338d20fd2d2340bda967b6aa61b7009a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011038509-338d20fd2d2340bda967b6aa61b7009a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011038509-338d20fd2d2340bda967b6aa61b7009a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011038509-338d20fd2d2340bda967b6aa61b7009a/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-08-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-08-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011126685-6101a283ad77477a8830626f6c7a8407",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011126685-6101a283ad77477a8830626f6c7a8407?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011126685-6101a283ad77477a8830626f6c7a8407",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011126685-6101a283ad77477a8830626f6c7a8407/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011126685-6101a283ad77477a8830626f6c7a8407/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 9,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-09-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-09-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011214373-efd8d05b1294407f99339d39048e7a74",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011214373-efd8d05b1294407f99339d39048e7a74?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011214373-efd8d05b1294407f99339d39048e7a74",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011214373-efd8d05b1294407f99339d39048e7a74/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011214373-efd8d05b1294407f99339d39048e7a74/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 10,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-10-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-10-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011302556-8130c1c9197c4ed8a30bb15366c2da9c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011302556-8130c1c9197c4ed8a30bb15366c2da9c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011302556-8130c1c9197c4ed8a30bb15366c2da9c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011302556-8130c1c9197c4ed8a30bb15366c2da9c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011302556-8130c1c9197c4ed8a30bb15366c2da9c/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 11,
+    "variant": "sinc",
+    "request": "pr189-008-win-linear-gl-mw-11-sinc-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-11-sinc-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011350233-2b5c69e9519c43dfbd2d5c8dacc83d0b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011350233-2b5c69e9519c43dfbd2d5c8dacc83d0b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011350233-2b5c69e9519c43dfbd2d5c8dacc83d0b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011350233-2b5c69e9519c43dfbd2d5c8dacc83d0b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011350233-2b5c69e9519c43dfbd2d5c8dacc83d0b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 12,
+    "variant": "linear",
+    "request": "pr189-008-win-linear-gl-mw-12-linear-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr189-008-win-linear-gl-mw-12-linear-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-011438343-cb19412272a04f0aa1a7efcd08ac0b2c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-011438343-cb19412272a04f0aa1a7efcd08ac0b2c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-011438343-cb19412272a04f0aa1a7efcd08ac0b2c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-011438343-cb19412272a04f0aa1a7efcd08ac0b2c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-011438343-cb19412272a04f0aa1a7efcd08ac0b2c/diagnostics"
+      }
+    }
+  }
+]

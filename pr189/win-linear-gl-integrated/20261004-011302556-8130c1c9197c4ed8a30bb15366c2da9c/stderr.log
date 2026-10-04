@@ -1,0 +1,14 @@
+xemu_version: 0.8.136-0-g00835a42f14e
+xemu_commit: 00835a42f14e21fd6aa823b07028f5d85b2fce49
+xemu_date: Sun Oct  4 00:53:26 UTC 2026
+xemu_settings_set_path: config path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-pr189-008-win-linear-gl-mw-10-sinc-v1-t001\xemu.toml
+CPU: AMD Ryzen 9 6900HX with Radeon Graphics        
+OS_Version:  22H2
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2
+GL_VERSION: 4.0.0 NVIDIA 581.95
+GL_SHADING_LANGUAGE_VERSION: 4.00 NVIDIA via Cg compiler
+GL geometry shader winding: 0, 0, 0, 0
+2026-10-04T01:13:04.627951Z C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-pr189-008-win-linear-gl-mw-10-sinc-v1-t001\xemu.exe: info: MCPX APU voice resampler: requested=sinc effective=Fastest Sinc Interpolator libsamplerate=libsamplerate-0.2.2 (c) 2002-2008 Erik de Castro Lopo
+xemu_settings_get_base_path: base path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-pr189-008-win-linear-gl-mw-10-sinc-v1-t001\
+2026-10-04T01:13:46.733448Z C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-pr189-008-win-linear-gl-mw-10-sinc-v1-t001\xemu.exe: GLib: g_source_destroy: assertion 'g_atomic_int_get (&source->ref_count) > 0' failed
