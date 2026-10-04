@@ -12,8 +12,8 @@
       "BAABimprovementPercent": 0.5182040970840979,
       "correctness": "passed",
       "attemptComparisonEligible": true,
-      "canonicalComparisonStatus": "ineligible",
-      "canonicalIndexedAttempts": 6,
+      "canonicalComparisonStatus": "inconclusive",
+      "canonicalIndexedAttempts": 8,
       "parentCandidateHashEqual": true,
       "parentHashes": [
         "6962077c244da325"
@@ -34,8 +34,8 @@
       "BAABimprovementPercent": 0.11323424536113864,
       "correctness": "passed",
       "attemptComparisonEligible": true,
-      "canonicalComparisonStatus": "ineligible",
-      "canonicalIndexedAttempts": 6,
+      "canonicalComparisonStatus": "inconclusive",
+      "canonicalIndexedAttempts": 8,
       "parentCandidateHashEqual": true,
       "parentHashes": [
         "6962077c244da325"
