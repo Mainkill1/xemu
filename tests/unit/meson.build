@@ -533,6 +533,10 @@ test('test-xemu-version', find_program('test-xemu-version.sh'),
 
 test('test-vk-perf-summary', python,
      args: [files('test-vk-perf-summary.py')], suite: ['unit'])
+if build_machine.system() == 'linux'
+  test('test-xemu-audio-state', python,
+       args: [files('test-xemu-audio-state.py')], suite: ['unit'])
+endif
 
 # This driver compiles small native API doubles, even during a cross build.
 if build_machine.system() in ['linux', 'darwin']
