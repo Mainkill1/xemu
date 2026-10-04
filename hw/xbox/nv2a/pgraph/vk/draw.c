@@ -1228,8 +1228,10 @@ static bool prepare_graphics_pipeline_recipe(PGRAPHState *pg,
                                         NV_PGRAPH_CONTROL_1_STENCIL_REF);
         uint32_t mask_read = GET_MASK(control_1_reg,
                                       NV_PGRAPH_CONTROL_1_STENCIL_MASK_READ);
-        uint32_t mask_write = GET_MASK(control_1_reg,
-                                       NV_PGRAPH_CONTROL_1_STENCIL_MASK_WRITE);
+        uint32_t mask_write =
+            (control_0_reg & NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE) ?
+                GET_MASK(control_1_reg,
+                         NV_PGRAPH_CONTROL_1_STENCIL_MASK_WRITE) : 0;
         uint32_t op_fail = GET_MASK(control_2_reg,
                                     NV_PGRAPH_CONTROL_2_STENCIL_OP_FAIL);
         uint32_t op_zfail = GET_MASK(control_2_reg,
