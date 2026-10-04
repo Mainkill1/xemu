@@ -175,6 +175,10 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-texture-allocation-trace': [
+      vma.partial_dependency(compile_args: true, includes: true),
+      vulkan.partial_dependency(compile_args: true, includes: true),
+    ],
     'test-xbox-vk-hybrid-prewarm': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm-runtime.c',
@@ -506,6 +510,12 @@ test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])
+
+# Offline readers require no target executable or graphics context.
+test('test-vk-perf-summary', python,
+     args: files('test-vk-perf-summary.py'), suite: ['unit'])
+test('test-vk-texture-allocation-summary', python,
+     args: files('test-vk-texture-allocation-summary.py'), suite: ['unit'])
 
 # This driver compiles small native API doubles, even during a cross build.
 if build_machine.system() in ['linux', 'darwin']
