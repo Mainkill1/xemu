@@ -1,0 +1,13 @@
+xemu_version: 0.8.136-0-g59e5a983ca9b
+xemu_commit: 59e5a983ca9b1d8ae87c4ed9615521c67aa1a873
+xemu_date: Sat Oct  3 20:07:07 UTC 2026
+xemu_settings_set_path: config path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Results\20261004-005717089-eae96df688904061b713f93d4733f4cc\diagnostics\run-state\effective-live.toml
+nvapi: Saved settings
+CPU: AMD Ryzen 9 6900HX with Radeon Graphics        
+OS_Version:  22H2
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2
+GL_VERSION: 4.0.0 NVIDIA 581.95
+GL_SHADING_LANGUAGE_VERSION: 4.00 NVIDIA via Cg compiler
+GL geometry shader winding: 0, 0, 0, 0
+xemu_settings_get_base_path: base path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-xc-pr189-main-win-full-control-v1-008\

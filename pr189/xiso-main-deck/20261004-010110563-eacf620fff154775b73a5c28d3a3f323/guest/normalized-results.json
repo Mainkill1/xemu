@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-010110563-eacf620fff154775b73a5c28d3a3f323",
+  "sourceSha256": "bf71d5e8a815ac001da69fffcc488f423ee1c894ffb2276fde32bd721871c599",
+  "records": [
+    {
+      "Id": "game_load.doax_menu_representative.cpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 28079.375,
+      "MedianUs": 30311.5,
+      "MinUs": 23533,
+      "MaxUs": 31242,
+      "P95Us": 31242
+    },
+    {
+      "Id": "game_load.doax_menu_representative.cpu_pfifo_gpu",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 72396,
+      "MedianUs": 70815,
+      "MinUs": 68073,
+      "MaxUs": 85875,
+      "P95Us": 85875
+    },
+    {
+      "Id": "game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 74071.5,
+      "MedianUs": 73591,
+      "MinUs": 71737,
+      "MaxUs": 77608,
+      "P95Us": 77608
+    },
+    {
+      "Id": "game_load.doax_menu_representative.full_system",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 75391.25,
+      "MedianUs": 75827.5,
+      "MinUs": 73172,
+      "MaxUs": 77286,
+      "P95Us": 77286
+    },
+    {
+      "Id": "game_load.doax_menu_representative.gpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 47608.25,
+      "MedianUs": 50585,
+      "MinUs": 39571,
+      "MaxUs": 55298,
+      "P95Us": 55298
+    },
+    {
+      "Id": "game_load.doax_menu_representative.pfifo_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 5962,
+      "MedianUs": 5957,
+      "MinUs": 5794,
+      "MaxUs": 6205,
+      "P95Us": 6205
+    },
+    {
+      "Id": "game_load.doax_menu_representative.streaming_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 8892.375,
+      "MedianUs": 8613.5,
+      "MinUs": 7998,
+      "MaxUs": 11093,
+      "P95Us": 11093
+    },
+    {
+      "Id": "game_load.doax_menu_stress.cpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 45204.5,
+      "MedianUs": 45453,
+      "MinUs": 43348,
+      "MaxUs": 46585,
+      "P95Us": 46585
+    },
+    {
+      "Id": "game_load.doax_menu_stress.gpu_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 88257.75,
+      "MedianUs": 84809,
+      "MinUs": 80153,
+      "MaxUs": 108279,
+      "P95Us": 108279
+    },
+    {
+      "Id": "game_load.doax_menu_stress.pfifo_only",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 9150.25,
+      "MedianUs": 9219.5,
+      "MinUs": 8518,
+      "MaxUs": 9652,
+      "P95Us": 9652
+    },
+    {
+      "Id": "game_load.repeated_display",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16651,
+      "MedianUs": 16664.5,
+      "MinUs": 16347,
+      "MaxUs": 16911,
+      "P95Us": 16911
+    },
+    {
+      "Id": "game_load.repeated_display_boosted",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 49862.125,
+      "MedianUs": 49994,
+      "MinUs": 49004,
+      "MaxUs": 50012,
+      "P95Us": 50012
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.cpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.cpu_pfifo_gpu",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.gpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.pfifo_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_representative.streaming_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.cpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.gpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.pfifo_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.repeated_display",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.repeated_display_boosted",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    }
+  ],
+  "measurements": []
+}

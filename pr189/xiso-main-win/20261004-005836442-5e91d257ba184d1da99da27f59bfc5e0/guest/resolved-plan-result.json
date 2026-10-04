@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "catalog_id": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+  "plan_id": "sha256:d34fc175b1f2a50ab7400828f6e5e360a67cd2044f5f8b45555f574f7662b077",
+  "selected_leaf_count": 17,
+  "emitted_leaf_count": 17,
+  "completion": "COMPLETE"
+}

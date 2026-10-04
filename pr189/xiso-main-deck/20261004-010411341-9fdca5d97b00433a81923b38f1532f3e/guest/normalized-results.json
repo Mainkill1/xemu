@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-010411341-9fdca5d97b00433a81923b38f1532f3e",
+  "sourceSha256": "9851795483843190b48bbc981373368e4be0ff941724cdace281eb85dd56cae8",
+  "records": [
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size8",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16644.75,
+      "MedianUs": 16674,
+      "MinUs": 16318,
+      "MaxUs": 16888,
+      "P95Us": 16888
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size8",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size8/mean_us",
+      "Value": 16644.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size8/median_us",
+      "Value": 16674,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size8/min_us",
+      "Value": 16318,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size8/max_us",
+      "Value": 16888,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size8"
+    },
+    {
+      "Name": "xiso/texture_cubemap_fallback/bordered_r6g5b5_size8/p95_us",
+      "Value": 16888,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#texture_cubemap_fallback.bordered_r6g5b5_size8"
+    }
+  ]
+}

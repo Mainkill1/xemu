@@ -1,0 +1,12 @@
+xemu_version: 0.8.136-0-g59e5a983ca9b
+xemu_commit: 59e5a983ca9b1d8ae87c4ed9615521c67aa1a873
+xemu_date: Sat Oct  3 20:07:01 UTC 2026
+xemu_settings_set_path: config path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-005307559-ba99187aabc2434f92c01fbe2b9df36c/diagnostics/run-state/effective-live.toml
+CPU: AMD Custom APU 0405
+OS_Version: SteamOS
+GL_VENDOR: AMD
+GL_RENDERER: AMD Custom GPU 0405 (radeonsi, vangogh, LLVM 20.1.8, DRM 3.64, 6.16.12-valve24.5-1-neptune-616-gb2f7cfe85e45)
+GL_VERSION: 4.6 (Core Profile) Mesa 25.3.0 (git-59b552c765)
+GL_SHADING_LANGUAGE_VERSION: 4.60
+GL geometry shader winding: 0, 0, 0, 0
+xemu_settings_get_base_path: base path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-pr189-main-deck-full-control-v1-007/

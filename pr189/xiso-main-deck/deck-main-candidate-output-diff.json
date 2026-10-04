@@ -1,0 +1,20 @@
+[
+  {
+    "id": "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+    "differences": {
+      "framebuffer_fnv1a64": [
+        "044a7816f74d6670",
+        "f8dd7a66643761ed"
+      ]
+    }
+  },
+  {
+    "id": "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+    "differences": {
+      "framebuffer_fnv1a64": [
+        "42c44ae2bc4d1a9f",
+        "80bbf430e52b2dda"
+      ]
+    }
+  }
+]
