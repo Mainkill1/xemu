@@ -1,0 +1,200 @@
+[
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "runnerEligible": 8,
+    "sceneQualification": "NOT synchronized cross-host: Deck flyover, Windows countdown3; unchanged inputs/boundary",
+    "interruption": "Initial two screened before continuation; Deck has retained failed prelaunch ISO integrity read and replacement cell5",
+    "metrics": {
+      "cpu": {
+        "A": 404.3275859375,
+        "B": 398.6546553030303,
+        "improvementPercent": 1.4030530767066087,
+        "rangeA": [
+          372.72384507042244,
+          405.49934375000004
+        ],
+        "rangeB": [
+          387.8205781250001,
+          405.07382539682544
+        ],
+        "ABBA": 0.11031852750116244,
+        "BAAB": -0.541933210321166
+      },
+      "guestFlipCadence": {
+        "A": 7.243293388631557,
+        "B": 7.6827456699970815,
+        "improvementPercent": 6.0670230762052375,
+        "rangeA": [
+          7.087441506459317,
+          10.136253820348125
+        ],
+        "rangeB": [
+          7.41095950128602,
+          8.565666800875332
+        ],
+        "ABBA": 3.8799436887256777,
+        "BAAB": -5.3667912336046575
+      },
+      "avgFrameMs": {
+        "A": 115.42588018433182,
+        "B": 109.37450529449445,
+        "improvementPercent": 5.242649984711825,
+        "rangeA": [
+          95.94336015325663,
+          116.70304186046513
+        ],
+        "rangeB": [
+          104.54343333333333,
+          115.41019266055046
+        ],
+        "ABBA": 1.9004515611419028,
+        "BAAB": 0.18111648671631558
+      },
+      "p95FrameMs": {
+        "A": 278.6751999999999,
+        "B": 279.490975,
+        "improvementPercent": -0.29273326079970075,
+        "rangeA": [
+          269.54019999999997,
+          300.56739999999996
+        ],
+        "rangeB": [
+          276.94075,
+          298.41799999999995
+        ],
+        "ABBA": 1.9515000326254117,
+        "BAAB": -3.2310643358289632
+      },
+      "p99FrameMs": {
+        "A": 348.06444999999997,
+        "B": 331.41936999999996,
+        "improvementPercent": 4.782183299673382,
+        "rangeA": [
+          332.2939999999999,
+          366.3575200000001
+        ],
+        "rangeB": [
+          326.1404099999998,
+          356.15324
+        ],
+        "ABBA": 6.218461823085224,
+        "BAAB": 0.827998712772379
+      },
+      "maxFrameMs": {
+        "A": 422.65150000000006,
+        "B": 388.526,
+        "improvementPercent": 8.074146193731725,
+        "rangeA": [
+          397.706,
+          498.646
+        ],
+        "rangeB": [
+          363.378,
+          436.312
+        ],
+        "ABBA": 3.0681050712727522,
+        "BAAB": 15.384938347991335
+      }
+    }
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "runnerEligible": 8,
+    "sceneQualification": "NOT synchronized cross-host: Deck flyover, Windows countdown3; unchanged inputs/boundary",
+    "interruption": "Initial two screened before continuation; Deck has retained failed prelaunch ISO integrity read and replacement cell5",
+    "metrics": {
+      "cpu": {
+        "A": 327.2984603174603,
+        "B": 324.5217301587301,
+        "improvementPercent": 0.8483786193301701,
+        "rangeA": [
+          323.09704761904766,
+          337.33920634920645
+        ],
+        "rangeB": [
+          313.10888888888877,
+          331.6226984126983
+        ],
+        "ABBA": -0.08535855869260496,
+        "BAAB": 3.287683279399384
+      },
+      "guestFlipCadence": {
+        "A": 30.000029469158413,
+        "B": 30.000031481038818,
+        "improvementPercent": 6.706261427389035e-06,
+        "rangeA": [
+          29.999667732763758,
+          30.000050199287188
+        ],
+        "rangeB": [
+          29.99996369685244,
+          30.00009681306143
+        ],
+        "ABBA": 0.00013284563565357983,
+        "BAAB": 0.0004448257538685647
+      },
+      "avgFrameMs": {
+        "A": 33.33321438082557,
+        "B": 33.33309454061251,
+        "improvementPercent": 0.0003595219221603498,
+        "rangeA": [
+          33.332463382157144,
+          33.33334886817578
+        ],
+        "rangeB": [
+          33.33243675099865,
+          33.33352399999999
+        ],
+        "ABBA": 0.0007330225145447626,
+        "BAAB": -0.0005962628648522398
+      },
+      "p95FrameMs": {
+        "A": 33.631,
+        "B": 33.621,
+        "improvementPercent": 0.02973447117242428,
+        "rangeA": [
+          33.539,
+          33.678
+        ],
+        "rangeB": [
+          33.579,
+          33.742999999999995
+        ],
+        "ABBA": 0.06318575124139895,
+        "BAAB": -0.18968415728163668
+      },
+      "p99FrameMs": {
+        "A": 33.98975,
+        "B": 33.93376,
+        "improvementPercent": 0.1647261306717505,
+        "rangeA": [
+          33.9375,
+          34.179500000000004
+        ],
+        "rangeB": [
+          33.835,
+          34.168499999999995
+        ],
+        "ABBA": 0.6019055448713402,
+        "BAAB": -0.2714347707764723
+      },
+      "maxFrameMs": {
+        "A": 34.2585,
+        "B": 34.5075,
+        "improvementPercent": -0.7268269188668575,
+        "rangeA": [
+          34.229,
+          34.392
+        ],
+        "rangeB": [
+          34.177,
+          34.72
+        ],
+        "ABBA": -0.1562271864505757,
+        "BAAB": -0.9716233539214567
+      }
+    }
+  }
+]
