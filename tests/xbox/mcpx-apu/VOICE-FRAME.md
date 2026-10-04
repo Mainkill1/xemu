@@ -33,17 +33,25 @@ validation costs are included in both builds' measured loop. Final checks
 require 45 dispatched voices, all voices active with identical current-buffer
 offsets, untouched physical gaps, and safe worker/resampler finalization.
 
-Six TAP cases cover all three profiles with one and eight production worker
-threads. `--negative-silence` deliberately selects the VP-monitor path, which
-clears the ordinary mix bins: the same oracle must abort rather than produce a
-passing benchmark. It is a test-executable option, not a production switch.
+Six fixed-work TAP cases cover all three profiles with one and eight production
+worker threads. Three additional cases exercise the production VP method and
+RAM paths at callback boundaries. They verify a locked format update before a
+frame, an update that waits behind an active frame, a direct descriptor update
+between frames, reset, and a voice-table base change. The checks compare mix
+output, current-buffer offset, active state, and headroom with independently
+initialized mono and stereo PCM references.
+
+`--negative-silence` deliberately selects the VP-monitor path, which clears the
+ordinary mix bins: the same oracle must abort rather than produce a passing
+benchmark. It is a test-executable option, not a production switch.
 
 Build the **identical fixture** against the fixed original and candidate
 source, using identical compiler options and runtime libraries. Retain source,
 executable/library hashes, all attempts and negative controls. Run original
 A/A controls, then physical ABBA and BAAB orders on the maintained HTTP runner.
 Report `100*(original_us-candidate_us)/original_us`; positive means less time.
-Compare PCM as an unaffected control and report both worker counts.
+Report every profile and both worker counts; all three profiles execute the
+voice-format reads measured by the benchmark.
 
 This measures fixed VP frame work including translation, decoding, sinc SRC,
 mixing and worker dispatch. It does not measure whole-emulator/game FPS, timer
