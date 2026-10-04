@@ -519,6 +519,9 @@ test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])
 
+test('test-vk-perf-summary', python,
+     args: [files('test-vk-perf-summary.py')], suite: ['unit'])
+
 # This driver compiles small native API doubles, even during a cross build.
 if build_machine.system() in ['linux', 'darwin']
   tweak_test_cc = find_program('cc', native: true, required: false)
