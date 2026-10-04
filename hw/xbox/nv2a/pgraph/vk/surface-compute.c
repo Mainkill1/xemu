@@ -523,6 +523,16 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     pgraph_vk_end_debug_marker(r, cmd);
 }
 
+static bool packed_depth_dispatch_limits_allow(
+    const VkPhysicalDeviceLimits *limits, uint64_t bytes,
+    uint32_t workgroup_size, uint64_t groups)
+{
+    return bytes <= limits->maxStorageBufferRange &&
+           workgroup_size <= limits->maxComputeWorkGroupSize[0] &&
+           workgroup_size <= limits->maxComputeWorkGroupInvocations &&
+           groups <= limits->maxComputeWorkGroupCount[0];
+}
+
 /* Convert the guest-order packed words of a swizzled depth view into a
  * linear packed buffer. The caller owns source/destination lifetimes and
  * barriers between the surrounding pack and unpack commands. */
@@ -545,13 +555,16 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
 
     if (src == VK_NULL_HANDLE || dst == VK_NULL_HANDLE || src == dst ||
         src_size < bytes || dst_size < bytes ||
-        bytes > r->device_props.limits.maxStorageBufferRange ||
-        workgroup_size > r->device_props.limits.maxComputeWorkGroupSize[0] ||
-        groups > r->device_props.limits.maxComputeWorkGroupCount[0] ||
+        !packed_depth_dispatch_limits_allow(&r->device_props.limits,
+                                            bytes, workgroup_size, groups) ||
         pgraph_vk_compute_needs_finish(r)) {
         return false;
     }
 
+    /*
+     * The shared pack/unpack layout has three storage bindings. The alias
+     * shader reads only binding 0 and writes binding 2; binding 1 is unused.
+     */
     VkDescriptorBufferInfo buffers[] = {
         { .buffer = src, .range = bytes },
         { .buffer = src, .range = bytes },
