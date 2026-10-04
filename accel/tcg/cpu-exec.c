@@ -42,6 +42,7 @@
 #include "exec/helper-proto-common.h"
 #include "tcg-accel-ops.h"
 #include "tb-jmp-cache.h"
+#include "tb-victim-cache.h"
 #include "tb-hash.h"
 #include "tb-code-hash.h"
 #include "tb-context.h"
@@ -246,7 +247,12 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
  *
  * Returns: an existing translation block or NULL.
  */
-static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+#ifdef CONFIG_XEMU_TCG_VICTIM_CACHE
+static inline QEMU_ALWAYS_INLINE
+#else
+static inline
+#endif
+TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
 {
     TranslationBlock *tb;
     CPUJumpCache *jc;
@@ -267,13 +273,26 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
         goto hit;
     }
 
+#ifdef CONFIG_XEMU_TCG_VICTIM_CACHE
+    uint64_t victim_epoch = tcg_victim_cache_epoch(jc);
+
+    tb = tcg_victim_cache_lookup(jc, hash, s, victim_epoch);
+    if (tb) {
+        goto hit;
+    }
+#endif
+
     tb = tb_htable_lookup(cpu, s);
     if (tb == NULL) {
         return NULL;
     }
 
+#ifdef CONFIG_XEMU_TCG_VICTIM_CACHE
+    tcg_victim_cache_fill(jc, hash, s.pc, tb, victim_epoch);
+#else
     jc->array[hash].pc = s.pc;
     qatomic_set(&jc->array[hash].tb, tb);
+#endif
 
 hit:
     /*
@@ -1014,6 +1033,10 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
             if (tb == NULL) {
                 CPUJumpCache *jc;
                 uint32_t h;
+#ifdef CONFIG_XEMU_TCG_VICTIM_CACHE
+                uint64_t victim_epoch =
+                    tcg_victim_cache_epoch(cpu->tb_jmp_cache);
+#endif
 
                 mmap_lock();
                 tb = tb_gen_code(cpu, s);
@@ -1025,8 +1048,12 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
                  */
                 h = tb_jmp_cache_hash_func(s.pc);
                 jc = cpu->tb_jmp_cache;
+#ifdef CONFIG_XEMU_TCG_VICTIM_CACHE
+                tcg_victim_cache_fill(jc, h, s.pc, tb, victim_epoch);
+#else
                 jc->array[h].pc = s.pc;
                 qatomic_set(&jc->array[h].tb, tb);
+#endif
             }
 
 #ifndef CONFIG_USER_ONLY

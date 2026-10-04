@@ -167,6 +167,15 @@ tests = {
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
 }
 
+if have_tcg and host_arch in ['x86_64', 'aarch64']
+  tests += {
+    'test-tcg-victim-cache': [xbox_i386_target_headers,
+      declare_dependency(compile_args: ['-DTCG_VICTIM_CACHE_UNIT_TEST']),
+      meson.project_source_root() / 'accel/tcg/tb-victim-cache.c',
+    ],
+  }
+endif
+
 if host_os == 'windows'
   tests += {
     'test-xbox-qemu-poll': [],

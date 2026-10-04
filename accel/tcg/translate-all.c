@@ -32,6 +32,7 @@
 #include "exec/icount.h"
 #include "accel/tcg/cpu-ops.h"
 #include "tb-jmp-cache.h"
+#include "tb-victim-cache.h"
 #include "tb-hash.h"
 #include "tb-context.h"
 #include "tb-internal.h"
@@ -678,7 +679,5 @@ void tcg_flush_jmp_cache(CPUState *cpu)
         return;
     }
 
-    for (int i = 0; i < TB_JMP_CACHE_SIZE; i++) {
-        qatomic_set(&jc->array[i].tb, NULL);
-    }
+    tcg_jump_cache_clear_all(jc);
 }

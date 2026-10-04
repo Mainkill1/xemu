@@ -394,3 +394,5 @@ option('rust', type: 'feature', value: 'disabled',
        description: 'Rust support')
 option('strict_rust_lints', type: 'boolean', value: false,
        description: 'Enable stricter set of Rust warnings')
+option('xemu_tcg_victim_cache', type: 'boolean', value: false,
+       description: 'Experimental eight-entry miss-only TB victim cache')
