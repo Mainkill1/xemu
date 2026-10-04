@@ -1,0 +1,8 @@
+1/3 qemu:unit / test-xbox-mcpx-apu-resampler            OK              0.01s   10 subtests passed
+2/3 qemu:unit / test-xbox-mcpx-apu-resampler-state      OK              0.07s   8 subtests passed
+3/3 qemu:unit / test-xbox-mcpx-apu-resampler-throughput OK              0.31s   6 subtests passed
+
+Ok:                3   
+Fail:              0   
+
+Full log written to /home/codex/xemu-shader-workbench-handoff/xemu-pr303/build/meson-logs/testlog.txt
