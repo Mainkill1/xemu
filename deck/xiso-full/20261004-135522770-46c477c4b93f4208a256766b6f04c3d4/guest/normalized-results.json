@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-135522770-46c477c4b93f4208a256766b6f04c3d4",
+  "sourceSha256": "09e101f7b6a54d68fa0e1449c031f278d1fccea2893ce80522c99fafbdc9dde4",
+  "records": [
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size8",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16613.875,
+      "MedianUs": 16537,
+      "MinUs": 16452,
+      "MaxUs": 16900,
+      "P95Us": 16900
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size8",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

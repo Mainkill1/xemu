@@ -1,0 +1,378 @@
+{
+  "runId": "20261004-141757430-011a8f1ac5b24f9e83240498570895b9",
+  "job": "xc-pr282-3ba-deck-vk-full-candidate-v1-017",
+  "jobPackage": "agent-xc-pr282-3ba-deck-vk-full-candidate-v1-017",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T14:17:57.4303883+00:00",
+  "endedUtc": "2026-10-04T14:20:10.1471466+00:00",
+  "durationMs": 132716.7584,
+  "processId": 589700,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-141757430-011a8f1ac5b24f9e83240498570895b9",
+    "ExecutableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+    "Platform": "linux",
+    "ProcessId": 589700,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-pr282-3ba-deck-vk-full-candidate-v1-017/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:33435,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size8",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Correctness outcome is Failed; a passing correctness contract is required."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size1",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size2",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size4",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size8",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261004-141757430-011a8f1ac5b24f9e83240498570895b9",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 265,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3796913207547169,
+    "maxCollectorDutyPercent": 3.7568199999999994,
+    "maxCollectorDurationMs": 18.7841,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

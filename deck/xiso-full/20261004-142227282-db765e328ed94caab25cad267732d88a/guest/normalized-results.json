@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-142227282-db765e328ed94caab25cad267732d88a",
+  "sourceSha256": "d38a8bf48faffc69e126cd4c40755e191779285c3d1ba9c2c5fc3d3311182b80",
+  "records": [
+    {
+      "Id": "tiny_draw.arrays.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 71123.3,
+      "MedianUs": 70704,
+      "MinUs": 66192,
+      "MaxUs": 82121,
+      "P95Us": 82121
+    },
+    {
+      "Id": "tiny_draw.arrays.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 65979.6,
+      "MedianUs": 65081.5,
+      "MinUs": 60348,
+      "MaxUs": 78793,
+      "P95Us": 78793
+    },
+    {
+      "Id": "tiny_draw.inline_arrays.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 87504.2,
+      "MedianUs": 86778.5,
+      "MinUs": 83313,
+      "MaxUs": 98660,
+      "P95Us": 98660
+    },
+    {
+      "Id": "tiny_draw.inline_arrays.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 83614.3,
+      "MedianUs": 82880,
+      "MinUs": 76398,
+      "MaxUs": 90225,
+      "P95Us": 90225
+    },
+    {
+      "Id": "tiny_draw.inline_buffers.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 67473.4,
+      "MedianUs": 66557.5,
+      "MinUs": 64313,
+      "MaxUs": 74916,
+      "P95Us": 74916
+    },
+    {
+      "Id": "tiny_draw.inline_buffers.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 68169.8,
+      "MedianUs": 68119,
+      "MinUs": 64644,
+      "MaxUs": 72346,
+      "P95Us": 72346
+    },
+    {
+      "Id": "tiny_draw.inline_elements.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 67164.2,
+      "MedianUs": 66899,
+      "MinUs": 64408,
+      "MaxUs": 70826,
+      "P95Us": 70826
+    },
+    {
+      "Id": "tiny_draw.inline_elements.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 68126.2,
+      "MedianUs": 68251,
+      "MinUs": 63150,
+      "MaxUs": 74246,
+      "P95Us": 74246
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 8 leaves and 0 groups; received 8. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 8 stable IDs; received 8. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:tiny_draw.arrays.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.arrays.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_arrays.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_arrays.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_buffers.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_buffers.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_elements.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:tiny_draw.inline_elements.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

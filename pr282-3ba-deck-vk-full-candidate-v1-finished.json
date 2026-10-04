@@ -1,0 +1,22 @@
+{
+  "id": "pr282-3ba-deck-vk-full-candidate-v1",
+  "revision": "e88745bfe03d2cf5f68b16f76335db02a9dca56a5aead9ab2db289bdc9bb4e15",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 2,
+  "failed": 21,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr282-3ba-deck-vk-full-candidate-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr282-3ba-deck-vk-full-candidate-v1/attempts",
+  "comparisonEligible": 2,
+  "qualification": "unverified"
+}

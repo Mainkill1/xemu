@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-140241370-7c1b1ca80f7240c6833820fdd32d8fc9",
+  "sourceSha256": "fb60fced054d84fda5b41d4285e1022acbc6bcec1298a9b140ebbbc3c3a41481",
+  "records": [
+    {
+      "Id": "cpu_floating_point.sse_scalar",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1199553.2,
+      "MedianUs": 1187873.5,
+      "MinUs": 1177126,
+      "MaxUs": 1244224,
+      "P95Us": 1244224
+    },
+    {
+      "Id": "cpu_floating_point.x87_scalar",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1158895.8,
+      "MedianUs": 1158181.5,
+      "MinUs": 1149355,
+      "MaxUs": 1169290,
+      "P95Us": 1169290
+    },
+    {
+      "Id": "cpu_translation_blocks.direct_loop",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 20283.1,
+      "MedianUs": 20403,
+      "MinUs": 18814,
+      "MaxUs": 21246,
+      "P95Us": 21246
+    },
+    {
+      "Id": "cpu_translation_blocks.indirect_dispatch",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 68679.9,
+      "MedianUs": 68656,
+      "MinUs": 67592,
+      "MaxUs": 69624,
+      "P95Us": 69624
+    },
+    {
+      "Id": "cpu_translation_blocks.indirect_dispatch_stress",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1375514.9,
+      "MedianUs": 1378851.5,
+      "MinUs": 1349764,
+      "MaxUs": 1396719,
+      "P95Us": 1396719
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 5 leaves and 0 groups; received 5. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 5 stable IDs; received 5. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_floating_point.sse_scalar",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_floating_point.x87_scalar",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.direct_loop",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.indirect_dispatch",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.indirect_dispatch_stress",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+      "Value": 1199553.2,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/sse_scalar/median_us",
+      "Value": 1187873.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/sse_scalar/min_us",
+      "Value": 1177126,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/sse_scalar/max_us",
+      "Value": 1244224,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+      "Value": 1244224,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/mean_us",
+      "Value": 1158895.8,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/median_us",
+      "Value": 1158181.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/min_us",
+      "Value": 1149355,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/max_us",
+      "Value": 1169290,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/p95_us",
+      "Value": 1169290,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/direct_loop/mean_us",
+      "Value": 20283.1,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/direct_loop/median_us",
+      "Value": 20403,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/direct_loop/min_us",
+      "Value": 18814,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/direct_loop/max_us",
+      "Value": 21246,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/direct_loop/p95_us",
+      "Value": 21246,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch/mean_us",
+      "Value": 68679.9,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch/median_us",
+      "Value": 68656,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch/min_us",
+      "Value": 67592,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch/max_us",
+      "Value": 69624,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch/p95_us",
+      "Value": 69624,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/mean_us",
+      "Value": 1375514.9,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/median_us",
+      "Value": 1378851.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/min_us",
+      "Value": 1349764,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/max_us",
+      "Value": 1396719,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/p95_us",
+      "Value": 1396719,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+    }
+  ]
+}

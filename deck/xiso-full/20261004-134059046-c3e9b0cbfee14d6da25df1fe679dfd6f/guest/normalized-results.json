@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-134059046-c3e9b0cbfee14d6da25df1fe679dfd6f",
+  "sourceSha256": "6c0b4f971c1034e210e930d313786198b47c98f7f0648c12ca59aeefc9474afd",
+  "records": [
+    {
+      "Id": "fill_rate.solid",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 4543.2,
+      "MedianUs": 4464.5,
+      "MinUs": 3863,
+      "MaxUs": 5396,
+      "P95Us": 5396
+    },
+    {
+      "Id": "fill_rate.textured",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 9354,
+      "MedianUs": 9412.5,
+      "MinUs": 7668,
+      "MaxUs": 13131,
+      "P95Us": 13131
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 2 leaves and 0 groups; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 2 stable IDs; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:fill_rate.solid",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:fill_rate.textured",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

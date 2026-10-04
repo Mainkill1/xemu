@@ -1,0 +1,200 @@
+[
+  {
+    "title": "conker",
+    "variant": "candidate",
+    "request": "pr283-win-conker-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-conker-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-140229849-d2e97329caf6440ba112ea3420357f6e",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-140229849-d2e97329caf6440ba112ea3420357f6e?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-140229849-d2e97329caf6440ba112ea3420357f6e",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "failed",
+          "correctness": "failed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Failed.",
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "analysis:monitor",
+            "category": "evidence",
+            "detail": "monitor: Selected segment has insufficient CPU/duty samples."
+          },
+          {
+            "name": "recording-start-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screensh..."
+          },
+          {
+            "name": "recording-end-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screensh..."
+          },
+          {
+            "name": "measurement-ready",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screensh..."
+          }
+        ],
+        "moreFailures": 2,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-140229849-d2e97329caf6440ba112ea3420357f6e/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-140229849-d2e97329caf6440ba112ea3420357f6e/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "doaxbv",
+    "variant": "candidate",
+    "request": "pr283-win-doaxbv-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-doaxbv-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "failed",
+          "correctness": "failed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Failed.",
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "analysis:monitor",
+            "category": "evidence",
+            "detail": "monitor: Selected segment has insufficient CPU/duty samples."
+          },
+          {
+            "name": "recording-start-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7\\screensh..."
+          },
+          {
+            "name": "recording-end-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7\\screensh..."
+          },
+          {
+            "name": "measurement-ready",
+            "category": "correctness",
+            "detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7\\screensh..."
+          }
+        ],
+        "moreFailures": 2,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-140407351-c6f3d97165fd4579b49fa102bfdac0a7/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "variant": "candidate",
+    "request": "pr283-win-pgr2-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-pgr2-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-140614098-fba1dd4e323847cc9f84f8444bbadd33",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-140614098-fba1dd4e323847cc9f84f8444bbadd33?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-140614098-fba1dd4e323847cc9f84f8444bbadd33",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-140614098-fba1dd4e323847cc9f84f8444bbadd33/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-140614098-fba1dd4e323847cc9f84f8444bbadd33/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-win-morrowind-repair-preflight-v2-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-morrowind-repair-preflight-v2-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029/diagnostics"
+      }
+    }
+  }
+]

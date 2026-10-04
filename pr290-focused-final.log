@@ -1,0 +1,77 @@
+TAP version 14
+# random seed: R02Sc08076513d97dcb677f3beb9ee9a40fb
+1..3
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/producer-d24s8
+ok 2 /xbox/vk/alias/producer-d32s8
+ok 3 /xbox/vk/alias/producer-rewrite
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02Sa47b4afff20706e2c265f60800fd2036
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/blit-owned-ram
+ok 2 /xbox/vk/alias/full-blend-owned-ram
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S6cf55641b177758fe02fd805eec5a617
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of retention tests
+ok 1 /xbox/vk/retention/production-lookup
+ok 2 /xbox/vk/retention/padded-publication
+# End of retention tests
+# End of vk tests
+# End of xbox tests
+TAP version 13
+1..15
+ok 1 - clean guest memory preserves surface state
+ok 2 - guest write preempts stale surface download
+ok 3 - guest write keeps upload pending
+ok 4 - upload pending transition is counted once
+ok 5 - one dirty page reaches both overlapping surfaces
+ok 6 - clean range preserves cached surfaces
+ok 7 - guest write blocks forced stale readback
+ok 8 - clean drawn surface still reads back
+ok 9 - guest write blocks forced clean-surface readback
+ok 10 - sparse page preserves clean neighbor
+ok 11 - consumed write still vetoes forced readback
+ok 12 - successful upload retires guest-write veto
+ok 13 - sparse first and third pages skip clean middle
+ok 14 - dirty page outside request remains pending
+ok 15 - prewrite upload intent permits ordered readback
+TAP version 14
+# random seed: R02S50f336538202273527e00fcfe9adc7bd
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of surface-alias tests
+ok 1 /xbox/vk/surface-alias/guest-morton-layout
+ok 2 /xbox/vk/surface-alias/reject-invalid-shapes
+ok 3 /xbox/vk/surface-alias/read-only-eligibility
+ok 4 /xbox/vk/surface-alias/buffer-plan
+# End of surface-alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S8c3328330ac2ba6023802113025f67eb
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/three-descriptors
+ok 2 /xbox/vk/alias/descriptor-reset
+ok 3 /xbox/vk/alias/capacity-reset
+ok 4 /xbox/vk/alias/reject-before-recording
+# End of alias tests
+# End of vk tests
+# End of xbox tests

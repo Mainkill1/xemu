@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "runId": "20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+  "available": true,
+  "code": null,
+  "outcome": {
+    "execution": "runnerFailure",
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "reasons": [
+    "Execution outcome is RunnerFailure.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+  ],
+  "moreReasons": 0,
+  "failures": [
+    {
+      "name": "analysis:monitor",
+      "category": "evidence",
+      "detail": "monitor: Selected segment has insufficient CPU/duty samples."
+    },
+    {
+      "name": "analysis:flips",
+      "category": "evidence",
+      "detail": "flips: Analysis source is missing: guest-flips.log"
+    },
+    {
+      "name": "analysis:frames",
+      "category": "evidence",
+      "detail": "frames: Analysis source is missing: guest-frames.log"
+    },
+    {
+      "name": "scene-entry-visible",
+      "category": "correctness",
+      "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshot..."
+    }
+  ],
+  "moreFailures": 6,
+  "truncated": true,
+  "detail": "/api/v1/runs/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/artifacts/assessment.json",
+  "diagnostics": "/api/v1/runs/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/diagnostics"
+}

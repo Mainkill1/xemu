@@ -1,0 +1,53 @@
+{
+  "available": true,
+  "runId": "20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+  "code": null,
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "9f06c04e44d587f92eb3905827df9d93f0ad081bb4dac5e0cb1941f9c6abb34b",
+    "profile": {
+      "segment": "morrowind-user-scene",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": null,
+    "flips": null,
+    "frames": null,
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 6216,
+        "sha256": "4a94c5e57288d1e3a9269afeeead4f03db8822aeb3576a0a227b412f9ad89c26",
+        "records": 35,
+        "ignoredRecords": 34
+      }
+    ],
+    "errors": [
+      "monitor: Selected segment has insufficient CPU/duty samples.",
+      "flips: Analysis source is missing: guest-flips.log",
+      "frames: Analysis source is missing: guest-frames.log"
+    ],
+    "complete": false
+  },
+  "outcome": {
+    "execution": "runnerFailure",
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "executableSha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6",
+  "launchExecutableSha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6",
+  "identityCode": null,
+  "cleanup": {
+    "state": "unavailable",
+    "files": 0,
+    "deletedFiles": 0,
+    "hddDeleted": null
+  },
+  "detail": "/api/v1/runs/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f?view=summary"
+}

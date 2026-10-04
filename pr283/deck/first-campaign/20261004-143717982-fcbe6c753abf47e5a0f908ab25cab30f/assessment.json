@@ -1,0 +1,82 @@
+{
+  "Execution": "runnerFailure",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is RunnerFailure.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "flips: Analysis source is missing: guest-flips.log"
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "frames: Analysis source is missing: guest-frames.log"
+    },
+    {
+      "Name": "scene-entry-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-entry.png"
+    },
+    {
+      "Name": "scene-end-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-end.png"
+    },
+    {
+      "Name": "measurement-ready",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/measurement-ready.png"
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/guest-frames.log"
+    },
+    {
+      "Name": "measurement-segment",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Artifact has 0 bytes; expected at least 20."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 55; actual 34."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": false
+}

@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261004-135247500-8b0086c9df764e7792d5b54addeb3495",
+  "sourceSha256": "6bcce895d114930b0acb1fff2ca0b09bc57971b185572fc18e0ccbb2ef5f0240",
+  "records": [
+    {
+      "Id": "primitive_type.polygon.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 2497.8,
+      "MedianUs": 2477.5,
+      "MinUs": 2243,
+      "MaxUs": 2761,
+      "P95Us": 2761
+    },
+    {
+      "Id": "primitive_type.polygon.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 5793.2,
+      "MedianUs": 5913,
+      "MinUs": 4740,
+      "MaxUs": 6661,
+      "P95Us": 6661
+    },
+    {
+      "Id": "primitive_type.quad_strip.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 7168.7,
+      "MedianUs": 6503.5,
+      "MinUs": 3874,
+      "MaxUs": 12112,
+      "P95Us": 12112
+    },
+    {
+      "Id": "primitive_type.quad_strip.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 4078,
+      "MedianUs": 4047.5,
+      "MinUs": 3582,
+      "MaxUs": 4439,
+      "P95Us": 4439
+    },
+    {
+      "Id": "primitive_type.quads.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 6811,
+      "MedianUs": 7584,
+      "MinUs": 4936,
+      "MaxUs": 8216,
+      "P95Us": 8216
+    },
+    {
+      "Id": "primitive_type.quads.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 7081.7,
+      "MedianUs": 7809,
+      "MinUs": 4783,
+      "MaxUs": 8281,
+      "P95Us": 8281
+    },
+    {
+      "Id": "primitive_type.triangle_fan.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 1245.4,
+      "MedianUs": 1252,
+      "MinUs": 1084,
+      "MaxUs": 1401,
+      "P95Us": 1401
+    },
+    {
+      "Id": "primitive_type.triangle_fan.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 1357.5,
+      "MedianUs": 1370.5,
+      "MinUs": 1157,
+      "MaxUs": 1487,
+      "P95Us": 1487
+    },
+    {
+      "Id": "primitive_type.triangle_strip.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 2299.9,
+      "MedianUs": 2324,
+      "MinUs": 1993,
+      "MaxUs": 2517,
+      "P95Us": 2517
+    },
+    {
+      "Id": "primitive_type.triangle_strip.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 2464.3,
+      "MedianUs": 2480,
+      "MinUs": 2336,
+      "MaxUs": 2589,
+      "P95Us": 2589
+    },
+    {
+      "Id": "primitive_type.triangles.fixed_function",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 5868.6,
+      "MedianUs": 6157,
+      "MinUs": 4319,
+      "MaxUs": 6569,
+      "P95Us": 6569
+    },
+    {
+      "Id": "primitive_type.triangles.vertex_shader",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 5837.7,
+      "MedianUs": 5988,
+      "MinUs": 3973,
+      "MaxUs": 7052,
+      "P95Us": 7052
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:primitive_type.polygon.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.polygon.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.quad_strip.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.quad_strip.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.quads.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.quads.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangle_fan.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangle_fan.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangle_strip.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangle_strip.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangles.fixed_function",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:primitive_type.triangles.vertex_shader",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

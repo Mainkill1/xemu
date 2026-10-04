@@ -1,0 +1,22 @@
+{
+  "id": "pr282-3ba-deck-vk-full-parent-v1",
+  "revision": "0704e8ce3b506a3d1785a0e5c2fd4216be70ba5ae9e1b14c14bd18d7beed0d3b",
+  "state": "queued",
+  "event": "heartbeat",
+  "terminal": false,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 0,
+  "passed": 0,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 23,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/pr282-3ba-deck-vk-full-parent-v1/wait",
+  "details": "/api/v1/xiso-campaigns/pr282-3ba-deck-vk-full-parent-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

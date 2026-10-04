@@ -1,0 +1,354 @@
+[
+  {
+    "cell": 1,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr283-win-mw-repair-balanced-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-141919363-01575b3fff694fa49b6eb1cd622994bc",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-141919363-01575b3fff694fa49b6eb1cd622994bc?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-141919363-01575b3fff694fa49b6eb1cd622994bc",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-141919363-01575b3fff694fa49b6eb1cd622994bc/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-141919363-01575b3fff694fa49b6eb1cd622994bc/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-win-mw-repair-balanced-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142007187-4efa1de111184a068ce387c7cb5ab3ca",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142007187-4efa1de111184a068ce387c7cb5ab3ca?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142007187-4efa1de111184a068ce387c7cb5ab3ca",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142007187-4efa1de111184a068ce387c7cb5ab3ca/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142007187-4efa1de111184a068ce387c7cb5ab3ca/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-win-mw-repair-balanced-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142054982-2df1fba5d7f24e8cb6849beb4a6250bb",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142054982-2df1fba5d7f24e8cb6849beb4a6250bb?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142054982-2df1fba5d7f24e8cb6849beb4a6250bb",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142054982-2df1fba5d7f24e8cb6849beb4a6250bb/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142054982-2df1fba5d7f24e8cb6849beb4a6250bb/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr283-win-mw-repair-balanced-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142142898-cc78d0f362524edfb4d69ab2a6dfae40",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142142898-cc78d0f362524edfb4d69ab2a6dfae40?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142142898-cc78d0f362524edfb4d69ab2a6dfae40",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142142898-cc78d0f362524edfb4d69ab2a6dfae40/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142142898-cc78d0f362524edfb4d69ab2a6dfae40/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-win-mw-repair-balanced-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142230328-43ae57e8b23f4550b423c300442689bf",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142230328-43ae57e8b23f4550b423c300442689bf?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142230328-43ae57e8b23f4550b423c300442689bf",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142230328-43ae57e8b23f4550b423c300442689bf/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142230328-43ae57e8b23f4550b423c300442689bf/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr283-win-mw-repair-balanced-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142318363-e2cf259965ed48c59479e3ed18dde69a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142318363-e2cf259965ed48c59479e3ed18dde69a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142318363-e2cf259965ed48c59479e3ed18dde69a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142318363-e2cf259965ed48c59479e3ed18dde69a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142318363-e2cf259965ed48c59479e3ed18dde69a/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "title": "morrowind",
+    "variant": "parent",
+    "request": "pr283-win-mw-repair-balanced-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142406391-fedd5180c68a422f8b122a95b864cff3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142406391-fedd5180c68a422f8b122a95b864cff3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142406391-fedd5180c68a422f8b122a95b864cff3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142406391-fedd5180c68a422f8b122a95b864cff3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142406391-fedd5180c68a422f8b122a95b864cff3/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-win-mw-repair-balanced-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-win-mw-repair-balanced-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142453778-7bd64a675edf46a09ecd9b2b28db02fc",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142453778-7bd64a675edf46a09ecd9b2b28db02fc?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142453778-7bd64a675edf46a09ecd9b2b28db02fc",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142453778-7bd64a675edf46a09ecd9b2b28db02fc/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142453778-7bd64a675edf46a09ecd9b2b28db02fc/diagnostics"
+      }
+    }
+  }
+]

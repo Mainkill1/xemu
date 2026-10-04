@@ -1,0 +1,115 @@
+{
+  "Execution": "completed",
+  "Correctness": "failed",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Correctness outcome is Failed; a passing correctness contract is required."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size8",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": true,
+      "Category": "state",
+      "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": false
+}

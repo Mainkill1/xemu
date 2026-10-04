@@ -1,0 +1,65 @@
+[
+  {
+    "Name": "WPR",
+    "Available": false,
+    "RequestedExecutable": "wpr.exe",
+    "ResolvedPath": null,
+    "Detail": "Not applicable to this operating system."
+  },
+  {
+    "Name": "xperf",
+    "Available": false,
+    "RequestedExecutable": "xperf.exe",
+    "ResolvedPath": null,
+    "Detail": "Not applicable to this operating system."
+  },
+  {
+    "Name": "perf",
+    "Available": true,
+    "RequestedExecutable": "perf",
+    "ResolvedPath": "/usr/bin/perf",
+    "Detail": "Available."
+  },
+  {
+    "Name": "GDB",
+    "Available": true,
+    "RequestedExecutable": "gdb",
+    "ResolvedPath": "/usr/bin/gdb",
+    "Detail": "Available."
+  },
+  {
+    "Name": "ProcDump",
+    "Available": false,
+    "RequestedExecutable": "procdump.exe",
+    "ResolvedPath": null,
+    "Detail": "Not applicable to this operating system."
+  },
+  {
+    "Name": "RenderDoc CLI",
+    "Available": true,
+    "RequestedExecutable": "renderdoccmd",
+    "ResolvedPath": "/usr/bin/renderdoccmd",
+    "Detail": "Available."
+  },
+  {
+    "Name": "Python",
+    "Available": true,
+    "RequestedExecutable": "python3",
+    "ResolvedPath": "/usr/bin/python3",
+    "Detail": "Available."
+  },
+  {
+    "Name": "addr2line",
+    "Available": true,
+    "RequestedExecutable": "addr2line",
+    "ResolvedPath": "/usr/bin/addr2line",
+    "Detail": "Available."
+  },
+  {
+    "Name": "RenderDoc Python",
+    "Available": false,
+    "RequestedExecutable": "python3",
+    "ResolvedPath": "/usr/bin/python3",
+    "Detail": "RenderDoc Python module import failed: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import renderdoc; print(getattr(renderdoc, '__file__', 'renderdoc'))\n    ^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'renderdoc'"
+  }
+]

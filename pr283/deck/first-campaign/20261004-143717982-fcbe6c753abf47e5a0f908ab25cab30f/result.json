@@ -1,0 +1,318 @@
+{
+  "runId": "20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+  "job": "pr283-deck-mw-repair-balanced-05-candidate-v1-t001",
+  "jobPackage": "agent-pr283-deck-mw-repair-balanced-05-candidate-v1-t001",
+  "attempt": 1,
+  "status": "control_error",
+  "detail": "xemu launched, but runner control initialization failed: System.TimeoutException: xemu QMP did not become ready at 127.0.0.1:40293 within 10000 ms.\n ---\u003E System.TimeoutException: QMP query-status exceeded 1500 ms.\n   at XemuTestRunner.Control.XemuQmpClient.ExecuteAsync(String command, Object arguments, TimeSpan timeout, CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuQmpClient.cs:line 38\n   at XemuTestRunner.Control.XemuControlManager.WaitUntilReadyAsync(CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 116\n   --- End of inner exception stack trace ---\n   at XemuTestRunner.Control.XemuControlManager.WaitUntilReadyAsync(CancellationToken cancellationToken) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 133\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 710 Target intentionally left running because Reliability.PreserveTargetOnRunnerError is enabled. The package remains in Testing for inspection; stop xemu manually before retrying.",
+  "startedUtc": "2026-10-04T14:37:17.9826613+00:00",
+  "endedUtc": "2026-10-04T14:37:40.7743829+00:00",
+  "durationMs": 22791.7217,
+  "processId": 592500,
+  "exitCode": null,
+  "crash": {
+    "RunId": "20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+    "ExecutableSha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6",
+    "Platform": "linux",
+    "ProcessId": 592500,
+    "ExitCode": null,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "exitCodeOnly",
+    "Code": null,
+    "Capture": "targetNotTerminated",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": [
+      "Postmortem collection does not attach to or preserve a live target."
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": "vm-20260929162035",
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6",
+  "arguments": [
+    "-name",
+    "xemu-pr267-morrowind,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-loadvm",
+    "vm-20260929162035",
+    "-qmp",
+    "tcp:127.0.0.1:40293,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Analysis source is missing: guest-flips.log"
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Analysis source is missing: guest-frames.log"
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-entry.png"
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/measurement-ready.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/guest-frames.log"
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 34."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "runnerFailure",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is RunnerFailure.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Analysis source is missing: guest-flips.log"
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Analysis source is missing: guest-frames.log"
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-entry.png"
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/scene-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/screenshots/measurement-ready.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f/guest-frames.log"
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 34."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "morrowind-snapshot-disc-v2",
+    "Variant": "matched-parent-candidate",
+    "Reference": null,
+    "VariedFactors": [],
+    "ControlledFactors": [
+      "snapshot-vm-20260929162035",
+      "morrowind-goty-disc-d719c4d8",
+      "vulkan",
+      "64mb",
+      "start-2s-b",
+      "30-second-scene-window",
+      "cold-private-application-cache",
+      "qualified-mesa-private-cache"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": "controller-input.json",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 34,
+    "overruns": 1,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 22.70093823529412,
+    "maxCollectorDutyPercent": 759.2281600000001,
+    "maxCollectorDurationMs": 3796.1408,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

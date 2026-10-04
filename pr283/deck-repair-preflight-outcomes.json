@@ -1,0 +1,192 @@
+[
+  {
+    "title": "conker",
+    "variant": "candidate",
+    "request": "pr283-deck-conker-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-deck-conker-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "failed",
+          "correctness": "failed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Failed.",
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "analysis:monitor",
+            "category": "evidence",
+            "detail": "monitor: Selected segment has insufficient CPU/duty samples."
+          },
+          {
+            "name": "recording-start-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51/screenshot..."
+          },
+          {
+            "name": "recording-end-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51/screenshot..."
+          },
+          {
+            "name": "measurement-ready",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51/screenshot..."
+          }
+        ],
+        "moreFailures": 2,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142610279-6dd7ff3b0cba4840a876b55dcd4b0a51/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "doaxbv",
+    "variant": "candidate",
+    "request": "pr283-deck-doaxbv-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-deck-doaxbv-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "failed",
+          "correctness": "failed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Failed.",
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "analysis:monitor",
+            "category": "evidence",
+            "detail": "monitor: Selected segment has insufficient CPU/duty samples."
+          },
+          {
+            "name": "recording-start-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e/screenshot..."
+          },
+          {
+            "name": "recording-end-visible",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e/screenshot..."
+          },
+          {
+            "name": "measurement-ready",
+            "category": "correctness",
+            "detail": "Required artifact is missing: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e/screenshot..."
+          }
+        ],
+        "moreFailures": 2,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-142758583-3ae6f1ccefed4183af4dc80fafc1a82e/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "variant": "candidate",
+    "request": "pr283-deck-pgr2-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-deck-pgr2-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-143022396-3851fa70a25546ea8c826d1a43ad182d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-143022396-3851fa70a25546ea8c826d1a43ad182d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-143022396-3851fa70a25546ea8c826d1a43ad182d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-143022396-3851fa70a25546ea8c826d1a43ad182d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-143022396-3851fa70a25546ea8c826d1a43ad182d/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "variant": "candidate",
+    "request": "pr283-deck-morrowind-repair-preflight-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "pr283-deck-morrowind-repair-preflight-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261004-143257024-85dfa8eb001c463c9f3c54d1dcf375d5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261004-143257024-85dfa8eb001c463c9f3c54d1dcf375d5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261004-143257024-85dfa8eb001c463c9f3c54d1dcf375d5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261004-143257024-85dfa8eb001c463c9f3c54d1dcf375d5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261004-143257024-85dfa8eb001c463c9f3c54d1dcf375d5/diagnostics"
+      }
+    }
+  }
+]

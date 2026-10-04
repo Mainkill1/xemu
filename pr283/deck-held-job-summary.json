@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "id": "pr283-deck-mw-repair-balanced-05-candidate-v1-t001",
+  "state": "held",
+  "runId": "20261004-143717982-fcbe6c753abf47e5a0f908ab25cab30f",
+  "cursor": "5a9c1605e3ff4df5b15f86eec2a1ada3:83dfb6b02286c0d5",
+  "changed": true,
+  "next": {
+    "method": "GET",
+    "href": "/api/v1/control"
+  },
+  "blocker": {
+    "code": "attempt_held",
+    "hint": "Inspect the preserved attempt through the control/result APIs; do not alter queue files."
+  },
+  "operation": {
+    "id": "6433ba9231b440dd822890ceb4a65f79",
+    "action": "submit",
+    "state": "completed",
+    "filesChecked": 41,
+    "errorCode": null
+  }
+}

@@ -1,0 +1,55 @@
+2026-10-04T14:14:10.5410447Z   RANLIB: llvm-ranlib-21
+2026-10-04T14:14:10.5410568Z   NM: llvm-nm-21
+2026-10-04T14:14:10.5410961Z   XEMU_BUILD_OPTIONS: --extra-ldflags=-Wl,--thinlto-cache-policy=cache_size_bytes=512m -Db_lto=true -Db_lto_mode=thin -Db_thinlto_cache=true -Db_thinlto_cache_dir=/tmp/xemu-lto-cache -Dx86_version=3
+2026-10-04T14:14:10.5411750Z   PATH: /usr/lib/ccache:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+2026-10-04T14:14:10.5412272Z ##[endgroup]
+2026-10-04T14:14:10.5471450Z Summary:
+2026-10-04T14:14:10.5471660Z   Hits:            1602 / 1628 (98.40 %)
+2026-10-04T14:14:10.5471856Z     Direct:        1599 / 1859 (86.01 %)
+2026-10-04T14:14:10.5472272Z     Preprocessed:     3 /  256 (1.17 %)
+2026-10-04T14:14:10.5472504Z   Misses:            26
+2026-10-04T14:14:10.5472695Z     Direct:         260
+2026-10-04T14:14:10.5472895Z     Preprocessed:   253
+2026-10-04T14:14:10.5473177Z   Uncacheable:      245
+2026-10-04T14:14:10.5473347Z Primary storage:
+2026-10-04T14:14:10.5473515Z   Hits:            3229 / 3487 (92.60 %)
+2026-10-04T14:14:10.5473658Z   Misses:           258
+2026-10-04T14:14:10.5473783Z   Cache size (GB): 0.13 / 0.51 (24.98 %)
+2026-10-04T14:14:10.5473877Z 
+2026-10-04T14:14:10.5473975Z Use the -v/--verbose option for more details.
+2026-10-04T14:14:10.5492182Z ##[group]Run wget --no-verbose https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
+2026-10-04T14:14:10.5492661Z [36;1mwget --no-verbose https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage[0m
+2026-10-04T14:14:10.5492969Z [36;1mchmod +x linuxdeploy-x86_64.AppImage[0m
+2026-10-04T14:14:10.5493131Z [36;1m[0m
+2026-10-04T14:14:10.5493244Z [36;1mar x deb/*.deb[0m
+2026-10-04T14:14:10.5493371Z [36;1mmkdir appimage[0m
+2026-10-04T14:14:10.5493508Z [36;1mtar -C appimage -xf data.tar*[0m
+2026-10-04T14:14:10.5493741Z [36;1minstall -DT src/xemu.metainfo.xml appimage/usr/share/metainfo/xemu.metainfo.xml[0m
+2026-10-04T14:14:10.5493960Z [36;1m[0m
+2026-10-04T14:14:10.5494129Z [36;1m./linuxdeploy-x86_64.AppImage --output appimage --appdir appimage[0m
+2026-10-04T14:14:10.5519772Z shell: /usr/bin/bash -e {0}
+2026-10-04T14:14:10.5519907Z env:
+2026-10-04T14:14:10.5520071Z   ARTIFACT_NAME: xemu-ubuntu-x86_64-release
+2026-10-04T14:14:10.5520233Z   CCACHE_DIR: /tmp/xemu-ccache
+2026-10-04T14:14:10.5520369Z   CCACHE_MAXSIZE: 512M
+2026-10-04T14:14:10.5520503Z   LTO_CACHE_DIR: /tmp/xemu-lto-cache
+2026-10-04T14:14:10.5520646Z   LTO_CACHE_MAXSIZE: 512m
+2026-10-04T14:14:10.5520782Z   DEB_BUILD_MAINT_OPTIONS: optimize=-lto
+2026-10-04T14:14:10.5520954Z   DEB_CFLAGS_MAINT_APPEND: -gdwarf-4 -gstrict-dwarf
+2026-10-04T14:14:10.5521146Z   DEB_CXXFLAGS_MAINT_APPEND: -gdwarf-4 -gstrict-dwarf
+2026-10-04T14:14:10.5521330Z   DEB_LDFLAGS_MAINT_APPEND: -Wl,--build-id=sha1
+2026-10-04T14:14:10.5521488Z   CC: ccache clang-21
+2026-10-04T14:14:10.5521609Z   CXX: ccache clang++-21
+2026-10-04T14:14:10.5521735Z   CC_LD: lld-21
+2026-10-04T14:14:10.5521843Z   CXX_LD: lld-21
+2026-10-04T14:14:10.5521951Z   AR: llvm-ar-21
+2026-10-04T14:14:10.5522065Z   RANLIB: llvm-ranlib-21
+2026-10-04T14:14:10.5522187Z   NM: llvm-nm-21
+2026-10-04T14:14:10.5522570Z   XEMU_BUILD_OPTIONS: --extra-ldflags=-Wl,--thinlto-cache-policy=cache_size_bytes=512m -Db_lto=true -Db_lto_mode=thin -Db_thinlto_cache=true -Db_thinlto_cache_dir=/tmp/xemu-lto-cache -Dx86_version=3
+2026-10-04T14:14:10.5523353Z   PATH: /usr/lib/ccache:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+2026-10-04T14:14:10.5523882Z   VERSION: 0.8.136-0-g4813c2b169ab
+2026-10-04T14:14:10.5524021Z ##[endgroup]
+2026-10-04T14:14:11.0054254Z https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage:
+2026-10-04T14:14:11.0054598Z 2026-10-04 14:14:11 ERROR 500: Internal Server Error.
+2026-10-04T14:14:11.0074068Z ##[error]Process completed with exit code 8.
+2026-10-04T14:14:11.0135839Z Cleaning up orphan processes

@@ -1,0 +1,417 @@
+{
+  "runId": "20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029",
+  "job": "pr283-win-morrowind-repair-preflight-v2-t001",
+  "jobPackage": "agent-pr283-win-morrowind-repair-preflight-v2-t001",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T14:18:31.4615037+00:00",
+  "endedUtc": "2026-10-04T14:19:16.2343903+00:00",
+  "durationMs": 44772.887,
+  "processId": 317796,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029",
+    "ExecutableSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+    "Platform": "windows",
+    "ProcessId": 317796,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": "vm-20260929162035",
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-pr283-win-morrowind-repair-preflight-v2-t001\\xemu.toml",
+    "-drive",
+    "index=0,media=disk,file=C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029\\hdd.qcow2,locked=on",
+    "-name",
+    "xemu-pr267-morrowind,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-loadvm",
+    "vm-20260929162035",
+    "-qmp",
+    "tcp:127.0.0.1:64789,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/scene-entry.png satisfied the declared requirement."
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/scene-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/measurement-ready.png satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 85."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "monitor/cpu_mean",
+        "Value": 285.762737704918,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_mean"
+      },
+      {
+        "Name": "monitor/cpu_median",
+        "Value": 283.879,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_median"
+      },
+      {
+        "Name": "monitor/cpu_samples",
+        "Value": 61,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/cpu_samples"
+      },
+      {
+        "Name": "monitor/collector_duty_mean",
+        "Value": 10.70260655737705,
+        "Unit": "pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/collector_duty_mean"
+      },
+      {
+        "Name": "monitor/duty_samples",
+        "Value": 61,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/duty_samples"
+      },
+      {
+        "Name": "monitor/overruns",
+        "Value": 0,
+        "Unit": "count",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/overruns"
+      },
+      {
+        "Name": "guest/cadence_fps",
+        "Value": 33.23143291425425,
+        "Unit": "fps",
+        "Direction": "higher",
+        "Source": "result:performance.json#guest/cadence_fps"
+      },
+      {
+        "Name": "guest/flip_frames",
+        "Value": 833,
+        "Unit": "frames",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_frames"
+      },
+      {
+        "Name": "guest/flip_elapsed_s",
+        "Value": 25.066629,
+        "Unit": "s",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_elapsed_s"
+      },
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 30.01247298919569,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 33.329,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 33.6908,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 50.014359999999996,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 833,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "scene-entry-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/scene-entry.png satisfied the declared requirement."
+      },
+      {
+        "Name": "scene-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/scene-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/measurement-ready.png satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segment",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 85."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr267-morrowind-user-snapshot-start-b-v12",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "morrowind-goty-disc",
+      "snapshot-vm-20260929162035",
+      "vulkan-renderer",
+      "64mb-ram",
+      "controller-connected",
+      "start-then-2s-then-b",
+      "30-second-scene-window"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-141831461-f1ad22a3ad0b436eacd71f0ac591e029",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 645,
+    "TimestampUtc": "2026-10-04T14:18:32.6552764+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 36,
+    "TimestampUtc": "2026-10-04T14:19:15.7138674+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 85,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 10.560079529411762,
+    "maxCollectorDutyPercent": 13.844120000000002,
+    "maxCollectorDurationMs": 69.2206,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

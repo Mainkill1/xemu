@@ -1,0 +1,280 @@
+{
+  "host": "deck",
+  "parent": "3ba880bb4ed1d319cbb10bf2b29c9cf25ffa3aa6",
+  "candidate": "48132edc68bf92b1b404fdb01d1142cf1f0e9c39",
+  "scope": "Secondary medians of eight canonical per-run metrics; Windows driver cache ineligible. Deck complete retryv2 retained separately from earlier 4 valid cells and fifth prelaunch QMP timeout. Guest READ3D cadence is not presented FPS; GPU is whole-host.",
+  "runs": [
+    {
+      "cell": 1,
+      "variant": "parent",
+      "runId": "20261004-144432748-41810b65b1c24d5091681ef5e21eb7c3",
+      "cpu": 224.05141935483877,
+      "gpu": 62.04838709677419,
+      "cadence": 13.221058406255567,
+      "avg": 73.49405865102635,
+      "p95": 99.981,
+      "p99": 100.43620000000001,
+      "max": 128.174,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1"
+    },
+    {
+      "cell": 2,
+      "variant": "candidate",
+      "runId": "20261004-144522244-f594109730374479a5677613486b5eae",
+      "cpu": 225.81267741935483,
+      "gpu": 77.96774193548387,
+      "cadence": 12.984758355632438,
+      "avg": 75.0000359281437,
+      "p95": 100.0374,
+      "p99": 116.65087000000001,
+      "max": 133.312,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6"
+    },
+    {
+      "cell": 3,
+      "variant": "candidate",
+      "runId": "20261004-144611581-515e873b1c5a4d519efde38e5afbd66e",
+      "cpu": 219.3903770491803,
+      "gpu": 86.08196721311475,
+      "cadence": 13.35985635927771,
+      "avg": 73.03193877551016,
+      "p95": 99.97959999999999,
+      "p99": 100.69719999999998,
+      "max": 133.16,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6"
+    },
+    {
+      "cell": 4,
+      "variant": "parent",
+      "runId": "20261004-144701331-7f2db0c68321448d910df098bbf4d356",
+      "cpu": 221.29341935483865,
+      "gpu": 73.1774193548387,
+      "cadence": 12.103522061217067,
+      "avg": 80.03205431309907,
+      "p95": 100.12660000000001,
+      "p99": 116.65096,
+      "max": 150.028,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1"
+    },
+    {
+      "cell": 5,
+      "variant": "candidate",
+      "runId": "20261004-144750632-41b7477885464e8cb4f4add084aa676e",
+      "cpu": 223.0634677419355,
+      "gpu": 71.08064516129032,
+      "cadence": 13.104236857889912,
+      "avg": 74.67771044776121,
+      "p95": 99.9979,
+      "p99": 116.72655999999999,
+      "max": 133.407,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6"
+    },
+    {
+      "cell": 6,
+      "variant": "parent",
+      "runId": "20261004-144839920-a05e762edbd44f4ca22b596e1dff8fc2",
+      "cpu": 215.42580645161286,
+      "gpu": 69.95161290322581,
+      "cadence": 12.666957927530513,
+      "avg": 78.02515576323991,
+      "p95": 100,
+      "p99": 107.3426000000001,
+      "max": 129.377,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1"
+    },
+    {
+      "cell": 7,
+      "variant": "parent",
+      "runId": "20261004-144929896-a3ba80c55bfe4a6ea39b433e456da8ed",
+      "cpu": 223.34262295081967,
+      "gpu": 70.73770491803279,
+      "cadence": 12.863500080555685,
+      "avg": 74.73890447761187,
+      "p95": 100.0258,
+      "p99": 112.66778000000029,
+      "max": 154.199,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1"
+    },
+    {
+      "cell": 8,
+      "variant": "candidate",
+      "runId": "20261004-145019130-224b0e18e83740419d01e48f587c51fa",
+      "cpu": 220.5930322580645,
+      "gpu": 73.54838709677419,
+      "cadence": 12.940193630409313,
+      "avg": 75.13591291291293,
+      "p95": 99.991,
+      "p99": 112.53024000000009,
+      "max": 140.686,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "sha256": "8e80648fd53e39b705019f96c5c61328df4790b7fc09dc662dcb72cf9eecfbe6"
+    }
+  ],
+  "metrics": [
+    {
+      "metric": "cpu",
+      "before": 222.31802115282915,
+      "after": 221.82825000000003,
+      "difference": -0.4897711528291211,
+      "improvementPercent": 0.22030204762052796,
+      "ABBA": {
+        "before": 222.67241935483872,
+        "after": 222.60152723426756,
+        "difference": -0.07089212057115901,
+        "improvementPercent": 0.03183695617829937
+      },
+      "BAAB": {
+        "before": 219.38421470121625,
+        "after": 221.82825000000003,
+        "difference": 2.444035298783774,
+        "improvementPercent": -1.114043370035695
+      }
+    },
+    {
+      "metric": "cadence",
+      "before": 12.7652290040431,
+      "after": 13.044497606761176,
+      "difference": 0.2792686027180764,
+      "improvementPercent": 2.187728889388701,
+      "ABBA": {
+        "before": 12.662290233736318,
+        "after": 13.172307357455075,
+        "difference": 0.5100171237187574,
+        "improvementPercent": 4.0278426280256285
+      },
+      "BAAB": {
+        "before": 12.7652290040431,
+        "after": 13.022215244149614,
+        "difference": 0.2569862401065137,
+        "improvementPercent": 2.0131737552465303
+      }
+    },
+    {
+      "metric": "avg",
+      "before": 76.3820301204259,
+      "after": 74.83887318795246,
+      "difference": -1.5431569324734369,
+      "improvementPercent": 2.0203141105839366,
+      "ABBA": {
+        "before": 76.76305648206271,
+        "after": 74.01598735182694,
+        "difference": -2.747069130235772,
+        "improvementPercent": 3.5786343797783537
+      },
+      "BAAB": {
+        "before": 76.3820301204259,
+        "after": 74.90681168033707,
+        "difference": -1.475218440088824,
+        "improvementPercent": 1.931368461617158
+      }
+    },
+    {
+      "metric": "p95",
+      "before": 100.0129,
+      "after": 99.99445,
+      "difference": -0.01845000000000141,
+      "improvementPercent": 0.01844762025698826,
+      "ABBA": {
+        "before": 100.0538,
+        "after": 100.0085,
+        "difference": -0.04529999999999745,
+        "improvementPercent": 0.0452756417047603
+      },
+      "BAAB": {
+        "before": 100.0129,
+        "after": 99.99445,
+        "difference": -0.01845000000000141,
+        "improvementPercent": 0.01844762025698826
+      }
+    },
+    {
+      "metric": "p99",
+      "before": 110.0051900000002,
+      "after": 114.59055500000005,
+      "difference": 4.585364999999854,
+      "improvementPercent": -4.168316967590207,
+      "ABBA": {
+        "before": 108.54358,
+        "after": 108.674035,
+        "difference": 0.13045499999999777,
+        "improvementPercent": -0.12018674895373616
+      },
+      "BAAB": {
+        "before": 110.0051900000002,
+        "after": 114.62840000000004,
+        "difference": 4.623209999999844,
+        "improvementPercent": -4.20271988985232
+      }
+    },
+    {
+      "metric": "max",
+      "before": 139.7025,
+      "after": 133.35950000000003,
+      "difference": -6.342999999999961,
+      "improvementPercent": 4.540362556146069,
+      "ABBA": {
+        "before": 139.101,
+        "after": 133.236,
+        "difference": -5.865000000000009,
+        "improvementPercent": 4.216360773826219
+      },
+      "BAAB": {
+        "before": 141.788,
+        "after": 137.0465,
+        "difference": -4.741500000000002,
+        "improvementPercent": 3.344077072812933
+      }
+    }
+  ],
+  "gpu": {
+    "parent": 70.3446589106293,
+    "candidate": 75.75806451612902
+  }
+}

@@ -1,0 +1,13 @@
+TAP version 14
+# random seed: R02S7d85c2f1a6c01ff63057155e65311c9a
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/producer-d24s8
+ok 2 /xbox/vk/alias/producer-d32s8
+ok 3 /xbox/vk/alias/producer-rewrite
+ok 4 /xbox/vk/alias/producer-clear
+# End of alias tests
+# End of vk tests
+# End of xbox tests

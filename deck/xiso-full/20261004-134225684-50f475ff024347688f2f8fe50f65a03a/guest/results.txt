@@ -1,0 +1,29 @@
+[
+  {
+    "schema_version": 1,
+    "id": "shader_lifecycle.readiness_replay_visible",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "ShaderLifecycle::readiness.replay-visible",
+    "outcome": "PASS",
+    "iterations": 4,
+    "sample_count": 1,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 124,
+    "total_us": 65963,
+    "average_us": 16490,
+    "min_us": 16490,
+    "max_us": 16490,
+    "median_us": 16490,
+    "p95_us": 16490,
+    "mad_us": 0,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      16490
+    ],
+    "framebuffer_fnv1a64": "d4c939c4f0ce4325"
+  }
+]

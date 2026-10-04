@@ -1,0 +1,468 @@
+{
+  "runId": "20261004-140241370-7c1b1ca80f7240c6833820fdd32d8fc9",
+  "job": "xc-pr282-3ba-deck-vk-full-candidate-v1-002",
+  "jobPackage": "agent-xc-pr282-3ba-deck-vk-full-candidate-v1-002",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-04T14:02:41.3703612+00:00",
+  "endedUtc": "2026-10-04T14:05:40.0814982+00:00",
+  "durationMs": 178711.1371,
+  "processId": 588361,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261004-140241370-7c1b1ca80f7240c6833820fdd32d8fc9",
+    "ExecutableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+    "Platform": "linux",
+    "ProcessId": 588361,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "c64ba8fb7bfacb910c268fcd388c0e981cf9890991bea650895a2e43f660bcc1",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-pr282-3ba-deck-vk-full-candidate-v1-002/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:33567,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 5 leaves and 0 groups; received 5. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 5 stable IDs; received 5. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_floating_point.sse_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_floating_point.x87_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.direct_loop",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.indirect_dispatch",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.indirect_dispatch_stress",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/cpu_floating_point/sse_scalar/mean_us",
+        "Value": 1199553.2,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/sse_scalar/median_us",
+        "Value": 1187873.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/sse_scalar/min_us",
+        "Value": 1177126,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/sse_scalar/max_us",
+        "Value": 1244224,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/sse_scalar/p95_us",
+        "Value": 1244224,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.sse_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/mean_us",
+        "Value": 1158895.8,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/median_us",
+        "Value": 1158181.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/min_us",
+        "Value": 1149355,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/max_us",
+        "Value": 1169290,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/p95_us",
+        "Value": 1169290,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/direct_loop/mean_us",
+        "Value": 20283.1,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/direct_loop/median_us",
+        "Value": 20403,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/direct_loop/min_us",
+        "Value": 18814,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/direct_loop/max_us",
+        "Value": 21246,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/direct_loop/p95_us",
+        "Value": 21246,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch/mean_us",
+        "Value": 68679.9,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch/median_us",
+        "Value": 68656,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch/min_us",
+        "Value": 67592,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch/max_us",
+        "Value": 69624,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch/p95_us",
+        "Value": 69624,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/mean_us",
+        "Value": 1375514.9,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/median_us",
+        "Value": 1378851.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/min_us",
+        "Value": 1349764,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/max_us",
+        "Value": 1396719,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/p95_us",
+        "Value": 1396719,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "eligible",
+    "ComparisonReasons": [],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 5 leaves and 0 groups; received 5. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 5 stable IDs; received 5. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_floating_point.sse_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_floating_point.x87_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.direct_loop",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.indirect_dispatch",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.indirect_dispatch_stress",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "eligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261004-140241370-7c1b1ca80f7240c6833820fdd32d8fc9",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 357,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3512349019607842,
+    "maxCollectorDutyPercent": 0.74,
+    "maxCollectorDurationMs": 3.7,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

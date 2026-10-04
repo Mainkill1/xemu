@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S9de8bef56bad468c77c53b7e44d64b05
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+**
+ERROR:../tests/unit/test-xbox-vk-alias-blit.c:144:test_full_blend: assertion failed (guest + 64 == expected)
+not ok /xbox/vk/alias/full-blend-owned-ram - ERROR:../tests/unit/test-xbox-vk-alias-blit.c:144:test_full_blend: assertion failed (guest + 64 == expected)
+Bail out!

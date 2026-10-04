@@ -1,0 +1,12 @@
+WARNING: added, moved or deleted file(s):
+
+  tests/unit/test-xbox-vk-alias-blit.c
+  tests/unit/test-xbox-vk-alias-producer-lookup.c
+
+Does MAINTAINERS need updating?
+
+total: 0 errors, 1 warnings, 534 lines checked
+
+../.scratch/pr282-latest-qualification/pr290-coherence-repair.patch has style problems, please review.  If any of these errors
+are false positives report them to the maintainer, see
+CHECKPATCH in MAINTAINERS.

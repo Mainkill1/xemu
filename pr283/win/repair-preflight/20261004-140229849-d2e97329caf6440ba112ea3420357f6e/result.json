@@ -1,0 +1,378 @@
+{
+  "runId": "20261004-140229849-d2e97329caf6440ba112ea3420357f6e",
+  "job": "pr283-win-conker-repair-preflight-v1-t001",
+  "jobPackage": "agent-pr283-win-conker-repair-preflight-v1-t001",
+  "attempt": 1,
+  "status": "plan_failed",
+  "detail": "System.TimeoutException: wait_for_scene timed out after 15000 ms for \u0027result:screenshots/measurement-ready.png\u0027. Last state: PNG scene fingerprint distance is 33; expected at most 12. Expected e3657551ad8daba1; actual 4747474753d35353. Last mismatching frame: screenshots/measurement-ready.last-mismatch.png\r\n   at XemuTestRunner.Runtime.LiveSceneConditionWaiter.WaitAsync(ArtifactCheckDefinition condition, Int32 timeoutMs, Int32 pollIntervalMs, String resultDirectory, Func\u00602 capture, CancellationToken cancellationToken) in /_/src/XemuTestRunner/Runtime/LiveSceneConditionWaiter.cs:line 93\r\n   at XemuTestRunner.Runtime.RunnerEngine.\u003C\u003Ec__DisplayClass13_1.\u003C\u003CExecuteJobAsync\u003Eb__11\u003Ed.MoveNext() in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 781\r\n--- End of stack trace from previous location ---\r\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter, Func\u00605 sceneWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 625\r\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter, Func\u00605 sceneWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 646\r\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 852 plan: wait_for_scene timed out after 15000 ms for \u0027result:screenshots/measurement-ready.png\u0027. Last state: PNG scene fingerprint distance is 33; expected at most 12. Expected e3657551ad8daba1; actual 4747474753d35353. Last mismatching frame: screenshots/measurement-ready.last-mismatch.png",
+  "startedUtc": "2026-10-04T14:02:29.8491339+00:00",
+  "endedUtc": "2026-10-04T14:04:04.2349307+00:00",
+  "durationMs": 94385.7971,
+  "processId": 234952,
+  "exitCode": -1,
+  "crash": {
+    "RunId": "20261004-140229849-d2e97329caf6440ba112ea3420357f6e",
+    "ExecutableSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+    "Platform": "windows",
+    "ProcessId": 234952,
+    "ExitCode": -1,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "windows_event_unavailable",
+      "matching_windows_dump_unavailable"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-pr283-win-conker-repair-preflight-v1-t001/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:63329,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\recording-start.png"
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\recording-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\measurement-ready.png"
+      },
+      {
+        "Name": "segments",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 163."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "metric:guest/interval_max_ms",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Reported metric was extracted successfully."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "guest/cadence_fps",
+        "Value": 59.99975216624688,
+        "Unit": "fps",
+        "Direction": "higher",
+        "Source": "result:performance.json#guest/cadence_fps"
+      },
+      {
+        "Name": "guest/flip_frames",
+        "Value": 1501,
+        "Unit": "frames",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_frames"
+      },
+      {
+        "Name": "guest/flip_elapsed_s",
+        "Value": 25.01677,
+        "Unit": "s",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_elapsed_s"
+      },
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 17.349156141568354,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 16.666,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 16.876,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 17.0514,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 1441,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      },
+      {
+        "Name": "guest/interval_max_ms",
+        "Value": 966.777,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#Frames.IntervalsMs.Max"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\recording-start.png"
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\recording-end.png"
+      },
+      {
+        "Name": "measurement-ready",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e\\screenshots\\measurement-ready.png"
+      },
+      {
+        "Name": "segments",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 163."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "metric:guest/interval_max_ms",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Reported metric was extracted successfully."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache",
+      "windows-vulkan-shared-driver-cache-explicit-limit"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261004-140229849-d2e97329caf6440ba112ea3420357f6e",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 2860,
+    "TimestampUtc": "2026-10-04T14:02:34.155196+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 57,
+    "TimestampUtc": "2026-10-04T14:04:04.2198451+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-03T19:20:23.7189662+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 163,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 10.555147484662575,
+    "maxCollectorDutyPercent": 13.45848,
+    "maxCollectorDurationMs": 67.2924,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

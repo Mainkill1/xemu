@@ -1,0 +1,13 @@
+{
+  "Active": true,
+  "Paused": false,
+  "ProcessId": 592500,
+  "QmpHost": "127.0.0.1",
+  "QmpPort": 40293,
+  "InputProvider": "native-os-gamepad",
+  "InputAvailable": false,
+  "Recording": false,
+  "RecordingStartedUtc": null,
+  "RecordedSteps": 0,
+  "ControllerSessionId": "542a72a0088744ebb2566cc0d7ca3b78"
+}

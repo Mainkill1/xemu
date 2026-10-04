@@ -1,0 +1,53 @@
+{
+  "JobId": "pr283-win-conker-repair-preflight-v1-t001",
+  "CreatedUtc": "2026-10-04T14:02:29.9667122+00:00",
+  "PackageDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-pr283-win-conker-repair-preflight-v1-t001",
+  "JobManifestSha256": "bff44cc9151b9df20e135bd746104f08ef27f5f14ae260d32906d602fcbc2db9",
+  "ExecutableSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "native-ci-executable",
+      "Bytes": 44382739,
+      "LastWriteUtc": "2026-10-04T14:02:27.9567272Z",
+      "Sha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+      "ExpectedSha256": "64439cbf58a977a0f52ca445b6c94de479af8b12bcf5306b5b0d2815f3de9fb6",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Bytes": 529,
+      "LastWriteUtc": "2026-10-04T14:02:28.4339873Z",
+      "Sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+      "ExpectedSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-04T14:02:27.9386806Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-pgr2-save-portable-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "pr267-pgr2-save-portable-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}
