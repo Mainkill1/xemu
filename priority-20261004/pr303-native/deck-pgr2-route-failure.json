@@ -1,0 +1,83 @@
+{
+  "host": "deck",
+  "title": "pgr2",
+  "cell": 2,
+  "variant": "candidate",
+  "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
+  "source": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Correctness outcome is Failed; a passing correctness contract is required."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 0.080% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 2.549% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required >= 160; actual 250."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": false
+  },
+  "sceneInspection": "Recording start/end show MINI Cooper car-selection menu, not race. Normal emulator exit0; no crash. Correctness failure excludes menu FPS/CPU from gain claims.",
+  "remaining": "Cells3\u20138 not yet attempted; scheduled after already active305/302/296 to avoid interrupting sessions. Split block remains ineligible. Original inputs/timing/boundary unchanged."
+}
