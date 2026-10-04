@@ -1,0 +1,11 @@
+WARNING: added, moved or deleted file(s):
+
+  tests/unit/test-xbox-vk-small-color-upload.c
+
+Does MAINTAINERS need updating?
+
+total: 0 errors, 1 warnings, 275 lines checked
+
+Your patch has style problems, please review.  If any of these errors
+are false positives report them to the maintainer, see
+CHECKPATCH in MAINTAINERS.

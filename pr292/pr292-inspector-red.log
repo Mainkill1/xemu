@@ -1,0 +1,68 @@
+EEEEEEE
+======================================================================
+ERROR: test_executable_error_is_actionable (__main__.InspectorChecks.test_executable_error_is_actionable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 79, in test_executable_error_is_actionable
+    self.helpers['executable_hash'](Path('/proc/123/exe'))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'executable_hash'
+
+======================================================================
+ERROR: test_executable_hash_is_streamed (__main__.InspectorChecks.test_executable_hash_is_streamed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 73, in test_executable_hash_is_streamed
+    actual = self.helpers['executable_hash'](Path('/proc/123/exe'))
+             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'executable_hash'
+
+======================================================================
+ERROR: test_missing_layout_field_is_named (__main__.InspectorChecks.test_missing_layout_field_is_named)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 84, in test_missing_layout_field_is_named
+    self.helpers['check_audio_fields']()
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'check_audio_fields'
+
+======================================================================
+ERROR: test_null_string_does_not_read (__main__.InspectorChecks.test_null_string_does_not_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 39, in test_null_string_does_not_read
+    self.assertIsNone(self.helpers['optional_string'](0, 'driver.name'))
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+TypeError: optional_string() takes 1 positional argument but 2 were given
+
+======================================================================
+ERROR: test_string_stops_at_nul (__main__.InspectorChecks.test_string_stops_at_nul)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 44, in test_string_stops_at_nul
+    self.assertEqual(self.helpers['optional_string'](1000, 'driver.name'),
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: optional_string() takes 1 positional argument but 2 were given
+
+======================================================================
+ERROR: test_unreadable_string_identifies_field (__main__.InspectorChecks.test_unreadable_string_identifies_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 61, in test_unreadable_string_identifies_field
+    self.helpers['optional_string'](1000, 'voice.name')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+TypeError: optional_string() takes 1 positional argument but 2 were given
+
+======================================================================
+ERROR: test_unterminated_string_is_bounded_and_named (__main__.InspectorChecks.test_unterminated_string_is_bounded_and_named)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 51, in test_unterminated_string_is_bounded_and_named
+    self.helpers['optional_string'](1000, 'driver.name')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: optional_string() takes 1 positional argument but 2 were given
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.004s
+
+FAILED (errors=7)

@@ -1,0 +1,14 @@
+TAP version 14
+# random seed: R02S9e5835014e9e45c82f8b96a61161b3ae
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of small-upload tests
+ok 1 /xbox/vk/small-upload/immutable-slices
+ok 2 /xbox/vk/small-upload/ring-exhaustion
+ok 3 /xbox/vk/small-upload/capacity-growth
+/home/codex/xemu-shader-workbench-handoff/.scratch/pr282-latest-qualification/pr291-small-upload: Vulkan small color upload flush failed: -5
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:204:test_upload: 'surface.upload_pending' should be TRUE
+not ok /xbox/vk/small-upload/flush-failure - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:204:test_upload: 'surface.upload_pending' should be TRUE
+Bail out!

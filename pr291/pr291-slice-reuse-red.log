@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Sf2fcb8f6b79c578a90b8b74cb16e9d96
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of small-upload tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:211:test_upload: assertion failed (copied_offset == mode == 0 ? 256 : 0): (0 == 256)
+not ok /xbox/vk/small-upload/immutable-slices - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:211:test_upload: assertion failed (copied_offset == mode == 0 ? 256 : 0): (0 == 256)
+Bail out!

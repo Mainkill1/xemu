@@ -1,0 +1,23 @@
+.....FF...
+======================================================================
+FAIL: test_report_does_not_follow_dangling_symlink (__main__.InspectorChecks.test_report_does_not_follow_dangling_symlink)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 115, in test_report_does_not_follow_dangling_symlink
+    with self.assertRaises(FileExistsError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: FileExistsError not raised
+
+======================================================================
+FAIL: test_report_is_created_once (__main__.InspectorChecks.test_report_is_created_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/xemu-pr292/tests/unit/test-xemu-audio-state.py", line 106, in test_report_is_created_once
+    with self.assertRaises(FileExistsError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: FileExistsError not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.012s
+
+FAILED (failures=2)
