@@ -1,0 +1,14 @@
+[
+  {
+    "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
+    "host": "win",
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "runnerOutcome": "completed/pass/eligible",
+    "visualReview": "Correct menu reached, but both recording-start and recording-end contain bright multicolored corrupt-looking textures on hanging glasses, lights and background display. Other seven Windows start images lack this pattern.",
+    "manualQualification": "VISUAL ANOMALY: do not treat the runner visibility gate as full rendered-output correctness; preserve original status and all numeric rows",
+    "attribution": "Unestablished. PR303 changes test-only source, not renderer/APU runtime; cannot claim it caused this or that the image proves a DMA-remap defect.",
+    "actions": "Keep screenshot evidence private, retain canonical numerical rows, disclose in owning PR. No test edits, silent exclusion/replacement or new rendering fix bundled."
+  }
+]

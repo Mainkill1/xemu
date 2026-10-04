@@ -426,13 +426,104 @@
   {
     "host": "win",
     "title": "pgr2",
-    "attempted": 6,
-    "completed": 6,
-    "completeOrder": false,
-    "runnerEligible": 6,
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {}
+    "metrics": {
+      "cpu": {
+        "A": 317.59726190476187,
+        "B": 318.1041094470046,
+        "improvementPercent": -0.15958813347538017,
+        "rangeA": [
+          310.0479523809524,
+          322.21895238095243
+        ],
+        "rangeB": [
+          317.0668412698413,
+          336.8844603174605
+        ],
+        "ABBA": 0.13303814352452703,
+        "BAAB": -3.734994734305425
+      },
+      "guestFlipCadence": {
+        "A": 29.99997549802999,
+        "B": 30.00002132879579,
+        "improvementPercent": 0.0001527693441027873,
+        "rangeA": [
+          29.999843427111994,
+          29.999989243031745
+        ],
+        "rangeB": [
+          30.00001515958213,
+          30.000023076940828
+        ],
+        "ABBA": 0.00011951772042562398,
+        "BAAB": 0.00037586336868029933
+      },
+      "avgFrameMs": {
+        "A": 33.33336266666671,
+        "B": 33.33326631158458,
+        "improvementPercent": 0.00028906499200752984,
+        "rangeA": [
+          33.33333688415447,
+          33.333448000000026
+        ],
+        "rangeB": [
+          33.332997336884134,
+          33.334807999999995
+        ],
+        "ABBA": 0.000393064491651487,
+        "BAAB": -0.0016346778957535895
+      },
+      "p95FrameMs": {
+        "A": 33.56175,
+        "B": 33.57575,
+        "improvementPercent": -0.04171415376133781,
+        "rangeA": [
+          33.510000000000005,
+          33.59865
+        ],
+        "rangeB": [
+          33.5687,
+          33.620999999999995
+        ],
+        "ABBA": -0.07946301767325237,
+        "BAAB": -0.0830178555459317
+      },
+      "p99FrameMs": {
+        "A": 33.944065,
+        "B": 34.22,
+        "improvementPercent": -0.8129108873671934,
+        "rangeA": [
+          33.894890000000004,
+          34.059
+        ],
+        "rangeB": [
+          33.94,
+          34.231069999999995
+        ],
+        "ABBA": -0.3864740419274916,
+        "BAAB": -0.7456232454094809
+      },
+      "maxFrameMs": {
+        "A": 34.4345,
+        "B": 34.4965,
+        "improvementPercent": -0.18005198274985149,
+        "rangeA": [
+          34.285,
+          34.893
+        ],
+        "rangeB": [
+          34.349,
+          34.537
+        ],
+        "ABBA": -0.3715522140140686,
+        "BAAB": 0.6093695977872563
+      }
+    }
   }
 ]

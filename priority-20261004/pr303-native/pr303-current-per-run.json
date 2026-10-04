@@ -998,5 +998,55 @@
     "p99FrameMs": 34.059,
     "maxFrameMs": 34.523,
     "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 7,
+    "variant": "parent",
+    "request": "pr303-win-pgr2-balanced-07-parent-v2-t001",
+    "host": "win",
+    "runId": "20261004-220617529-d1862111e0784db99415ea0d7a98af83",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "cpu": 320.3577301587301,
+    "guestFlipCadence": 29.999967729118378,
+    "avgFrameMs": 33.333378666666725,
+    "p95FrameMs": 33.584,
+    "p99FrameMs": 33.894890000000004,
+    "maxFrameMs": 34.893,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "pr303-win-pgr2-balanced-08-candidate-v2-t001",
+    "host": "win",
+    "runId": "20261004-220831436-fb71bfeedbb5499280feb697996c2655",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "255f3535589b89ecf5d091a1815b1af4289138b5a97a72bf1bb8067202dd7fcb",
+    "source": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "cpu": 336.8844603174605,
+    "guestFlipCadence": 30.00001515958213,
+    "avgFrameMs": 33.334807999999995,
+    "p95FrameMs": 33.5687,
+    "p99FrameMs": 34.231069999999995,
+    "maxFrameMs": 34.52,
+    "failureDetail": null
   }
 ]
