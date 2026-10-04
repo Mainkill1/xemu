@@ -1,0 +1,17 @@
+WARNING: Does new file 'docs/superpowers/plans/2026-10-03-tcg-victim8.md' need 'SPDX-License-Identifier'?
+WARNING: Does new file 'docs/superpowers/specs/2026-10-03-tcg-victim8-design.md' need 'SPDX-License-Identifier'?
+WARNING: added, moved or deleted file(s):
+
+  accel/tcg/tb-victim-cache.c
+  accel/tcg/tb-victim-cache.h
+  docs/superpowers/plans/2026-10-03-tcg-victim8.md
+  docs/superpowers/specs/2026-10-03-tcg-victim8-design.md
+  tests/unit/test-tcg-victim-cache.c
+
+Does MAINTAINERS need updating?
+
+total: 0 errors, 3 warnings, 1094 lines checked
+
+Your patch has style problems, please review.  If any of these errors
+are false positives report them to the maintainer, see
+CHECKPATCH in MAINTAINERS.

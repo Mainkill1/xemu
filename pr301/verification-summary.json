@@ -1,0 +1,21 @@
+{
+  "candidate": "6688519c67c6c652c650434377c7f283b9b262f6",
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "helperChecks": 14,
+  "runtimeTUs": [
+    "cpu-exec.c",
+    "cputlb.c",
+    "tb-maint.c",
+    "translate-all.c"
+  ],
+  "buildModes": [
+    "ON",
+    "OFF"
+  ],
+  "strictCompilation": true,
+  "limitations": [
+    "No current VM/native qualification",
+    "Historical above-capacity10 regression56.15%",
+    "No weak-memory guest proof"
+  ]
+}

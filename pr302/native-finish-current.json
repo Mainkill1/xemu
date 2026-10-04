@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 8,
+  "mode": "finalizedFinishLog",
+  "frameRecords": 3777,
+  "observedTimestampSpanMs": 447519.068,
+  "durationSampling": {
+    "initial_per_reason_per_frame": 8,
+    "hot_stride": 16
+  },
+  "durationMeaning": "Host elapsed sampled submit/fence-wait milliseconds, not CPU time, GPU work or predicted savings. Durations are not extrapolated; partial coverage omits untimed submissions.",
+  "coverageMeaning": "Counters are grouped at PGRAPH control-frame boundaries; first bucket start and activity after the final record are unobserved. Not displayed FPS.",
+  "all": {
+    "reasons": {
+      "vertex_buffer_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "surface_create": {
+        "calls": 93,
+        "submits": 77,
+        "timingSamples": 36,
+        "fenceWaits": 77,
+        "sampledSubmitHostElapsedMs": 2.564,
+        "sampledFenceWaitHostElapsedMs": 14.793,
+        "durationCoverage": "partial"
+      },
+      "surface_down": {
+        "calls": 108,
+        "submits": 39,
+        "timingSamples": 39,
+        "fenceWaits": 39,
+        "sampledSubmitHostElapsedMs": 4.063,
+        "sampledFenceWaitHostElapsedMs": 124.16,
+        "durationCoverage": "all_submissions"
+      },
+      "need_buffer_space": {
+        "calls": 448,
+        "submits": 448,
+        "timingSamples": 448,
+        "fenceWaits": 448,
+        "sampledSubmitHostElapsedMs": 59.246,
+        "sampledFenceWaitHostElapsedMs": 1785.359,
+        "durationCoverage": "all_submissions"
+      },
+      "framebuffer_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "presenting": {
+        "calls": 3508,
+        "submits": 3508,
+        "timingSamples": 3508,
+        "fenceWaits": 3508,
+        "sampledSubmitHostElapsedMs": 337.733,
+        "sampledFenceWaitHostElapsedMs": 2963.804,
+        "durationCoverage": "all_submissions"
+      },
+      "flip_stall": {
+        "calls": 3777,
+        "submits": 2443,
+        "timingSamples": 2443,
+        "fenceWaits": 2443,
+        "sampledSubmitHostElapsedMs": 275.634,
+        "sampledFenceWaitHostElapsedMs": 4815.008,
+        "durationCoverage": "all_submissions"
+      },
+      "flush": {
+        "calls": 1,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "stalled": {
+        "calls": 131,
+        "submits": 131,
+        "timingSamples": 131,
+        "fenceWaits": 131,
+        "sampledSubmitHostElapsedMs": 16.782,
+        "sampledFenceWaitHostElapsedMs": 183.146,
+        "durationCoverage": "all_submissions"
+      },
+      "texture_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      }
+    }
+  },
+  "tail": {
+    "seconds": 300,
+    "startTimestampUs": 297960107288,
+    "endTimestampUs": 298260107288,
+    "completeBucketCount": 108,
+    "completeBuckets": {
+      "vertex_buffer_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "surface_create": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "surface_down": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "need_buffer_space": {
+        "calls": 189,
+        "submits": 189,
+        "timingSamples": 189,
+        "fenceWaits": 189,
+        "sampledSubmitHostElapsedMs": 27.268,
+        "sampledFenceWaitHostElapsedMs": 524.04,
+        "durationCoverage": "all_submissions"
+      },
+      "framebuffer_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "presenting": {
+        "calls": 108,
+        "submits": 108,
+        "timingSamples": 108,
+        "fenceWaits": 108,
+        "sampledSubmitHostElapsedMs": 12.631,
+        "sampledFenceWaitHostElapsedMs": 84.826,
+        "durationCoverage": "all_submissions"
+      },
+      "flip_stall": {
+        "calls": 108,
+        "submits": 108,
+        "timingSamples": 108,
+        "fenceWaits": 108,
+        "sampledSubmitHostElapsedMs": 14.287,
+        "sampledFenceWaitHostElapsedMs": 126.24,
+        "durationCoverage": "all_submissions"
+      },
+      "flush": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      },
+      "stalled": {
+        "calls": 87,
+        "submits": 87,
+        "timingSamples": 87,
+        "fenceWaits": 87,
+        "sampledSubmitHostElapsedMs": 11.821,
+        "sampledFenceWaitHostElapsedMs": 111.124,
+        "durationCoverage": "all_submissions"
+      },
+      "texture_dirty": {
+        "calls": 0,
+        "submits": 0,
+        "timingSamples": 0,
+        "fenceWaits": 0,
+        "sampledSubmitHostElapsedMs": 0.0,
+        "sampledFenceWaitHostElapsedMs": 0.0,
+        "durationCoverage": "no_submissions"
+      }
+    },
+    "straddlingBucket": {
+      "guestFrame": 3669,
+      "startTimestampUs": 297959891954,
+      "endTimestampUs": 297960109352,
+      "reasons": {
+        "vertex_buffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "surface_create": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "surface_down": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "need_buffer_space": {
+          "calls": 1,
+          "submits": 1,
+          "timingSamples": 1,
+          "fenceWaits": 1,
+          "sampledSubmitHostElapsedMs": 0.117,
+          "sampledFenceWaitHostElapsedMs": 2.477,
+          "durationCoverage": "all_submissions"
+        },
+        "framebuffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "presenting": {
+          "calls": 1,
+          "submits": 1,
+          "timingSamples": 1,
+          "fenceWaits": 1,
+          "sampledSubmitHostElapsedMs": 0.088,
+          "sampledFenceWaitHostElapsedMs": 0.333,
+          "durationCoverage": "all_submissions"
+        },
+        "flip_stall": {
+          "calls": 1,
+          "submits": 1,
+          "timingSamples": 1,
+          "fenceWaits": 1,
+          "sampledSubmitHostElapsedMs": 0.177,
+          "sampledFenceWaitHostElapsedMs": 0.197,
+          "durationCoverage": "all_submissions"
+        },
+        "flush": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "stalled": {
+          "calls": 2,
+          "submits": 2,
+          "timingSamples": 2,
+          "fenceWaits": 2,
+          "sampledSubmitHostElapsedMs": 0.243,
+          "sampledFenceWaitHostElapsedMs": 3.733,
+          "durationCoverage": "all_submissions"
+        },
+        "texture_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        }
+      }
+    }
+  },
+  "sourcePath": ".scratch/pr302-local/issue250-finish-native-20261003-vk-perf.jsonl",
+  "sourceSha256": "1c8545c6cb146bdf06abfe796b2cecd3a55f7abed8ab82fdb4c805b42b57c1a2",
+  "sourceBytes": 14529127
+}

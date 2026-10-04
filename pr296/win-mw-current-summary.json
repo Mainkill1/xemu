@@ -1,0 +1,289 @@
+{
+  "host": "win",
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "candidate": "4301f6717e897fe783d5a021c689407d77e6aaad",
+  "scope": "Median of four canonical per-run means/percentiles per side; ABBA then BAAB, not pooled frame samples. READ3D cadence is not presented FPS. GPU whole-host utilization, not attributed cost. Windows cache ineligible.",
+  "runs": [
+    {
+      "cell": 1,
+      "variant": "parent",
+      "runId": "20261004-170527395-faedae7da06a46e488de955b189d2499",
+      "cpu": 278.28059016393433,
+      "gpu": 66.73770491803279,
+      "cadence": 31.713315453026105,
+      "avg": 31.38852070263487,
+      "p95": 33.755,
+      "p99": 50.03916,
+      "max": 50.337,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43"
+    },
+    {
+      "cell": 2,
+      "variant": "candidate",
+      "runId": "20261004-170616040-4e1b07db3cd2409fac3c1baa941d6d28",
+      "cpu": 285.1532786885246,
+      "gpu": 67.78688524590164,
+      "cadence": 31.854062307901366,
+      "avg": 31.38854830614806,
+      "p95": 33.7716,
+      "p99": 50.03712,
+      "max": 66.719,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa"
+    },
+    {
+      "cell": 3,
+      "variant": "candidate",
+      "runId": "20261004-170704121-8e8cf655a65744be86a5e20fd31e721a",
+      "cpu": 278.8542459016393,
+      "gpu": 67.27868852459017,
+      "cadence": 32.03460343554566,
+      "avg": 31.076644720496876,
+      "p95": 49.89,
+      "p99": 50.07728,
+      "max": 50.311,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa"
+    },
+    {
+      "cell": 4,
+      "variant": "parent",
+      "runId": "20261004-170752688-ae1a9d59f50d4ffdbe9e73e4a71e4875",
+      "cpu": 272.1426721311475,
+      "gpu": 67.90163934426229,
+      "cadence": 31.952007924735412,
+      "avg": 31.25002749999999,
+      "p95": 33.6874,
+      "p99": 50.03306,
+      "max": 50.916,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43"
+    },
+    {
+      "cell": 5,
+      "variant": "candidate",
+      "runId": "20261004-170840563-aef1f3416a5f4c669f5cb9fec1b0752a",
+      "cpu": 288.44145901639337,
+      "gpu": 68.26229508196721,
+      "cadence": 32.23157907486045,
+      "avg": 30.922977750309038,
+      "p95": 33.7294,
+      "p99": 50.10095999999999,
+      "max": 50.424,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa"
+    },
+    {
+      "cell": 6,
+      "variant": "parent",
+      "runId": "20261004-170928524-f0dbf60acdd04c5ca3b3818ff87f88df",
+      "cpu": 270.2564590163934,
+      "gpu": 67.77049180327869,
+      "cadence": 31.11847426320421,
+      "avg": 31.949945083014054,
+      "p95": 49.879,
+      "p99": 50.10516,
+      "max": 50.451,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43"
+    },
+    {
+      "cell": 7,
+      "variant": "parent",
+      "runId": "20261004-171017070-4d9e565b064e4eaeb5e8c8b84744a54c",
+      "cpu": 282.97191803278696,
+      "gpu": 67.65573770491804,
+      "cadence": 32.372168307368156,
+      "avg": 30.97894919454772,
+      "p95": 33.7335,
+      "p99": 50.04734,
+      "max": 50.521,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43"
+    },
+    {
+      "cell": 8,
+      "variant": "candidate",
+      "runId": "20261004-171104547-785ec23ebcd841238597bd2f14d96508",
+      "cpu": 276.90939344262296,
+      "gpu": 68.59016393442623,
+      "cadence": 30.836625129785737,
+      "avg": 32.36315523932729,
+      "p95": 49.9904,
+      "p99": 50.068400000000004,
+      "max": 50.446,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "sha256": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa"
+    }
+  ],
+  "metrics": {
+    "cpu": {
+      "before": 275.2116311475409,
+      "after": 282.00376229508197,
+      "absolute": 6.792131147541056,
+      "improvementPct": -2.4679666041802557
+    },
+    "gpu": {
+      "parent": 67.71311475409837,
+      "candidate": 68.02459016393442,
+      "scope": "Whole-host GPU utilization, not process attribution or performance improvement"
+    },
+    "cadence": {
+      "before": 31.83266168888076,
+      "after": 31.944332871723514,
+      "absolute": 0.11167118284275546,
+      "improvementPct": 0.3508069288524576
+    },
+    "avg": {
+      "before": 31.319274101317433,
+      "after": 31.23259651332247,
+      "absolute": -0.08667758799496283,
+      "improvementPct": 0.27675477954745054
+    },
+    "p95": {
+      "before": 33.74425,
+      "after": 41.830799999999996,
+      "absolute": 8.086549999999995,
+      "improvementPct": -23.964230943049543
+    },
+    "p99": {
+      "before": 50.04325,
+      "after": 50.07284,
+      "absolute": 0.029589999999998895,
+      "improvementPct": -0.059128853541684234
+    },
+    "max": {
+      "before": 50.486000000000004,
+      "after": 50.435,
+      "absolute": -0.05100000000000193,
+      "improvementPct": 0.1010181040288435
+    }
+  },
+  "orders": {
+    "cpu": {
+      "ABBA": {
+        "before": 275.2116311475409,
+        "after": 282.00376229508197,
+        "absolute": 6.792131147541056,
+        "improvementPct": -2.4679666041802557
+      },
+      "BAAB": {
+        "before": 276.6141885245902,
+        "after": 282.67542622950816,
+        "absolute": 6.061237704917971,
+        "improvementPct": -2.1912244405276216
+      }
+    },
+    "cadence": {
+      "ABBA": {
+        "before": 31.83266168888076,
+        "after": 31.944332871723514,
+        "absolute": 0.11167118284275546,
+        "improvementPct": 0.3508069288524576
+      },
+      "BAAB": {
+        "before": 31.74532128528618,
+        "after": 31.534102102323093,
+        "absolute": -0.21121918296308806,
+        "improvementPct": -0.6653553166620091
+      }
+    },
+    "avg": {
+      "ABBA": {
+        "before": 31.319274101317433,
+        "after": 31.23259651332247,
+        "absolute": -0.08667758799496283,
+        "improvementPct": 0.27675477954745054
+      },
+      "BAAB": {
+        "before": 31.464447138780887,
+        "after": 31.643066494818164,
+        "absolute": 0.1786193560372773,
+        "improvementPct": -0.5676863008253005
+      }
+    },
+    "p95": {
+      "ABBA": {
+        "before": 33.721199999999996,
+        "after": 41.830799999999996,
+        "absolute": 8.1096,
+        "improvementPct": -24.048966228959827
+      },
+      "BAAB": {
+        "before": 41.80625,
+        "after": 41.859899999999996,
+        "absolute": 0.05364999999999753,
+        "improvementPct": -0.12833009418447608
+      }
+    },
+    "p99": {
+      "ABBA": {
+        "before": 50.03611,
+        "after": 50.0572,
+        "absolute": 0.02109000000000094,
+        "improvementPct": -0.04214955958806738
+      },
+      "BAAB": {
+        "before": 50.07625,
+        "after": 50.08468,
+        "absolute": 0.008429999999997051,
+        "improvementPct": -0.01683432765032735
+      }
+    },
+    "max": {
+      "ABBA": {
+        "before": 50.6265,
+        "after": 58.515,
+        "absolute": 7.8885000000000005,
+        "improvementPct": -15.581760540428432
+      },
+      "BAAB": {
+        "before": 50.486000000000004,
+        "after": 50.435,
+        "absolute": -0.05100000000000193,
+        "improvementPct": 0.1010181040288435
+      }
+    }
+  }
+}

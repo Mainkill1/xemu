@@ -1,0 +1,23 @@
+TAP version 14
+# random seed: R02S24303b9143d4c9e019f53a377af365fa
+# CPUJumpCache bytes=65712; primary offset=16; primary bytes=65536
+1..14
+# Start of tcg tests
+# Start of victim8 tests
+ok 1 /tcg/victim8/collision-recovery
+ok 2 /tcg/victim8/complete-key
+ok 3 /tcg/victim8/invalid-block
+ok 4 /tcg/victim8/capacity-fifo
+ok 5 /tcg/victim8/distinct-primary
+# trace hits=3256 misses=6746 middle-promotions=2848 evictions=4461
+ok 6 /tcg/victim8/reference-fifo-trace-20000
+ok 7 /tcg/victim8/virtual-aliases
+ok 8 /tcg/victim8/full-clear
+ok 9 /tcg/victim8/page-clear
+ok 10 /tcg/victim8/spanning-page
+ok 11 /tcg/victim8/victim-only-targeted-clear
+ok 12 /tcg/victim8/overlapping-invalidators
+ok 13 /tcg/victim8/delayed-publication-10000
+ok 14 /tcg/victim8/guarded-storage-reuse
+# End of victim8 tests
+# End of tcg tests
