@@ -1,0 +1,14 @@
+{
+  "suite": true,
+  "suiteRevision": true,
+  "isoSha256": true,
+  "catalogId": true,
+  "qualification": true,
+  "mode": true,
+  "settings": true,
+  "tests": true,
+  "addedDependencies": true,
+  "configurationSource": true,
+  "configurationPath": true,
+  "chunks": true
+}

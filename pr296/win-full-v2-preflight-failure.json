@@ -1,0 +1,151 @@
+{
+  "passed": false,
+  "executableSha256": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa",
+  "checks": [
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "reference-results.txt"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "state/eeprom.bin"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "payload",
+      "passed": true,
+      "detail": "xemu.toml"
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.toml: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "reference-results.txt: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.exe: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "xemu.toml: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "reference-results.txt: every package input must be in Files."
+    },
+    {
+      "name": "declared_input",
+      "passed": true,
+      "detail": "state/eeprom.bin: every package input must be in Files."
+    },
+    {
+      "name": "target_os",
+      "passed": true,
+      "detail": "Host: windows; requested: windows."
+    },
+    {
+      "name": "executable",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "executable_stable",
+      "passed": true,
+      "detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "name": "sha256",
+      "passed": true,
+      "detail": "7b5c1d027646d0be76273a692e6db2f40df603a4f091f18f694fe6bbdcab09fa"
+    },
+    {
+      "name": "working_directory",
+      "passed": true,
+      "detail": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Pending\\.agent-jobs\\xc-pr296-430-win-vk-full-candidate-v2-022\\payload"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "xemu.exe"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "xemu.toml"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "state/eeprom.bin"
+    },
+    {
+      "name": "required_file",
+      "passed": true,
+      "detail": "reference-results.txt"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "pinned-cubemap-input: xemu.exe"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "pinned-cubemap-input: xemu.toml"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "pinned-cubemap-input: state/eeprom.bin"
+    },
+    {
+      "name": "input_file",
+      "passed": true,
+      "detail": "pinned-cubemap-input: reference-results.txt"
+    },
+    {
+      "name": "runtime_seed",
+      "passed": true,
+      "detail": "state/eeprom.bin -> eeprom.bin"
+    },
+    {
+      "name": "free_space",
+      "passed": false,
+      "detail": "Available=1045397504; required=1073741824 bytes."
+    }
+  ]
+}

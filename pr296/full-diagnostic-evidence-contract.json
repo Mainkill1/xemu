@@ -1,0 +1,7 @@
+{
+  "candidate": "4301f6717e897fe783d5a021c689407d77e6aaad",
+  "parentProduct": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "diagnosticScope": "single full per-variant chunks; not balanced ABBA/BAAB; no qualification or speedup claim",
+  "windowsTail": "separate exact frozen chunks22/23; failed original campaign unchanged",
+  "cleanup": "Authorized maintenance only; 44 obsolete standalone files, no hashes; free 1,044,410,368 to 2,905,411,584 bytes; runner data/baseline/assets untouched"
+}
