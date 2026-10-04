@@ -1,0 +1,15 @@
+{
+  "candidate": "4301f6717e897fe783d5a021c689407d77e6aaad",
+  "parent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "hardware": "Local AMD Ryzen AI Max+395, Debian13, OpenGL llvmpipe (correctness only)",
+  "hardFpu": "fault=0 matrix=0 configs=2097152",
+  "softFpu": "fault=0 matrix=0 configs=2097152",
+  "fixture": "Private NXDK Xbox disc derived from maintained differential source, same fault arithmetic and AX/memory matrix; mounted E output. Requires separate native Win/Deck qualification.",
+  "limitations": [
+    "Two earlier private fixture revisions failed: missing SEH earlyclobber then missing E mount; neither counted PASS.",
+    "Local exit emits GLib g_source_destroy assertion; not silently excluded.",
+    "Supplied FLDENV configurations are not all independently retained ES/B states.",
+    "No current-head title or performance claim."
+  ],
+  "negativeControl": "Omitting gen_flush_fp makes the exact private hard-FPU fixture report fault=1 matrix=0; restored hard and soft paths report fault=0. Isolated mutant binary never deployed or published."
+}

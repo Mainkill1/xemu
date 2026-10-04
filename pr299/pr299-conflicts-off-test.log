@@ -1,0 +1,22 @@
+TAP version 14
+# random seed: R02S1ff8fbd101ce6f53854b92e1349f4ae4
+1..13
+# Start of tcg tests
+# Start of jump-cache tests
+# Start of conflicts tests
+ok 1 /tcg/jump-cache/conflicts/mode
+ok 2 /tcg/jump-cache/conflicts/miss-reasons
+ok 3 /tcg/jump-cache/conflicts/recovery
+ok 4 /tcg/jump-cache/conflicts/identity
+ok 5 /tcg/jump-cache/conflicts/capacity
+ok 6 /tcg/jump-cache/conflicts/new-translation
+ok 7 /tcg/jump-cache/conflicts/invalidated-identity
+ok 8 /tcg/jump-cache/conflicts/invalidation-during-lookup
+ok 9 /tcg/jump-cache/conflicts/counters-unchanged
+ok 10 /tcg/jump-cache/conflicts/late-primary-publication
+ok 11 /tcg/jump-cache/conflicts/late-generated-publication
+ok 12 /tcg/jump-cache/conflicts/full-clear
+ok 13 /tcg/jump-cache/conflicts/partial-clear
+# End of conflicts tests
+# End of jump-cache tests
+# End of tcg tests

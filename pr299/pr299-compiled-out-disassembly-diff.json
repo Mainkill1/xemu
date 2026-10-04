@@ -1,0 +1,59 @@
+{
+  "parentLineCount": 1464,
+  "offLineCount": 1464,
+  "differences": [
+    {
+      "parent": "     2ba:\tba 5a 01 00 00       \tmov    edx,0x15a",
+      "off": "     2ba:\tba 90 01 00 00       \tmov    edx,0x190"
+    },
+    {
+      "parent": "     46d:\tba 32 02 00 00       \tmov    edx,0x232",
+      "off": "     46d:\tba 68 02 00 00       \tmov    edx,0x268"
+    },
+    {
+      "parent": "    12be:\tba 5b 02 00 00       \tmov    edx,0x25b",
+      "off": "    12be:\tba 91 02 00 00       \tmov    edx,0x291"
+    },
+    {
+      "parent": "    132a:\tba 82 02 00 00       \tmov    edx,0x282",
+      "off": "    132a:\tba b8 02 00 00       \tmov    edx,0x2b8"
+    },
+    {
+      "parent": "    134b:\tba 5c 02 00 00       \tmov    edx,0x25c",
+      "off": "    134b:\tba 92 02 00 00       \tmov    edx,0x292"
+    },
+    {
+      "parent": "   8:\tba 1b 01 00 00       \tmov    edx,0x11b",
+      "off": "   8:\tba 51 01 00 00       \tmov    edx,0x151"
+    },
+    {
+      "parent": "  46:\tba 02 02 00 00       \tmov    edx,0x202",
+      "off": "  46:\tba 38 02 00 00       \tmov    edx,0x238"
+    },
+    {
+      "parent": "  65:\tba 4f 03 00 00       \tmov    edx,0x34f",
+      "off": "  65:\tba 88 03 00 00       \tmov    edx,0x388"
+    },
+    {
+      "parent": "  84:\tba bd 03 00 00       \tmov    edx,0x3bd",
+      "off": "  84:\tba f6 03 00 00       \tmov    edx,0x3f6"
+    },
+    {
+      "parent": "  a3:\tba 9d 02 00 00       \tmov    edx,0x29d",
+      "off": "  a3:\tba d6 02 00 00       \tmov    edx,0x2d6"
+    },
+    {
+      "parent": "  f0:\tba 56 04 00 00       \tmov    edx,0x456",
+      "off": "  f0:\tba a3 04 00 00       \tmov    edx,0x4a3"
+    },
+    {
+      "parent": " 10f:\tba 58 04 00 00       \tmov    edx,0x458",
+      "off": " 10f:\tba a5 04 00 00       \tmov    edx,0x4a5"
+    },
+    {
+      "parent": " 12e:\tba 57 04 00 00       \tmov    edx,0x457",
+      "off": " 12e:\tba a4 04 00 00       \tmov    edx,0x4a4"
+    }
+  ],
+  "scope": "Changed assertion __LINE__ constants; raw text is not claimed byte-identical. Inspect complete disassembly for actual lookup parity."
+}
