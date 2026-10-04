@@ -1,0 +1,1480 @@
+{
+  "scope": "Fixed production VP work including output validation; all three formats affected. No game FPS, DSP, audible playback or concurrent guest proof.",
+  "formula": "100*(median original_us-median candidate_us)/median original_us; positive is better",
+  "results": [
+    {
+      "profile": "mono-adpcm",
+      "workers": 1,
+      "baseline_us": 5598410.0,
+      "candidate_us": 5379433.5,
+      "saved_us": 218976.5,
+      "improvement_percent": 3.911405202548581,
+      "baselineRange_us": [
+        5585715,
+        5656533
+      ],
+      "candidateRange_us": [
+        5351891,
+        5402093
+      ],
+      "originalControlRange_us": [
+        5567544,
+        5653682
+      ],
+      "originalControlSpread_percent": 1.5410068693935046,
+      "balancedOriginalSpread_percent": 1.2649663029324398,
+      "balancedCandidateSpread_percent": 0.9332209423166956,
+      "orders": {
+        "abba": 4.2514396724685115,
+        "baab": 4.003364675022068
+      },
+      "adjacentPairs_percent": [
+        3.3575948942488743,
+        5.134735358213238,
+        4.550596615507812,
+        3.4540430365673864
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-mono-adpcm-w1-candidate-timing-v1",
+        "test_key": "3f36149f7704",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "5592376",
+        "b": "5379433.5",
+        "change_percent": "-3.807729",
+        "verdict": "improved",
+        "a_mean": "5604967.25",
+        "a_min": "5567544",
+        "a_max": "5656533",
+        "a_sample_stddev": "32860.069258034986",
+        "b_mean": "5378212.75",
+        "b_min": "5351891",
+        "b_max": "5402093",
+        "b_sample_stddev": "23255.43827975162",
+        "improvement_percent": "3.807729"
+      },
+      "correctness": "PASS"
+    },
+    {
+      "profile": "stereo-adpcm",
+      "workers": 1,
+      "baseline_us": 6619660.0,
+      "candidate_us": 6407072.5,
+      "saved_us": 212587.5,
+      "improvement_percent": 3.2114564796379272,
+      "baselineRange_us": [
+        6562600,
+        6660375
+      ],
+      "candidateRange_us": [
+        6391955,
+        6434892
+      ],
+      "originalControlRange_us": [
+        6591342,
+        6598447
+      ],
+      "originalControlSpread_percent": 0.1077628537727085,
+      "balancedOriginalSpread_percent": 1.4770396062637658,
+      "balancedCandidateSpread_percent": 0.6701500568317278,
+      "orders": {
+        "abba": 3.403779022329846,
+        "baab": 2.8022090856361936
+      },
+      "adjacentPairs_percent": [
+        3.6440740949270873,
+        3.1613086102050096,
+        2.531329046414531,
+        3.0699840435603423
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-stereo-adpcm-w1-candidate-timing-v1",
+        "test_key": "9bc5afbdf3e4",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "6596188.5",
+        "b": "6407072.5",
+        "change_percent": "-2.86705",
+        "verdict": "improved",
+        "a_mean": "6604805.75",
+        "a_min": "6562600",
+        "a_max": "6660375",
+        "a_sample_stddev": "30539.504391852814",
+        "b_mean": "6410248",
+        "b_min": "6391955",
+        "b_max": "6434892",
+        "b_sample_stddev": "19887.790810779705",
+        "improvement_percent": "2.86705"
+      },
+      "correctness": "PASS"
+    },
+    {
+      "profile": "mono-pcm",
+      "workers": 1,
+      "baseline_us": 6174472.0,
+      "candidate_us": 5922336.0,
+      "saved_us": 252136.0,
+      "improvement_percent": 4.083523255105861,
+      "baselineRange_us": [
+        6110656,
+        6330382
+      ],
+      "candidateRange_us": [
+        5920105,
+        5938724
+      ],
+      "originalControlRange_us": [
+        6095933,
+        6209937
+      ],
+      "originalControlSpread_percent": 1.8549546337134148,
+      "balancedOriginalSpread_percent": 3.5586200731009874,
+      "balancedCandidateSpread_percent": 0.3143860800873169,
+      "orders": {
+        "abba": 5.635567011375602,
+        "baab": 3.0943491079330334
+      },
+      "adjacentPairs_percent": [
+        4.799092543622285,
+        6.459847130868248,
+        3.12138348065604,
+        3.06731388577593
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-mono-pcm-w1-candidate-timing-v1",
+        "test_key": "e5e1c46ed896",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "6145918.5",
+        "b": "5922336",
+        "change_percent": "-3.637902",
+        "verdict": "improved",
+        "a_mean": "6173461.125",
+        "a_min": "6095933",
+        "a_max": "6330382",
+        "a_sample_stddev": "81083.77163057541",
+        "b_mean": "5925875.25",
+        "b_min": "5920105",
+        "b_max": "5938724",
+        "b_sample_stddev": "8660.490377763454",
+        "improvement_percent": "3.637902"
+      },
+      "correctness": "PASS"
+    },
+    {
+      "profile": "mono-adpcm",
+      "workers": 8,
+      "baseline_us": 5850624.0,
+      "candidate_us": 5651250.5,
+      "saved_us": 199373.5,
+      "improvement_percent": 3.407730525837928,
+      "baselineRange_us": [
+        5812709,
+        5873806
+      ],
+      "candidateRange_us": [
+        5626144,
+        5680835
+      ],
+      "originalControlRange_us": [
+        5808045,
+        5854540
+      ],
+      "originalControlSpread_percent": 0.797068871156247,
+      "balancedOriginalSpread_percent": 1.0442817723374465,
+      "balancedCandidateSpread_percent": 0.96776810725343,
+      "orders": {
+        "abba": 3.4294717965126456,
+        "baab": 3.225871870270992
+      },
+      "adjacentPairs_percent": [
+        3.4012923269597763,
+        3.4578733786151106,
+        3.165838854138406,
+        3.2852804467835677
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-mono-adpcm-w8-candidate-timing-v1",
+        "test_key": "e3ac9caa1268",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "5835206.5",
+        "b": "5651250.5",
+        "change_percent": "-3.152519",
+        "verdict": "improved",
+        "a_mean": "5839605.375",
+        "a_min": "5808045",
+        "a_max": "5873806",
+        "a_sample_stddev": "25833.678732214834",
+        "b_mean": "5652370",
+        "b_min": "5626144",
+        "b_max": "5680835",
+        "b_sample_stddev": "28975.26919058156",
+        "improvement_percent": "3.152519"
+      },
+      "correctness": "PASS"
+    },
+    {
+      "profile": "stereo-adpcm",
+      "workers": 8,
+      "baseline_us": 6839053.0,
+      "candidate_us": 6651581.5,
+      "saved_us": 187471.5,
+      "improvement_percent": 2.7411909221934674,
+      "baselineRange_us": [
+        6807593,
+        6858934
+      ],
+      "candidateRange_us": [
+        6626219,
+        6681166
+      ],
+      "originalControlRange_us": [
+        6816353,
+        6853206
+      ],
+      "originalControlSpread_percent": 0.538915566409356,
+      "balancedOriginalSpread_percent": 0.7507033503030317,
+      "balancedCandidateSpread_percent": 0.8260742200933717,
+      "orders": {
+        "abba": 2.7411909221934674,
+        "baab": 2.6278951484894444
+      },
+      "adjacentPairs_percent": [
+        2.8955969740937624,
+        2.587439075565267,
+        2.591773007292387,
+        2.6642897129719714
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-stereo-adpcm-w8-candidate-timing-v1",
+        "test_key": "169ebc6aa2ca",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "6838362.5",
+        "b": "6651581.5",
+        "change_percent": "-2.73137",
+        "verdict": "improved",
+        "a_mean": "6836364.625",
+        "a_min": "6807593",
+        "a_max": "6858934",
+        "a_sample_stddev": "18833.02089368953",
+        "b_mean": "6652637",
+        "b_min": "6626219",
+        "b_max": "6681166",
+        "b_sample_stddev": "30166.90222744135",
+        "improvement_percent": "2.73137"
+      },
+      "correctness": "PASS"
+    },
+    {
+      "profile": "mono-pcm",
+      "workers": 8,
+      "baseline_us": 6393477.0,
+      "candidate_us": 6224968.0,
+      "saved_us": 168509.0,
+      "improvement_percent": 2.63563941811318,
+      "baselineRange_us": [
+        6348195,
+        6401966
+      ],
+      "candidateRange_us": [
+        6200086,
+        6279191
+      ],
+      "originalControlRange_us": [
+        6359855,
+        6434930
+      ],
+      "originalControlSpread_percent": 1.1715657595998559,
+      "balancedOriginalSpread_percent": 0.8410290675949879,
+      "balancedCandidateSpread_percent": 1.2707695846789895,
+      "orders": {
+        "abba": 2.3827642586852718,
+        "baab": 2.3781758111917384
+      },
+      "adjacentPairs_percent": [
+        1.7819553432117319,
+        2.9795961096609545,
+        2.8389778904165226,
+        1.9177702599482722
+      ],
+      "allPairsBetter": true,
+      "serverIncludingControls": {
+        "test": "issue247-vp-mono-pcm-w8-candidate-timing-v1",
+        "test_key": "4753347524b0",
+        "context": "a8f8f3c63269",
+        "section": "Reported workload metrics",
+        "metric": "validated-vp-frame-time",
+        "unit": "us",
+        "n_a": "8",
+        "n_b": "4",
+        "a": "6399211.5",
+        "b": "6224968",
+        "change_percent": "-2.72289",
+        "verdict": "improved",
+        "a_mean": "6393510.25",
+        "a_min": "6348195",
+        "a_max": "6434930",
+        "a_sample_stddev": "27864.5709702688",
+        "b_mean": "6232303.25",
+        "b_min": "6200086",
+        "b_max": "6279191",
+        "b_sample_stddev": "34391.1138365227",
+        "improvement_percent": "2.72289"
+      },
+      "correctness": "PASS"
+    }
+  ],
+  "counts": [
+    {
+      "profile": "mono-adpcm",
+      "workers": 1,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    },
+    {
+      "profile": "stereo-adpcm",
+      "workers": 1,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    },
+    {
+      "profile": "mono-pcm",
+      "workers": 1,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    },
+    {
+      "profile": "mono-adpcm",
+      "workers": 8,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    },
+    {
+      "profile": "stereo-adpcm",
+      "workers": 8,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    },
+    {
+      "profile": "mono-pcm",
+      "workers": 8,
+      "original_physical_stores": 5400000,
+      "candidate_physical_stores": 900000,
+      "removed_unchanged_physical_stores": 4500000,
+      "candidate_unchanged_physical_stores": 0,
+      "timing_contract": "diagnostic-only / NOT COMPARABLE"
+    }
+  ],
+  "attempts": [
+    {
+      "label": "reference-ordinary-correctness",
+      "runId": "20261002-172543463-9446ab403d3b476ab132fa9a7415ed1a",
+      "kind": "tap",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "reference-diagnostic-correctness",
+      "runId": "20261002-172548478-4423d1f2345e444db7403405754cc3f1",
+      "kind": "tap",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "candidate-ordinary-correctness",
+      "runId": "20261002-172552985-c2276767da084202aba4b372099dc5a2",
+      "kind": "tap",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "candidate-diagnostic-correctness",
+      "runId": "20261002-172557450-22679b4845334d609d0d9682fbfc6b8f",
+      "kind": "tap",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-reference-counts",
+      "runId": "20261002-172601930-2a90ae89fabe43c9bf74c1de5095a975",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-candidate-counts",
+      "runId": "20261002-172611605-f736c5fec5fc499eb562bf7aa0466648",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-reference-counts",
+      "runId": "20261002-172621015-872c8bd69b8e407abd1932b5cad26474",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-candidate-counts",
+      "runId": "20261002-172631792-85ed698475484330a4c1210da2aca050",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-reference-counts",
+      "runId": "20261002-172642238-1b348cbed80a4de68089c067043701ca",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-candidate-counts",
+      "runId": "20261002-172652393-f2cbf9381c434135a749180582b00021",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-reference-counts",
+      "runId": "20261002-172702280-a712b41314ee45889b263a8d61a95e7f",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-candidate-counts",
+      "runId": "20261002-172712604-7a3ed6cef4d547d888825799bdd4de70",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-reference-counts",
+      "runId": "20261002-172722741-28e63faea6c441d2a20f8ab04fb34334",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-candidate-counts",
+      "runId": "20261002-172734109-c94cc2ec42c14577963ac224bbc63fdc",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-reference-counts",
+      "runId": "20261002-172744776-a3c068e310a64e46b8c7cb10c3228ef1",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-candidate-counts",
+      "runId": "20261002-172755675-e8ebd2ccec204a35ae404a3d697775f9",
+      "kind": "counts",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-aaaa-1-a",
+      "runId": "20261002-172805880-c5e36c06297e4569b344bafb63ce1f82",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-aaaa-2-a",
+      "runId": "20261002-172815405-44136b9ce28642878c13529f679ccf2e",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-aaaa-3-a",
+      "runId": "20261002-172824995-e048e938f4084368926b409dad067c6e",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-aaaa-4-a",
+      "runId": "20261002-172834498-430d3b108e4b45759dc188de670faf99",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-abba-1-a",
+      "runId": "20261002-172844029-30815f1af79a4a2aadaa6a6169f92386",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-abba-2-b",
+      "runId": "20261002-172853556-f60669f3312741dc919ce4fd7877d095",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-abba-3-b",
+      "runId": "20261002-172902893-8851ba5e79e74912a9a921ba32ef9385",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-abba-4-a",
+      "runId": "20261002-172912691-2f56ed682d06450d84e24fdc8dc42e3f",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-baab-1-b",
+      "runId": "20261002-172923289-80a2ecab16c24c93871c0336a5637d59",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-baab-2-a",
+      "runId": "20261002-172932577-6891afdc9ec941cd8893de4695032e60",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-baab-3-a",
+      "runId": "20261002-172942623-ef67df6398434ea3a0791be588a3982c",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w1-baab-4-b",
+      "runId": "20261002-172952649-53706865909b457fa2ad56338135aca2",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-aaaa-1-a",
+      "runId": "20261002-173001977-7c7ed11185af4c79a4b2e535ba5296b0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-aaaa-2-a",
+      "runId": "20261002-173012550-66b40533d4f848c293a800af54de2103",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-aaaa-3-a",
+      "runId": "20261002-173023609-a6fac3c4318f49fd8a30544e1a8b5394",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-aaaa-4-a",
+      "runId": "20261002-173034180-3d3ddc6641084078844a7157ff9752dc",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-abba-1-a",
+      "runId": "20261002-173044740-0d13ec03527c487bb88308c99247ca36",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-abba-2-b",
+      "runId": "20261002-173055370-b166223aa0954bde8f3f28d037f6fd24",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-abba-3-b",
+      "runId": "20261002-173105770-4e17b407c4224e45b1a3ebb85ca33798",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-abba-4-a",
+      "runId": "20261002-173116132-dd73f537686f42f99d93297201f6b0f0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-baab-1-b",
+      "runId": "20261002-173126707-71e716d96c8146a586bb77140545caf0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-baab-2-a",
+      "runId": "20261002-173137571-bfb7669a7bc74974a966c43a0bb3ee17",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-baab-3-a",
+      "runId": "20261002-173148104-bf0b3736a2be42d385c8f925813e72fc",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w1-baab-4-b",
+      "runId": "20261002-173158725-58f6ab3f989048eda6bc4b6f59a458ff",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-aaaa-1-a",
+      "runId": "20261002-173209626-18c99b8e00544c61bec540d716d60b1f",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-aaaa-2-a",
+      "runId": "20261002-173219704-05490db697db49c4b35d341fca915fb0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-aaaa-3-a",
+      "runId": "20261002-173229861-2eb031ee8db24a09b0ad5b38424013e7",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-aaaa-4-a",
+      "runId": "20261002-173240406-77d72f23aa9c4d4d98c519a26c7e3ce6",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-abba-1-a",
+      "runId": "20261002-173251025-5d70f8b96200490ba8d36c600794e606",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-abba-2-b",
+      "runId": "20261002-173301209-ba29424f90d945d792c1d5c297b230b7",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-abba-3-b",
+      "runId": "20261002-173311592-0f4de9bec63e4073b4040384c49d9ce3",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-abba-4-a",
+      "runId": "20261002-173321955-6f58a69566ee4d1786648f127bfb5bd1",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-baab-1-b",
+      "runId": "20261002-173332240-e7f6bbc708894d01b4d029f5bf03a39d",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-baab-2-a",
+      "runId": "20261002-173342606-3927262346c542d3b3a0b0231075f287",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-baab-3-a",
+      "runId": "20261002-173352662-2e7ddb146b5b44c5a2bb06d5c0c6badf",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w1-baab-4-b",
+      "runId": "20261002-173402721-fe61baa761a7429384279104e70698f3",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-aaaa-1-a",
+      "runId": "20261002-173413091-6b60269568144198abc83a9be0ba87b6",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-aaaa-2-a",
+      "runId": "20261002-173423391-6f278f2001b14ebf9966c93f757ae609",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-aaaa-3-a",
+      "runId": "20261002-173433161-a9f67fd487724b5b9d1914fdaa4197a1",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-aaaa-4-a",
+      "runId": "20261002-173443411-59e66b049810473681ef0ff552ced8be",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-abba-1-a",
+      "runId": "20261002-173453723-49e6c467c6fb4ebbbf0e40e085064361",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-abba-2-b",
+      "runId": "20261002-173504601-7250f123ee76499bafeb3da472e98a8d",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-abba-3-b",
+      "runId": "20261002-173514230-992584088eaf4a80861fee7e2d868338",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-abba-4-a",
+      "runId": "20261002-173523793-acbb0d718aba408499b3a4908e01650e",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-baab-1-b",
+      "runId": "20261002-173533563-02bcfaba4d32496eb08af243bc9e7cc4",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-baab-2-a",
+      "runId": "20261002-173543162-1fe92260ec494f00bae34d8bc6baa37a",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-baab-3-a",
+      "runId": "20261002-173553944-bb4d81e9257742a18cb6b965c9f366fe",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-adpcm-w8-baab-4-b",
+      "runId": "20261002-173604301-16c531a2d0b044b8a1d96b77e244e2be",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-aaaa-1-a",
+      "runId": "20261002-173614454-7d233d84f4ee45a6b543a97473cbc9b5",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-aaaa-2-a",
+      "runId": "20261002-173625789-f55f50139ce74370b85986fc27115711",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-aaaa-3-a",
+      "runId": "20261002-173637644-75cf920be22f45f39c2d6d6ef216c690",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-aaaa-4-a",
+      "runId": "20261002-173649512-5b8faed6777e4fca9049f1860eb7dee1",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-abba-1-a",
+      "runId": "20261002-173701388-a0734f7bd4bc4070b3531c9533f021cf",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-abba-2-b",
+      "runId": "20261002-173713223-6b97f67b3c994eabbdfa6ff9a38bcfc6",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-abba-3-b",
+      "runId": "20261002-173724329-b7d393524cf447bc9ed1ff575038779a",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-abba-4-a",
+      "runId": "20261002-173735486-7476c9ddb2084ecd84c5befa169badcb",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-baab-1-b",
+      "runId": "20261002-173747355-7017fa7234594a099ef24b8a4598e017",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-baab-2-a",
+      "runId": "20261002-173758554-996906eb6a284b208ab342d6e398999c",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-baab-3-a",
+      "runId": "20261002-173809421-d63fdc341cb64579bf6ff6dafb2d6cf9",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "stereo-adpcm-w8-baab-4-b",
+      "runId": "20261002-173820707-9b6563e773ff4eeebb73eb84085ff75f",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-aaaa-1-a",
+      "runId": "20261002-173831802-f53720da8dc543279308c2d266f82487",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-aaaa-2-a",
+      "runId": "20261002-173842641-1a7c8a80afdf466e8006b1358b5a40f9",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-aaaa-3-a",
+      "runId": "20261002-173853540-89e02decdc6441768572534558d39942",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-aaaa-4-a",
+      "runId": "20261002-173905002-18413209beaa4c32a7893b4b6c3fd8d9",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-abba-1-a",
+      "runId": "20261002-173916408-8a346f0d9ec040f5b7e42b4ce971feaa",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-abba-2-b",
+      "runId": "20261002-173927740-f076ee05a6fc4b4eae9a551e8c598e22",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-abba-3-b",
+      "runId": "20261002-173938981-c22af2b2da034cf5bd46e771cd37d8a0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-abba-4-a",
+      "runId": "20261002-173950182-32521d58719e4d059d9a7f59fb01d9be",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-baab-1-b",
+      "runId": "20261002-174001580-f0d0b6fc3ecb4f5ebd8bd5abcd0e0bd0",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-baab-2-a",
+      "runId": "20261002-174013319-340f4a6c22304559ba65b001651e5e8e",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-baab-3-a",
+      "runId": "20261002-174024736-847ac527be2a4a7cbc4f465ad63dc4bd",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "mono-pcm-w8-baab-4-b",
+      "runId": "20261002-174037161-216a037206a343c2a6b90c28677f3e7b",
+      "kind": "timing",
+      "fileCount": 21,
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ],
+  "timingProcesses": 72,
+  "diagnosticProcesses": 12,
+  "correctnessProcesses": 4,
+  "completeCollection": true,
+  "excludedFiles": 0,
+  "allExitZero": true,
+  "canonicalCohortKeysMatch": true,
+  "eligibleIndexedTimingProcesses": 72,
+  "untimedIndexedRecords": 16,
+  "untimedIndexReason": "intentional metrics_missing; no timing metric declared",
+  "controlledHostPowerOrAffinity": false,
+  "recommendation": "HOLD: native fixed-work performance is separate from remaining guest ordering, audio, lifecycle and XISO qualification."
+}

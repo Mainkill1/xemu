@@ -1,0 +1,666 @@
+[
+  {
+    "label": "abba-a1",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 1026,
+      "total_us": 5303180,
+      "average_us": 530318,
+      "min_us": 498561,
+      "max_us": 554789,
+      "median_us": 533133,
+      "p95_us": 554789,
+      "mad_us": 13318,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        541969,
+        513991,
+        498561,
+        533389,
+        550933,
+        524356,
+        554789,
+        511821,
+        540494,
+        532877
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "abba-b1",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 719,
+      "total_us": 5359110,
+      "average_us": 535911,
+      "min_us": 518271,
+      "max_us": 559520,
+      "median_us": 536782,
+      "p95_us": 559520,
+      "mad_us": 13751,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        536032,
+        518271,
+        520775,
+        545141,
+        523200,
+        559520,
+        545803,
+        537533,
+        522133,
+        550702
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "abba-b2",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 855,
+      "total_us": 5633014,
+      "average_us": 563301,
+      "min_us": 545587,
+      "max_us": 585892,
+      "median_us": 564530,
+      "p95_us": 585892,
+      "mad_us": 10784,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        556408,
+        571902,
+        548729,
+        558774,
+        546312,
+        570286,
+        571148,
+        545587,
+        585892,
+        577976
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "abba-a2",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 944,
+      "total_us": 5307127,
+      "average_us": 530712,
+      "min_us": 515806,
+      "max_us": 543160,
+      "median_us": 530641,
+      "p95_us": 543160,
+      "mad_us": 5062,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        538060,
+        529287,
+        530095,
+        523296,
+        535951,
+        534459,
+        525826,
+        515806,
+        531187,
+        543160
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "baab-b1",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 411,
+      "total_us": 5354309,
+      "average_us": 535430,
+      "min_us": 516234,
+      "max_us": 549083,
+      "median_us": 534542,
+      "p95_us": 549083,
+      "mad_us": 7346,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        531157,
+        529661,
+        516234,
+        527037,
+        549083,
+        548506,
+        537927,
+        546808,
+        540541,
+        527355
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "baab-a1",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 816,
+      "total_us": 5285553,
+      "average_us": 528555,
+      "min_us": 501520,
+      "max_us": 539079,
+      "median_us": 531343,
+      "p95_us": 539079,
+      "mad_us": 5070,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        532436,
+        525359,
+        539079,
+        532658,
+        535513,
+        501520,
+        537313,
+        530251,
+        521420,
+        530004
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "baab-a2",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 660,
+      "total_us": 5331026,
+      "average_us": 533102,
+      "min_us": 503520,
+      "max_us": 558328,
+      "median_us": 536410,
+      "p95_us": 558328,
+      "mad_us": 13501,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        524589,
+        551591,
+        546187,
+        544312,
+        521147,
+        535618,
+        537202,
+        558328,
+        503520,
+        508532
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  },
+  {
+    "label": "baab-b2",
+    "guest": {
+      "schema_version": 1,
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "kind": "leaf",
+      "name": "CpuFloatingPoint::SSEScalar",
+      "outcome": "PASS",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 839,
+      "total_us": 5528106,
+      "average_us": 552810,
+      "min_us": 518039,
+      "max_us": 559206,
+      "median_us": 556064,
+      "p95_us": 559206,
+      "mad_us": 1951,
+      "unit": "us",
+      "direction": "lower_is_better",
+      "raw_results": [
+        518039,
+        554169,
+        555996,
+        558471,
+        554106,
+        556132,
+        558009,
+        559206,
+        558765,
+        555213
+      ],
+      "framebuffer_fnv1a64": "6962077c244da325"
+    },
+    "assessment": {
+      "Execution": "completed",
+      "Correctness": "failed",
+      "Evidence": "complete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "Checks": [
+        {
+          "Name": "guest_hdd_extraction",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+        },
+        {
+          "Name": "xiso_plan_receipt",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Guest completion receipt matches the injected selection."
+        },
+        {
+          "Name": "xiso_exact_coverage",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+        },
+        {
+          "Name": "xiso_oracle_coverage",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": false,
+          "Category": "state",
+          "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        }
+      ],
+      "IsExecutionSuccess": true,
+      "IsCorrectnessSuccess": false
+    }
+  }
+]
