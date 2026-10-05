@@ -88,12 +88,17 @@ static void test_private_input_paths()
     g_autofree char *first = input_file(256);
     g_autofree char *second = input_file(256);
     g_config.sys.files.eeprom_path = first;
+    g_config.general.screenshot_dir = "/results/first/screenshots";
     g_autofree char *raw = xemu_shortcut_base_config_sha256();
-    g_autofree char *comparison = xemu_shortcut_comparison_config_sha256(nullptr);
-    g_autoptr(QDict) paths = xemu_shortcut_input_paths(0, nullptr, &error_abort);
+    g_autofree char *comparison =
+        xemu_shortcut_comparison_config_sha256(nullptr);
+    g_autoptr(QDict) paths =
+        xemu_shortcut_input_paths(0, nullptr, &error_abort);
     g_config.sys.files.eeprom_path = second;
+    g_config.general.screenshot_dir = "/results/second/screenshots";
     g_autofree char *other_raw = xemu_shortcut_base_config_sha256();
-    g_autofree char *other_comparison = xemu_shortcut_comparison_config_sha256(nullptr);
+    g_autofree char *other_comparison =
+        xemu_shortcut_comparison_config_sha256(nullptr);
     g_assert_cmpstr(raw, !=, other_raw);
     g_assert_cmpstr(comparison, ==, other_comparison);
     g_assert_cmpstr(qdict_get_str(paths, "eeprom"), ==, first);
@@ -132,7 +137,7 @@ static void test_cli_dvd_selection()
     g_config.sys.files.eeprom_path = eeprom;
     g_config.sys.files.dvd_path = saved;
     char option[] = "-dvd_path";
-    char *args[] = {nullptr, option, selected};
+    char *args[] = { nullptr, option, selected };
     g_autoptr(QDict) paths = xemu_shortcut_input_paths(3, args, &error_abort);
     g_assert_cmpstr(qdict_get_str(paths, "dvd"), ==, selected);
     g_assert_true(g_config.sys.files.dvd_path == saved);
@@ -151,9 +156,9 @@ static void test_launch_routes()
     g_autofree char *hdd = input_file(16);
     g_config.sys.files.eeprom_path = eeprom;
     char option[] = "-drive";
-    g_autofree char *value = g_strdup_printf(
-        "index=0,media=disk,file=%s,locked=on", hdd);
-    char *args[] = {nullptr, option, value};
+    g_autofree char *value =
+        g_strdup_printf("index=0,media=disk,file=%s,locked=on", hdd);
+    char *args[] = { nullptr, option, value };
     g_autoptr(QDict) paths = xemu_shortcut_input_paths(3, args, &error_abort);
     g_assert_cmpstr(qdict_get_str(paths, "hdd"), ==, hdd);
     g_assert_cmpstr(g_config.sys.files.hdd_path, ==, "");

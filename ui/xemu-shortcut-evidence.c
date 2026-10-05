@@ -349,7 +349,8 @@ bool xemu_shortcut_evidence_init(const XemuShortcutEvidenceOptions *options,
         !nonempty(session->requested_backend) ||
         !nonempty(session->requested_gpu) ||
         !nonempty(session->base_config_sha256) ||
-        !nonempty(session->comparison_config_sha256) || !session->input_paths) {
+        !nonempty(session->comparison_config_sha256) || !session->input_paths ||
+        !session->screenshot_directory) {
         error_setg(errp,
                    "Incomplete shortcut evidence options or build identity");
         return false;
@@ -382,6 +383,7 @@ bool xemu_shortcut_evidence_init(const XemuShortcutEvidenceOptions *options,
     qdict_put_str(identity, "comparison_config_sha256",
                   session->comparison_config_sha256);
     qdict_put(identity, "input_paths", qdict_clone_shallow(session->input_paths));
+    qdict_put_str(identity, "screenshot_directory", session->screenshot_directory);
     qdict_put_str(identity, "session_id", options->session_id);
     qdict_put_str(identity, "workload", options->workload);
     qdict_put_str(identity, "input_sha256", options->input_sha256);

@@ -1562,6 +1562,7 @@ int main(int argc, char **argv)
             .requested_gpu = requested_gpu, .base_config_sha256 = base_hash,
             .comparison_config_sha256 = comparison_hash,
             .input_paths = input_paths,
+            .screenshot_directory = g_config.general.screenshot_dir ?: "",
             .initial_profile = xemu_tweaks_snapshot(),
         };
         if (!xemu_shortcut_evidence_init(&evidence_options, &identity, &evidence_error)) {

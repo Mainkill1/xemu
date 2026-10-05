@@ -71,6 +71,7 @@ def fixtures(kind="setting_ab"):
                     "hdd": "",
                     "dvd": "",
                 },
+                "screenshot_directory": f"/results/run-{i}/screenshots",
                 "workload": "fixed-work",
                 "input_sha256": "f" * 64,
                 "configured_window": {"start_frame": 100, "frame_count": 20},
@@ -118,6 +119,8 @@ def fixtures(kind="setting_ab"):
                 },
                 "runner": {
                     "run_id": f"actual-run-{i}",
+                    "result_directory": f"/results/run-{i}",
+                    "screenshot_directory": f"/results/run-{i}/screenshots",
                     "session_id": f"run-{i}",
                     "executable_sha256": a if side == "A" else b,
                     "input_sha256": "f" * 64,
@@ -361,6 +364,32 @@ class AdmissionTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 1)
             self.assertFalse(json.loads(result.stdout)["eligible"])
+
+    def test_wrong_output_directory(self):
+        self.reject(
+            lambda c, r: r[1].update(
+                screenshot_directory="/other/screenshots"
+            ),
+            "output directory",
+        )
+
+    def test_output_outside_canonical_result(self):
+        self.reject(
+            lambda c, r: r[1]["runner"].update(result_directory="/other"),
+            "output directory",
+        )
+
+    def test_windows_output_directories(self):
+        contract, runs = fixtures()
+        for i, run in enumerate(runs):
+            run["platform"] = "windows-x86_64"
+            path = f"C:\\results\\run-{i}"
+            run["screenshot_directory"] = path + "\\screenshots"
+            run["runner"].update(
+                result_directory=path,
+                screenshot_directory=run["screenshot_directory"],
+            )
+        self.assertTrue(comparison.validate(contract, runs)["eligible"])
 
     def test_unknown_backend(self):
         self.reject(

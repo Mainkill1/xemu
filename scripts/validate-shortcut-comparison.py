@@ -3,6 +3,8 @@
 """Validate evidence admission; this utility does not measure performance."""
 import argparse
 import json
+import ntpath
+import posixpath
 from pathlib import Path
 import re
 import sys
@@ -353,6 +355,28 @@ def validate_records(contract, runs):
             if not known(run.get("counter_units", {}).get(key)):
                 errors.append(label + "missing counter units: " + key)
         runner = run.get("runner", {})
+        output = run.get("screenshot_directory")
+        result_directory = runner.get("result_directory")
+        platform = run.get("platform")
+        path_api = (
+            ntpath
+            if isinstance(platform, str) and platform.startswith("windows")
+            else posixpath
+        )
+        if (
+            not isinstance(output, str)
+            or runner.get("screenshot_directory") != output
+            or not known(result_directory)
+            or not path_api.isabs(result_directory)
+            or (
+                output
+                and path_api.normcase(path_api.normpath(output))
+                != path_api.normcase(
+                    path_api.join(result_directory, "screenshots")
+                )
+            )
+        ):
+            errors.append(label + "unbound output directory")
         roles = {"bootrom", "flashrom", "eeprom", "hdd", "dvd"}
         paths = run.get("input_paths", {})
         bindings = runner.get("resource_bindings", {})

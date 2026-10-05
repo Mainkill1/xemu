@@ -103,6 +103,7 @@ static void init_service(bool writable)
         .comparison_config_sha256 =
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         .input_paths = input_paths,
+        .screenshot_directory = "",
         .initial_profile = fixture(0).published.start_profile,
     };
     g_assert_true(xemu_shortcut_evidence_init(&options, &identity, &error));

@@ -30,6 +30,10 @@ char *xemu_shortcut_comparison_config_sha256(const QDict *input_paths)
 {
     struct config configuration = g_config;
     char bound[] = "@verified-runner-input";
+    if (configuration.general.screenshot_dir &&
+        *configuration.general.screenshot_dir) {
+        configuration.general.screenshot_dir = "@verified-runner-output";
+    }
     const char **paths[] = {
         &configuration.sys.files.bootrom_path,
         &configuration.sys.files.flashrom_path,
