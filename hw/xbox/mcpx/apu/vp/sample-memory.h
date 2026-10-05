@@ -18,7 +18,7 @@ typedef struct MCPXAPUSampleReadCache {
 
 static inline void mcpx_apu_sample_cache_clear(MCPXAPUSampleReadCache *cache)
 {
-    int64_t start = diag_start();
+    int64_t start = diag_start(DIAG_cleanup);
     if (cache->payload.mrs.mr) {
         DIAG_COUNT(payload_destroy);
         address_space_cache_destroy(&cache->payload);
@@ -66,7 +66,7 @@ static inline uint32_t mcpx_apu_sample_read_word(MCPXAPUSampleReadCache *cache,
                                                  unsigned remaining_words)
 {
     DIAG_COUNT(payload_reads);
-    int64_t start = diag_start();
+    int64_t start = diag_start(DIAG_payload);
     if (diag_reader_mode < 2) {
         DIAG_COUNT(payload_phys);
         uint32_t value = ldl_le_phys(&address_space_memory, physical);
@@ -77,7 +77,7 @@ static inline uint32_t mcpx_apu_sample_read_word(MCPXAPUSampleReadCache *cache,
 
     if (!mcpx_apu_payload_contains(cache, physical, sizeof(uint32_t))) {
         DIAG_COUNT(payload_misses);
-        int64_t refill_start = diag_start();
+        int64_t refill_start = diag_start(DIAG_payload_refill);
         if (cache->payload.mrs.mr) {
             DIAG_COUNT(payload_destroy);
             if (!cache->payload.ptr) { DIAG_COUNT(payload_non_direct); }

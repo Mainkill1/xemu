@@ -14,7 +14,7 @@ typedef struct MCPXAPUSGETranslationCache {
 
 static inline void mcpx_apu_sge_cache_clear(MCPXAPUSGETranslationCache *cache)
 {
-    int64_t start = diag_start();
+    int64_t start = diag_start(DIAG_descriptor_cleanup);
     if (cache->mapping.mrs.mr) { DIAG_COUNT(descriptor_destroy); }
     address_space_cache_destroy(&cache->mapping);
     diag_stop(DIAG_descriptor_cleanup, start);
@@ -27,7 +27,7 @@ static uint32_t
 mcpx_apu_sge_read_descriptor_slow(MCPXAPUSGETranslationCache *cache,
                                   hwaddr descriptor)
 {
-    int64_t start = diag_start();
+    int64_t start = diag_start(DIAG_descriptor_refill);
     DIAG_COUNT(descriptor_init);
     RCU_READ_LOCK_GUARD();
 
@@ -51,7 +51,7 @@ mcpx_apu_sge_read_descriptor(MCPXAPUSGETranslationCache *cache,
                              hwaddr descriptor)
 {
     DIAG_COUNT(descriptor_reads);
-    int64_t start = diag_start();
+    int64_t start = diag_start(DIAG_descriptor);
     if (diag_reader_mode == 0) {
         DIAG_COUNT(descriptor_phys);
         uint32_t value = ldl_le_phys(&address_space_memory, descriptor);

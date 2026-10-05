@@ -70,6 +70,7 @@ jobs:
       pkg_version: ${{ needs.source.outputs.pkg_version }}
 
   macos:
+    if: false # Diagnostic branch only: the authorized rigs are x86_64.
     name: macOS
     needs: source
     uses: ./.github/workflows/build-macos.yml

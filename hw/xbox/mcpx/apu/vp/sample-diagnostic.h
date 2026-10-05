@@ -41,6 +41,8 @@ typedef struct MCPXDiag {
 static MCPXDiag diag_workers[17];
 static __thread MCPXDiag *diag_current = &diag_workers[16];
 static int diag_reader_mode = 2;
+/* 0: outer scopes, 1: all inclusive probes, 2+timer: one selected scope. */
+static int diag_timer_mode;
 static unsigned diag_sample_mask = 127;
 static bool diag_enabled;
 static int64_t diag_last_report;
@@ -57,9 +59,15 @@ static inline bool diag_should_sample(void)
     diag_current->rng = x;
     return !(x & diag_sample_mask);
 }
-static inline int64_t diag_start(void)
+static inline bool diag_timer_enabled(int timer)
 {
-    return diag_current->sampling ? get_clock() : 0;
+    return diag_timer_mode == 1 || diag_timer_mode == timer + 2 ||
+           (diag_timer_mode == 0 && (timer == DIAG_callback ||
+            (timer >= DIAG_worker_process && timer <= DIAG_hrtf)));
+}
+static inline int64_t diag_start(int timer)
+{
+    return diag_current->sampling && diag_timer_enabled(timer) ? get_clock() : 0;
 }
 static inline void diag_stop(int timer, int64_t start)
 {
@@ -87,7 +95,7 @@ static inline MCPXDiagScope diag_scope_begin(int timer, bool sample)
     MCPXDiagScope scope = { .timer = timer,
         .previous_sampling = diag_current->sampling };
     diag_current->sampling = sample;
-    scope.start = diag_start();
+    scope.start = diag_start(timer);
     return scope;
 }
 static inline void diag_scope_end(MCPXDiagScope *scope)
@@ -112,6 +120,16 @@ static void G_GNUC_UNUSED diag_init(void)
             fprintf(stderr, "Invalid XEMU_APU_DIAG reader: %s\n", mode);
             abort();
         }
+    }
+    const char *timers = getenv("XEMU_APU_DIAG_TIMERS");
+    diag_timer_mode = 0;
+    if (timers && strcmp(timers, "outer")) {
+        diag_timer_mode = -1;
+        if (!strcmp(timers, "all")) { diag_timer_mode = 1; }
+        for (int i = 0; i < DIAG_TIMER_COUNT; i++) {
+            if (!strcmp(timers, diag_timer_names[i])) { diag_timer_mode = i + 2; }
+        }
+        assert(diag_timer_mode >= 0);
     }
     const char *sampling = getenv("XEMU_APU_DIAG_SAMPLE_LOG2");
     if (sampling) {
@@ -162,10 +180,10 @@ static void G_GNUC_UNUSED diag_report(bool force)
         }
     }
     GString *s = g_string_new("APU_DIAG {\"version\":1");
-    g_string_append_printf(s, ",\"mode\":%d,\"sampleEvery\":%u,"
+    g_string_append_printf(s, ",\"mode\":%d,\"timerMode\":%d,\"sampleEvery\":%u,"
                            "\"monotonic_ns\":%" PRId64 ",\"utc_us\":%" PRId64
                            ",\"reports\":%" PRIu64 ",\"report_ns\":%" PRIu64,
-                           diag_reader_mode, diag_sample_mask + 1, now,
+                           diag_reader_mode, diag_timer_mode, diag_sample_mask + 1, now,
                            (int64_t)g_get_real_time(), diag_reports,
                            diag_report_ns);
 #define DIAG_PRINT(n) g_string_append_printf(s, ",\"" #n "\":%" PRIu64, total.n);
@@ -187,10 +205,16 @@ static void G_GNUC_UNUSED diag_report(bool force)
         MCPXDiag *w = &diag_workers[i];
         g_string_append_printf(s, "%s{\"id\":%d,\"batches\":%" PRIu64
             ",\"voices\":%" PRIu64 ",\"callbacks\":%" PRIu64
-            ",\"work_ns\":%" PRIu64 ",\"lock_ns\":%" PRIu64 "}",
+            ",\"work_ns\":%" PRIu64 ",\"lock_ns\":%" PRIu64
+            ",\"work_count\":%" PRIu64 ",\"lock_count\":%" PRIu64
+            ",\"work_max_ns\":%" PRIu64 ",\"lock_max_ns\":%" PRIu64 "}",
             i ? "," : "", i, w->worker_batches, w->worker_voices,
             w->callbacks, w->timing[DIAG_worker_process].ns,
-            w->timing[DIAG_worker_lock].ns);
+            w->timing[DIAG_worker_lock].ns,
+            w->timing[DIAG_worker_process].count,
+            w->timing[DIAG_worker_lock].count,
+            w->timing[DIAG_worker_process].max_ns,
+            w->timing[DIAG_worker_lock].max_ns);
     }
     g_string_append(s, "]}\n");
     fputs(s->str, stderr);
