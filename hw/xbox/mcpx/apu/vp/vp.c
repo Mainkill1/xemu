@@ -20,6 +20,7 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "qemu/error-report.h"
 #include "adpcm.h"
 #include "sge.h"
 #include "sample-memory.h"
@@ -58,6 +59,8 @@ static void voice_destroy_resampler(MCPXAPUVoiceFilter *filter)
 {
     mcpx_apu_resampler_destroy(&filter->resampler,
                                &filter->resampler_channels);
+    filter->resampler_source_finished = false;
+    filter->resampler_deactivate_after_mix = false;
 }
 
 static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
@@ -845,9 +848,10 @@ static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
 }
 
 static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
-                       int num_samples_requested)
+                             int num_samples_requested, bool *end_of_input)
 {
     assert(v < MCPX_HW_MAX_VOICES);
+    *end_of_input = false;
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
                                  NV_PAVS_VOICE_CFG_FMT_STEREO);
     unsigned int channels = stereo ? 2 : 1;
@@ -964,7 +968,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             d->vp.ssl[v].ssl_seg = 0;
             if (!persist) {
                 d->vp.ssl[v].ssl_index = 0;
-                voice_off(d, v);
+                *end_of_input = true;
             } else {
                 set_notify_status(
                     d, v, MCPX_HW_NOTIFIER_SSLA_DONE + d->vp.ssl[v].ssl_index,
@@ -1115,7 +1119,8 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
         }
     }
 
-    if (cbo >= ebo) {
+    /* EBO is inclusive; cbo == ebo still names one unread sample. */
+    if (cbo > ebo) {
         if (stream) {
             d->vp.ssl[v].ssl_seg += 1;
             cbo = 0;
@@ -1134,7 +1139,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                 cbo = lbo;
             } else {
                 cbo = ebo;
-                voice_off(d, v);
+                *end_of_input = true;
                 DPRINTF("end of buffer!\n");
             }
         }
@@ -1154,6 +1159,28 @@ adpcm_invalid:
     return -1;
 }
 
+static MCPXAPUResamplerFetchResult voice_resample_fetch(
+    void *opaque, float samples[][2], int requested)
+{
+    MCPXAPUVoiceFilter *filter = opaque;
+    uint16_t v = filter->voice;
+    assert(v < MCPX_HW_MAX_VOICES);
+    MCPXAPUState *d = container_of(filter, MCPXAPUState, vp.filters[v]);
+
+    int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
+                                NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
+    if (!active) {
+        return (MCPXAPUResamplerFetchResult) { .frames = -1 };
+    }
+    bool end_of_input;
+    int frames =
+        voice_get_samples(d, v, samples, requested, &end_of_input);
+    return (MCPXAPUResamplerFetchResult) {
+        .frames = frames,
+        .end_of_input = end_of_input,
+    };
+}
+
 static long voice_resample_callback(void *cb_data, float **data)
 {
     MCPXAPUVoiceFilter *filter = cb_data;
@@ -1161,42 +1188,28 @@ static long voice_resample_callback(void *cb_data, float **data)
     assert(v < MCPX_HW_MAX_VOICES);
     MCPXAPUState *d = container_of(filter, MCPXAPUState, vp.filters[v]);
 
-    int sample_count = 0;
-    while (sample_count < NUM_SAMPLES_PER_FRAME) {
-        int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
-                                    NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
-        if (!active) {
-            break;
-        }
-        int count = voice_get_samples(
-            d, v, (float(*)[2]) & filter->resample_buf[2 * sample_count],
-            NUM_SAMPLES_PER_FRAME - sample_count);
-        if (count < 0) {
-            break;
-        }
-        if (filter->resampler_channels == 1) {
-            mcpx_apu_pack_mono_samples(
-                (const float(*)[2]) &filter->resample_buf[2 * sample_count],
-                &filter->mono_resample_buf[sample_count], count);
-        }
-        sample_count += count;
+    if (filter->resampler_source_finished) {
+        /*
+         * libsamplerate 0.2.2 needs a valid pointer on the zero-frame callback
+         * to flush all converter history instead of truncating the tail.
+         */
+        *data = filter->resampler_channels == 1 ?
+                    filter->mono_resample_buf : filter->resample_buf;
+        return 0;
     }
 
-    if (sample_count < NUM_SAMPLES_PER_FRAME) {
-        /* Starvation causes SRC hang on repeated calls. Provide silence. */
-        if (filter->resampler_channels == 1) {
-            memset(&filter->mono_resample_buf[sample_count], 0,
-                   (NUM_SAMPLES_PER_FRAME - sample_count) * sizeof(float));
-        } else {
-            memset(&filter->resample_buf[2 * sample_count], 0,
-                   2 * (NUM_SAMPLES_PER_FRAME - sample_count) * sizeof(float));
-        }
-        sample_count = NUM_SAMPLES_PER_FRAME;
-    }
-
-    *data = filter->resampler_channels == 1 ? filter->mono_resample_buf
-                                            : filter->resample_buf;
-    return sample_count;
+    /*
+     * Pad temporary starvation with silence, but expose finite input ends so
+     * libsamplerate can drain its converter history before the voice stops.
+     */
+    bool end_of_input;
+    long frames = mcpx_apu_resampler_fill_input_block(
+        filter->resampler_channels, NUM_SAMPLES_PER_FRAME,
+        voice_resample_fetch, filter, (float(*)[2])filter->resample_buf,
+        filter->mono_resample_buf, data, &end_of_input,
+        d->vp.resampler_type);
+    filter->resampler_source_finished = end_of_input;
+    return frames;
 }
 
 static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
@@ -1218,14 +1231,9 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
         filter->resampler_channels = channels;
         int err;
 
-        /* Note: Using a sinc based resampler for quality. Unsure about
-         * hardware's actual interpolation method; it could just be linear, in
-         * which case using this resampler is overkill, but quality is good
-         * so use it for now.
-         */
         filter->resampler = src_callback_new(&voice_resample_callback,
-                                             SRC_SINC_FASTEST, channels, &err,
-                                             filter);
+                                             d->vp.resampler_type, channels,
+                                             &err, filter);
         if (filter->resampler == NULL) {
             fprintf(stderr, "src error: %s\n", src_strerror(err));
             return -1;
@@ -1244,6 +1252,10 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
             return -1;
         }
         if (count == 0) {
+            if (filter->resampler_source_finished) {
+                filter->resampler_deactivate_after_mix = true;
+                return 0;
+            }
             return -1;
         }
     }
@@ -1415,6 +1427,9 @@ static void voice_process(MCPXAPUState *d,
             if (count < 0) {
                 break;
             }
+            if (count == 0) {
+                break;
+            }
             sample_count += count;
         }
     }
@@ -1486,6 +1501,10 @@ static void voice_process(MCPXAPUState *d,
     }
 
     if (voice_should_mute(v)) {
+        if (d->vp.filters[v].resampler_deactivate_after_mix) {
+            d->vp.filters[v].resampler_deactivate_after_mix = false;
+            voice_off(d, v);
+        }
         return;
     }
 
@@ -1585,6 +1604,11 @@ static void voice_process(MCPXAPUState *d,
             sample_buf[i][0] += g*samples[i][0];
             sample_buf[i][1] += g*samples[i][1];
         }
+    }
+
+    if (d->vp.filters[v].resampler_deactivate_after_mix) {
+        d->vp.filters[v].resampler_deactivate_after_mix = false;
+        voice_off(d, v);
     }
 }
 
@@ -1930,6 +1954,26 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+    CONFIG_AUDIO_VP_RESAMPLER requested = g_config.audio.vp.resampler;
+    const char *requested_name;
+
+    switch (requested) {
+    case CONFIG_AUDIO_VP_RESAMPLER_SINC:
+        requested_name = "sinc";
+        break;
+    case CONFIG_AUDIO_VP_RESAMPLER_LINEAR:
+        requested_name = "linear";
+        break;
+    default:
+        requested_name = "unknown";
+        break;
+    }
+
+    d->vp.resampler_type = mcpx_apu_resampler_type(requested);
+    info_report("MCPX APU voice resampler: requested=%s effective=%s "
+                "libsamplerate=%s",
+                requested_name, src_get_name(d->vp.resampler_type),
+                src_get_version());
     voice_work_init(d);
 }
 

@@ -1127,6 +1127,17 @@ void MainMenuAudioView::Draw()
         xemu_queue_notification(
             "Voice processing worker count changed. Restart xemu to apply it.");
     }
+    if (ChevronCombo(
+            "Voice resampler (next start)", &g_config.audio.vp.resampler,
+            "Sinc (Default)\0"
+            "Linear (Experimental)\0",
+            "Saved choice takes effect on the next launch. Active voices keep "
+            "the startup converter. Linear may reduce CPU usage "
+            "but may reduce audio quality or alter playback behavior. "
+            "Restart xemu to apply changes.")) {
+        xemu_queue_notification(
+            "Voice resampler changed. Restart xemu to apply it.");
+    }
 }
 
 NetworkInterface::NetworkInterface(pcap_if_t *pcap_desc, char *_friendlyname)

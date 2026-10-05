@@ -4660,7 +4660,7 @@ foreach target : target_dirs
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
     resampler_state_test = executable('test-xbox-mcpx-apu-resampler-state',
       files('tests/xbox/mcpx-apu/test-resampler-state.c'),
-      c_args: c_args,
+      c_args: c_args + ['-DMCPX_TEST_RESAMPLER_SELECTOR'],
       dependencies: arch_deps + [sdl],
       objects: lib.extract_all_objects(recursive: true),
       include_directories: target_inc,
@@ -4670,11 +4670,12 @@ foreach target : target_dirs
                              '-Wl,--wrap=src_callback_read'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-resampler-state', resampler_state_test,
-      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+      args: ['--require-finite-tail', '--tap', '-k'],
+      protocol: 'tap', suite: ['unit'])
     resampler_throughput_test = executable(
       'test-xbox-mcpx-apu-resampler-throughput',
       files('tests/xbox/mcpx-apu/test-resampler-throughput.c'),
-      c_args: c_args,
+      c_args: c_args + ['-DMCPX_TEST_RESAMPLER_SELECTOR'],
       dependencies: arch_deps + [sdl],
       objects: lib.extract_all_objects(recursive: true),
       include_directories: target_inc,
