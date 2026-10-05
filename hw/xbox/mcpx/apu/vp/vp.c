@@ -1837,8 +1837,10 @@ static void voice_work_init(MCPXAPUState *d)
 {
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
-    int num_workers = g_config.audio.vp.num_workers ?: SDL_GetNumLogicalCPUCores();
-    vwd->num_workers = MAX(1, MIN(num_workers, MAX_VOICE_WORKERS));
+    int configured_workers = g_config.audio.vp.num_workers;
+    int logical_cpus = configured_workers ? 0 : SDL_GetNumLogicalCPUCores();
+    vwd->num_workers = mcpx_apu_voice_worker_count(configured_workers,
+                                                logical_cpus);
     vwd->workers = g_malloc0_n(vwd->num_workers, sizeof(VoiceWorker));
     vwd->workers_should_exit = false;
     vwd->workers_pending = 0;

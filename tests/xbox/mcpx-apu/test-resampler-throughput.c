@@ -17,6 +17,16 @@ static const hwaddr ram_base = 0x100000;
 static const unsigned voice_count = 45;
 static const unsigned first_voice = 64;
 static const unsigned warmup_frames = 256;
+static int simulated_logical_cpus = 8;
+static unsigned cpu_query_count;
+
+int __wrap_SDL_GetNumLogicalCPUCores(void);
+int __wrap_SDL_GetNumLogicalCPUCores(void)
+{
+    cpu_query_count++;
+    return simulated_logical_cpus;
+}
+
 static bool negative_silence;
 static bool negative_page_boundary;
 static int converter = SRC_SINC_FASTEST;
@@ -397,7 +407,7 @@ static void test_vp_only_workload(gconstpointer opaque)
 static void test_signed_reduction(gconstpointer opaque)
 {
     float reference[16][2][NUM_SAMPLES_PER_FRAME];
-    const unsigned pools[] = { 1, 8 };
+    const unsigned pools[] = { 1, 4, 8, 16 };
     converter = GPOINTER_TO_UINT(opaque) ? SRC_LINEAR : SRC_SINC_FASTEST;
     independent_profile = true;
     for (unsigned r = 0; r < ARRAY_SIZE(pools); r++) {
@@ -451,6 +461,41 @@ static void test_signed_reduction(gconstpointer opaque)
         }
         g_free(d);
     }
+    independent_profile = false;
+}
+
+static void test_default_auto_workers(void)
+{
+    static const struct {
+        int cores;
+        int workers;
+    } cases[] = {
+        { 0, 1 }, { 1, 1 }, { 2, 2 }, { 4, 4 },
+        { 8, 4 }, { 16, 4 }, { 32, 4 },
+    };
+
+    independent_profile = true;
+    converter = SRC_SINC_FASTEST;
+    for (unsigned i = 0; i < ARRAY_SIZE(cases); i++) {
+        simulated_logical_cpus = cases[i].cores;
+        cpu_query_count = 0;
+        MCPXAPUState *d = prepare_voice_frame(MONO_PCM, 0);
+        g_assert_cmpint(d->vp.voice_work_dispatch.num_workers, ==,
+                       cases[i].workers);
+        g_assert_cmpuint(cpu_query_count, ==, 1);
+        mcpx_apu_vp_finalize(d);
+        g_free(d);
+        run_workload(MONO_PCM, 0, 132, false);
+        g_assert_cmpuint(actual_pool, ==, cases[i].workers);
+        g_assert_cmpuint(busy_workers, ==, cases[i].workers);
+    }
+    simulated_logical_cpus = 32;
+    cpu_query_count = 0;
+    MCPXAPUState *d = prepare_voice_frame(MONO_PCM, 8);
+    g_assert_cmpint(d->vp.voice_work_dispatch.num_workers, ==, 8);
+    g_assert_cmpuint(cpu_query_count, ==, 0);
+    mcpx_apu_vp_finalize(d);
+    g_free(d);
     independent_profile = false;
 }
 
@@ -558,5 +603,7 @@ int __wrap_main(int argc, char **argv)
         g_test_add_data_func(v3_names[i], GUINT_TO_POINTER(i),
                              test_vp_only_workload);
     }
+    g_test_add_func("/mcpx-apu/voice-frame/default-auto-four",
+                    test_default_auto_workers);
     return g_test_run();
 }
