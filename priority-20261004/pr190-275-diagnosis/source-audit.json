@@ -1,0 +1,20 @@
+{
+  "main": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "referenceBuiltSource": "59e5a983ca9b1d8ae87c4ed9615521c67aa1a873",
+  "referenceDiffOnly": [
+    "tests/unit/meson.build",
+    "tests/unit/test-xbox-mcpx-apu-adpcm-reader.c",
+    "tests/unit/test-xbox-mcpx-apu-adpcm.c"
+  ],
+  "referenceNonTestDiff": [],
+  "pr190": "8e9966415808f51feae2c566015b89da689a67d2",
+  "pr190CiMerge": "da741087126dd2a4339fdb154fbac80434a827d3",
+  "pr190TreeEqual": true,
+  "pr275": "7dcdcb0dcdfae81ddd0795b0782e63aa0ea3caa3",
+  "diagnostic": "26e5c757749728f41e61ebe65ffb7b5c2986a048",
+  "trackingIssues": [
+    310,
+    311
+  ],
+  "acceptance": "Owner authorizes merge when no failure in changed source is identified; unresolved regression remains tracked."
+}

@@ -1,0 +1,43 @@
+Deck native Morrowind OS profile analysis
+
+Source: diagnostic head 26e5c757749728f41e61ebe65ffb7b5c2986a048; matching deployed ELF/build ID e2f580d1da9cea2d3f8793967ea2fdd99d321b1e and DWARF. All analysis was offline; no rig or emulator changes.
+
+This capture cannot establish a scheduler regression or refcount/cacheline contention. Perf hardware-event management itself appears prominently in worker kernel stacks (x86_pmu_disable_all and related paths), and 105/90/119 lost samples were reported. Lightweight /proc-only follow-up is needed for the scheduling comparison.
+
+Observed 20-second capture totals (baseline / descriptor / payload):
+Voice-worker threads confirmed by native call stacks: 8 / 8 / 8
+Worker scheduled CPU seconds, sum across eight threads: 13.300 / 12.704 / 13.306
+Worker user CPU seconds, /proc tick resolution: 5.66 / 4.80 / 5.66
+Worker kernel CPU seconds, /proc tick resolution: 7.63 / 7.88 / 7.64
+Worker runqueue wait seconds, sum across eight threads: 7.232 / 7.449 / 7.874
+Guest CPU 0/TCG scheduled CPU seconds: 18.770 / 18.754 / 18.642
+Whole-process average occupied cores, perf stat: 2.824 / 2.832 / 2.828
+Whole-process context switches per second: 31229 / 31452 / 30889
+Whole-process CPU migrations per second: 7946 / 7866 / 7911
+Mean sampled CPU clock MHz: 2526 / 2484 / 2509
+Mean acpitz temperature C: 56.2 / 60.3 / 61.1
+
+Runqueue wait means runnable but unscheduled time; it excludes blocking in futexes, I/O, and condition variables. Eight threads can accumulate more than one second of wait per wall second. Per-thread CPU changes sampled once per second are only lower bounds; the exact migration count above is process-wide.
+
+Audio work inside comparable counter intervals:
+Counter interval seconds: 19.057 / 19.044 / 19.043
+Callbacks per second: 10475.9 / 10077.8 / 10437.6
+Worker voices processed: 298117 / 275284 / 295691
+ADPCM payload words read: 533052 / 464391 / 525924
+ADPCM callbacks / total callbacks: 0.2967 / 0.2688 / 0.2940
+Sampled callback mean microseconds: 4.294 / 3.681 / 3.672
+
+The payload run processed about 3.6% more callbacks, 7.4% more worker voice calls, and 13.3% more ADPCM payload words than descriptor within approximately 19.04-second counter intervals. The audio mix is therefore not equal-work even though the saved scene/input plan is unchanged. Raw worker CPU differences cannot be assigned to reader overhead.
+
+All eight workers show a broadly shared pattern of frequent switching and runnable waits, not a single new stalled worker. Worker total CPU ranges are 1.487-1.874 s baseline, 1.448-1.867 s descriptor, and 1.468-1.903 s payload. Worker-ID-to-TID mapping is not recorded, so no individual diagnostic worker index was invented.
+
+MemoryRegion / FlatView reference hypothesis:
+Matching native DWARF resolves a few samples in flatview_ref, flatview_unref, address_space_get_flatview, and address_space_cache_init. Their footprint is small relative to resampler/HRTF and kernel scheduling activity in all three captures. Sparse sample counts cannot measure their small difference precisely. No cache misses, HITM, locked-memory latency, or cacheline-contention event was recorded; the captures neither establish shared-refcount contention nor rule out a small effect.
+
+Clock/thermal observations:
+Temperature rose with run order, but mean CPU clock did not fall monotonically (2526/2484/2509 MHz). There is no measured mode-linked clock reduction in these captures. One-second frequency readings cannot establish or exclude short power/thermal limits.
+
+Interpretation and next boundary:
+The sample callback is only one part of ongoing audio and emulation work; guest CPU, resampling/HRTF, and scheduling remain active. These observations support investigating the remaining costs, but do not establish why a small reader benefit fails to change broad game frame means. The next /proc-only profiles should separate actual worker CPU/runqueue behavior from hardware sampling overhead. Preserve the unequal audio-work caveat and avoid significance claims from one run per mode.
+
+Artifacts: all-summary.json; MODE-summary.json; MODE-threads.csv; MODE-perf-script.txt; MODE-perf-leaves.txt; MODE-decoded-samples-private.json. Raw source capture files remain unchanged. ELF file offsets were translated through the deployed executable PT_LOAD segments, never the debug-only ELF segments. Kernel symbols came from the same Deck boot.

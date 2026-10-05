@@ -1,0 +1,462 @@
+{
+  "main": {
+    "samples": 3875,
+    "lost": [],
+    "functions": [
+      {
+        "name": "unknown",
+        "period": 23748336256,
+        "percent": 45.570366325733616
+      },
+      {
+        "name": "lookup_tb_ptr_common",
+        "period": 7554101807,
+        "percent": 14.495465404230305
+      },
+      {
+        "name": "helper_lookup_tb_ptr_i32",
+        "period": 6830896651,
+        "percent": 13.107716657020578
+      },
+      {
+        "name": "cpu_exec_loop",
+        "period": 3104947298,
+        "percent": 5.958042039943263
+      },
+      {
+        "name": "qht_lookup_custom",
+        "period": 1395924995,
+        "percent": 2.678621891642036
+      },
+      {
+        "name": "tlb_set_page_full",
+        "period": 636708967,
+        "percent": 1.2217723614949574
+      },
+      {
+        "name": "float32_mul",
+        "period": 603628079,
+        "percent": 1.1582938858539662
+      },
+      {
+        "name": "tb_htable_lookup_common",
+        "period": 582181008,
+        "percent": 1.1171393867956547
+      },
+      {
+        "name": "cpu_tb_exec",
+        "period": 544745527,
+        "percent": 1.045304940611281
+      },
+      {
+        "name": "float32_add",
+        "period": 457376895,
+        "percent": 0.8776544356369669
+      },
+      {
+        "name": "tb_lookup_cmp",
+        "period": 441058974,
+        "percent": 0.8463421942391508
+      },
+      {
+        "name": "x86_get_tb_cpu_state",
+        "period": 433693704,
+        "percent": 0.8322090756758183
+      },
+      {
+        "name": "probe_access_internal",
+        "period": 360194012,
+        "percent": 0.691171495056992
+      },
+      {
+        "name": "do_ld4_mmu",
+        "period": 336270808,
+        "percent": 0.6452655773449747
+      },
+      {
+        "name": "mmu_translate",
+        "period": 324529775,
+        "percent": 0.6227358654070553
+      },
+      {
+        "name": "soft_f32_mul",
+        "period": 314231252,
+        "percent": 0.6029741667067758
+      },
+      {
+        "name": "victim_tlb_hit",
+        "period": 281497365,
+        "percent": 0.540161546665728
+      },
+      {
+        "name": "tcg_tb_lookup",
+        "period": 241297631,
+        "percent": 0.4630228121948357
+      },
+      {
+        "name": "helper_fnstsw__hard",
+        "period": 217901465,
+        "percent": 0.41812822068557554
+      },
+      {
+        "name": "tlb_reset_dirty",
+        "period": 175732847,
+        "percent": 0.3372114209150474
+      },
+      {
+        "name": "get_page_addr_code_hostp",
+        "period": 170743530,
+        "percent": 0.32763748693692435
+      },
+      {
+        "name": "helper_shufps_xmm",
+        "period": 169885580,
+        "percent": 0.3259911781021619
+      },
+      {
+        "name": "helper_cc_compute_c",
+        "period": 164182911,
+        "percent": 0.3150484024667214
+      },
+      {
+        "name": "qemu_ram_block_from_host",
+        "period": 163835467,
+        "percent": 0.3143816967999748
+      },
+      {
+        "name": "physical_memory_is_clean",
+        "period": 162875503,
+        "percent": 0.3125396346585284
+      },
+      {
+        "name": "helper_mulps_xmm",
+        "period": 149802698,
+        "percent": 0.2874544031571271
+      },
+      {
+        "name": "get_ptr_rcu_reader",
+        "period": 141365204,
+        "percent": 0.27126380823264956
+      },
+      {
+        "name": "helper_addps_xmm",
+        "period": 132748257,
+        "percent": 0.2547288633351845
+      },
+      {
+        "name": "helper_cc_compute_all",
+        "period": 131853011,
+        "percent": 0.25301098770247193
+      },
+      {
+        "name": "tb_tc_cmp",
+        "period": 128772563,
+        "percent": 0.24709995703934884
+      },
+      {
+        "name": "parts64_uncanon",
+        "period": 105871702,
+        "percent": 0.20315579970154624
+      },
+      {
+        "name": "float32_to_int32_scalbn",
+        "period": 89840688,
+        "percent": 0.17239410032698924
+      },
+      {
+        "name": "notdirty_write",
+        "period": 83604807,
+        "percent": 0.16042815128237412
+      },
+      {
+        "name": "tcg_gen_code",
+        "period": 79544802,
+        "percent": 0.15263746173090856
+      },
+      {
+        "name": "do_tb_phys_invalidate",
+        "period": 78022734,
+        "percent": 0.1497167857060711
+      },
+      {
+        "name": "tcg_optimize",
+        "period": 67477402,
+        "percent": 0.12948148850098504
+      },
+      {
+        "name": "x86_cpu_mmu_index",
+        "period": 64775173,
+        "percent": 0.12429621724246018
+      },
+      {
+        "name": "float32_sub",
+        "period": 60274022,
+        "percent": 0.11565901850372247
+      },
+      {
+        "name": "helper_fucom_ST0_FT0__hard",
+        "period": 56051054,
+        "percent": 0.10755562142076976
+      },
+      {
+        "name": "tlb_fill_align",
+        "period": 56031819,
+        "percent": 0.1075187116353083
+      }
+    ],
+    "moduleShares": [
+      {
+        "kind": "xemu",
+        "percent": 54.429633674266384
+      },
+      {
+        "kind": "generated guest code",
+        "percent": 45.0741618658642
+      },
+      {
+        "kind": "other",
+        "percent": 0.2771847038922404
+      },
+      {
+        "kind": "other",
+        "percent": 0.17211173615071407
+      },
+      {
+        "kind": "other",
+        "percent": 0.04690801982646097
+      }
+    ]
+  },
+  "payload": {
+    "samples": 3859,
+    "lost": [],
+    "functions": [
+      {
+        "name": "unknown",
+        "period": 24428627150,
+        "percent": 46.664351952261754
+      },
+      {
+        "name": "lookup_tb_ptr_common",
+        "period": 6910701520,
+        "percent": 13.201045068400836
+      },
+      {
+        "name": "helper_lookup_tb_ptr_i32",
+        "period": 6299769615,
+        "percent": 12.034023227233403
+      },
+      {
+        "name": "cpu_exec_loop",
+        "period": 3202282927,
+        "percent": 6.117104192498469
+      },
+      {
+        "name": "qht_lookup_custom",
+        "period": 1708253639,
+        "percent": 3.26316123065589
+      },
+      {
+        "name": "cpu_tb_exec",
+        "period": 888443695,
+        "percent": 1.6971338183958444
+      },
+      {
+        "name": "probe_access_internal",
+        "period": 622017611,
+        "percent": 1.1881981145309282
+      },
+      {
+        "name": "tlb_set_page_full",
+        "period": 620855400,
+        "percent": 1.1859780215713944
+      },
+      {
+        "name": "tb_htable_lookup_common",
+        "period": 573387941,
+        "percent": 1.0953041495009552
+      },
+      {
+        "name": "float32_mul",
+        "period": 551414254,
+        "percent": 1.0533293034500246
+      },
+      {
+        "name": "x86_get_tb_cpu_state",
+        "period": 512232169,
+        "percent": 0.978482420183257
+      },
+      {
+        "name": "tb_lookup_cmp",
+        "period": 471634667,
+        "percent": 0.9009317616841915
+      },
+      {
+        "name": "float32_add",
+        "period": 435478086,
+        "percent": 0.8318642937984876
+      },
+      {
+        "name": "soft_f32_mul",
+        "period": 295031961,
+        "percent": 0.5635795732905098
+      },
+      {
+        "name": "do_ld4_mmu",
+        "period": 286249027,
+        "percent": 0.5468021293173848
+      },
+      {
+        "name": "tlb_reset_dirty",
+        "period": 259104088,
+        "percent": 0.49494899080736104
+      },
+      {
+        "name": "mmu_translate",
+        "period": 233627777,
+        "percent": 0.4462833193535611
+      },
+      {
+        "name": "victim_tlb_hit",
+        "period": 212380177,
+        "percent": 0.40569546812259755
+      },
+      {
+        "name": "tcg_tb_lookup",
+        "period": 191060538,
+        "percent": 0.36497000566896287
+      },
+      {
+        "name": "helper_addps_xmm",
+        "period": 164618107,
+        "percent": 0.3144588206121556
+      },
+      {
+        "name": "helper_cc_compute_all",
+        "period": 161448879,
+        "percent": 0.3084048590079742
+      },
+      {
+        "name": "helper_shufps_xmm",
+        "period": 151362480,
+        "percent": 0.2891374941259104
+      },
+      {
+        "name": "float32_sub",
+        "period": 142369581,
+        "percent": 0.27195896823371174
+      },
+      {
+        "name": "get_page_addr_code_hostp",
+        "period": 136997284,
+        "percent": 0.2616966331274149
+      },
+      {
+        "name": "physical_memory_test_and_clear_dirty",
+        "period": 133024293,
+        "percent": 0.25410729750127564
+      },
+      {
+        "name": "get_ptr_rcu_reader",
+        "period": 126426105,
+        "percent": 0.24150322584433892
+      },
+      {
+        "name": "tgen_st8_i",
+        "period": 125047939,
+        "percent": 0.23887060867441987
+      },
+      {
+        "name": "helper_mulps_xmm",
+        "period": 119660192,
+        "percent": 0.22857876047951456
+      },
+      {
+        "name": "mmu_lookup1",
+        "period": 118812418,
+        "percent": 0.22695931522501622
+      },
+      {
+        "name": "physical_memory_is_clean",
+        "period": 116997670,
+        "percent": 0.2234927250291499
+      },
+      {
+        "name": "helper_cc_compute_c",
+        "period": 109810165,
+        "percent": 0.20976292102014152
+      },
+      {
+        "name": "parts64_uncanon",
+        "period": 106643652,
+        "percent": 0.20371414569657972
+      },
+      {
+        "name": "do_tb_phys_invalidate",
+        "period": 104020135,
+        "percent": 0.1987026188559999
+      },
+      {
+        "name": "helper_fnstsw__hard",
+        "period": 99639709,
+        "percent": 0.1903349877439569
+      },
+      {
+        "name": "tb_tc_cmp",
+        "period": 83065410,
+        "percent": 0.15867422690181437
+      },
+      {
+        "name": "address_space_translate_internal",
+        "period": 82639244,
+        "percent": 0.1578601508552164
+      },
+      {
+        "name": "floatx80_do_compare",
+        "period": 80835612,
+        "percent": 0.15441479480129008
+      },
+      {
+        "name": "q_tree_insert_internal",
+        "period": 72553485,
+        "percent": 0.13859400852180692
+      },
+      {
+        "name": "do_interrupt_all",
+        "period": 67974070,
+        "percent": 0.12984626220011208
+      },
+      {
+        "name": "qemu_ram_block_from_host",
+        "period": 65916112,
+        "percent": 0.12591508441327634
+      }
+    ],
+    "moduleShares": [
+      {
+        "kind": "xemu",
+        "percent": 53.335648047738246
+      },
+      {
+        "kind": "generated guest code",
+        "percent": 46.186508877507684
+      },
+      {
+        "kind": "other",
+        "percent": 0.21900770022795246
+      },
+      {
+        "kind": "other",
+        "percent": 0.16387092401795117
+      },
+      {
+        "kind": "other",
+        "percent": 0.048078809895074424
+      },
+      {
+        "kind": "other",
+        "percent": 0.04688564061309036
+      }
+    ]
+  }
+}

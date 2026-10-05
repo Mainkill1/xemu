@@ -1,0 +1,69 @@
+ACTUAL-RELEASE DECK CRITICAL-PATH DIAGNOSIS
+Reference b4d69b24 / #190 8e996641 / #275 7dcdcb0d; one sequential capture each.
+Same saved Morrowind procedure. Existing Vulkan timers and TCG-only perf stat were enabled.
+No product edits, rig reads, or new launches by this analyzer.
+
+RESULT
+TCG remains almost continuously scheduled. #275 has higher cycles per control frame, with no increase in branch-miss rate or large loss of CPU availability.
+Renderer work counts are nearly equal, but draw_flush host elapsed time is higher in both PR builds. This localizes a symptom, not a root cause or critical-path saving.
+TCG instructions per frame differ, notably main versus #190; IPC changes cannot be assigned to code layout without matching executed work.
+
+Metric                                  main           #190           #275
+TCG sched CPU seconds / ~20 wall               18.997         18.986         18.969
+TCG runqueue seconds                            0.143          0.105          0.208
+TCG CPU occupancy %                            94.872         94.819         94.737
+TCG user CPU seconds                           18.860         18.760         18.860
+TCG kernel CPU seconds                          0.140          0.230          0.110
+TCG migrations per second                      62.933         61.582         58.979
+Full profile IPC                                1.854          1.830          1.818
+Full profile branch misses %                    0.424          0.412          0.419
+Later ~15s IPC                                  1.895          1.846          1.869
+Later ~15s branch misses %                      0.408          0.407          0.403
+Later user cycles/task second (GHz)             2.830          2.815          2.809
+Later million cycles/control frame            202.985        202.045        207.623
+  Attachment-phase ranges: main 202.89..203.39; descriptor 201.91..202.41; payload 206.19..210.73
+Later million instr/control frame             384.707        372.894        387.994
+  Attachment-phase ranges: main 384.53..385.48; descriptor 372.64..373.57; payload 385.31..393.79
+
+VULKAN: COMPLETE CONTROL-FRAME BUCKETS BETWEEN SCENE +10s AND +30s
+Host elapsed durations; nested regions are NOT additive. Counter counts in this window are comparable, but executed TCG work is not proven identical.
+draw_flush ms/frame                            14.030         16.406         15.915
+pipeline_prepare ms/frame                       7.562          7.956          7.925
+bind_textures ms/frame                          1.867          2.177          2.120
+update_descriptor_sets ms/frame                 0.838          0.920          0.876
+draw_begin_surface_update ms/frame             11.472         11.361         11.583
+draw_flush calls/frame                       1095.804       1096.199       1096.304
+surface_create fence-wait ms/frame              8.285          8.415          8.520
+flip_stall fence-wait ms/frame                  2.360          2.350          2.437
+stalled fence-wait ms/frame                     1.917          1.847          1.983
+surface_upload queue-wait ms/frame              1.850          1.546          1.672
+display_render queue-wait ms/frame              1.759          1.738          1.892
+All actually submitted finish calls in this late window were timed (100% coverage); no extrapolation used.
+Approximately 1096 draws, 1025 descriptor writes, 2 surface uploads, and 7.8 queue submits per frame in every build.
+Zero steady-state texture uploads except one event; zero vertex staging growth/fallback; zero waited query results.
+draw_flush includes pipeline_prepare and descriptor updates; pipeline_prepare includes bind_textures, which may include texture_upload.
+draw_begin_surface_update includes surface update work and any nested finish/upload waits. Finish/queue waits can overlap enclosing regions.
+Timers measure elapsed host time, including preemption/blocking; they do not measure GPU execution or pure CPU work.
+
+CONTROLS AND LIMITS
+All sampled CPU clocks mean MHz              2564.413       2551.801       2541.576
+acpitz temperature mean C                      57.095         60.286         61.714
+  Observed ranges: main 54.0..59.0; descriptor 59.0..61.0; payload 60.0..63.0
+amdgpu edge temperature mean C                 52.810         56.095         57.143
+  Observed ranges: main 51.0..55.0; descriptor 55.0..57.0; payload 56.0..59.0
+amdgpu sampled clock mean MHz                 228.905        226.952        288.095
+  Observed ranges: main 200.0..518.0; descriptor 200.0..477.0; payload 200.0..534.0
+Sequential captures warmed the device. Temperatures/order are not controlled repeats, and no throttle/power-state counters were captured.
+All logical-CPU frequencies are sparse 1Hz snapshots, not TCG-residency-weighted effective clocks. GPU clock snapshots also vary.
+The first ~5s show substantially different clock/work transients; the later ~15s still differ in retired instructions/frame.
+Every perf event reports 100% enabled/running coverage. /proc scheduler CPU time and perf task-clock differ by ~0.35s in all three runs; do not treat them as interchangeable.
+Anonymous xemu threads remain unidentified in this release capture. No APU work-normalization claim is made.
+Guest/Vulkan frame numbers are contiguous and match. Absolute UTC alignment uses prior same-boot clock pairs; unknown attachment subsecond phase is reported as ranges.
+Hardware measurements do not identify cache misses, cacheline bouncing, instruction-cache stalls, or helper/JIT attribution.
+One run per build cannot establish significance or independently qualify the known regression.
+
+STATIC TCG PLACEMENT
+Separate tcg-symbol-address-check.json verifies build-ID-matched #190/#275 symbols: all1462 tcg_*, cpu_exec*, tb_*, helper_* functions retain identical RVAs and sizes.
+This excludes a simple shift in these static function positions. It does not establish identical bytes, RIP-relative data operands, loaded addresses, or runtime-generated TB placement.
+
+Artifacts: all-summary.json, per-build summaries, tcg-symbol-address-check.json.

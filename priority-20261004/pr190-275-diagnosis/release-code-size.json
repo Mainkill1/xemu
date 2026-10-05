@@ -1,0 +1,23 @@
+{
+  "referenceBuildId": "a82835e00420c35c7d319fd1f2b1d4d4314d22f1",
+  "candidateBuildId": "af16e9d591f3a1cd2a88764310a1d3abded90642",
+  "sharedFunctions": 38285,
+  "sizeChanges": [
+    {
+      "name": "voice_resample_callback",
+      "reference": {
+        "address": 15982944,
+        "size": 5866
+      },
+      "candidate": {
+        "address": 15985216,
+        "size": 6944
+      }
+    }
+  ],
+  "tcgFunctions": 1462,
+  "tcgAddressDeltas": {
+    "2272": 1451,
+    "704": 11
+  }
+}

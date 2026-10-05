@@ -1,0 +1,30 @@
+{
+  "deck": {
+    "app": "pr190275-cost-26e5c757-deck-v1",
+    "source": "26e5c757749728f41e61ebe65ffb7b5c2986a048",
+    "sha256": "12c913661dd51325f8f21c79495fea2c781bc4e5a665ad4e4fad73f4f0b0fefd",
+    "version": "0.8.136-0-g26e5c7577497",
+    "executable": "xemu",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354"
+  },
+  "win": {
+    "app": "pr190275-cost-26e5c757-win-v1",
+    "source": "26e5c757749728f41e61ebe65ffb7b5c2986a048",
+    "sha256": "b643a4d450937ad0a8061a92391b32efb938d4cdecf2ac75e57c5cf948018ab0",
+    "version": "0.8.136-0-g26e5c7577497",
+    "executable": "xemu.exe",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d"
+  },
+  "product": {
+    "main": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "pr190": "8e9966415808f51feae2c566015b89da689a67d2",
+    "pr275": "7dcdcb0dcdfae81ddd0795b0782e63aa0ea3caa3"
+  },
+  "diagnosticCi": 37262566472,
+  "kind": "Private native traces and game images excluded; numeric diagnostic evidence only; no merge performance qualification",
+  "fixedWorkCompiler": "GCC 14.2/O2",
+  "outlineCompilers": [
+    "GCC14.2/O2",
+    "Clang19.1.7/O2"
+  ]
+}

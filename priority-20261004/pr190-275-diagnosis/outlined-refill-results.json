@@ -1,0 +1,466 @@
+[
+  {
+    "compiler": "gcc",
+    "workers": 1,
+    "payload": "mono-pcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 3162109.0,
+          "outlined": 3143304.5
+        },
+        "improvementPct": 0.5946822199993762,
+        "rangesUs": {
+          "current": [
+            3116934,
+            3195397
+          ],
+          "outlined": [
+            3129648,
+            3216406
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 3186638.5,
+          "outlined": 3143304.5
+        },
+        "improvementPct": 1.3598655762177003,
+        "rangesUs": {
+          "current": [
+            3177880,
+            3195397
+          ],
+          "outlined": [
+            3139687,
+            3146922
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 3131636.0,
+          "outlined": 3173027.0
+        },
+        "improvementPct": -1.3217053322927663,
+        "rangesUs": {
+          "current": [
+            3116934,
+            3146338
+          ],
+          "outlined": [
+            3129648,
+            3216406
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "gcc",
+    "workers": 1,
+    "payload": "stereo-adpcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 2963558.0,
+          "outlined": 2940759.5
+        },
+        "improvementPct": 0.7692948813554534,
+        "rangesUs": {
+          "current": [
+            2935540,
+            2983842
+          ],
+          "outlined": [
+            2935923,
+            2948916
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 2940659.0,
+          "outlined": 2942494.0
+        },
+        "improvementPct": -0.06240097882821427,
+        "rangesUs": {
+          "current": [
+            2935540,
+            2945778
+          ],
+          "outlined": [
+            2936072,
+            2948916
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 2982590.0,
+          "outlined": 2940685.0
+        },
+        "improvementPct": 1.4049869408802373,
+        "rangesUs": {
+          "current": [
+            2981338,
+            2983842
+          ],
+          "outlined": [
+            2935923,
+            2945447
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "gcc",
+    "workers": 8,
+    "payload": "mono-pcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 1019276.0,
+          "outlined": 1021083.0
+        },
+        "improvementPct": -0.17728269869985436,
+        "rangesUs": {
+          "current": [
+            1010870,
+            1025858
+          ],
+          "outlined": [
+            1017652,
+            1103581
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 1021926.5,
+          "outlined": 1018665.0
+        },
+        "improvementPct": 0.3191521112330453,
+        "rangesUs": {
+          "current": [
+            1017995,
+            1025858
+          ],
+          "outlined": [
+            1017652,
+            1019678
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 1015713.5,
+          "outlined": 1063034.5
+        },
+        "improvementPct": -4.658892492814171,
+        "rangesUs": {
+          "current": [
+            1010870,
+            1020557
+          ],
+          "outlined": [
+            1022488,
+            1103581
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "gcc",
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 988967.0,
+          "outlined": 978713.0
+        },
+        "improvementPct": 1.0368394496479638,
+        "rangesUs": {
+          "current": [
+            972806,
+            1014121
+          ],
+          "outlined": [
+            977834,
+            984317
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 977348.5,
+          "outlined": 981075.5
+        },
+        "improvementPct": -0.3813378748726892,
+        "rangesUs": {
+          "current": [
+            972806,
+            981891
+          ],
+          "outlined": [
+            977834,
+            984317
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 1005082.0,
+          "outlined": 978713.0
+        },
+        "improvementPct": 2.623567032341645,
+        "rangesUs": {
+          "current": [
+            996043,
+            1014121
+          ],
+          "outlined": [
+            978633,
+            978793
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang",
+    "workers": 1,
+    "payload": "mono-pcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 3137002.0,
+          "outlined": 3132106.5
+        },
+        "improvementPct": 0.15605664261609808,
+        "rangesUs": {
+          "current": [
+            3115092,
+            3150733
+          ],
+          "outlined": [
+            3094694,
+            3166864
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 3132912.5,
+          "outlined": 3151207.0
+        },
+        "improvementPct": -0.5839454501203045,
+        "rangesUs": {
+          "current": [
+            3115092,
+            3150733
+          ],
+          "outlined": [
+            3135550,
+            3166864
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 3137002.0,
+          "outlined": 3111678.5
+        },
+        "improvementPct": 0.8072516370725924,
+        "rangesUs": {
+          "current": [
+            3125352,
+            3148652
+          ],
+          "outlined": [
+            3094694,
+            3128663
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang",
+    "workers": 1,
+    "payload": "stereo-adpcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 2957903.0,
+          "outlined": 2977688.5
+        },
+        "improvementPct": -0.6689029356270249,
+        "rangesUs": {
+          "current": [
+            2946072,
+            2988861
+          ],
+          "outlined": [
+            2944698,
+            2995800
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 2957903.0,
+          "outlined": 2979342.0
+        },
+        "improvementPct": -0.72480402501367,
+        "rangesUs": {
+          "current": [
+            2950605,
+            2965201
+          ],
+          "outlined": [
+            2962884,
+            2995800
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 2967466.5,
+          "outlined": 2968595.5
+        },
+        "improvementPct": -0.03804592233813686,
+        "rangesUs": {
+          "current": [
+            2946072,
+            2988861
+          ],
+          "outlined": [
+            2944698,
+            2992493
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang",
+    "workers": 8,
+    "payload": "mono-pcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 1012187.5,
+          "outlined": 1012523.5
+        },
+        "improvementPct": -0.033195430688492955,
+        "rangesUs": {
+          "current": [
+            1002443,
+            1119634
+          ],
+          "outlined": [
+            1007833,
+            1073796
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 1064447.0,
+          "outlined": 1041465.5
+        },
+        "improvementPct": 2.159008386514316,
+        "rangesUs": {
+          "current": [
+            1009260,
+            1119634
+          ],
+          "outlined": [
+            1009135,
+            1073796
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 1008779.0,
+          "outlined": 1011872.5
+        },
+        "improvementPct": -0.3066578507284534,
+        "rangesUs": {
+          "current": [
+            1002443,
+            1015115
+          ],
+          "outlined": [
+            1007833,
+            1015912
+          ]
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang",
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "blocks": {
+      "all": {
+        "medianUs": {
+          "current": 995275.5,
+          "outlined": 1034329.0
+        },
+        "improvementPct": -3.9238884107968053,
+        "rangesUs": {
+          "current": [
+            973685,
+            1032401
+          ],
+          "outlined": [
+            1009171,
+            1039570
+          ]
+        }
+      },
+      "ABBA": {
+        "medianUs": {
+          "current": 1003043.0,
+          "outlined": 1021257.0
+        },
+        "improvementPct": -1.8158742945217687,
+        "rangesUs": {
+          "current": [
+            973685,
+            1032401
+          ],
+          "outlined": [
+            1009171,
+            1033343
+          ]
+        }
+      },
+      "BAAB": {
+        "medianUs": {
+          "current": 995275.5,
+          "outlined": 1037442.5
+        },
+        "improvementPct": -4.236716366473403,
+        "rangesUs": {
+          "current": [
+            989494,
+            1001057
+          ],
+          "outlined": [
+            1035315,
+            1039570
+          ]
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,20 @@
+Steam Deck fixed VP fixture: GCC14/O2 component diagnosis; one invocation per cell, directional only.
+All 12 invocations PASS; actual and busy workers match requested 1 or 8.
+Deck idle and released at 2026-10-05 04:21:06 UTC.
+
+Modes shown as baseline / descriptor / payload:
+
+mono-pcm, 1 workers: VP seconds 11.203 / 9.240 / 9.263; sampled callback microseconds 2.514 / 1.641 / 1.650; dispatch wait/frame estimate 97.3% / 96.7% / 95.9%; paired worker lock/(work+lock) 0.02% / 0.02% / 0.01%. Payload vs descriptor elapsed change +0.25%.
+mono-pcm, 8 workers: VP seconds 5.700 / 5.370 / 5.381; sampled callback microseconds 4.778 / 3.589 / 3.578; dispatch wait/frame estimate 89.9% / 89.3% / 87.6%; paired worker lock/(work+lock) 2.94% / 3.34% / 3.49%. Payload vs descriptor elapsed change +0.20%.
+stereo-adpcm, 1 workers: VP seconds 10.896 / 10.214 / 9.811; sampled callback microseconds 2.083 / 1.685 / 1.415; dispatch wait/frame estimate 96.6% / 93.8% / 95.3%; paired worker lock/(work+lock) 0.02% / 0.02% / 0.02%. Payload vs descriptor elapsed change -3.95%.
+stereo-adpcm, 8 workers: VP seconds 5.719 / 5.791 / 5.642; sampled callback microseconds 4.185 / 3.694 / 2.906; dispatch wait/frame estimate 88.0% / 88.0% / 90.6%; paired worker lock/(work+lock) 2.80% / 2.99% / 3.58%. Payload vs descriptor elapsed change -2.58%.
+
+All modes: 30257 diagnostic frames (256 warmup + 1 probe + 30000 measured), 1361610 callbacks.
+Sampled callback counts: 10473 with 1 worker, 10632 with 8 workers. Per-worker timed batches: 259 with 1 worker; 218 to 258 each with 8 workers.
+PCM: 32 descriptor reads/callback; baseline 32 physical, descriptor/payload 1 mapping init and 31 hits. Payload word-reader counter is zero for PCM.
+Stereo ADPCM: 18 descriptor and 18 payload reads/callback; descriptor/payload 1.0156 descriptor mapping initializations/callback; payload mode 1.0156 payload mapping initializations and zero physical payload reads/callback. Actual decoded blocks/callback 0.9915; decode cache hits/callback 0.0085.
+
+Timer ratios are estimates; outer scopes remain inclusive and instrumented. Worker-lock ratio excludes serialized mixing under the lock. Counters and timers include warmup/probe, while reported VP elapsed excludes them. Logs show 15.0 ms cumulative reporting cost in the one-worker ADPCM payload case (other cells ~0.9-1.9 ms), an additional reason to retain single-cell results as directional only.
+Raw per-run stdout, stderr, command/environment, final diagnostics, fixture PASS, and executable/dependency hashes are preserved beside summary.json and summary.csv.
+
+Dispatch wait includes useful worker execution and serialized merging; it is not pure scheduling delay or CPU idle time.

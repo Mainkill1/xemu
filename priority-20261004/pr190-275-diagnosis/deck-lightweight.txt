@@ -1,0 +1,40 @@
+Deck lightweight /proc-only follow-up (r2)
+
+One unchanged-scene, instrumented 20-second capture per reader mode. No perf record/stat was active. Results diagnose cost distribution; they do not qualify game performance or statistical significance.
+
+Worker identities are inferred, not newly stack-verified. Each capture contains eight same-birth-tick anonymous xemu TIDs immediately after the named CPU0/TCG thread and before module-rt. The exact ordering was stack-verified in every r1 mode of this same executable. Captured TIDs are preserved; no diagnostic-worker-index-to-TID mapping was invented.
+Baseline inferred workers: 651268-651275. Descriptor: 651528-651535. Payload: 651767-651774.
+
+All columns below are baseline / descriptor / payload.
+
+Capture elapsed seconds: 20.023 / 20.028 / 20.024
+Worker scheduled CPU seconds (sum of eight threads): 8.386 / 7.278 / 7.781
+Worker user CPU seconds: 5.66 / 4.68 / 4.89
+Worker kernel CPU seconds: 2.73 / 2.62 / 2.90
+Worker runqueue wait seconds: 5.070 / 4.359 / 4.864
+Whole-process scheduled CPU seconds: 47.476 / 45.440 / 46.434
+Mean sampled CPU clock MHz: 2570 / 2564 / 2549
+Audio callbacks per second in contained counter interval: 10622 / 9783 / 10276
+Worker voice calls per second in contained counter interval: 16041 / 13553 / 15040
+ADPCM callback fraction: 0.3047 / 0.2456 / 0.2826
+
+Approximate work normalization (microseconds per worker voice call):
+Scheduled CPU: 26.12 [26.04, 26.18] / 26.57 [26.56, 26.59] / 25.87 [25.73, 25.99]
+User CPU: 17.83 [17.81, 17.84] / 17.09 [17.07, 17.12] / 16.24 [16.17, 16.35]
+Kernel CPU: 8.29 [8.24, 8.41] / 9.50 [9.47, 9.55] / 9.67 [9.60, 9.68]
+Runqueue wait: 14.92 [14.34, 15.50] / 15.15 [14.66, 15.64] / 15.63 [15.05, 16.15]
+
+Brackets show timestamp-phase sensitivity, not confidence intervals. Profile metadata records UTC only to whole seconds. Normalization interpolates one-second cumulative /proc counters at the APU counter boundaries while varying the missing subsecond phase from 0 to 1 second. Audio mix still differs, so normalization by voice calls does not make all calls equivalent.
+
+What the lightweight follow-up changes:
+Worker kernel CPU is about 2.6-2.9 seconds, versus about 7.6-7.9 seconds in the prior perf captures. Prior hardware profiling substantially perturbed kernel/scheduling costs. The lightweight data shows no large kernel/runqueue penalty that cancels payload user-work savings. Descriptor-to-payload normalized user cost is about 17.09 to 16.24 us per voice call; normalized scheduled CPU is about 26.57 to 25.87 us. The small normalized runqueue difference has overlapping timestamp-phase ranges and unquantified run/mix variation.
+
+Remaining dominant work:
+CPU0/TCG is the largest named individual thread: 19.257 / 19.252 / 19.234 scheduled CPU seconds, about 96% of one core throughout. Its runqueue waits are only 0.094 / 0.088 / 0.116 seconds. This does not show guest CPU starvation caused by the audio worker pool. It suggests inspecting guest CPU and other frame-critical work before expecting background reader savings to affect game cadence; CPU utilization alone does not prove the frame bottleneck.
+The eight inferred audio workers collectively perform about 18.3k voluntary plus 0.8k involuntary context switches per second in every mode. The dispatcher still wakes eight workers around 1498 times per second despite changing voice counts. Worker kernel/scheduling cost therefore retains a relatively fixed component, while useful voice work varies. Prior matched native user-space stacks put resampling/HRTF ahead of mapping/refcount routines; this /proc-only capture cannot provide a new function-level ranking.
+Diagnostic worker counters also show unequal assignment: for descriptor, worker 0 processes 48402 voices in its contained interval while most others process about 27040; payload worker 0/1 process 52427/45184 against about 27056 for lighter workers. Per-worker sampled batch times reflect this work mix. No OS TID was assigned to a diagnostic index.
+
+Limits:
+Runqueue delay is runnable-but-unscheduled time and excludes condition-variable/futex/IO blocking. Exact migration counters and cacheline/locked-memory events are absent in r2. One-second CPU placement changes are lower bounds only. There is no new evidence establishing a shared MemoryRegion/FlatView atomic-refcount contention mechanism. Mean clocks differ by less than 1%, with no large mode-specific reduction visible; short power/clock events are not excluded.
+
+Artifacts: all-summary.json, baseline/descriptor/payload-summary.json, per-mode threads.csv, and normalized-summary.csv. Product code and raw capture files remain unchanged.
