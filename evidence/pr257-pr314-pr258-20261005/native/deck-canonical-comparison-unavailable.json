@@ -1,0 +1,11 @@
+{
+  "status": "unavailable",
+  "reason": "Installed tester does not advertise scopedBuildComparison; no unscoped aggregate requested",
+  "capabilities": [
+    "executableHashResults",
+    "pinnedBaseline",
+    "serverComparison",
+    "compactReports"
+  ],
+  "primaryEvidence": "Canonical per-run performance API records retained; any cohort medians are labeled secondary"
+}

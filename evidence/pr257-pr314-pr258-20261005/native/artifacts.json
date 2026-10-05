@@ -1,0 +1,28 @@
+{
+  "reference-deck": {
+    "run": 37271145170,
+    "artifact": 11327848791,
+    "source": "9c1342550097d97b1c091fa2616ac0c25b621479",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/native/artifacts/reference-deck"
+  },
+  "reference-win": {
+    "run": 37271145170,
+    "artifact": 11328154587,
+    "source": "9c1342550097d97b1c091fa2616ac0c25b621479",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/native/artifacts/reference-win"
+  },
+  "candidate-deck": {
+    "run": 37294058856,
+    "artifact": 11337871988,
+    "source": "d29d5fa8a5a74aceb68c04fa0bf4d6eb77087c35",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/policy-native/artifacts/candidate-deck",
+    "artifactSha256": "c63bc7734947633c87f9fb9c7086de788d76f2228b46fc29573129b2a6423781"
+  },
+  "candidate-win": {
+    "run": 37294058856,
+    "artifact": 11338690586,
+    "source": "d29d5fa8a5a74aceb68c04fa0bf4d6eb77087c35",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/policy-native/artifacts/candidate-win",
+    "artifactSha256": "7d59f5f9a0d98cce0135b8cb3e14f83d3c204cb806f2a11054eecc6174d166e5"
+  }
+}

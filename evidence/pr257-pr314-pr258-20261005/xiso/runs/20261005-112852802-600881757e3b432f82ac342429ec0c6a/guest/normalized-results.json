@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-112852802-600881757e3b432f82ac342429ec0c6a",
+  "sourceSha256": "49834de9a9109c967a310e46c93691928ced54b2afe85913e85dfd43ad122c08",
+  "records": [
+    {
+      "Id": "pipeline_texture_switch.clear_texture_normal",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 36290.5,
+      "MedianUs": 37858.5,
+      "MinUs": 26900,
+      "MaxUs": 43932,
+      "P95Us": 43932
+    },
+    {
+      "Id": "pipeline_texture_switch.sampler_only_identity",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 68083.75,
+      "MedianUs": 60251,
+      "MinUs": 57515,
+      "MaxUs": 102744,
+      "P95Us": 102744
+    },
+    {
+      "Id": "pipeline_texture_switch.texture_switch",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 49004.5,
+      "MedianUs": 48242,
+      "MinUs": 44900,
+      "MaxUs": 56142,
+      "P95Us": 56142
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 3 leaves and 0 groups; received 3. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 3 stable IDs; received 3. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:pipeline_texture_switch.clear_texture_normal",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:pipeline_texture_switch.sampler_only_identity",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:pipeline_texture_switch.texture_switch",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/pipeline_texture_switch/clear_texture_normal/mean_us",
+      "Value": 36290.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/clear_texture_normal/median_us",
+      "Value": 37858.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/clear_texture_normal/min_us",
+      "Value": 26900,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/clear_texture_normal/max_us",
+      "Value": 43932,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/clear_texture_normal/p95_us",
+      "Value": 43932,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/sampler_only_identity/mean_us",
+      "Value": 68083.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/sampler_only_identity/median_us",
+      "Value": 60251,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/sampler_only_identity/min_us",
+      "Value": 57515,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/sampler_only_identity/max_us",
+      "Value": 102744,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/sampler_only_identity/p95_us",
+      "Value": 102744,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+      "Value": 49004.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+      "Value": 48242,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+      "Value": 44900,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+      "Value": 56142,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+    },
+    {
+      "Name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+      "Value": 56142,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+    }
+  ]
+}

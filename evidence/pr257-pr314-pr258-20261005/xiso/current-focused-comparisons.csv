@@ -1,0 +1,6 @@
+host,backend,test,beforeMedianUs,afterMedianUs,differenceUs,improvementPercent,referenceRuns,candidateRuns,correctnessPassed,comparisonEligible
+win,Vulkan,cpu_floating_point.x87_scalar,812821.7,823029.3,10207.600000000093,-1.2558227714639132,4,4,True,0
+win,Vulkan,pipeline_texture_switch.texture_switch,18220.5,18261.125,40.625,-0.2229631459070827,4,4,True,0
+win,Vulkan,pipeline_texture_switch.clear_texture_normal,12385.5625,12442.25,56.6875,-0.45769015335395546,4,4,True,0
+win,Vulkan,pipeline_texture_switch.sampler_only_identity,22162.0625,22284.8125,122.75,-0.5538744419658594,4,4,True,0
+win,Vulkan,game_load.cross_title_hotpath.texture_binding_reuse,320476.125,331153.125,10677.0,-3.331605435506311,4,4,False,0

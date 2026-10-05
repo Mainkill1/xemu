@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-112131190-6c8b2ce059a24b9ca8187a07cbabd5a1",
+  "sourceSha256": "e5ebd2d32f338305b9d0f375dc6f1eeac429231077944747f34876ba1f2fe5f5",
+  "records": [
+    {
+      "Id": "cpu_floating_point.x87_scalar",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1087509.2,
+      "MedianUs": 1083431.5,
+      "MinUs": 1076243,
+      "MaxUs": 1112873,
+      "P95Us": 1112873
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_floating_point.x87_scalar",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/mean_us",
+      "Value": 1087509.2,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/median_us",
+      "Value": 1083431.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/min_us",
+      "Value": 1076243,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/max_us",
+      "Value": 1112873,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    },
+    {
+      "Name": "xiso/cpu_floating_point/x87_scalar/p95_us",
+      "Value": 1112873,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+    }
+  ]
+}

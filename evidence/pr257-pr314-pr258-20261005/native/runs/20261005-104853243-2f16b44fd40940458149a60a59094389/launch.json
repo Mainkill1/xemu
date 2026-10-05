@@ -1,0 +1,65 @@
+{
+  "runId": "20261005-104853243-2f16b44fd40940458149a60a59094389",
+  "attempt": 1,
+  "job": "p258-win-pgr2-07-parent-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "f0f29bc848c89e9bed32d157bbf5b8309f36b92d2963c739aea1610962c63852",
+  "jobSha256": "ce0da7208aa391481fd3259fa7db2b4011e1f96b5a9a3c674587acd15b4b7482",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p258-win-pgr2-07-parent-v1-t001/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:58754,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-104853243-2f16b44fd40940458149a60a59094389",
+  "experiment": {
+    "Id": "fresh-start-pgr2-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "pgr2-parked-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache",
+      "windows-vulkan-shared-driver-cache-explicit-limit"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

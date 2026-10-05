@@ -1,0 +1,22 @@
+{
+  "id": "p258-win-vk-full-parent-v1",
+  "revision": "3bf5d72eee3fd9c182e0c259898601b2e4a532fde52bd36d559b1315a7f6cb65",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 5,
+  "failed": 18,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p258-win-vk-full-parent-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-win-vk-full-parent-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

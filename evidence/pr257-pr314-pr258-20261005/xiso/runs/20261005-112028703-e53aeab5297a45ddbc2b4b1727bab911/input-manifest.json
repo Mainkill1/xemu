@@ -1,0 +1,63 @@
+{
+  "JobId": "xc-p258-deck-vk-texture-focused-v1-002",
+  "CreatedUtc": "2026-10-05T11:20:28.7853544+00:00",
+  "PackageDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-p258-deck-vk-texture-focused-v1-002",
+  "JobManifestSha256": "e0240725c447e02c3a26f027d49af45d4a4caa62f866c8a1d0d7098ba777a2ec",
+  "ExecutableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pinned-cubemap-input",
+      "Bytes": 25605616,
+      "LastWriteUtc": "2026-10-05T11:20:27.0113439Z",
+      "Sha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+      "ExpectedSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cubemap-input",
+      "Bytes": 446,
+      "LastWriteUtc": "2026-10-05T11:20:27.0357187Z",
+      "Sha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+      "ExpectedSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "pinned-cubemap-input",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-05T11:20:26.993987Z",
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "reference-results.txt",
+      "Role": "pinned-cubemap-input",
+      "Bytes": 169311,
+      "LastWriteUtc": "2026-10-05T11:20:26.993344Z",
+      "Sha256": "7099950061aacc347a2f1aabf72cf007a6fa8400331b8d10c41101fda27feb38",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:pr256-clean-fatx-compat010-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "963e9af80ef7ee6e15687ffba41daca051445e3daeca71fb6d4eef64ae71ff56",
+      "DiskAssetId": "pr256-clean-fatx-compat010-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ]
+}

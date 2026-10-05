@@ -1,0 +1,62 @@
+{
+  "runId": "20261005-115347328-747734bb5dc549969230f101154d584f",
+  "attempt": 1,
+  "job": "xc-p258-win-vk-full-candidate-v1-014",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "b26ea599718258f35f1c082c36ae0224b4681cda306209adbc33a4f15d44a520",
+  "jobSha256": "4a6bccda6bd7e6ef4a9e37a71b1d53100521b9009a9c8767af7c42e80e066c62",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-p258-win-vk-full-candidate-v1-014/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:64775,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-115347328-747734bb5dc549969230f101154d584f",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

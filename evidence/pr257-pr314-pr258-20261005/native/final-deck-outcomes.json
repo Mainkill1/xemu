@@ -1,0 +1,819 @@
+[
+  {
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-deck-morrowind-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101504340-21d10836775f4b54bf34425aaa49d31d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101504340-21d10836775f4b54bf34425aaa49d31d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101504340-21d10836775f4b54bf34425aaa49d31d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101504340-21d10836775f4b54bf34425aaa49d31d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101504340-21d10836775f4b54bf34425aaa49d31d/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-deck-morrowind-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101557240-de52ac150f2347b0952b7f7af7dc1407",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101557240-de52ac150f2347b0952b7f7af7dc1407?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101557240-de52ac150f2347b0952b7f7af7dc1407",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101557240-de52ac150f2347b0952b7f7af7dc1407/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101557240-de52ac150f2347b0952b7f7af7dc1407/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-deck-morrowind-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101646910-94586d5605144e829d413c3fe14e3aa4",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101646910-94586d5605144e829d413c3fe14e3aa4?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101646910-94586d5605144e829d413c3fe14e3aa4",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101646910-94586d5605144e829d413c3fe14e3aa4/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101646910-94586d5605144e829d413c3fe14e3aa4/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-deck-morrowind-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101737739-e63b76693f4545c8b57c5d730c7dfdda",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101737739-e63b76693f4545c8b57c5d730c7dfdda?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101737739-e63b76693f4545c8b57c5d730c7dfdda",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101737739-e63b76693f4545c8b57c5d730c7dfdda/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101737739-e63b76693f4545c8b57c5d730c7dfdda/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-deck-morrowind-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101829568-4d405d9b0a1e44709fcaf15e960d6b20",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101829568-4d405d9b0a1e44709fcaf15e960d6b20?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101829568-4d405d9b0a1e44709fcaf15e960d6b20",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101829568-4d405d9b0a1e44709fcaf15e960d6b20/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101829568-4d405d9b0a1e44709fcaf15e960d6b20/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-deck-morrowind-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101929436-6eaf7ec841fa4cea97067c5325fa953d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101929436-6eaf7ec841fa4cea97067c5325fa953d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101929436-6eaf7ec841fa4cea97067c5325fa953d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-101929436-6eaf7ec841fa4cea97067c5325fa953d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101929436-6eaf7ec841fa4cea97067c5325fa953d/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-deck-morrowind-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-morrowind-07-parent-v1-t001",
+      "state": "held",
+      "event": "attention",
+      "terminal": false,
+      "runId": "20261005-102021004-0f0b960dbf244593bbdb869e9fd77c11",
+      "code": "attempt_held",
+      "queueIssue": {
+        "code": "preserved_target",
+        "package": "agent-p258-deck-morrowind-07-parent-v1-t001",
+        "retryable": false,
+        "holdsTesting": true,
+        "detectedUtc": "2026-10-05T10:20:35.3900137+00:00",
+        "actionable": true
+      },
+      "next": "/api/v1/test-runs/p258-deck-morrowind-07-parent-v1-t001",
+      "result": null
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-deck-conker-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102509582-03197042390744279abc3457f7e3b679",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102509582-03197042390744279abc3457f7e3b679?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102509582-03197042390744279abc3457f7e3b679",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102509582-03197042390744279abc3457f7e3b679/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102509582-03197042390744279abc3457f7e3b679/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-deck-conker-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102712742-56bc0f30cb524cd7a0e6dc188f72806d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102712742-56bc0f30cb524cd7a0e6dc188f72806d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102712742-56bc0f30cb524cd7a0e6dc188f72806d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102712742-56bc0f30cb524cd7a0e6dc188f72806d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102712742-56bc0f30cb524cd7a0e6dc188f72806d/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-deck-conker-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102914336-40458189ef5c4f7a92467fb551c89464",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102914336-40458189ef5c4f7a92467fb551c89464?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102914336-40458189ef5c4f7a92467fb551c89464",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102914336-40458189ef5c4f7a92467fb551c89464/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102914336-40458189ef5c4f7a92467fb551c89464/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-deck-conker-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103117513-111f9f5be5f540a19b2c5f5b712539de",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103117513-111f9f5be5f540a19b2c5f5b712539de?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103117513-111f9f5be5f540a19b2c5f5b712539de",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103117513-111f9f5be5f540a19b2c5f5b712539de/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103117513-111f9f5be5f540a19b2c5f5b712539de/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-deck-conker-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103320535-efcc490213ee4c4fb2b4d32b6967700c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103320535-efcc490213ee4c4fb2b4d32b6967700c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103320535-efcc490213ee4c4fb2b4d32b6967700c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103320535-efcc490213ee4c4fb2b4d32b6967700c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103320535-efcc490213ee4c4fb2b4d32b6967700c/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-deck-conker-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103523768-3e5773ec3acb4fbaa0418372f4603036",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103523768-3e5773ec3acb4fbaa0418372f4603036?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103523768-3e5773ec3acb4fbaa0418372f4603036",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103523768-3e5773ec3acb4fbaa0418372f4603036/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103523768-3e5773ec3acb4fbaa0418372f4603036/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-deck-conker-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103725673-0a51dbfa49fd462a97ad5eb7d1ac608a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103725673-0a51dbfa49fd462a97ad5eb7d1ac608a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103725673-0a51dbfa49fd462a97ad5eb7d1ac608a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103725673-0a51dbfa49fd462a97ad5eb7d1ac608a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103725673-0a51dbfa49fd462a97ad5eb7d1ac608a/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p258-deck-conker-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-conker-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103929619-7411f890619b4be599c5bc9ec5cf1aaa",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103929619-7411f890619b4be599c5bc9ec5cf1aaa?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103929619-7411f890619b4be599c5bc9ec5cf1aaa",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103929619-7411f890619b4be599c5bc9ec5cf1aaa/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103929619-7411f890619b4be599c5bc9ec5cf1aaa/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-deck-pgr2-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104132504-b79e1031ad654f4f8ed409c1de9cd0b7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104132504-b79e1031ad654f4f8ed409c1de9cd0b7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104132504-b79e1031ad654f4f8ed409c1de9cd0b7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104132504-b79e1031ad654f4f8ed409c1de9cd0b7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104132504-b79e1031ad654f4f8ed409c1de9cd0b7/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-deck-pgr2-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104408881-559cb4419f00472bbfe6c563f9ebfee4",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104408881-559cb4419f00472bbfe6c563f9ebfee4?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104408881-559cb4419f00472bbfe6c563f9ebfee4",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104408881-559cb4419f00472bbfe6c563f9ebfee4/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104408881-559cb4419f00472bbfe6c563f9ebfee4/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-deck-pgr2-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104645261-dc47bf04e391435cbdb3ae8544feea31",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104645261-dc47bf04e391435cbdb3ae8544feea31?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104645261-dc47bf04e391435cbdb3ae8544feea31",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104645261-dc47bf04e391435cbdb3ae8544feea31/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104645261-dc47bf04e391435cbdb3ae8544feea31/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-deck-pgr2-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104920941-d90a85d45d8f407dbb76cd42d2b3db93",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104920941-d90a85d45d8f407dbb76cd42d2b3db93?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104920941-d90a85d45d8f407dbb76cd42d2b3db93",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104920941-d90a85d45d8f407dbb76cd42d2b3db93/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104920941-d90a85d45d8f407dbb76cd42d2b3db93/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-deck-pgr2-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-105156480-1e3714844f054c7aa0961f7a9d1dd026",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-105156480-1e3714844f054c7aa0961f7a9d1dd026?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-105156480-1e3714844f054c7aa0961f7a9d1dd026",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-105156480-1e3714844f054c7aa0961f7a9d1dd026/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-105156480-1e3714844f054c7aa0961f7a9d1dd026/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-deck-pgr2-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-105433712-2f2cb193e33d47ebbb8dcaab2ee74c75",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-105433712-2f2cb193e33d47ebbb8dcaab2ee74c75?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-105433712-2f2cb193e33d47ebbb8dcaab2ee74c75",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-105433712-2f2cb193e33d47ebbb8dcaab2ee74c75/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-105433712-2f2cb193e33d47ebbb8dcaab2ee74c75/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-deck-pgr2-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-105712104-4fda9963c8b04507a929cebe628a052a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-105712104-4fda9963c8b04507a929cebe628a052a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-105712104-4fda9963c8b04507a929cebe628a052a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-105712104-4fda9963c8b04507a929cebe628a052a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-105712104-4fda9963c8b04507a929cebe628a052a/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p258-deck-pgr2-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-pgr2-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-105957455-0451a8c169f94a229536df35c131f566",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-105957455-0451a8c169f94a229536df35c131f566?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-105957455-0451a8c169f94a229536df35c131f566",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-105957455-0451a8c169f94a229536df35c131f566/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-105957455-0451a8c169f94a229536df35c131f566/diagnostics"
+      }
+    }
+  }
+]

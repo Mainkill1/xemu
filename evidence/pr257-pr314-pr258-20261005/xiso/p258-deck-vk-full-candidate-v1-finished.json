@@ -1,0 +1,22 @@
+{
+  "id": "p258-deck-vk-full-candidate-v1",
+  "revision": "b84eebac907e0302c5595159b7a1f65abba70077030576d73ff93ae7073f697a",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 1,
+  "passed": 0,
+  "failed": 1,
+  "incomplete": 0,
+  "remaining": 22,
+  "active": null,
+  "error": "Attempt xc-p258-deck-vk-full-candidate-v1-001 failed before execution: The package did not pass preflight.",
+  "next": "/api/v1/xiso-campaigns/p258-deck-vk-full-candidate-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-deck-vk-full-candidate-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

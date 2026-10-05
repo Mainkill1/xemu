@@ -1,0 +1,65 @@
+{
+  "runId": "20261005-102315729-10aebfc3bda7498daa397eb260ee8c21",
+  "attempt": 1,
+  "job": "p258-win-conker-02-candidate-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "b26ea599718258f35f1c082c36ae0224b4681cda306209adbc33a4f15d44a520",
+  "jobSha256": "2360c5e3162c8b562a8c8bad70586c979219129c814492e1cddcc1bfc9c166ad",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p258-win-conker-02-candidate-v1-t001/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:56180,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-102315729-10aebfc3bda7498daa397eb260ee8c21",
+  "experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache",
+      "windows-vulkan-shared-driver-cache-explicit-limit"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

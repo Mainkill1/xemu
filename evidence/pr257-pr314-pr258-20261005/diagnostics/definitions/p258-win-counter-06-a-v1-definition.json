@@ -1,0 +1,407 @@
+{
+  "sourceJobId": "pr267-morrowind-snapshot-assets-v2",
+  "job": {
+    "id": "p258-win-counter-06-a-v1",
+    "executable": "xemu.exe",
+    "arguments": [
+      "-config_path",
+      "{packageDir}\\xemu.toml",
+      "-drive",
+      "index=0,media=disk,file={runtimeDir}\\hdd.qcow2,locked=on",
+      "-name",
+      "xemu-pr267-morrowind,debug-threads=on",
+      "-msg",
+      "timestamp=on",
+      "-xemu-tweak",
+      "vk_skip_clean_texture_stages=auto",
+      "-xemu-shortcut-evidence",
+      "{resultDir}/shortcut-evidence.json",
+      "-xemu-shortcut-session",
+      "{runId}",
+      "-xemu-shortcut-workload",
+      "native-morrowind-diagnostic:018b7dcb1dd524fd0f165767eecb41711bba35d93bfeaa91a4004ea4bc3e1462",
+      "-xemu-shortcut-input-sha256",
+      "24f8789490b341c9a3995a6a62707fbd06836a8e2b8ba7b950ce62846f40c959",
+      "-xemu-shortcut-order-group",
+      "p258-win-counter-v1",
+      "-xemu-shortcut-order",
+      "BAAB",
+      "-xemu-shortcut-position",
+      "2",
+      "-xemu-shortcut-start-frame",
+      "100",
+      "-xemu-shortcut-frames",
+      "200"
+    ],
+    "workingDirectory": ".",
+    "environment": {
+      "XEMU_FRAME_LOG": "{resultDir}\\guest-frames.log",
+      "XEMU_FLIP_LOG": "{resultDir}\\guest-flips.log"
+    },
+    "timeoutSeconds": 180,
+    "tags": [
+      "pr258",
+      "diagnostic-only"
+    ],
+    "plan": [
+      {
+        "type": "require_input",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 2000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "Start",
+        "durationMs": 300,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 2000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "B",
+        "durationMs": 200,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "screenshot",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "scene-entry",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait_for_scene",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": {
+          "name": "measurement-ready",
+          "scope": "result",
+          "path": "screenshots/measurement-ready.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": {
+            "x": 0.3,
+            "y": 0.25,
+            "width": 0.4,
+            "height": 0.4
+          },
+          "expectedImageDHash": "c655d5868ee66620",
+          "maximumImageHammingDistance": 8,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        "timeoutMs": 15000,
+        "pollIntervalMs": 250
+      },
+      {
+        "type": "segment_start",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "morrowind-user-scene",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 30000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "screenshot",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "scene-end",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "segment_end",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "morrowind-user-scene",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "quit",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      }
+    ],
+    "targetOs": "windows",
+    "expectedExecutableSha256": "266fc146474dc6a62665034efc31104886cb5a5b9a5ababaeebd01db3aae807e",
+    "requiredFiles": [
+      "xemu.exe",
+      "xemu.toml",
+      "state/eeprom.bin"
+    ],
+    "launchMode": "direct",
+    "snapshotName": "vm-20260929162035",
+    "startPaused": false,
+    "requireInput": false,
+    "diagnostics": [],
+    "runtimeState": {
+      "enabled": true,
+      "keepOnSuccess": false,
+      "keepOnFailure": true,
+      "files": [
+        {
+          "source": "state/eeprom.bin",
+          "destination": "eeprom.bin",
+          "expectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+        }
+      ],
+      "diskAssets": [
+        {
+          "assetId": "pr267-morrowind-user-snapshot-20260929-v1",
+          "expectedSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+          "destination": "hdd.qcow2",
+          "retention": "deleteAfterEvidence"
+        }
+      ]
+    },
+    "inputs": [
+      {
+        "path": "xemu.exe",
+        "role": "pr267-candidate",
+        "hash": true,
+        "expectedSha256": "266fc146474dc6a62665034efc31104886cb5a5b9a5ababaeebd01db3aae807e"
+      },
+      {
+        "path": "xemu.toml",
+        "role": "morrowind-vulkan-snapshot-config",
+        "hash": true,
+        "expectedSha256": "7772f7a578c51b4ae3a8063dcf5000da8c48a774c49d703207f837f8626cfff1"
+      },
+      {
+        "path": "state/eeprom.bin",
+        "role": "isolated-eeprom-seed",
+        "hash": true,
+        "expectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+      }
+    ],
+    "workload": {
+      "correctnessChecks": [
+        {
+          "name": "scene-entry-visible",
+          "scope": "result",
+          "path": "screenshots/scene-entry.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": 0.05,
+          "nonBlackPixelThreshold": 96,
+          "imageRegion": {
+            "x": 0.3,
+            "y": 0.25,
+            "width": 0.4,
+            "height": 0.4
+          },
+          "expectedImageDHash": "c655d5868ee66620",
+          "maximumImageHammingDistance": 8,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        {
+          "name": "scene-end-visible",
+          "scope": "result",
+          "path": "screenshots/scene-end.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": 0.05,
+          "nonBlackPixelThreshold": 96,
+          "imageRegion": {
+            "x": 0.3,
+            "y": 0.25,
+            "width": 0.4,
+            "height": 0.4
+          },
+          "expectedImageDHash": "c655d5868ee66620",
+          "maximumImageHammingDistance": 8,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        {
+          "name": "measurement-ready",
+          "scope": "result",
+          "path": "screenshots/measurement-ready.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": {
+            "x": 0.3,
+            "y": 0.25,
+            "width": 0.4,
+            "height": 0.4
+          },
+          "expectedImageDHash": "c655d5868ee66620",
+          "maximumImageHammingDistance": 8,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        }
+      ],
+      "evidenceRequirements": [
+        {
+          "name": "guest-progress",
+          "scope": "result",
+          "path": "guest-frames.log",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": null,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        {
+          "name": "measurement-segment",
+          "scope": "result",
+          "path": "segments.jsonl",
+          "mustExist": true,
+          "minimumBytes": 20,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": null,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        }
+      ],
+      "reportedMetrics": [],
+      "minimumMetricSamples": 55,
+      "requirePlanCompletion": true,
+      "analysis": {
+        "segment": "morrowind-user-scene",
+        "metricsPath": "metrics.csv",
+        "guestFlipsPath": "guest-flips.log",
+        "guestFramesPath": "guest-frames.log",
+        "flipTailSamples": 5,
+        "frameTailSeconds": 25,
+        "minimumCpuSamples": 55,
+        "minimumFrameSamples": 160
+      }
+    },
+    "experiment": {
+      "id": "pr267-morrowind-user-snapshot-start-b-v12",
+      "variant": "candidate",
+      "reference": null,
+      "variedFactors": [
+        "xemu-build"
+      ],
+      "controlledFactors": [
+        "morrowind-goty-disc",
+        "snapshot-vm-20260929162035",
+        "vulkan-renderer",
+        "64mb-ram",
+        "controller-connected",
+        "start-then-2s-then-b",
+        "30-second-scene-window"
+      ],
+      "requireCorrectnessPass": true,
+      "requireCompleteEvidence": true,
+      "allowOperatorIntervention": false,
+      "allowDiagnostics": false
+    },
+    "operations": {
+      "mode": "benchmark",
+      "allowPreview": null,
+      "allowManualInput": null,
+      "allowPauseResume": null,
+      "allowDiagnostics": null,
+      "allowBulkTransfers": null,
+      "previewAllowed": false,
+      "manualInputAllowed": false,
+      "pauseResumeAllowed": false,
+      "diagnosticsAllowed": false,
+      "bulkTransfersAllowed": false
+    }
+  },
+  "buildFiles": [
+    "xemu.exe",
+    "xemu.toml"
+  ],
+  "description": "PR258 diagnostic only; original Morrowind guest inputs unchanged; added bounded owner counters and process policy metadata."
+}

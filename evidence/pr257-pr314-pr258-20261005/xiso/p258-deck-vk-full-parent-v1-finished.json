@@ -1,0 +1,22 @@
+{
+  "id": "p258-deck-vk-full-parent-v1",
+  "revision": "59a8784e667795e3e8d874209e2eefa3cfffbb71689182df319171c44293aff7",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 1,
+  "passed": 0,
+  "failed": 1,
+  "incomplete": 0,
+  "remaining": 22,
+  "active": null,
+  "error": "Attempt xc-p258-deck-vk-full-parent-v1-001 failed before execution: The package did not pass preflight.",
+  "next": "/api/v1/xiso-campaigns/p258-deck-vk-full-parent-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-deck-vk-full-parent-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

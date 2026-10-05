@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-114751569-6fc7a9b5552c4346babaaf7af1b935e5",
+  "sourceSha256": "45a91a27793b4eca6d26d30cc7a362cf5b2a29a1371f34dc4ae7634592c603b3",
+  "records": [
+    {
+      "Id": "fill_rate.solid",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1699.8,
+      "MedianUs": 1677.5,
+      "MinUs": 1538,
+      "MaxUs": 2144,
+      "P95Us": 2144
+    },
+    {
+      "Id": "fill_rate.textured",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1194.5,
+      "MedianUs": 1150,
+      "MinUs": 1119,
+      "MaxUs": 1639,
+      "P95Us": 1639
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 2 leaves and 0 groups; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 2 stable IDs; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:fill_rate.solid",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:fill_rate.textured",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/fill_rate/solid/mean_us",
+      "Value": 1699.8,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.solid"
+    },
+    {
+      "Name": "xiso/fill_rate/solid/median_us",
+      "Value": 1677.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.solid"
+    },
+    {
+      "Name": "xiso/fill_rate/solid/min_us",
+      "Value": 1538,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.solid"
+    },
+    {
+      "Name": "xiso/fill_rate/solid/max_us",
+      "Value": 2144,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.solid"
+    },
+    {
+      "Name": "xiso/fill_rate/solid/p95_us",
+      "Value": 2144,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.solid"
+    },
+    {
+      "Name": "xiso/fill_rate/textured/mean_us",
+      "Value": 1194.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.textured"
+    },
+    {
+      "Name": "xiso/fill_rate/textured/median_us",
+      "Value": 1150,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.textured"
+    },
+    {
+      "Name": "xiso/fill_rate/textured/min_us",
+      "Value": 1119,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.textured"
+    },
+    {
+      "Name": "xiso/fill_rate/textured/max_us",
+      "Value": 1639,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.textured"
+    },
+    {
+      "Name": "xiso/fill_rate/textured/p95_us",
+      "Value": 1639,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#fill_rate.textured"
+    }
+  ]
+}

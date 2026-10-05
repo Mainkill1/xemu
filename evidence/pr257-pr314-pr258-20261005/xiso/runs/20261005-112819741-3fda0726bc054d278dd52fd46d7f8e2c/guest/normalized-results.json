@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-112819741-3fda0726bc054d278dd52fd46d7f8e2c",
+  "sourceSha256": "1f61d9bf645d57ac28013caabf58faf93e3dd685a89e9ee026e5e2b92005730c",
+  "records": [
+    {
+      "Id": "game_load.cross_title_hotpath.texture_binding_reuse",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 317087.75,
+      "MedianUs": 316663.5,
+      "MinUs": 316401,
+      "MaxUs": 319855,
+      "P95Us": 319855
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 1 groups; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_group:game_load.cross_title_hotpath",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.texture_binding_reuse",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

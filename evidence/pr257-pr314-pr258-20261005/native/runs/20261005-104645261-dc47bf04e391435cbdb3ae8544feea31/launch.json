@@ -1,0 +1,75 @@
+{
+  "runId": "20261005-104645261-dc47bf04e391435cbdb3ae8544feea31",
+  "attempt": 1,
+  "job": "p258-deck-pgr2-03-candidate-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+  "jobSha256": "2ca1ec2a3573895c2d50111764eb833e0c193733396b6ef80561419d8e3a6d0a",
+  "arguments": [
+    "-qmp",
+    "tcp:127.0.0.1:40613,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_GAMECONTROLLERCONFIG",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-104645261-dc47bf04e391435cbdb3ae8544feea31",
+  "experiment": {
+    "Id": "pr267-deck-pgr2-stationary-v6",
+    "Variant": "base",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "user-exact-11-button-menu-plan",
+      "right-80ms",
+      "pgr2-usa-asia-disc",
+      "fresh-hdd-seed",
+      "catalog-pinned-bootrom-flashrom-dvd",
+      "vulkan-radv",
+      "128mb-ram",
+      "no-input-30-second-stationary-window",
+      "managed-cold-application-cache",
+      "mesa-driver-namespace-unverified",
+      "direct-appimage-embedded-elf-process",
+      "same-pinned-appimage-bundled-libraries",
+      "same-30-step-long-load-plan"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

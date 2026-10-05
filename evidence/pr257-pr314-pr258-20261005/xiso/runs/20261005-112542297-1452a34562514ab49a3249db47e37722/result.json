@@ -1,0 +1,280 @@
+{
+  "runId": "20261005-112542297-1452a34562514ab49a3249db47e37722",
+  "job": "xc-p258-deck-vk-texture-focused-v1-007",
+  "jobPackage": "agent-xc-p258-deck-vk-texture-focused-v1-007",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-05T11:25:42.2970723+00:00",
+  "endedUtc": "2026-10-05T11:26:42.6658246+00:00",
+  "durationMs": 60368.7523,
+  "processId": 675916,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261005-112542297-1452a34562514ab49a3249db47e37722",
+    "ExecutableSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9",
+    "Platform": "linux",
+    "ProcessId": 675916,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-p258-deck-vk-texture-focused-v1-007/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:41817,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_floating_point.x87_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/mean_us",
+        "Value": 1079379.8,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/median_us",
+        "Value": 1082665,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/min_us",
+        "Value": 1066699,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/max_us",
+        "Value": 1095116,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      },
+      {
+        "Name": "xiso/cpu_floating_point/x87_scalar/p95_us",
+        "Value": 1095116,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_floating_point.x87_scalar"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "eligible",
+    "ComparisonReasons": [],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_floating_point.x87_scalar",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "eligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-112542297-1452a34562514ab49a3249db47e37722",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 121,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.35339090909090903,
+    "maxCollectorDutyPercent": 0.75502,
+    "maxCollectorDurationMs": 3.7751,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

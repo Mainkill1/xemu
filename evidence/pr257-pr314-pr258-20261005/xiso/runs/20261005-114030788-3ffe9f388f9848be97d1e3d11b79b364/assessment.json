@@ -1,0 +1,109 @@
+{
+  "Execution": "completed",
+  "Correctness": "passed",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 11 leaves and 0 groups; received 11. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 11 stable IDs; received 11. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.doax_menu_stress.streaming_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.gpu_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.pfifo_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.pgr2_ai_backup.streaming_only",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}

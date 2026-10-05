@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "code": "xiso_oracle_coverage",
+  "error": "The pinned reference lacks 22 of 171 selected leaf oracles.",
+  "hint": "Run an unpaired full diagnostic campaign to collect evidence, qualify a new reference, then register a new suite. Missing: pfifo_packet_boundary.array_element16_overflow, pfifo_packet_boundary.array_element32_overflow, pfifo_packet_boundary.inline_array_overflow, pfifo_packet_boundary.incrementing_inline_fallback, pipeline_texture_switch.palette_only_update, pipeline_texture_switch.shared_page_overlap, ...",
+  "status": 409
+}

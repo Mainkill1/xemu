@@ -1,0 +1,28 @@
+{
+  "testedDefaultSource": "d29d5fa8a5a74aceb68c04fa0bf4d6eb77087c35",
+  "currentSource": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+  "unchangedRuntimeFiles": [
+    "hw/xbox/mcpx/apu/vp/vp.c",
+    "hw/xbox/nv2a/pgraph/vk/texture.c",
+    "hw/xbox/nv2a/pgraph/vk/perf.c",
+    "hw/xbox/nv2a/pgraph/vk/surface.c",
+    "hw/xbox/nv2a/pgraph/vk/renderer.c",
+    "ui/xemu-tweaks.c",
+    "ui/xemu-tweak-resolver.c",
+    "ui/xemu-shortcut-window.c",
+    "ui/xemu-vk-texture-stage-evidence.c",
+    "target/i386/tcg/translate.c"
+  ],
+  "changedFiles": [
+    "docs/performance/shortcut-evidence.md",
+    "scripts/validate-shortcut-comparison.py",
+    "tests/unit/test-shortcut-comparison.py",
+    "tests/unit/test-xemu-shortcut-config.cc",
+    "tests/unit/test-xemu-shortcut-evidence.c",
+    "ui/xemu-shortcut-config.cc",
+    "ui/xemu-shortcut-config.h",
+    "ui/xemu-shortcut-evidence.c",
+    "ui/xemu-shortcut-evidence.h",
+    "ui/xemu.c"
+  ]
+}

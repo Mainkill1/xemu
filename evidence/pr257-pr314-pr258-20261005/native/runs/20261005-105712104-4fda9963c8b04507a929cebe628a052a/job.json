@@ -1,0 +1,554 @@
+{
+  "Id": "p258-deck-pgr2-07-parent-v1-t001",
+  "Executable": "xemu",
+  "Arguments": [],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+    "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "LD_LIBRARY_PATH": "{packageDir}/lib"
+  },
+  "TimeoutSeconds": 210,
+  "Tags": [
+    "pr267",
+    "pgr2",
+    "steam-deck",
+    "native-controller",
+    "stationary-start",
+    "base",
+    "test-definition:pr267-deck-pgr2-stationary-base-v6@bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+  ],
+  "Plan": [
+    {
+      "Type": "require_input",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 12000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "LStickRight",
+      "DurationMs": 80,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 10000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_start",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-end",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_end",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 6000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "quit",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    }
+  ],
+  "TargetOs": "linux",
+  "ExpectedExecutableSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9",
+  "RequiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/seed-eeprom.bin",
+    "lib/libslirp.so.0"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": true,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/seed-eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pgr2-freshboot-base-v1",
+        "ExpectedSha256": "da7052b0309c3ba245e73adafb497602c20004bea6a9de2b13195c4751e331c4",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "pr73-deck-bootrom-e99e3a-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "pr73-deck-flashrom-1de4c8-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "pr73-deck-pgr2-iso-694365-v1",
+          "ExpectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+        }
+      ]
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pr267-base-exact-appimage-embedded-elf",
+      "Hash": true,
+      "ExpectedSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "portable-run-config",
+      "Hash": true,
+      "ExpectedSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-appimage-bundled-library",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "ControllerInput": {
+    "Backend": "native-os-gamepad",
+    "ControllerIndex": 0,
+    "MappingProfile": "runner-xbox-port1-v1"
+  },
+  "Workload": {
+    "CorrectnessChecks": [
+      {
+        "Name": "recording-start-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-start.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.05,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "recording-end-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-end.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.05,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "EvidenceRequirements": [
+      {
+        "Name": "guest-progress",
+        "Scope": "result",
+        "Path": "guest-frames.log",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "measurement-segments",
+        "Scope": "result",
+        "Path": "segments.jsonl",
+        "MustExist": true,
+        "MinimumBytes": 20,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 160,
+    "RequirePlanCompletion": true,
+    "Analysis": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    }
+  },
+  "Experiment": {
+    "Id": "pr267-deck-pgr2-stationary-v6",
+    "Variant": "base",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "user-exact-11-button-menu-plan",
+      "right-80ms",
+      "pgr2-usa-asia-disc",
+      "fresh-hdd-seed",
+      "catalog-pinned-bootrom-flashrom-dvd",
+      "vulkan-radv",
+      "128mb-ram",
+      "no-input-30-second-stationary-window",
+      "managed-cold-application-cache",
+      "mesa-driver-namespace-unverified",
+      "direct-appimage-embedded-elf-process",
+      "same-pinned-appimage-bundled-libraries",
+      "same-30-step-long-load-plan"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "Operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  }
+}

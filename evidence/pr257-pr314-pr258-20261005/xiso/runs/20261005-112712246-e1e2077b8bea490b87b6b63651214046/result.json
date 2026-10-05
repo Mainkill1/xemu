@@ -1,0 +1,376 @@
+{
+  "runId": "20261005-112712246-e1e2077b8bea490b87b6b63651214046",
+  "job": "xc-p258-win-vk-texture-focused-v1-013",
+  "jobPackage": "agent-xc-p258-win-vk-texture-focused-v1-013",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-05T11:27:12.2460389+00:00",
+  "endedUtc": "2026-10-05T11:27:26.2691606+00:00",
+  "durationMs": 14023.1221,
+  "processId": 9532,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261005-112712246-e1e2077b8bea490b87b6b63651214046",
+    "ExecutableSha256": "b26ea599718258f35f1c082c36ae0224b4681cda306209adbc33a4f15d44a520",
+    "Platform": "windows",
+    "ProcessId": 9532,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "b26ea599718258f35f1c082c36ae0224b4681cda306209adbc33a4f15d44a520",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-p258-win-vk-texture-focused-v1-013/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:61943,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 3 leaves and 0 groups; received 3. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 3 stable IDs; received 3. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.clear_texture_normal",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.sampler_only_identity",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.texture_switch",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/pipeline_texture_switch/clear_texture_normal/mean_us",
+        "Value": 12397.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/clear_texture_normal/median_us",
+        "Value": 12387.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/clear_texture_normal/min_us",
+        "Value": 12136,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/clear_texture_normal/max_us",
+        "Value": 12679,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/clear_texture_normal/p95_us",
+        "Value": 12679,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.clear_texture_normal"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/sampler_only_identity/mean_us",
+        "Value": 21636.75,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/sampler_only_identity/median_us",
+        "Value": 21625,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/sampler_only_identity/min_us",
+        "Value": 21535,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/sampler_only_identity/max_us",
+        "Value": 21717,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/sampler_only_identity/p95_us",
+        "Value": 21717,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.sampler_only_identity"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/texture_switch/mean_us",
+        "Value": 17787.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/texture_switch/median_us",
+        "Value": 17789,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/texture_switch/min_us",
+        "Value": 17540,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/texture_switch/max_us",
+        "Value": 18171,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+      },
+      {
+        "Name": "xiso/pipeline_texture_switch/texture_switch/p95_us",
+        "Value": 18171,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#pipeline_texture_switch.texture_switch"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 3 leaves and 0 groups; received 3. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 3 stable IDs; received 3. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.clear_texture_normal",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.sampler_only_identity",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "guest:pipeline_texture_switch.texture_switch",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 1 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-112712246-e1e2077b8bea490b87b6b63651214046",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 2078,
+    "TimestampUtc": "2026-10-05T11:27:12.2253491+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-05T06:44:07.2694336+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 2092,
+    "TimestampUtc": "2026-10-05T11:27:26.224976+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-10-05T06:44:07.2694336+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 27,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.45175777777777776,
+    "maxCollectorDutyPercent": 0.7370199999999999,
+    "maxCollectorDurationMs": 3.6851,
+    "gpuProviders": [
+      "NVIDIA NVML"
+    ]
+  }
+}

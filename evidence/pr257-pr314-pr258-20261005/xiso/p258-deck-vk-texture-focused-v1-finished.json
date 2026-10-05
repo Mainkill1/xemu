@@ -1,0 +1,22 @@
+{
+  "id": "p258-deck-vk-texture-focused-v1",
+  "revision": "9d00224a4ef2f65d50d1a02537349988666432f25e0df4413396c825cdf9c470",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 5,
+  "chunkCount": 3,
+  "attemptCount": 24,
+  "finished": 13,
+  "passed": 12,
+  "failed": 1,
+  "incomplete": 0,
+  "remaining": 11,
+  "active": null,
+  "error": "Attempt xc-p258-deck-vk-texture-focused-v1-013 failed before execution: The package did not pass preflight.",
+  "next": "/api/v1/xiso-campaigns/p258-deck-vk-texture-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-deck-vk-texture-focused-v1/attempts",
+  "comparisonEligible": 12,
+  "qualification": "unverified"
+}

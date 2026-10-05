@@ -1,0 +1,22 @@
+{
+  "id": "p258-win-vk-full-candidate-v1",
+  "revision": "5b7c617d97c84289e01abeb04d99f5e38daa79e74c747a63b08f4f7f2408e3e4",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 5,
+  "failed": 18,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p258-win-vk-full-candidate-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-win-vk-full-candidate-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

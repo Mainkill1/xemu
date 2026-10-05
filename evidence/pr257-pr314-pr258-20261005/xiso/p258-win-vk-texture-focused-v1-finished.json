@@ -1,0 +1,22 @@
+{
+  "id": "p258-win-vk-texture-focused-v1",
+  "revision": "87c2d9c5d97eb73ce3a3b842dcbf524a2744e10d137d1ef407fcb95bb23dc7d4",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 5,
+  "chunkCount": 3,
+  "attemptCount": 24,
+  "finished": 24,
+  "passed": 16,
+  "failed": 8,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p258-win-vk-texture-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p258-win-vk-texture-focused-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

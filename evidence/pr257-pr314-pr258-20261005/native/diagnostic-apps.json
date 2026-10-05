@@ -1,0 +1,24 @@
+{
+  "deck-candidate-morrowind": {
+    "id": "pr258-e6a-counter-deck-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/policy-native/diagnostic-packages/deck",
+    "sha256": "87d94e352d40bcfb00c36811dede97117042fe3fa4cbddda3964a0d21ba0507b",
+    "productSource": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+    "ciSource": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+    "compiledVersion": "0.8.136-0-ge6a9dea3cb4e",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "configOrigin": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr282-latest-qualification/packages/deck-parent-morrowind/xemu.toml",
+    "audioMode": "default-sinc"
+  },
+  "win-candidate-morrowind": {
+    "id": "pr258-e6a-counter-win-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/policy-native/diagnostic-packages/win",
+    "sha256": "3688cd956b701362cf6cecd3ce301676ed4d57ea5312effedec1cac834a22bb0",
+    "productSource": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+    "ciSource": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+    "compiledVersion": "0.8.136-0-ge6a9dea3cb4e",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "configOrigin": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr282-latest-qualification/packages/win-parent-morrowind/xemu.toml",
+    "audioMode": "default-sinc"
+  }
+}

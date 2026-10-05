@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-115704611-158d0aec4f6b417bb10146f553eb5cea",
+  "sourceSha256": "51c327c52b7708997cdbcf164705471d1bc6ef035f647eebbe9f473f00030474",
+  "records": [
+    {
+      "Id": "uniform_thrash.uniform_thrash",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 1678.3,
+      "MedianUs": 1662,
+      "MinUs": 1581,
+      "MaxUs": 1828,
+      "P95Us": 1828
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:uniform_thrash.uniform_thrash",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

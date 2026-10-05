@@ -1,0 +1,925 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-113755379-87fe0fa404e9406a94c9980e34a361cf",
+  "sourceSha256": "6e4449742514b76d338bad9f24e4130382859129cfba9f49dc477fef599da38f",
+  "records": [
+    {
+      "Id": "game_load.cross_title_hotpath.blend_constant_reuse",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 113016.75,
+      "MedianUs": 114560,
+      "MinUs": 104131,
+      "MaxUs": 116781,
+      "P95Us": 116781
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.gpu_wait_control",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 1064.625,
+      "MedianUs": 1069,
+      "MinUs": 1018,
+      "MaxUs": 1117,
+      "P95Us": 1117
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 100521.5,
+      "MedianUs": 100656.5,
+      "MinUs": 97365,
+      "MaxUs": 103127,
+      "P95Us": 103127
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.pgr2_small_draws",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 123244.375,
+      "MedianUs": 124561.5,
+      "MinUs": 114381,
+      "MaxUs": 125057,
+      "P95Us": 125057
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.pipeline_state_churn",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 66653.25,
+      "MedianUs": 66645,
+      "MinUs": 66331,
+      "MaxUs": 67010,
+      "P95Us": 67010
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 66141.75,
+      "MedianUs": 66642.5,
+      "MinUs": 62550,
+      "MaxUs": 66919,
+      "P95Us": 66919
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 1000057.25,
+      "MedianUs": 1000115,
+      "MinUs": 999482,
+      "MaxUs": 1000561,
+      "P95Us": 1000561
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 300041.375,
+      "MedianUs": 293791.5,
+      "MinUs": 232703,
+      "MaxUs": 367860,
+      "P95Us": 367860
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.surface_reuse",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 6491.125,
+      "MedianUs": 6434,
+      "MinUs": 5891,
+      "MaxUs": 7461,
+      "P95Us": 7461
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.texture_binding_reuse",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 150001.875,
+      "MedianUs": 150037.5,
+      "MinUs": 149444,
+      "MaxUs": 150451,
+      "P95Us": 150451
+    },
+    {
+      "Id": "game_load.cross_title_hotpath.texture_update_reuse",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 2949.375,
+      "MedianUs": 2955,
+      "MinUs": 2914,
+      "MaxUs": 2971,
+      "P95Us": 2971
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.alpha_overdraw",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 50168.125,
+      "MedianUs": 50072,
+      "MinUs": 49784,
+      "MaxUs": 50598,
+      "P95Us": 50598
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.combined",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 97662.25,
+      "MedianUs": 97703,
+      "MinUs": 96856,
+      "MaxUs": 98195,
+      "P95Us": 98195
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.cpu",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 24389.25,
+      "MedianUs": 24392.5,
+      "MinUs": 24217,
+      "MaxUs": 24700,
+      "P95Us": 24700
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.full_system",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 98134.125,
+      "MedianUs": 98031,
+      "MinUs": 97526,
+      "MaxUs": 99006,
+      "P95Us": 99006
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.pfifo",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 5837,
+      "MedianUs": 5827,
+      "MinUs": 5396,
+      "MaxUs": 6220,
+      "P95Us": 6220
+    },
+    {
+      "Id": "game_load.long_unlocked_scene.streaming_surface_reuse",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16871.125,
+      "MedianUs": 16881.5,
+      "MinUs": 16388,
+      "MaxUs": 17521,
+      "P95Us": 17521
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 17 leaves and 2 groups; received 19. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_group:game_load.long_unlocked_scene",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "xiso_group:game_load.cross_title_hotpath",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 17 stable IDs; received 17. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.blend_constant_reuse",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.gpu_wait_control",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.pgr2_small_draws",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.pipeline_state_churn",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.scaled_surface_pressure",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.surface_reuse",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.texture_binding_reuse",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.texture_update_reuse",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 3 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.alpha_overdraw",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.combined",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.cpu",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.full_system",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.pfifo",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:game_load.long_unlocked_scene.streaming_surface_reuse",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/blend_constant_reuse/mean_us",
+      "Value": 113016.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.blend_constant_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/blend_constant_reuse/median_us",
+      "Value": 114560,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.blend_constant_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/blend_constant_reuse/min_us",
+      "Value": 104131,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.blend_constant_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/blend_constant_reuse/max_us",
+      "Value": 116781,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.blend_constant_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/blend_constant_reuse/p95_us",
+      "Value": 116781,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.blend_constant_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/gpu_wait_control/mean_us",
+      "Value": 1064.625,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.gpu_wait_control"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/gpu_wait_control/median_us",
+      "Value": 1069,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.gpu_wait_control"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/gpu_wait_control/min_us",
+      "Value": 1018,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.gpu_wait_control"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/gpu_wait_control/max_us",
+      "Value": 1117,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.gpu_wait_control"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/gpu_wait_control/p95_us",
+      "Value": 1117,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.gpu_wait_control"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_lagspot_inline_elements/mean_us",
+      "Value": 100521.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_lagspot_inline_elements"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_lagspot_inline_elements/median_us",
+      "Value": 100656.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_lagspot_inline_elements"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_lagspot_inline_elements/min_us",
+      "Value": 97365,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_lagspot_inline_elements"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_lagspot_inline_elements/max_us",
+      "Value": 103127,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_lagspot_inline_elements"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_lagspot_inline_elements/p95_us",
+      "Value": 103127,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_lagspot_inline_elements"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_small_draws/mean_us",
+      "Value": 123244.375,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_small_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_small_draws/median_us",
+      "Value": 124561.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_small_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_small_draws/min_us",
+      "Value": 114381,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_small_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_small_draws/max_us",
+      "Value": 125057,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_small_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pgr2_small_draws/p95_us",
+      "Value": 125057,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pgr2_small_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pipeline_state_churn/mean_us",
+      "Value": 66653.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pipeline_state_churn"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pipeline_state_churn/median_us",
+      "Value": 66645,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pipeline_state_churn"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pipeline_state_churn/min_us",
+      "Value": 66331,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pipeline_state_churn"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pipeline_state_churn/max_us",
+      "Value": 67010,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pipeline_state_churn"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/pipeline_state_churn/p95_us",
+      "Value": 67010,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.pipeline_state_churn"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/queued_vertex_cpu_writes/mean_us",
+      "Value": 66141.75,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/queued_vertex_cpu_writes/median_us",
+      "Value": 66642.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/queued_vertex_cpu_writes/min_us",
+      "Value": 62550,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/queued_vertex_cpu_writes/max_us",
+      "Value": 66919,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/queued_vertex_cpu_writes/p95_us",
+      "Value": 66919,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/s3tc_streaming_fenced_draws/mean_us",
+      "Value": 1000057.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/s3tc_streaming_fenced_draws/median_us",
+      "Value": 1000115,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/s3tc_streaming_fenced_draws/min_us",
+      "Value": 999482,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/s3tc_streaming_fenced_draws/max_us",
+      "Value": 1000561,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/s3tc_streaming_fenced_draws/p95_us",
+      "Value": 1000561,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/scaled_surface_pressure/mean_us",
+      "Value": 300041.375,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.scaled_surface_pressure"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/scaled_surface_pressure/median_us",
+      "Value": 293791.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.scaled_surface_pressure"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/scaled_surface_pressure/min_us",
+      "Value": 232703,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.scaled_surface_pressure"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/scaled_surface_pressure/max_us",
+      "Value": 367860,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.scaled_surface_pressure"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/scaled_surface_pressure/p95_us",
+      "Value": 367860,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.scaled_surface_pressure"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/surface_reuse/mean_us",
+      "Value": 6491.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/surface_reuse/median_us",
+      "Value": 6434,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/surface_reuse/min_us",
+      "Value": 5891,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/surface_reuse/max_us",
+      "Value": 7461,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/surface_reuse/p95_us",
+      "Value": 7461,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_binding_reuse/mean_us",
+      "Value": 150001.875,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_binding_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_binding_reuse/median_us",
+      "Value": 150037.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_binding_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_binding_reuse/min_us",
+      "Value": 149444,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_binding_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_binding_reuse/max_us",
+      "Value": 150451,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_binding_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_binding_reuse/p95_us",
+      "Value": 150451,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_binding_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_update_reuse/mean_us",
+      "Value": 2949.375,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_update_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_update_reuse/median_us",
+      "Value": 2955,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_update_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_update_reuse/min_us",
+      "Value": 2914,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_update_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_update_reuse/max_us",
+      "Value": 2971,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_update_reuse"
+    },
+    {
+      "Name": "xiso/game_load/cross_title_hotpath/texture_update_reuse/p95_us",
+      "Value": 2971,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.cross_title_hotpath.texture_update_reuse"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/alpha_overdraw/mean_us",
+      "Value": 50168.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.alpha_overdraw"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/alpha_overdraw/median_us",
+      "Value": 50072,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.alpha_overdraw"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/alpha_overdraw/min_us",
+      "Value": 49784,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.alpha_overdraw"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/alpha_overdraw/max_us",
+      "Value": 50598,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.alpha_overdraw"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/alpha_overdraw/p95_us",
+      "Value": 50598,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.alpha_overdraw"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/combined/mean_us",
+      "Value": 97662.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.combined"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/combined/median_us",
+      "Value": 97703,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.combined"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/combined/min_us",
+      "Value": 96856,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.combined"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/combined/max_us",
+      "Value": 98195,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.combined"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/combined/p95_us",
+      "Value": 98195,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.combined"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/cpu/mean_us",
+      "Value": 24389.25,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.cpu"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/cpu/median_us",
+      "Value": 24392.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.cpu"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/cpu/min_us",
+      "Value": 24217,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.cpu"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/cpu/max_us",
+      "Value": 24700,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.cpu"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/cpu/p95_us",
+      "Value": 24700,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.cpu"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/full_system/mean_us",
+      "Value": 98134.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.full_system"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/full_system/median_us",
+      "Value": 98031,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.full_system"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/full_system/min_us",
+      "Value": 97526,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.full_system"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/full_system/max_us",
+      "Value": 99006,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.full_system"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/full_system/p95_us",
+      "Value": 99006,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.full_system"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/pfifo/mean_us",
+      "Value": 5837,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.pfifo"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/pfifo/median_us",
+      "Value": 5827,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.pfifo"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/pfifo/min_us",
+      "Value": 5396,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.pfifo"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/pfifo/max_us",
+      "Value": 6220,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.pfifo"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/pfifo/p95_us",
+      "Value": 6220,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.pfifo"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/streaming_surface_reuse/mean_us",
+      "Value": 16871.125,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.streaming_surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/streaming_surface_reuse/median_us",
+      "Value": 16881.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.streaming_surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/streaming_surface_reuse/min_us",
+      "Value": 16388,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.streaming_surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/streaming_surface_reuse/max_us",
+      "Value": 17521,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.streaming_surface_reuse"
+    },
+    {
+      "Name": "xiso/game_load/long_unlocked_scene/streaming_surface_reuse/p95_us",
+      "Value": 17521,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#game_load.long_unlocked_scene.streaming_surface_reuse"
+    }
+  ]
+}

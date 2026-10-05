@@ -1,0 +1,64 @@
+{
+  "runId": "20261005-112439625-082f361c1c1048afbb39445ba258c4ab",
+  "attempt": 1,
+  "job": "xc-p258-deck-vk-texture-focused-v1-006",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9",
+  "jobSha256": "d11b354ee21aa1cdfcbaa00e929b4c44bbe49499ade477dc6bb7c0ffc4b79227",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-p258-deck-vk-texture-focused-v1-006/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:37709,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_VIDEODRIVER",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-112439625-082f361c1c1048afbb39445ba258c4ab",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

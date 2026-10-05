@@ -1,0 +1,18 @@
+{
+  "checked": [
+    "14 completed Morrowind scene-end views from both hosts",
+    "32 Conker start/end views; all16runsatmenu bar scene",
+    "32 PGR2 start/end views; all16 ends same parkedcar 0mph"
+  ],
+  "scope": "d29 vs main-equivalent9c default, unchanged originals",
+  "findings": [],
+  "limitations": [
+    "Deck Morrowind only6completed plus baselineQMPstartupfailure; cell8notstarted",
+    "PGR2 allDeckstartsHongKongflyover, Windowsstartscountdown; notsame cross-host stationary-start; guestinputsunchanged"
+  ],
+  "sheets": [
+    "morrowind-all-completed-scenes.png",
+    "conker-all-scenes.png",
+    "pgr2-all-scenes.png"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "CapturedUtc": "2026-10-05T10:44:33.4659318+00:00",
+  "Machine": "DESKTOP-52C4KS5",
+  "OperatingSystem": "Microsoft Windows 10.0.19045",
+  "OsArchitecture": "X64",
+  "ProcessArchitecture": "X64",
+  "DotNet": "10.0.12",
+  "CpuModel": "AMD Ryzen 9 6900HX with Radeon Graphics",
+  "LogicalProcessors": 16,
+  "PhysicalMemoryBytes": 16361480192,
+  "PrimaryDisplay": "1920x1080",
+  "PowerScheme": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "GraphicsAdapters": [
+    {
+      "Name": "AMD Radeon(TM) Graphics",
+      "DeviceId": "PCI\\VEN_1002\u0026DEV_1681\u0026SUBSYS_0B5B1028\u0026REV_C7",
+      "Driver": null
+    },
+    {
+      "Name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+      "DeviceId": "PCI\\VEN_10DE\u0026DEV_24E0\u0026SUBSYS_0B5C1028\u0026REV_A1",
+      "Driver": null
+    }
+  ]
+}

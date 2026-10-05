@@ -1,0 +1,56 @@
+{
+  "Execution": "completed",
+  "Correctness": "failed",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 1 groups; received 2. Missing 0, extra 0."
+    },
+    {
+      "Name": "xiso_group:game_load.cross_title_hotpath",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Structural group outcome; never treated as an independent timing sample."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:game_load.cross_title_hotpath.texture_binding_reuse",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": false
+}

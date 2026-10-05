@@ -1,0 +1,38 @@
+[
+  {
+    "schema_version": 1,
+    "id": "cpu_floating_point.x87_scalar",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "CpuFloatingPoint::X87Scalar",
+    "outcome": "PASS",
+    "iterations": 40,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 2421,
+    "total_us": 32804327,
+    "average_us": 820108,
+    "min_us": 817118,
+    "max_us": 821300,
+    "median_us": 820505,
+    "p95_us": 821300,
+    "mad_us": 582,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      819802,
+      820436,
+      821300,
+      820575,
+      819387,
+      821076,
+      820625,
+      819911,
+      820848,
+      817118
+    ],
+    "framebuffer_fnv1a64": "6962077c244da325"
+  }
+]

@@ -1,0 +1,930 @@
+[
+  {
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-win-morrowind-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101506501-dbc5dc819dcd4246b43abdde139c1f0f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101506501-dbc5dc819dcd4246b43abdde139c1f0f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101506501-dbc5dc819dcd4246b43abdde139c1f0f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101506501-dbc5dc819dcd4246b43abdde139c1f0f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101506501-dbc5dc819dcd4246b43abdde139c1f0f/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-win-morrowind-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101553276-125f6502d1c84cf99ac816b42bc72d1c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101553276-125f6502d1c84cf99ac816b42bc72d1c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101553276-125f6502d1c84cf99ac816b42bc72d1c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101553276-125f6502d1c84cf99ac816b42bc72d1c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101553276-125f6502d1c84cf99ac816b42bc72d1c/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-win-morrowind-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101641023-ab569c4737644d1c8f867598596de988",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101641023-ab569c4737644d1c8f867598596de988?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101641023-ab569c4737644d1c8f867598596de988",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101641023-ab569c4737644d1c8f867598596de988/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101641023-ab569c4737644d1c8f867598596de988/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-win-morrowind-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101728200-94aca8981eb745f1ae968cbf71dc0644",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101728200-94aca8981eb745f1ae968cbf71dc0644?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101728200-94aca8981eb745f1ae968cbf71dc0644",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101728200-94aca8981eb745f1ae968cbf71dc0644/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101728200-94aca8981eb745f1ae968cbf71dc0644/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-win-morrowind-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101815935-65010e2d4fda4fe78aa6912001d0965b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101815935-65010e2d4fda4fe78aa6912001d0965b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101815935-65010e2d4fda4fe78aa6912001d0965b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101815935-65010e2d4fda4fe78aa6912001d0965b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101815935-65010e2d4fda4fe78aa6912001d0965b/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-win-morrowind-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101903628-e6a120353ed24b73927ea3082536fbc3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101903628-e6a120353ed24b73927ea3082536fbc3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101903628-e6a120353ed24b73927ea3082536fbc3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101903628-e6a120353ed24b73927ea3082536fbc3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101903628-e6a120353ed24b73927ea3082536fbc3/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-win-morrowind-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-101951304-060def2114644f3f8bd75b78b2d43e7d",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-101951304-060def2114644f3f8bd75b78b2d43e7d?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-101951304-060def2114644f3f8bd75b78b2d43e7d",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-101951304-060def2114644f3f8bd75b78b2d43e7d/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-101951304-060def2114644f3f8bd75b78b2d43e7d/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p258-win-morrowind-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-morrowind-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102039017-9114017c25ba4325a68732f7f94cb3ae",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102039017-9114017c25ba4325a68732f7f94cb3ae?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102039017-9114017c25ba4325a68732f7f94cb3ae",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-102039017-9114017c25ba4325a68732f7f94cb3ae/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102039017-9114017c25ba4325a68732f7f94cb3ae/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-win-conker-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102126743-85da04f03e054b4c9d4458c95d378f33",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102126743-85da04f03e054b4c9d4458c95d378f33?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102126743-85da04f03e054b4c9d4458c95d378f33",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102126743-85da04f03e054b4c9d4458c95d378f33/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102126743-85da04f03e054b4c9d4458c95d378f33/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-win-conker-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102315729-10aebfc3bda7498daa397eb260ee8c21",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102315729-10aebfc3bda7498daa397eb260ee8c21?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102315729-10aebfc3bda7498daa397eb260ee8c21",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102315729-10aebfc3bda7498daa397eb260ee8c21/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102315729-10aebfc3bda7498daa397eb260ee8c21/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-win-conker-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102503476-40d5258d87634a1e8521379297c36c27",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102503476-40d5258d87634a1e8521379297c36c27?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102503476-40d5258d87634a1e8521379297c36c27",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102503476-40d5258d87634a1e8521379297c36c27/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102503476-40d5258d87634a1e8521379297c36c27/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-win-conker-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102651745-c571147324b34362b3fd29338483b1ef",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102651745-c571147324b34362b3fd29338483b1ef?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102651745-c571147324b34362b3fd29338483b1ef",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102651745-c571147324b34362b3fd29338483b1ef/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102651745-c571147324b34362b3fd29338483b1ef/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-win-conker-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-102839949-8286e5d95e8445a98d354fddd62bd8a9",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-102839949-8286e5d95e8445a98d354fddd62bd8a9?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-102839949-8286e5d95e8445a98d354fddd62bd8a9",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-102839949-8286e5d95e8445a98d354fddd62bd8a9/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-102839949-8286e5d95e8445a98d354fddd62bd8a9/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-win-conker-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103028215-8f12ac309c734dff81d8aa4f77d32ded",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103028215-8f12ac309c734dff81d8aa4f77d32ded?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103028215-8f12ac309c734dff81d8aa4f77d32ded",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103028215-8f12ac309c734dff81d8aa4f77d32ded/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103028215-8f12ac309c734dff81d8aa4f77d32ded/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-win-conker-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103216445-d5abbae82955486f96c6d7a65e4df004",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103216445-d5abbae82955486f96c6d7a65e4df004?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103216445-d5abbae82955486f96c6d7a65e4df004",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103216445-d5abbae82955486f96c6d7a65e4df004/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103216445-d5abbae82955486f96c6d7a65e4df004/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p258-win-conker-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-conker-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103404696-6cadfccc401840188bef5c07a320fd96",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103404696-6cadfccc401840188bef5c07a320fd96?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103404696-6cadfccc401840188bef5c07a320fd96",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103404696-6cadfccc401840188bef5c07a320fd96/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103404696-6cadfccc401840188bef5c07a320fd96/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p258-win-pgr2-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103552980-5035a528bd2b476f95e7b205434d2c31",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103552980-5035a528bd2b476f95e7b205434d2c31?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103552980-5035a528bd2b476f95e7b205434d2c31",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103552980-5035a528bd2b476f95e7b205434d2c31/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103552980-5035a528bd2b476f95e7b205434d2c31/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p258-win-pgr2-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-103804826-f66d1b2b01484b1cada7751ffb7434e7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-103804826-f66d1b2b01484b1cada7751ffb7434e7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-103804826-f66d1b2b01484b1cada7751ffb7434e7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-103804826-f66d1b2b01484b1cada7751ffb7434e7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-103804826-f66d1b2b01484b1cada7751ffb7434e7/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p258-win-pgr2-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104014700-c50332f1733443558dd361d34ddd357f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104014700-c50332f1733443558dd361d34ddd357f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104014700-c50332f1733443558dd361d34ddd357f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104014700-c50332f1733443558dd361d34ddd357f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104014700-c50332f1733443558dd361d34ddd357f/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p258-win-pgr2-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104223967-5c98fe16975246149aaebbad4b208306",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104223967-5c98fe16975246149aaebbad4b208306?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104223967-5c98fe16975246149aaebbad4b208306",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104223967-5c98fe16975246149aaebbad4b208306/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104223967-5c98fe16975246149aaebbad4b208306/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p258-win-pgr2-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104433393-d022cb17eaf541e2b906bc8cdc833c8f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104433393-d022cb17eaf541e2b906bc8cdc833c8f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104433393-d022cb17eaf541e2b906bc8cdc833c8f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104433393-d022cb17eaf541e2b906bc8cdc833c8f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104433393-d022cb17eaf541e2b906bc8cdc833c8f/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p258-win-pgr2-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104643325-ce38e37a1b2144c78a98fd80c046e308",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104643325-ce38e37a1b2144c78a98fd80c046e308?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104643325-ce38e37a1b2144c78a98fd80c046e308",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104643325-ce38e37a1b2144c78a98fd80c046e308/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104643325-ce38e37a1b2144c78a98fd80c046e308/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p258-win-pgr2-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-104853243-2f16b44fd40940458149a60a59094389",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-104853243-2f16b44fd40940458149a60a59094389?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-104853243-2f16b44fd40940458149a60a59094389",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-104853243-2f16b44fd40940458149a60a59094389/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-104853243-2f16b44fd40940458149a60a59094389/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "pgr2",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p258-win-pgr2-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-pgr2-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-105103138-21c7ace190da44c08ce80e55a7a8d478",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-105103138-21c7ace190da44c08ce80e55a7a8d478?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-105103138-21c7ace190da44c08ce80e55a7a8d478",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-105103138-21c7ace190da44c08ce80e55a7a8d478/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-105103138-21c7ace190da44c08ce80e55a7a8d478/diagnostics"
+      }
+    }
+  }
+]

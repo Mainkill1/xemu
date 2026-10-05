@@ -1,0 +1,67 @@
+{
+  "runId": "20261005-102914336-40458189ef5c4f7a92467fb551c89464",
+  "attempt": 1,
+  "job": "p258-deck-conker-03-candidate-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+  "jobSha256": "ff04f477cdfee61cf95f4f31a1c86a9cca111a4a4d3fd0beaab71872654e1ac3",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-p258-deck-conker-03-candidate-v1-t001/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:34307,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_GAMECONTROLLERCONFIG",
+    "SDL_VIDEODRIVER",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-102914336-40458189ef5c4f7a92467fb551c89464",
+  "experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

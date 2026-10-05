@@ -1,0 +1,209 @@
+{
+  "test": "game_load.cross_title_hotpath.texture_binding_reuse",
+  "oracle": {
+    "schema_version": 1,
+    "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "GameLoadComposite::09-CrossTitleHotpath-07-TextureBindingReuse",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 8001,
+    "total_us": 3900201,
+    "average_us": 121881,
+    "min_us": 116827,
+    "max_us": 132689,
+    "raw_results": [
+      117111,
+      129016,
+      120600,
+      116867,
+      121419,
+      132689,
+      116827,
+      120518
+    ],
+    "framebuffer_fnv1a64": "dfaaa3022df6a325",
+    "metadata": {
+      "schema_version": 2,
+      "kind": "game_load_composite",
+      "preset": "09-CrossTitleHotpath",
+      "phase": "07-TextureBindingReuse",
+      "stage_key": "texture_binding_reuse",
+      "fast_smoke": false,
+      "seed": "43525407",
+      "iterations": 32,
+      "work": {
+        "cpu_indirect": 0,
+        "cpu_fp": 0,
+        "cpu_memory_bytes": 0,
+        "decode_bytes": 0,
+        "pfifo_methods": 0,
+        "fence_reads": 0,
+        "gpu_waits": 0,
+        "draws": 131072,
+        "primitives": 131072,
+        "alpha_pixels": 905969664,
+        "texture_bytes": 0,
+        "vertex_bytes": 16777216,
+        "surface_reuses": 0,
+        "audio_voices": 0,
+        "audio_buffers": 0,
+        "audio_bytes": 0,
+        "audio_mix_operations": 0
+      },
+      "work_checksum": "a266288a",
+      "result_checksum": "2c0877ea"
+    }
+  },
+  "actual": [
+    {
+      "side": "reference",
+      "runId": "20261005-112819741-3fda0726bc054d278dd52fd46d7f8e2c",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "candidate",
+      "runId": "20261005-112845898-5acf9d40ad49413487b106a2967c0f3a",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "candidate",
+      "runId": "20261005-112912589-ac0482d373a74ed0a1d378fbc1f81e22",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "reference",
+      "runId": "20261005-112939132-3d1770f20de34796899d12d2a4ccd2cf",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "candidate",
+      "runId": "20261005-113005986-a3e8a3be8dbe43f685edc0de5a1289c2",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "reference",
+      "runId": "20261005-113032717-ac08c343bd2248e183dca112e8c9c39c",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "reference",
+      "runId": "20261005-113059771-b06026c09fd040479848e337be708c81",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    },
+    {
+      "side": "candidate",
+      "runId": "20261005-113125868-44b2e8cd56e542daa545114614079140",
+      "hash": "033038a154756325",
+      "outcome": "PASS",
+      "work": "a266288a",
+      "result": "8851785b",
+      "fixed": {
+        "revision": 1,
+        "iterations": 32,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 4,
+        "warmup_iterations": 3,
+        "gpu_completion_mode": "per_iteration",
+        "unit": "us",
+        "direction": "lower_is_better"
+      }
+    }
+  ],
+  "finding": "All eight A/B occurrences are intrinsic PASS and agree on framebuffer/work/result identities; compare against pinned oracle before attributing failure to this policy stack."
+}

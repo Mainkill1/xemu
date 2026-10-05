@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-115600009-52c75de52b884e459844b44514873e62",
+  "sourceSha256": "619dc701c8ec31a3f096c86b7ac7f3dec7937583bb04df2961605cc5be35de65",
+  "records": [
+    {
+      "Id": "surface.basic",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 20157.9,
+      "MedianUs": 20086,
+      "MinUs": 19670,
+      "MaxUs": 21045,
+      "P95Us": 21045
+    },
+    {
+      "Id": "surface.cpu_read_after_gpu_write",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 20,
+      "MeanUs": 904,
+      "MedianUs": 824,
+      "MinUs": 760,
+      "MaxUs": 1850,
+      "P95Us": 1112
+    },
+    {
+      "Id": "surface.cpu_read_clean_surface",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 100,
+      "MeanUs": 60.92,
+      "MedianUs": 58,
+      "MinUs": 56,
+      "MaxUs": 91,
+      "P95Us": 84
+    },
+    {
+      "Id": "surface.framebuffer_working_set_002",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1260.65,
+      "MedianUs": 1240.5,
+      "MinUs": 1092,
+      "MaxUs": 1578,
+      "P95Us": 1454
+    },
+    {
+      "Id": "surface.framebuffer_working_set_008",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1407.1,
+      "MedianUs": 1328,
+      "MinUs": 1221,
+      "MaxUs": 1737,
+      "P95Us": 1701
+    },
+    {
+      "Id": "surface.framebuffer_working_set_032",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1317.85,
+      "MedianUs": 1208,
+      "MinUs": 1088,
+      "MaxUs": 2075,
+      "P95Us": 1629
+    },
+    {
+      "Id": "surface.framebuffer_working_set_064",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 20,
+      "MeanUs": 1316.5,
+      "MedianUs": 1248.5,
+      "MinUs": 1146,
+      "MaxUs": 1625,
+      "P95Us": 1617
+    },
+    {
+      "Id": "surface.full_clear_elision_guard",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 100,
+      "MeanUs": 1588.82,
+      "MedianUs": 1537,
+      "MinUs": 1504,
+      "MaxUs": 2150,
+      "P95Us": 1815
+    },
+    {
+      "Id": "surface.overlapping_surface_churn_representative",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 100,
+      "MeanUs": 2119.26,
+      "MedianUs": 2060.5,
+      "MinUs": 2005,
+      "MaxUs": 3247,
+      "P95Us": 2609
+    },
+    {
+      "Id": "surface.overlapping_surface_churn_stress",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 23207.4,
+      "MedianUs": 23212,
+      "MinUs": 22717,
+      "MaxUs": 23497,
+      "P95Us": 23497
+    },
+    {
+      "Id": "surface.partial_channel_clear_guard",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 100,
+      "MeanUs": 1609.06,
+      "MedianUs": 1541,
+      "MinUs": 1502,
+      "MaxUs": 3287,
+      "P95Us": 1831
+    },
+    {
+      "Id": "surface.surface_download_path",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 10,
+      "MeanUs": 13590.3,
+      "MedianUs": 13639,
+      "MinUs": 13242,
+      "MaxUs": 13980,
+      "P95Us": 13980
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:surface.basic",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.cpu_read_after_gpu_write",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:surface.cpu_read_clean_surface",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:surface.framebuffer_working_set_002",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.framebuffer_working_set_008",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.framebuffer_working_set_032",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.framebuffer_working_set_064",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.full_clear_elision_guard",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.overlapping_surface_churn_representative",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.overlapping_surface_churn_stress",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.partial_channel_clear_guard",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:surface.surface_download_path",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    }
+  ],
+  "measurements": []
+}

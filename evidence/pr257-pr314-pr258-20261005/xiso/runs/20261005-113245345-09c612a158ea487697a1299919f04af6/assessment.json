@@ -1,0 +1,73 @@
+{
+  "Execution": "completed",
+  "Correctness": "passed",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 5 leaves and 0 groups; received 5. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 5 stable IDs; received 5. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_floating_point.sse_scalar",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_floating_point.x87_scalar",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.direct_loop",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.indirect_dispatch",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.indirect_dispatch_stress",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}

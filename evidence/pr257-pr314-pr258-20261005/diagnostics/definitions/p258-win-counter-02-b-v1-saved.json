@@ -1,0 +1,10 @@
+{
+  "id": "p258-win-counter-02-b-v1",
+  "revision": "7e8357bb943af317f638dc17fb17ee351dbc0079215e135415f5a635c085cc71",
+  "description": "PR258 diagnostic only; original Morrowind guest inputs unchanged; added bounded owner counters and process policy metadata.",
+  "sourceJobId": "pr267-morrowind-snapshot-assets-v2",
+  "stepCount": 13,
+  "fileCount": 4,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/p258-win-counter-02-b-v1/7e8357bb943af317f638dc17fb17ee351dbc0079215e135415f5a635c085cc71"
+}
