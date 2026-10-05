@@ -1,0 +1,13 @@
+{
+  "inspectorHead": "f31316f5e1dc90cafe31557255de72bf58ee73df",
+  "inferiorSourceHead": "4301f6717e897fe783d5a021c689407d77e6aaad",
+  "audioSourceParent": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "inferiorAudioDelta": "None: FNSTSW branch only changes x87 translation and test files",
+  "host": "Local AMD Ryzen AI Max+395, Debian13 x86_64",
+  "method": "Fresh QMP stop/query-status paused; GDB matching local DWARF attach; source refreshed inspector; detach; QMP quit",
+  "gdbExit": 0,
+  "observed": "One hardware and one ac97.po software voice traversed completely",
+  "limit": "none backend; active/empty flags do not establish audibility; no native Deck or Windows claim",
+  "inspectedExecutableSha256": "ec2f70fe7c4421691b2ac5b9d58386ae157d7d38ceedff1b6bb86f60ea04e4c4",
+  "currentParent": "cc51056e75f56c3b60273ce458bf9c9629be20bb"
+}

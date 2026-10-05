@@ -1,0 +1,60 @@
+GDB exit 0
+{
+  "schema": 1,
+  "tool": "xemu-audio-state.py",
+  "fieldChecks": {
+    "AudioBackend": [
+      "drv",
+      "dev",
+      "period_ticks",
+      "timer_running",
+      "vm_running",
+      "hw_head_out"
+    ],
+    "HWVoiceOut": [
+      "enabled",
+      "info",
+      "ts_helper",
+      "sw_head",
+      "entries"
+    ],
+    "SWVoiceOut": [
+      "name",
+      "active",
+      "empty",
+      "info",
+      "total_hw_samples_mixed",
+      "vol",
+      "entries"
+    ]
+  },
+  "pid": 907506,
+  "executableSha256": "ec2f70fe7c4421691b2ac5b9d58386ae157d7d38ceedff1b6bb86f60ea04e4c4",
+  "defaultBackendPresent": true,
+  "limitation": "Paused instantaneous ownership/activity snapshot; no PCM audibility, timing, playback coverage or performance claim",
+  "driverName": "none",
+  "driverEnum": "AUDIODEV_DRIVER_NONE",
+  "deviceId": "#default",
+  "timerPeriodTicks": 10000000,
+  "timerRunning": true,
+  "vmRunning": false,
+  "hardwareOutputVoices": [
+    {
+      "enabled": true,
+      "frequency": 44100,
+      "channels": 2,
+      "hardwareTimestampHelper": 86324,
+      "softwareVoices": [
+        {
+          "name": "ac97.po",
+          "active": true,
+          "empty": true,
+          "frequency": 48000,
+          "channels": 2,
+          "totalHardwareSamplesMixed": 0,
+          "mute": false
+        }
+      ]
+    }
+  ]
+}
