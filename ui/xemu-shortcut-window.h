@@ -34,6 +34,10 @@ void xemu_shortcut_window_boundary(XemuShortcutWindow *window, uint64_t frame,
                                    const XemuTweakResolution *profile);
 void xemu_shortcut_window_add(XemuShortcutWindow *window, size_t counter,
                               uint64_t amount);
+/* Owner only. Revoke an active or finalized capture after a context change.
+ * Setup changes before the configured start have no captured context to revoke.
+ * Publish immediately, so shutdown cannot retain an earlier complete block. */
+void xemu_shortcut_window_invalidate(XemuShortcutWindow *window);
 bool xemu_shortcut_window_destroy(XemuShortcutWindow *window, Error **errp);
 
 #endif

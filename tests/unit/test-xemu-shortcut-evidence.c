@@ -625,6 +625,41 @@ static void test_owner_window_reset(void)
     cleanup();
 }
 
+static void test_owner_window_invalidate(gconstpointer finalized)
+{
+    if (!child()) {
+        return;
+    }
+    init_service(true);
+    XemuShortcutCounterDescriptor descriptor = {"vk.draw.attempts", "draws"};
+    XemuTweakResolution profile = fixture(0).published.start_profile;
+    XemuShortcutWindow window = {0};
+    g_assert_true(xemu_shortcut_window_init(&window, "vk", &descriptor, 1, 1,
+                                           &error_abort));
+    /* Setup changes before the captured context must not prevent capture. */
+    xemu_shortcut_window_invalidate(&window);
+    xemu_shortcut_window_boundary(&window, 100, 1000, &profile);
+    xemu_shortcut_window_add(&window, 0, 5);
+    if (finalized) {
+        xemu_shortcut_window_boundary(&window, 120, 3000, &profile);
+    }
+    QDict *document = snapshot();
+    g_assert_cmpint(qdict_get_bool(document, "complete"), ==,
+                    finalized != NULL);
+    qobject_unref(document);
+    /* Reset/save/load must revoke even an already finalized capture. */
+    xemu_shortcut_window_invalidate(&window);
+    xemu_shortcut_window_boundary(&window, 120, 3000, &profile);
+    document = snapshot();
+    g_assert_false(qdict_get_bool(document, "complete"));
+    g_assert_cmpuint(qdict_get_uint(qdict_get_qdict(document, "counters"),
+                                   "vk.draw.attempts"), ==, 5);
+    qobject_unref(document);
+    g_assert_true(xemu_shortcut_window_destroy(&window, &error_abort));
+    g_assert_true(xemu_shortcut_evidence_shutdown(&error_abort));
+    cleanup();
+}
+
 static void test_owner_window_overflow(void)
 {
     if (!child()) {
@@ -799,6 +834,10 @@ int main(int argc, char **argv)
     g_test_add_func("/xemu/shortcut-evidence/unpublished-profile",
                     test_unpublished_profile_is_incomplete);
     g_test_add_func("/xemu/shortcut-evidence/owner-window", test_owner_window);
+    g_test_add_data_func("/xemu/shortcut-evidence/owner-window-invalidate-active",
+                         NULL, test_owner_window_invalidate);
+    g_test_add_data_func("/xemu/shortcut-evidence/owner-window-invalidate-final",
+                         GINT_TO_POINTER(1), test_owner_window_invalidate);
     g_test_add_func("/xemu/shortcut-evidence/owner-reset",
                     test_owner_window_reset);
     g_test_add_func("/xemu/shortcut-evidence/owner-overflow",

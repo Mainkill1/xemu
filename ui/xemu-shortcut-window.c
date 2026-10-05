@@ -116,6 +116,18 @@ void xemu_shortcut_window_add(XemuShortcutWindow *window, size_t counter,
     }
 }
 
+void xemu_shortcut_window_invalidate(XemuShortcutWindow *window)
+{
+    if (!window->handle || !window->started) {
+        return;
+    }
+    window->invalid = true;
+    window->finished = true;
+    window->active = false;
+    window->live.complete = false;
+    publish(window);
+}
+
 bool xemu_shortcut_window_destroy(XemuShortcutWindow *window, Error **errp)
 {
     if (!window->handle) {
