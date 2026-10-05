@@ -4,6 +4,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr305-deck-morrowind-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220400091-b1f27d82e1604dd48156427118be9fd5",
     "outcome": {
@@ -29,6 +30,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-deck-morrowind-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220451895-4abe5397a2c04d8885cceffdb86592ed",
     "outcome": {
@@ -54,6 +56,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-deck-morrowind-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220541689-943dbb27f1be484f85cd7bd359327a8c",
     "outcome": {
@@ -79,6 +82,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr305-deck-morrowind-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220630935-3b2580403fc3447ab28c3809d20d3de9",
     "outcome": {
@@ -104,6 +108,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr305-deck-morrowind-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220722058-9efb4b00ad5940f2a175ad6eb55ce6db",
     "outcome": {
@@ -129,6 +134,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr305-deck-morrowind-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220820628-baad1f3cfdf1414fbba4ea35aad7f366",
     "outcome": {
@@ -154,6 +160,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr305-deck-morrowind-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-220911357-572d41a4c6374c099112a561875fd6f3",
     "outcome": {
@@ -179,6 +186,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr305-deck-morrowind-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221001203-21e099b067e2430c8d52c59e8e959c8e",
     "outcome": {
@@ -204,6 +212,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr305-deck-conker-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221054199-253a3133d15c4e1cbcbed72654b75fad",
     "outcome": {
@@ -229,6 +238,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-deck-conker-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221253813-654232ee88114f248c8c61ac1541ccaf",
     "outcome": {
@@ -254,6 +264,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-deck-conker-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221450175-61516b0b3c9841658f90cda2bcf159b0",
     "outcome": {
@@ -279,6 +290,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr305-deck-conker-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221645440-79355b64d5b84e71b95bb2150fb940bc",
     "outcome": {
@@ -304,6 +316,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr305-deck-conker-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-221839696-d28d2743a2f5429ca9e29c48997e2485",
     "outcome": {
@@ -329,6 +342,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr305-deck-conker-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-222034406-f5a89d4371df49cabf8c8ce24f592182",
     "outcome": {
@@ -354,6 +368,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr305-deck-conker-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-222230765-116586f2b3b0485b8263daeacddff3e3",
     "outcome": {
@@ -379,6 +394,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr305-deck-conker-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-222428086-c1e863f20af74cd6843f3083faa857a6",
     "outcome": {
@@ -404,6 +420,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr305-deck-pgr2-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-222625403-320b071dfb9e4118bc8065d4fa820033",
     "outcome": {
@@ -429,6 +446,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-deck-pgr2-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-222900734-5270d20dcc9443b8aa39e849f8c8bd7c",
     "outcome": {
@@ -454,6 +472,16 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-deck-pgr2-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [
+      {
+        "host": "deck",
+        "title": "pgr2",
+        "cell": 3,
+        "variant": "candidate",
+        "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
+        "manualQualification": "Both start/end captures black; exit0. Failed scene excluded from balanced metrics; no causal attribution to the worker-predicate change."
+      }
+    ],
     "host": "deck",
     "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
     "outcome": {
@@ -475,10 +503,141 @@
     "failureDetail": null
   },
   {
+    "title": "pgr2",
+    "cell": 4,
+    "variant": "parent",
+    "request": "pr305-deck-pgr2-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-000616576-4b74fa21f6384d3198f31fda0271b4ea",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 399.44390625,
+    "guestFlipCadence": 7.130296677856899,
+    "avgFrameMs": 117.34901401869158,
+    "p95FrameMs": 295.8175,
+    "p99FrameMs": 362.28326000000004,
+    "maxFrameMs": 428.843,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "pr305-deck-pgr2-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-000849699-34c6bb402e254f659b78304ece7afff1",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "51f992282b574c0925024da4412fc9bb0187263f93dc6a0b2de5957c4d02080c",
+    "source": "abd2b3d88c0029dfc088ca3054e7f75cdcb3dffe",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 402.6895624999999,
+    "guestFlipCadence": 7.437794814108342,
+    "avgFrameMs": 114.21536818181815,
+    "p95FrameMs": 258.03355,
+    "p99FrameMs": 365.9538300000001,
+    "maxFrameMs": 485.542,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 6,
+    "variant": "parent",
+    "request": "pr305-deck-pgr2-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-001122499-1f0ea391f1e4461ca46d90103baf5a20",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 349.0837794117649,
+    "guestFlipCadence": 11.522334838416874,
+    "avgFrameMs": 85.45626557377051,
+    "p95FrameMs": 181.02840000000003,
+    "p99FrameMs": 251.2041599999994,
+    "maxFrameMs": 2642.898,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 7,
+    "variant": "parent",
+    "request": "pr305-deck-pgr2-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-001355075-5f1043ff841745aba60dd9dae302d131",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 400.5198888888889,
+    "guestFlipCadence": 7.508445828362247,
+    "avgFrameMs": 116.86825233644856,
+    "p95FrameMs": 256.53319999999997,
+    "p99FrameMs": 335.33246,
+    "maxFrameMs": 448.246,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "pr305-deck-pgr2-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-001622944-22dd8335f91a43e58d3e8129aa466f61",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "51f992282b574c0925024da4412fc9bb0187263f93dc6a0b2de5957c4d02080c",
+    "source": "abd2b3d88c0029dfc088ca3054e7f75cdcb3dffe",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 402.206109375,
+    "guestFlipCadence": 7.22445855841338,
+    "avgFrameMs": 118.31569339622642,
+    "p95FrameMs": 303.5537499999999,
+    "p99FrameMs": 367.13911999999993,
+    "maxFrameMs": 455.17,
+    "failureDetail": null
+  },
+  {
     "title": "morrowind",
     "cell": 1,
     "variant": "parent",
     "request": "pr305-win-morrowind-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221049005-063f0804a45e40e2aa550c786c176032",
     "outcome": {
@@ -504,6 +663,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-win-morrowind-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221137524-e4cf819d84dd4ebdb9af978d96679b48",
     "outcome": {
@@ -529,6 +689,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-win-morrowind-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221224772-4a9cd37b4cf34f349f3a44e09ee3efca",
     "outcome": {
@@ -554,6 +715,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr305-win-morrowind-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221311601-277488e1437446c1aa8a8c198563c342",
     "outcome": {
@@ -579,6 +741,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr305-win-morrowind-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221358418-a579f5d0c9f0458dac285bfe02b2d23f",
     "outcome": {
@@ -604,6 +767,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr305-win-morrowind-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221445679-f6a3f9e0328b4d7fb9755f3de3cb837a",
     "outcome": {
@@ -629,6 +793,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr305-win-morrowind-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221532440-01e9aa770f9340a9aaef1e759b987103",
     "outcome": {
@@ -654,6 +819,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr305-win-morrowind-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221619789-a0735453f5e4407cbed13b1308268946",
     "outcome": {
@@ -679,6 +845,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr305-win-conker-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221707675-9f210adfd0b34043a7e949aa33f504e1",
     "outcome": {
@@ -704,6 +871,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-win-conker-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-221859140-d04289615fc64758a931ad85f41f276c",
     "outcome": {
@@ -729,6 +897,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-win-conker-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-222051000-05acf46438fb417983fb560dd9f9921e",
     "outcome": {
@@ -754,6 +923,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr305-win-conker-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-222242901-faf77c9233e5473997134a9dbeb22c47",
     "outcome": {
@@ -779,6 +949,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr305-win-conker-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-222434790-a5f56a335fd84cd899cb6d42f4640599",
     "outcome": {
@@ -804,6 +975,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr305-win-conker-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-222626739-b6711cfe5cbf4c839ecf4186cbc3c81d",
     "outcome": {
@@ -829,6 +1001,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr305-win-conker-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-222818592-6222dbca12c64f65beb0b43541ac610b",
     "outcome": {
@@ -854,6 +1027,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr305-win-conker-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-223010502-1916312b85124c9585378a0946e23c81",
     "outcome": {
@@ -879,6 +1053,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr305-win-pgr2-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-223202317-a1add5ac87044431b6401fe28f780eb1",
     "outcome": {
@@ -904,6 +1079,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr305-win-pgr2-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-223415604-f65e8eb270434fd3b7c867cbc301766b",
     "outcome": {
@@ -929,6 +1105,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr305-win-pgr2-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-223629467-a38203a7df984c0a80f9622abfe3c12e",
     "outcome": {
@@ -954,6 +1131,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr305-win-pgr2-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-223843463-3760ed7b0bc740e49e483384cd6bdffc",
     "outcome": {
@@ -979,6 +1157,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr305-win-pgr2-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-224056836-88a041249b754d22af9284ce876ba328",
     "outcome": {
@@ -1004,6 +1183,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr305-win-pgr2-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-224310749-42b9fbe68bcd466f864e0c108180a1c7",
     "outcome": {
@@ -1029,6 +1209,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr305-win-pgr2-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-224524698-46803befed50499fa45d64c23fedfb9a",
     "outcome": {
@@ -1054,6 +1235,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr305-win-pgr2-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-224738436-b938847455ff4cc4aa4c22b8d22f9064",
     "outcome": {

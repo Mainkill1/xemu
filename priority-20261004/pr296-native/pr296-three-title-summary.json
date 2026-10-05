@@ -107,70 +107,451 @@
   {
     "host": "deck",
     "title": "conker",
-    "attempted": 1,
-    "completed": 1,
-    "completeOrder": false,
-    "runnerEligible": 1,
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": null,
-    "metrics": {},
+    "metrics": {
+      "cpu": {
+        "A": 185.76994146825396,
+        "B": 187.2995111607143,
+        "improvementPercent": -0.8233676989782163,
+        "rangeA": [
+          185.28160317460316,
+          186.69395238095245
+        ],
+        "rangeB": [
+          186.10629687499997,
+          189.76261904761907
+        ],
+        "ABBA": -0.6290986767696586,
+        "BAAB": -1.2403363725543894
+      },
+      "guestFlipCadence": {
+        "A": 8.434236858768715,
+        "B": 8.430967249795593,
+        "improvementPercent": -0.03876591359564257,
+        "rangeA": [
+          8.249236837049983,
+          9.28543719647731
+        ],
+        "rangeB": [
+          8.254168355019285,
+          8.465053253887358
+        ],
+        "ABBA": -3.7324020782487266,
+        "BAAB": -0.9931373005680375
+      },
+      "avgFrameMs": {
+        "A": 119.01817723147775,
+        "B": 118.86062845911948,
+        "improvementPercent": 0.1323737062884542,
+        "rangeA": [
+          108.31729437229438,
+          121.37598058252435
+        ],
+        "rangeB": [
+          117.68437089201879,
+          122.21353658536589
+        ],
+        "ABBA": -3.495087944999422,
+        "BAAB": -0.7820456747580049
+      },
+      "p95FrameMs": {
+        "A": 150.04605,
+        "B": 150.3808,
+        "improvementPercent": -0.22309817552677025,
+        "rangeA": [
+          150.0385,
+          161.4755
+        ],
+        "rangeB": [
+          150.06,
+          166.6376
+        ],
+        "ABBA": 3.4530533499615688,
+        "BAAB": -5.535050431940525
+      },
+      "p99FrameMs": {
+        "A": 166.7969,
+        "B": 166.69702999999998,
+        "improvementPercent": 0.059875213508170655,
+        "rangeA": [
+          165.84315000000004,
+          167.23819999999998
+        ],
+        "rangeB": [
+          166.6608,
+          170.24064
+        ],
+        "ABBA": 0.21013115687372913,
+        "BAAB": -1.2996579309490262
+      },
+      "maxFrameMs": {
+        "A": 183.37099999999998,
+        "B": 183.343,
+        "improvementPercent": 0.015269590066036391,
+        "rangeA": [
+          166.867,
+          187.217
+        ],
+        "rangeB": [
+          172.852,
+          194.502
+        ],
+        "ABBA": 1.025412634789542,
+        "BAAB": -4.856125888776944
+      }
+    },
     "manualSceneFindings": [],
     "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
     "title": "pgr2",
-    "attempted": 0,
-    "completed": 0,
+    "attempted": 8,
+    "completed": 7,
     "completeOrder": false,
-    "runnerEligible": 0,
+    "runnerEligible": 7,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
     "metrics": {},
-    "manualSceneFindings": [],
-    "manualSceneKnownFailure": false
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-233503939-173f4f58e0b346159b8fc77777d3113c",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 2,
+            "variant": "candidate",
+            "runId": "20261004-233503939-173f4f58e0b346159b8fc77777d3113c",
+            "request": "pr296-deck-pgr2-balanced-02-candidate-v3-t001",
+            "runnerOutcome": "completed/failed/ineligible; exit0",
+            "manualQualification": "Both start/end PNGs black (0% visible pixels). No valid parked-scene comparison.",
+            "attribution": "Unestablished: another branch305 also had a black candidate run; no causal emulator diagnosis from these captures."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true
   },
   {
     "host": "win",
     "title": "morrowind",
-    "attempted": 1,
-    "completed": 0,
-    "completeOrder": false,
+    "attempted": 9,
+    "completed": 8,
+    "completeOrder": true,
     "runnerEligible": 0,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": null,
-    "metrics": {},
+    "metrics": {
+      "cpu": {
+        "A": 286.6825009254362,
+        "B": 274.21347855191266,
+        "improvementPercent": 4.349418723944594,
+        "rangeA": [
+          278.42103278688523,
+          293.1734262295081
+        ],
+        "rangeB": [
+          267.9059836065573,
+          285.1950491803278
+        ],
+        "ABBA": 3.074501965574941,
+        "BAAB": 4.4900685698852545
+      },
+      "guestFlipCadence": {
+        "A": 32.12526519283501,
+        "B": 31.435943530043556,
+        "improvementPercent": -2.145730653595335,
+        "rangeA": [
+          31.09620460058779,
+          32.54978523516244
+        ],
+        "rangeB": [
+          31.217246559913253,
+          32.22809405717526
+        ],
+        "ABBA": -2.2513505058548113,
+        "BAAB": -0.18735877933053352
+      },
+      "avgFrameMs": {
+        "A": 31.178545449886307,
+        "B": 31.726739319212555,
+        "improvementPercent": -1.7582406793394745,
+        "rangeA": [
+          30.770800738007374,
+          32.19647490347489
+        ],
+        "rangeB": [
+          31.02025402726146,
+          32.09244544287546
+        ],
+        "ABBA": -2.5186199983347373,
+        "BAAB": 0.48415195218431867
+      },
+      "p95FrameMs": {
+        "A": 33.733425,
+        "B": 41.747375,
+        "improvementPercent": -23.7567042184421,
+        "rangeA": [
+          33.71,
+          49.590799999999994
+        ],
+        "rangeB": [
+          33.7776,
+          49.896499999999996
+        ],
+        "ABBA": -24.066781913552976,
+        "BAAB": -0.2019965613776119
+      },
+      "p99FrameMs": {
+        "A": 50.02644,
+        "B": 50.044545,
+        "improvementPercent": -0.036190862272027516,
+        "rangeA": [
+          50.01927,
+          50.107519999999994
+        ],
+        "rangeB": [
+          50.037169999999996,
+          50.05328
+        ],
+        "ABBA": 0.042400469740489846,
+        "BAAB": -0.042313383534292946
+      },
+      "maxFrameMs": {
+        "A": 50.521,
+        "B": 50.606,
+        "improvementPercent": -0.16824686763920121,
+        "rangeA": [
+          50.291,
+          66.662
+        ],
+        "rangeB": [
+          50.345,
+          66.677
+        ],
+        "ABBA": 13.482339059280225,
+        "BAAB": -15.841927119415693
+      }
+    },
     "manualSceneFindings": [],
     "manualSceneKnownFailure": false
   },
   {
     "host": "win",
     "title": "conker",
-    "attempted": 1,
-    "completed": 0,
-    "completeOrder": false,
-    "runnerEligible": 0,
+    "attempted": 9,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": null,
-    "metrics": {},
+    "metrics": {
+      "cpu": {
+        "A": 250.51611111111112,
+        "B": 244.73067741935483,
+        "improvementPercent": 2.3094058366530668,
+        "rangeA": [
+          244.5659516129032,
+          259.4253064516129
+        ],
+        "rangeB": [
+          243.56954838709675,
+          252.02215873015874
+        ],
+        "ABBA": 4.738524992147372,
+        "BAAB": -0.8825474830162071
+      },
+      "guestFlipCadence": {
+        "A": 30.00006912435066,
+        "B": 29.999964519358397,
+        "improvementPercent": -0.00034868250412772915,
+        "rangeA": [
+          29.999967287269712,
+          30.000317907878095
+        ],
+        "rangeB": [
+          29.999918725319787,
+          30.000247412398977
+        ],
+        "ABBA": -0.0007231461035098887,
+        "BAAB": 0.00017603728142850966
+      },
+      "avgFrameMs": {
+        "A": 33.33334177718595,
+        "B": 33.33342600000003,
+        "improvementPercent": -0.0002526683782386391,
+        "rangeA": [
+          33.33333288948072,
+          33.333381333333286
+        ],
+        "rangeB": [
+          33.33334933333338,
+          33.333538666666584
+        ],
+        "ABBA": -2.131626160919187e-13,
+        "BAAB": -0.0005133342175370043
+      },
+      "p95FrameMs": {
+        "A": 33.5621,
+        "B": 33.612575,
+        "improvementPercent": -0.15039285384406434,
+        "rangeA": [
+          33.543,
+          33.7011
+        ],
+        "rangeB": [
+          33.5786,
+          33.632149999999996
+        ],
+        "ABBA": 0.040370366515333746,
+        "BAAB": -0.14117349067285084
+      },
+      "p99FrameMs": {
+        "A": 33.715265,
+        "B": 33.978300000000004,
+        "improvementPercent": -0.7801658981473292,
+        "rangeA": [
+          33.6815,
+          33.84095
+        ],
+        "rangeB": [
+          33.78451,
+          34.142849999999996
+        ],
+        "ABBA": -0.5966428767759216,
+        "BAAB": -0.7831999822033845
+      },
+      "maxFrameMs": {
+        "A": 34.0325,
+        "B": 34.275999999999996,
+        "improvementPercent": -0.7154925438918605,
+        "rangeA": [
+          33.851,
+          34.345
+        ],
+        "rangeB": [
+          34.112,
+          34.703
+        ],
+        "ABBA": -1.2089479799391154,
+        "BAAB": -0.4160074998535065
+      }
+    },
     "manualSceneFindings": [],
     "manualSceneKnownFailure": false
   },
   {
     "host": "win",
     "title": "pgr2",
-    "attempted": 1,
-    "completed": 0,
-    "completeOrder": false,
-    "runnerEligible": 0,
+    "attempted": 9,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {},
+    "metrics": {
+      "cpu": {
+        "A": 319.4559177827381,
+        "B": 322.5194516129033,
+        "improvementPercent": -0.9589848425499307,
+        "rangeA": [
+          318.98190476190473,
+          321.1512698412698
+        ],
+        "rangeB": [
+          314.9219365079366,
+          335.56568253968254
+        ],
+        "ABBA": -2.7590118768449248,
+        "BAAB": 0.17904732429387307
+      },
+      "guestFlipCadence": {
+        "A": 30.000020724830623,
+        "B": 29.999934431053937,
+        "improvementPercent": -0.00028764572357343457,
+        "rangeA": [
+          29.999980876506214,
+          30.000041832727653
+        ],
+        "rangeB": [
+          29.99973510872191,
+          30.00040146425832
+        ],
+        "ABBA": 0.00015853875545237465,
+        "BAAB": -0.0002564117796071199
+      },
+      "avgFrameMs": {
+        "A": 33.33335619174433,
+        "B": 33.3333426666667,
+        "improvementPercent": 4.057520505571637e-05,
+        "rangeA": [
+          33.33333466666664,
+          33.3339106666667
+        ],
+        "rangeB": [
+          33.33258721704391,
+          33.33338933333333
+        ],
+        "ABBA": 0.0019031579147439639,
+        "BAAB": 4.057520505571637e-05
+      },
+      "p95FrameMs": {
+        "A": 33.576175000000006,
+        "B": 33.601074999999994,
+        "improvementPercent": -0.07415972784269843,
+        "rangeA": [
+          33.5505,
+          33.64795
+        ],
+        "rangeB": [
+          33.52775,
+          33.607549999999996
+        ],
+        "ABBA": 0.1480808249091041,
+        "BAAB": -0.12841904534889304
+      },
+      "p99FrameMs": {
+        "A": 34.088575,
+        "B": 34.089555000000004,
+        "improvementPercent": -0.0028748634990037924,
+        "rangeA": [
+          33.8895,
+          34.12274
+        ],
+        "rangeB": [
+          33.99055,
+          34.18132
+        ],
+        "ABBA": 0.14121670637317396,
+        "BAAB": -0.379487405838065
+      },
+      "maxFrameMs": {
+        "A": 34.3755,
+        "B": 34.4125,
+        "improvementPercent": -0.10763479803929843,
+        "rangeA": [
+          34.213,
+          34.55
+        ],
+        "rangeB": [
+          34.193,
+          34.424
+        ],
+        "ABBA": 0.16970048589453945,
+        "BAAB": -0.06562732430107147
+      }
+    },
     "manualSceneFindings": [],
     "manualSceneKnownFailure": false
   }

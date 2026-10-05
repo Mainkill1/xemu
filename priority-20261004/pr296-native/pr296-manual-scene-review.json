@@ -1,0 +1,13 @@
+[
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 2,
+    "variant": "candidate",
+    "runId": "20261004-233503939-173f4f58e0b346159b8fc77777d3113c",
+    "request": "pr296-deck-pgr2-balanced-02-candidate-v3-t001",
+    "runnerOutcome": "completed/failed/ineligible; exit0",
+    "manualQualification": "Both start/end PNGs black (0% visible pixels). No valid parked-scene comparison.",
+    "attribution": "Unestablished: another branch305 also had a black candidate run; no causal emulator diagnosis from these captures."
+  }
+]

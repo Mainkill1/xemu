@@ -4,6 +4,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr303-deck-morrowind-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-213637984-5a1ab6876e204aec800850d760b9b7b6",
     "outcome": {
@@ -29,6 +30,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-deck-morrowind-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-213727512-b064598e7eda43baab1b4046defb17f6",
     "outcome": {
@@ -54,6 +56,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr303-deck-morrowind-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-213823114-e7ff7b1b88da4120a255ab3de9640152",
     "outcome": {
@@ -79,6 +82,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr303-deck-morrowind-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-213912517-4fc44ec023e2468eb77b70fe2a184fe4",
     "outcome": {
@@ -104,6 +108,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr303-deck-morrowind-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214001784-c9d37eb1060648d1886ce42e134c47e9",
     "outcome": {
@@ -129,6 +134,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr303-deck-morrowind-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214051098-f4f27eeec64e4562b6c9c5f3cb2c8fa5",
     "outcome": {
@@ -154,6 +160,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr303-deck-morrowind-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214144132-2d28246702814c8e832b3dcb25183a76",
     "outcome": {
@@ -179,6 +186,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr303-deck-morrowind-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214234677-4ce242553170489ea3fea5aa4db98cb9",
     "outcome": {
@@ -204,6 +212,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr303-deck-conker-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214325107-a16b015f8b81423bb4bafba4cbb74f47",
     "outcome": {
@@ -229,6 +238,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-deck-conker-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214526156-eb3c4319b6124f13b7b3b34e776dd0d4",
     "outcome": {
@@ -254,6 +264,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr303-deck-conker-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214718564-24202fcd88df44a59a83e076672c3a4a",
     "outcome": {
@@ -279,6 +290,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr303-deck-conker-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-214913664-1f82e9cf42ab41618b97b16e95ad15c9",
     "outcome": {
@@ -304,6 +316,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr303-deck-conker-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-215109191-0a741c9bce534c8bbe985f8efed7f8fa",
     "outcome": {
@@ -329,6 +342,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr303-deck-conker-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-215303842-8c8ea7da5bd945f3b30e75e178699078",
     "outcome": {
@@ -354,6 +368,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr303-deck-conker-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-215458490-63b03253abdf4cceb6df384b42b07019",
     "outcome": {
@@ -379,6 +394,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr303-deck-conker-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-215652866-70b68ff043f04eeba1152177434fdfec",
     "outcome": {
@@ -404,6 +420,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr303-deck-pgr2-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "deck",
     "runId": "20261004-215847412-b448a72f0ab847019d526430a21f76af",
     "outcome": {
@@ -429,6 +446,17 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-deck-pgr2-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
+        "host": "deck",
+        "title": "pgr2",
+        "cell": 2,
+        "variant": "candidate",
+        "manualQualification": "Wrong MINI Cooper car-selection menu at start/end; runner correctness failed, so exclude its21.55 guest FPS from gains. Normal exit0, not an emulator crash.",
+        "attribution": "Unestablished; no emulator runtime delta in PR303."
+      }
+    ],
     "host": "deck",
     "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
     "outcome": {
@@ -450,10 +478,176 @@
     "failureDetail": null
   },
   {
+    "title": "pgr2",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "pr303-deck-pgr2-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261004-235306078-9208312f3ce5420a8621d0ceff47125f",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "b1a322d00533cf8e12873484927e65756c566445cbdd9f70113e5b5d984a2d2e",
+    "source": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 402.2402968749999,
+    "guestFlipCadence": 7.690945469618991,
+    "avgFrameMs": 109.26166375545853,
+    "p95FrameMs": 253.89959999999996,
+    "p99FrameMs": 308.264,
+    "maxFrameMs": 437.974,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 4,
+    "variant": "parent",
+    "request": "pr303-deck-pgr2-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261004-235540642-3997e9dc8be24520b167a6438dd45df3",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 402.35996874999995,
+    "guestFlipCadence": 7.3168417489863815,
+    "avgFrameMs": 116.83637674418603,
+    "p95FrameMs": 269.1530999999998,
+    "p99FrameMs": 321.53643999999997,
+    "maxFrameMs": 389.869,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "pr303-deck-pgr2-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261004-235815065-2bf2133f78114426896e145b42942925",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "b1a322d00533cf8e12873484927e65756c566445cbdd9f70113e5b5d984a2d2e",
+    "source": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 404.69071428571425,
+    "guestFlipCadence": 7.572411982505429,
+    "avgFrameMs": 113.78224545454545,
+    "p95FrameMs": 269.39644999999996,
+    "p99FrameMs": 334.3863,
+    "maxFrameMs": 462.866,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 6,
+    "variant": "parent",
+    "request": "pr303-deck-pgr2-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-000049213-2ae2e4ff43514ff283b96872d9ff0ff0",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 400.2552187500001,
+    "guestFlipCadence": 7.277877881560053,
+    "avgFrameMs": 114.83498623853214,
+    "p95FrameMs": 289.2672499999999,
+    "p99FrameMs": 363.5149499999994,
+    "maxFrameMs": 430.149,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 7,
+    "variant": "parent",
+    "request": "pr303-deck-pgr2-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
+    "host": "deck",
+    "runId": "20261005-000321501-80bc630496684dd7be518ebdf6d8d1c2",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "failureCode": null,
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": 403.2333333333333,
+    "guestFlipCadence": 7.759976637719315,
+    "avgFrameMs": 111.18930530973448,
+    "p95FrameMs": 265.29325,
+    "p99FrameMs": 328.53625,
+    "maxFrameMs": 347.662,
+    "failureDetail": null
+  },
+  {
+    "title": "pgr2",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "pr303-deck-pgr2-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [
+      {
+        "host": "deck",
+        "title": "pgr2",
+        "cell": 8,
+        "variant": "candidate",
+        "runId": "20261005-000554892-fcacddaa94c849feac318d9063d56af3",
+        "manualQualification": "Prelaunch ISO integrity hash cancelled after18.996s; ProcessId/exitCode null, no emulator launched. Incomplete cell retained, no performance value invented."
+      }
+    ],
+    "host": "deck",
+    "runId": "20261005-000554892-fcacddaa94c849feac318d9063d56af3",
+    "outcome": {
+      "execution": "runnerFailure",
+      "correctness": "failed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "failureCode": null,
+    "executableSha256": "b1a322d00533cf8e12873484927e65756c566445cbdd9f70113e5b5d984a2d2e",
+    "source": "8aec4f96f31928d86eb42e7f7362e5d1063baf2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "cpu": null,
+    "guestFlipCadence": null,
+    "avgFrameMs": null,
+    "p95FrameMs": null,
+    "p99FrameMs": null,
+    "maxFrameMs": null,
+    "failureDetail": "System.Threading.Tasks.TaskCanceledException: A task was canceled.\n   at System.Security.Cryptography.LiteHashProvider.ProcessStreamAsync[T](T hash, Stream source, Memory`1 destination, CancellationToken cancellationToken)\n   at System.Security.Cryptography.LiteHashProvider.ProcessStreamAsync[T](T hash, Int32 outputLength, Stream source, CancellationToken cancellationToken)\n   at XemuTestRunner.Runtime.SharedReadOnlyInputs.HashAsync(String path, Int64 length, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/SharedReadOnlyInputs.cs:line 60\n   at XemuTestRunner.Runtime.SharedReadOnlyInputs.HashAsync(String path, Int64 length, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/SharedReadOnlyInputs.cs:line 64\n   at XemuTestRunner.Runtime.SharedReadOnlyInputs.PrepareAsync(RunIsolationDefinition policy, RuntimeMaterialization runtime, RunStorageReport report, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/SharedReadOnlyInputs.cs:line 27\n   at XemuTestRunner.Runtime.RunStateConfiguration.PrepareAsync(JobDefinition job, String executable, String workingDirectory, IReadOnlyList`1 arguments, String resultDirectory, String evidenceDirectory, RunStorageReport report, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunStateConfiguration.cs:line 67\n   at XemuTestRunner.Runtime.RunStorageSession.PrepareAsync(JobDefinition job, String executable, String workingDirectory, IReadOnlyList`1 arguments, IReadOnlyDictionary`2 environment, String resultDirectory, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunStorageSession.cs:line 50\n   at XemuTestRunner.Diagnostics.TargetLaunch.StartAsync(DiagnosticsOptions diagnostics, JobDefinition job, String executable, String workingDirectory, IReadOnlyList`1 arguments, IReadOnlyDictionary`2 environment, String resultDirectory, CancellationToken cancellationToken, String controllerDeviceSysname) in /_/src/XemuTestRunner/Diagnostics/TargetLaunch.cs:line 35\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 624"
+  },
+  {
     "title": "morrowind",
     "cell": 1,
     "variant": "parent",
     "request": "pr303-win-morrowind-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213140357-cde68d80ffa548c2926f2ef4cbc281c5",
     "outcome": {
@@ -479,6 +673,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-win-morrowind-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213228431-f3c9ae382c954137a9a71099fbbbb6ef",
     "outcome": {
@@ -504,6 +699,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr303-win-morrowind-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213315310-c1ee48652ce1481c98f40d639141f04e",
     "outcome": {
@@ -529,6 +725,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr303-win-morrowind-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213402777-476291489f54403ab4ec0ff30b858623",
     "outcome": {
@@ -554,6 +751,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr303-win-morrowind-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213450140-6acbb02d47484c7d9cd88e11146ba5f7",
     "outcome": {
@@ -579,6 +777,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr303-win-morrowind-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213537556-67e604ed1c8b4e00862de64cf7c54d7e",
     "outcome": {
@@ -604,6 +803,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr303-win-morrowind-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213625003-a9fd2d01d70448a2acfcb52f4024ec07",
     "outcome": {
@@ -629,6 +829,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr303-win-morrowind-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213712241-01f71127a3d848b7a72580546fda2354",
     "outcome": {
@@ -654,6 +855,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr303-win-conker-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-213800173-29f13b146d4b4afab7e5f8caf044324c",
     "outcome": {
@@ -679,6 +881,20 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-win-conker-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
+        "host": "win",
+        "title": "conker",
+        "cell": 2,
+        "variant": "candidate",
+        "runnerOutcome": "completed/pass/eligible",
+        "visualReview": "Correct menu reached, but both recording-start and recording-end contain bright multicolored corrupt-looking textures on hanging glasses, lights and background display. Other seven Windows start images lack this pattern.",
+        "manualQualification": "VISUAL ANOMALY: do not treat the runner visibility gate as full rendered-output correctness; preserve original status and all numeric rows",
+        "attribution": "Unestablished. PR303 changes test-only source, not renderer/APU runtime; cannot claim it caused this or that the image proves a DMA-remap defect.",
+        "actions": "Keep screenshot evidence private, retain canonical numerical rows, disclose in owning PR. No test edits, silent exclusion/replacement or new rendering fix bundled."
+      }
+    ],
     "host": "win",
     "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
     "outcome": {
@@ -704,6 +920,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr303-win-conker-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-214143870-de988596130d480cacf79df00b7807b1",
     "outcome": {
@@ -729,6 +946,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr303-win-conker-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-214335181-2ea664476c90493f9e64040f276ee40b",
     "outcome": {
@@ -754,6 +972,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr303-win-conker-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-214526961-0c0f2ab91c3a4541b4d6e10b62898e20",
     "outcome": {
@@ -779,6 +998,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr303-win-conker-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-214718784-35c0390303e1497891ad278c8c996129",
     "outcome": {
@@ -804,6 +1024,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr303-win-conker-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-214910672-7a189e25d84347c1a8ec359c9d275883",
     "outcome": {
@@ -829,6 +1050,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr303-win-conker-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-215102417-4f8a3d8006ba4dcfb3cafbbf16672a51",
     "outcome": {
@@ -854,6 +1076,7 @@
     "cell": 1,
     "variant": "parent",
     "request": "pr303-win-pgr2-balanced-01-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-215254226-9dca00c483bd4b3aa01a9c867896dfbb",
     "outcome": {
@@ -879,6 +1102,7 @@
     "cell": 2,
     "variant": "candidate",
     "request": "pr303-win-pgr2-balanced-02-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-215508094-ba1b092a4b274669a12f80dead89180b",
     "outcome": {
@@ -904,6 +1128,7 @@
     "cell": 3,
     "variant": "candidate",
     "request": "pr303-win-pgr2-balanced-03-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-215721877-87a969b34c4d48f39fbb5ecf24ba47f5",
     "outcome": {
@@ -929,6 +1154,7 @@
     "cell": 4,
     "variant": "parent",
     "request": "pr303-win-pgr2-balanced-04-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-215935832-969ecec600444395939e13cb895d18d8",
     "outcome": {
@@ -954,6 +1180,7 @@
     "cell": 5,
     "variant": "candidate",
     "request": "pr303-win-pgr2-balanced-05-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-220149738-2d4b82d85cc04991ae65fbc0b53c48a2",
     "outcome": {
@@ -979,6 +1206,7 @@
     "cell": 6,
     "variant": "parent",
     "request": "pr303-win-pgr2-balanced-06-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-220403552-73fa1f6dc31b45dd9fe59e484d253725",
     "outcome": {
@@ -1004,6 +1232,7 @@
     "cell": 7,
     "variant": "parent",
     "request": "pr303-win-pgr2-balanced-07-parent-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-220617529-d1862111e0784db99415ea0d7a98af83",
     "outcome": {
@@ -1029,6 +1258,7 @@
     "cell": 8,
     "variant": "candidate",
     "request": "pr303-win-pgr2-balanced-08-candidate-v2-t001",
+    "manualSceneFindings": [],
     "host": "win",
     "runId": "20261004-220831436-fb71bfeedbb5499280feb697996c2655",
     "outcome": {

@@ -100,7 +100,9 @@
         "ABBA": 5.079311957832124,
         "BAAB": -1.0435778077663884
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
@@ -203,19 +205,51 @@
         "ABBA": -3.752051440716718,
         "BAAB": -0.014727781505172077
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
     "title": "pgr2",
-    "attempted": 2,
-    "completed": 1,
+    "attempted": 8,
+    "completed": 6,
     "completeOrder": false,
-    "runnerEligible": 1,
+    "runnerEligible": 6,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {}
+    "metrics": {},
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
+        "findings": [
+          {
+            "runId": "20261004-220122247-b451bf71404c43a58a5299125634811e",
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 2,
+            "variant": "candidate",
+            "manualQualification": "Wrong MINI Cooper car-selection menu at start/end; runner correctness failed, so exclude its21.55 guest FPS from gains. Normal exit0, not an emulator crash.",
+            "attribution": "Unestablished; no emulator runtime delta in PR303."
+          }
+        ]
+      },
+      {
+        "runId": "20261005-000554892-fcacddaa94c849feac318d9063d56af3",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 8,
+            "variant": "candidate",
+            "runId": "20261005-000554892-fcacddaa94c849feac318d9063d56af3",
+            "manualQualification": "Prelaunch ISO integrity hash cancelled after18.996s; ProcessId/exitCode null, no emulator launched. Incomplete cell retained, no performance value invented."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true
   },
   {
     "host": "win",
@@ -318,7 +352,9 @@
         "ABBA": 0.05456328061724111,
         "BAAB": 0.3886806671029509
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "win",
@@ -421,7 +457,27 @@
         "ABBA": -0.7587900533800058,
         "BAAB": 0.33324563711305305
       }
-    }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
+        "findings": [
+          {
+            "runId": "20261004-213951983-22067c8f44a644dfbab4a98f1bceb7ee",
+            "host": "win",
+            "title": "conker",
+            "cell": 2,
+            "variant": "candidate",
+            "runnerOutcome": "completed/pass/eligible",
+            "visualReview": "Correct menu reached, but both recording-start and recording-end contain bright multicolored corrupt-looking textures on hanging glasses, lights and background display. Other seven Windows start images lack this pattern.",
+            "manualQualification": "VISUAL ANOMALY: do not treat the runner visibility gate as full rendered-output correctness; preserve original status and all numeric rows",
+            "attribution": "Unestablished. PR303 changes test-only source, not renderer/APU runtime; cannot claim it caused this or that the image proves a DMA-remap defect.",
+            "actions": "Keep screenshot evidence private, retain canonical numerical rows, disclose in owning PR. No test edits, silent exclusion/replacement or new rendering fix bundled."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true
   },
   {
     "host": "win",
@@ -524,6 +580,8 @@
         "ABBA": -0.3715522140140686,
         "BAAB": 0.6093695977872563
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   }
 ]

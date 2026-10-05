@@ -1,0 +1,10 @@
+[
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 3,
+    "variant": "candidate",
+    "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
+    "manualQualification": "Both start/end captures black; exit0. Failed scene excluded from balanced metrics; no causal attribution to the worker-predicate change."
+  }
+]

@@ -100,7 +100,9 @@
         "ABBA": -0.1799267332243023,
         "BAAB": 5.9016673366369305
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
@@ -203,19 +205,37 @@
         "ABBA": 3.1395798232297016,
         "BAAB": 5.037461767760339
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "deck",
     "title": "pgr2",
-    "attempted": 3,
-    "completed": 2,
+    "attempted": 8,
+    "completed": 7,
     "completeOrder": false,
-    "runnerEligible": 2,
+    "runnerEligible": 7,
     "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
     "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
     "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
-    "metrics": {}
+    "metrics": {},
+    "manualSceneFindings": [
+      {
+        "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 3,
+            "variant": "candidate",
+            "runId": "20261004-223140794-2fb8447ba1824f1c85dc64bfa1944b3c",
+            "manualQualification": "Both start/end captures black; exit0. Failed scene excluded from balanced metrics; no causal attribution to the worker-predicate change."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true
   },
   {
     "host": "win",
@@ -318,7 +338,9 @@
         "ABBA": 0.4427874279083857,
         "BAAB": 14.03224015240177
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "win",
@@ -421,7 +443,9 @@
         "ABBA": 0.5091441111923699,
         "BAAB": 32.224885856104095
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   },
   {
     "host": "win",
@@ -524,6 +548,8 @@
         "ABBA": -0.2793458650992366,
         "BAAB": 0.32629029685165295
       }
-    }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
   }
 ]
