@@ -1,0 +1,348 @@
+{
+  "Id": "p189200-win-conker-04-parent-v1-t001",
+  "Executable": "xemu.exe",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log"
+  },
+  "TimeoutSeconds": 300,
+  "Tags": [
+    "fresh-start",
+    "balanced-benchmark",
+    "conker",
+    "windows",
+    "test-definition:fresh-windows-conker-qualified-v6@19b869c5612b8c70e287bdaa4d8aa214329c5ca014aecd98e76d2b1dbd2c13f2"
+  ],
+  "Plan": [
+    {
+      "Type": "require_input",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 20000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_start",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-end",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_end",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "quit",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    }
+  ],
+  "TargetOs": "windows",
+  "ExpectedExecutableSha256": "f0f29bc848c89e9bed32d157bbf5b8309f36b92d2963c739aea1610962c63852",
+  "RequiredFiles": [
+    "xemu.exe",
+    "xemu.toml",
+    "state/eeprom.bin"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": true,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pr267-pgr2-save-portable-v1",
+        "ExpectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": true,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "devbox-mcpx10-readonly-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "devbox-complex4627-readonly-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "conker-usa-readonly-v1",
+          "ExpectedSha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba"
+        }
+      ]
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "native-ci-executable",
+      "Hash": true,
+      "ExpectedSha256": "f0f29bc848c89e9bed32d157bbf5b8309f36b92d2963c739aea1610962c63852"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Hash": true,
+      "ExpectedSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714"
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [
+      {
+        "Name": "recording-start-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-start.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.02,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "recording-end-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-end.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.02,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "EvidenceRequirements": [
+      {
+        "Name": "segments",
+        "Scope": "result",
+        "Path": "segments.jsonl",
+        "MustExist": true,
+        "MinimumBytes": 20,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "ReportedMetrics": [
+      {
+        "Name": "guest/interval_max_ms",
+        "Scope": "result",
+        "Path": "performance.json",
+        "JsonProperty": "Frames.IntervalsMs.Max",
+        "Unit": "ms",
+        "Direction": "lower",
+        "Required": true
+      }
+    ],
+    "MinimumMetricSamples": 55,
+    "RequirePlanCompletion": true,
+    "Analysis": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    }
+  },
+  "Experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache",
+      "windows-vulkan-shared-driver-cache-explicit-limit"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "Operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  }
+}

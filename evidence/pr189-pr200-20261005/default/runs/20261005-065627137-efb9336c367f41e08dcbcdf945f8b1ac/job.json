@@ -1,0 +1,354 @@
+{
+  "Id": "p189200-deck-conker-02-candidate-v1-t001",
+  "Executable": "xemu",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "SDL_VIDEODRIVER": "x11",
+    "LD_LIBRARY_PATH": "{packageDir}/lib"
+  },
+  "TimeoutSeconds": 300,
+  "Tags": [
+    "fresh-start",
+    "balanced-benchmark",
+    "conker",
+    "deck",
+    "test-definition:conker-original-build-slots-deck-v1@255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+  ],
+  "Plan": [
+    {
+      "Type": "require_input",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 20000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 15000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_start",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-end",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_end",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "quit",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    }
+  ],
+  "TargetOs": "linux",
+  "ExpectedExecutableSha256": "ba34c301ebe7a8daef1f7dc63def82c668f6d760d52aa43097e77501270e69e4",
+  "RequiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/eeprom.bin"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": true,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pr267-deck-pgr2-portable-save-seed-v1",
+        "ExpectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "pr73-deck-bootrom-e99e3a-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "pr73-deck-flashrom-1de4c8-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "conker-usa-readonly-v1",
+          "ExpectedSha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba"
+        }
+      ]
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "native-ci-executable",
+      "Hash": true,
+      "ExpectedSha256": "ba34c301ebe7a8daef1f7dc63def82c668f6d760d52aa43097e77501270e69e4"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Hash": true,
+      "ExpectedSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "ControllerInput": {
+    "Backend": "native-os-gamepad",
+    "ControllerIndex": 0,
+    "MappingProfile": "runner-xbox-port1-v1"
+  },
+  "Workload": {
+    "CorrectnessChecks": [
+      {
+        "Name": "recording-start-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-start.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.02,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "recording-end-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-end.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.02,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "EvidenceRequirements": [
+      {
+        "Name": "segments",
+        "Scope": "result",
+        "Path": "segments.jsonl",
+        "MustExist": true,
+        "MinimumBytes": 20,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "ReportedMetrics": [
+      {
+        "Name": "guest/interval_max_ms",
+        "Scope": "result",
+        "Path": "performance.json",
+        "JsonProperty": "Frames.IntervalsMs.Max",
+        "Unit": "ms",
+        "Direction": "lower",
+        "Required": true
+      }
+    ],
+    "MinimumMetricSamples": 55,
+    "RequirePlanCompletion": true,
+    "Analysis": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    }
+  },
+  "Experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "Operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  }
+}

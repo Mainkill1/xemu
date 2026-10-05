@@ -1,0 +1,36 @@
+[
+  {
+    "schema_version": 1,
+    "id": "texture_cubemap_fallback.bordered_palette_size1",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "TextureCubemapFallback::BorderedPaletteSize1",
+    "outcome": "FAIL",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 137,
+    "total_us": 532752,
+    "average_us": 16648,
+    "min_us": 16515,
+    "max_us": 16745,
+    "median_us": 16653,
+    "p95_us": 16745,
+    "mad_us": 28,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      16515,
+      16658,
+      16607,
+      16745,
+      16649,
+      16645,
+      16704,
+      16663
+    ],
+    "framebuffer_fnv1a64": "56d00ed89334a325",
+    "metadata": {"schema_version":1,"kind":"bordered_uncompressed_cubemap_mips","oracle_status":"FAIL","source_kat":1548294966,"guest_format":11,"logical_size":1,"levels":1,"faces":6,"face_stride":256,"samples_per_cell":5,"failure_count":30,"failure_mask":63,"observed_rgb565":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+  }

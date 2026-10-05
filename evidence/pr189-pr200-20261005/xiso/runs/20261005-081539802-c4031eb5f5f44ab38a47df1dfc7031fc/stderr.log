@@ -1,0 +1,27 @@
+xemu_version: 0.8.136-0-g9c1342550097
+xemu_commit: 9c1342550097d97b1c091fa2616ac0c25b621479
+xemu_date: Mon Oct  5 06:17:39 UTC 2026
+xemu_settings_set_path: config path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Results\20261005-081539802-c4031eb5f5f44ab38a47df1dfc7031fc\diagnostics\run-state\effective-live.toml
+CPU: AMD Ryzen 9 6900HX with Radeon Graphics        
+OS_Version:  22H2
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2
+GL_VERSION: 4.0.0 NVIDIA 581.95
+GL_SHADING_LANGUAGE_VERSION: 4.00 NVIDIA via Cg compiler
+GL geometry shader winding: 0, 0, 0, 0
+Available physical devices:
+- NVIDIA GeForce RTX 3070 Ti Laptop GPU [06af030bb691ba528d6e537f143ca591]: compatible
+- AMD Radeon(TM) Graphics [00000000350000000000000000000000]: compatible
+Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU [06af030bb691ba528d6e537f143ca591]
+- Vendor: 10de, Device: 24e0
+- Driver Version: 581.380.0
+Enabled device extensions:
+- VK_KHR_external_memory_win32
+- VK_KHR_external_semaphore_win32
+- VK_EXT_custom_border_color
+- VK_EXT_memory_budget
+- VK_EXT_shader_demote_to_helper_invocation
+Vulkan presentation transport: shared external memory
+xemu_settings_get_base_path: base path: C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Queue\Testing\agent-xc-p189200-win-vk-full-parent-v1-001\
+VK geometry shader winding: 0, 0, 0, 0
+win32_dxgi_present: DXGI Presentation Helper successfully initialized (mode=flip, tearing=supported)

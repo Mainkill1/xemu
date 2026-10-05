@@ -1,0 +1,569 @@
+[
+  {
+    "id": "p189200-deck-xr-parent-c15-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 15,
+    "state": "uncreated",
+    "runId": "20261005-091006928-025cc24e9e9d450a97309e2708c4617c",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-015",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c15-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091006928-025cc24e9e9d450a97309e2708c4617c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091006928-025cc24e9e9d450a97309e2708c4617c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091006928-025cc24e9e9d450a97309e2708c4617c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:high_vertex_count.arrays",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_arrays",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_buffers",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_elements",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 8,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091006928-025cc24e9e9d450a97309e2708c4617c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091006928-025cc24e9e9d450a97309e2708c4617c/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c16-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 16,
+    "state": "uncreated",
+    "runId": "20261005-091047165-95a972f74f6a48379988684c86c9bfac",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-016",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c16-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091047165-95a972f74f6a48379988684c86c9bfac",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091047165-95a972f74f6a48379988684c86c9bfac?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091047165-95a972f74f6a48379988684c86c9bfac",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:primitive_type.polygon.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.polygon.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.quad_strip.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.quad_strip.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 8,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091047165-95a972f74f6a48379988684c86c9bfac/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091047165-95a972f74f6a48379988684c86c9bfac/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c17-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 17,
+    "state": "uncreated",
+    "runId": "20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-017",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c17-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 7,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c18-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 18,
+    "state": "uncreated",
+    "runId": "20261005-091325208-3ce0a92518de4bacb079eac54e865779",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-018",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c18-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091325208-3ce0a92518de4bacb079eac54e865779",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091325208-3ce0a92518de4bacb079eac54e865779?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091325208-3ce0a92518de4bacb079eac54e865779",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size8",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-091325208-3ce0a92518de4bacb079eac54e865779/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091325208-3ce0a92518de4bacb079eac54e865779/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c19-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 19,
+    "state": "uncreated",
+    "runId": "20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-019",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c19-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:surface.basic",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_002",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_008",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_032",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 6,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091351895-51fcaee6f26b4d1b9001b09fba78eb6f/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c20-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 20,
+    "state": "uncreated",
+    "runId": "20261005-091431692-b732683794e44a679e9cdc39cd677050",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-020",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c20-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091431692-b732683794e44a679e9cdc39cd677050",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091431692-b732683794e44a679e9cdc39cd677050?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091431692-b732683794e44a679e9cdc39cd677050",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:surface.surface_list_lookup_002",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_008",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_032",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_128",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 10,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091431692-b732683794e44a679e9cdc39cd677050/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091431692-b732683794e44a679e9cdc39cd677050/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c21-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 21,
+    "state": "uncreated",
+    "runId": "20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-021",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c21-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:tiny_draw.arrays.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.arrays.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.inline_arrays.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.inline_arrays.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 4,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091550367-fa9ef05a22a24c32a5e3cf96b4bb34e9/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c22-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 22,
+    "state": "uncreated",
+    "runId": "20261005-091631396-10ed73eb624a49feab7348533783ec85",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-022",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c22-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091631396-10ed73eb624a49feab7348533783ec85",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091631396-10ed73eb624a49feab7348533783ec85?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091631396-10ed73eb624a49feab7348533783ec85",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:uniform_thrash.uniform_thrash",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-091631396-10ed73eb624a49feab7348533783ec85/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091631396-10ed73eb624a49feab7348533783ec85/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-parent-c23-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 23,
+    "state": "uncreated",
+    "runId": "20261005-091648603-db6795476a0a4a609fd9fd78501c89ec",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-parent-v2-023",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-parent-c23-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-091648603-db6795476a0a4a609fd9fd78501c89ec",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-091648603-db6795476a0a4a609fd9fd78501c89ec?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-091648603-db6795476a0a4a609fd9fd78501c89ec",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "xiso_oracle_coverage",
+            "category": "correctness",
+            "detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-091648603-db6795476a0a4a609fd9fd78501c89ec/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-091648603-db6795476a0a4a609fd9fd78501c89ec/diagnostics"
+      }
+    }
+  }
+]

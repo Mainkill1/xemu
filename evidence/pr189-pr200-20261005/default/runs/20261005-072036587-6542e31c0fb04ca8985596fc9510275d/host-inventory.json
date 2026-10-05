@@ -1,0 +1,20 @@
+{
+  "CapturedUtc": "2026-10-05T07:20:36.6222378+00:00",
+  "Machine": "MainDeck",
+  "OperatingSystem": "SteamOS",
+  "OsArchitecture": "X64",
+  "ProcessArchitecture": "X64",
+  "DotNet": "10.0.12",
+  "CpuModel": "AMD Custom APU 0405",
+  "LogicalProcessors": 8,
+  "PhysicalMemoryBytes": 15524212736,
+  "PrimaryDisplay": null,
+  "PowerScheme": null,
+  "GraphicsAdapters": [
+    {
+      "Name": "card0",
+      "DeviceId": "1002:163F",
+      "Driver": "amdgpu"
+    }
+  ]
+}

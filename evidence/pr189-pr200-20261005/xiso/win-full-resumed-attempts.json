@@ -1,0 +1,587 @@
+[
+  {
+    "id": "p189200-win-xiso-resume-c15-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 15,
+    "state": "failed",
+    "runId": "20261005-084438413-f06797da285c42069bdd073f9e7add16",
+    "terminal": true,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": "The package did not pass preflight.",
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-015",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c15-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084438413-f06797da285c42069bdd073f9e7add16",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084438413-f06797da285c42069bdd073f9e7add16?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084438413-f06797da285c42069bdd073f9e7add16",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:high_vertex_count.arrays",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_arrays",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_buffers",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:high_vertex_count.inline_elements",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 9,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084438413-f06797da285c42069bdd073f9e7add16/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084438413-f06797da285c42069bdd073f9e7add16/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c16-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 16,
+    "state": "uncreated",
+    "runId": "20261005-084502494-d78350c0786a47a4a6107f96750922a7",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-016",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c16-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084502494-d78350c0786a47a4a6107f96750922a7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084502494-d78350c0786a47a4a6107f96750922a7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084502494-d78350c0786a47a4a6107f96750922a7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:primitive_type.polygon.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.polygon.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.quad_strip.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:primitive_type.quad_strip.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 9,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084502494-d78350c0786a47a4a6107f96750922a7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084502494-d78350c0786a47a4a6107f96750922a7/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c17-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 17,
+    "state": "uncreated",
+    "runId": "20261005-084518303-09a5fccd914042b4bc032d9257162157",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-017",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c17-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084518303-09a5fccd914042b4bc032d9257162157",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084518303-09a5fccd914042b4bc032d9257162157?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084518303-09a5fccd914042b4bc032d9257162157",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "failed",
+          "correctness": "notEvaluated",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Failed.",
+          "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest_hdd_extraction",
+            "category": "evidence",
+            "detail": "xiso_receipt_missing: the guest did not close its selected plan."
+          },
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084518303-09a5fccd914042b4bc032d9257162157/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084518303-09a5fccd914042b4bc032d9257162157/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c18-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 18,
+    "state": "uncreated",
+    "runId": "20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-018",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c18-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "crashed",
+          "correctness": "notEvaluated",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Execution outcome is Crashed.",
+          "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+          "Evidence outcome is Incomplete; complete evidence is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 1,
+        "failures": [
+          {
+            "name": "guest_hdd_extraction",
+            "category": "evidence",
+            "detail": "xiso_receipt_missing: the guest did not close its selected plan."
+          },
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084548129-5a1019071ba145a7b28e71d8b142e6f0/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c19-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 19,
+    "state": "uncreated",
+    "runId": "20261005-084606611-eb126de925b94c20bc12c4be39a785e8",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-019",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c19-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084606611-eb126de925b94c20bc12c4be39a785e8",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084606611-eb126de925b94c20bc12c4be39a785e8?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084606611-eb126de925b94c20bc12c4be39a785e8",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:surface.basic",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_002",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_008",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.framebuffer_working_set_032",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 7,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084606611-eb126de925b94c20bc12c4be39a785e8/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084606611-eb126de925b94c20bc12c4be39a785e8/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c20-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 20,
+    "state": "uncreated",
+    "runId": "20261005-084627117-af5a443baebb4538a0a3c59ffb54add8",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-020",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c20-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084627117-af5a443baebb4538a0a3c59ffb54add8",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084627117-af5a443baebb4538a0a3c59ffb54add8?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084627117-af5a443baebb4538a0a3c59ffb54add8",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:surface.surface_list_lookup_002",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_008",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_032",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:surface.surface_list_lookup_128",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 11,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084627117-af5a443baebb4538a0a3c59ffb54add8/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084627117-af5a443baebb4538a0a3c59ffb54add8/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c21-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 21,
+    "state": "uncreated",
+    "runId": "20261005-084647879-8b66490d02664186ab840e47e1e0edb7",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-021",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c21-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084647879-8b66490d02664186ab840e47e1e0edb7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084647879-8b66490d02664186ab840e47e1e0edb7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084647879-8b66490d02664186ab840e47e1e0edb7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:tiny_draw.arrays.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.arrays.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.inline_arrays.fixed_function",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:tiny_draw.inline_arrays.vertex_shader",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 5,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084647879-8b66490d02664186ab840e47e1e0edb7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084647879-8b66490d02664186ab840e47e1e0edb7/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c22-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 22,
+    "state": "uncreated",
+    "runId": "20261005-084711656-f426ee345fc94d9287fc3240bbed948a",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-022",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c22-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084711656-f426ee345fc94d9287fc3240bbed948a",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084711656-f426ee345fc94d9287fc3240bbed948a?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084711656-f426ee345fc94d9287fc3240bbed948a",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:uniform_thrash.uniform_thrash",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084711656-f426ee345fc94d9287fc3240bbed948a/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084711656-f426ee345fc94d9287fc3240bbed948a/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-win-xiso-resume-c23-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 23,
+    "state": "uncreated",
+    "runId": "20261005-084726236-40a353d91d284d488a60d0b2d1872360",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-win-vk-full-candidate-v1-023",
+    "result": {
+      "ok": true,
+      "id": "p189200-win-xiso-resume-c23-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-084726236-40a353d91d284d488a60d0b2d1872360",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-084726236-40a353d91d284d488a60d0b2d1872360?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-084726236-40a353d91d284d488a60d0b2d1872360",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "xiso_oracle_coverage",
+            "category": "correctness",
+            "detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-084726236-40a353d91d284d488a60d0b2d1872360/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-084726236-40a353d91d284d488a60d0b2d1872360/diagnostics"
+      }
+    }
+  }
+]

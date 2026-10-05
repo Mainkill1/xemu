@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005-091108213-9ff2a14c3cea4a35b35b5d04156cdeb9",
+  "sourceSha256": "84d21fb39fdd3412628f465d33fb62da7c7650c6436a0ed809efe794dd8dbbab",
+  "records": [
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size1",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16645.625,
+      "MedianUs": 16659,
+      "MinUs": 16484,
+      "MaxUs": 16817,
+      "P95Us": 16817
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size2",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16627.5,
+      "MedianUs": 16670,
+      "MinUs": 16356,
+      "MaxUs": 16824,
+      "P95Us": 16824
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size4",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16662.875,
+      "MedianUs": 16667,
+      "MinUs": 16604,
+      "MaxUs": 16713,
+      "P95Us": 16713
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_palette_size8",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16666.75,
+      "MedianUs": 16655,
+      "MinUs": 16580,
+      "MaxUs": 16776,
+      "P95Us": 16776
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size1",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16655.5,
+      "MedianUs": 16652.5,
+      "MinUs": 16559,
+      "MaxUs": 16730,
+      "P95Us": 16730
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size2",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16654.125,
+      "MedianUs": 16665,
+      "MinUs": 16534,
+      "MaxUs": 16708,
+      "P95Us": 16708
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_r6g5b5_size4",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16659,
+      "MedianUs": 16652,
+      "MinUs": 16584,
+      "MaxUs": 16748,
+      "P95Us": 16748
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size1",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16661,
+      "MedianUs": 16668.5,
+      "MinUs": 16619,
+      "MaxUs": 16700,
+      "P95Us": 16700
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size2",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16662.625,
+      "MedianUs": 16654,
+      "MinUs": 16619,
+      "MaxUs": 16734,
+      "P95Us": 16734
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size4",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16654,
+      "MedianUs": 16647,
+      "MinUs": 16485,
+      "MaxUs": 16823,
+      "P95Us": 16823
+    },
+    {
+      "Id": "texture_cubemap_fallback.bordered_rgba8_size8",
+      "Kind": "leaf",
+      "Correct": false,
+      "Samples": 8,
+      "MeanUs": 16658.375,
+      "MedianUs": 16665.5,
+      "MinUs": 16546,
+      "MaxUs": 16716,
+      "P95Us": 16716
+    },
+    {
+      "Id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 8,
+      "MeanUs": 16658.125,
+      "MedianUs": 16660,
+      "MinUs": 16620,
+      "MaxUs": 16697,
+      "P95Us": 16697
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_palette_size8",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_r6g5b5_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size1",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size2",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size4",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.bordered_rgba8_size8",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+    },
+    {
+      "Name": "guest:texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 1 applicable reference hashes."
+    }
+  ],
+  "measurements": []
+}

@@ -1,0 +1,22 @@
+{
+  "id": "p189200-deck-vk-oracle-focused-v1",
+  "revision": "0c9fe6b956a679f7b5d83b91e39e3d25538f90cf696888b6c5ced6fb36fad16e",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 8,
+  "finished": 8,
+  "passed": 8,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p189200-deck-vk-oracle-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p189200-deck-vk-oracle-focused-v1/attempts",
+  "comparisonEligible": 8,
+  "qualification": "unverified"
+}

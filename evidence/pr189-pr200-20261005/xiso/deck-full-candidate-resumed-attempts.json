@@ -1,0 +1,158 @@
+[
+  {
+    "id": "p189200-deck-xr-candidate-c1-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 1,
+    "state": "uncreated",
+    "runId": "20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-candidate-v2-001",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-candidate-c1-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "xiso_oracle_coverage",
+            "category": "correctness",
+            "detail": "No pinned oracle for 4 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-092053686-59d4c6e6a4004108acfc18cad216b9b3/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-candidate-c2-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 2,
+    "state": "uncreated",
+    "runId": "20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-candidate-v2-002",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-candidate-c2-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-092222781-22901d04495c4cf28ee60aa4ec4c6d95/diagnostics"
+      }
+    }
+  },
+  {
+    "id": "p189200-deck-xr-candidate-c3-v1-t001",
+    "label": "B1",
+    "variant": "candidate",
+    "chunk": 3,
+    "state": "uncreated",
+    "runId": "20261005-092517983-2f5755fd7c264f429338366f32cfe4f7",
+    "terminal": false,
+    "execution": null,
+    "correctness": null,
+    "evidence": null,
+    "comparison": null,
+    "error": null,
+    "resumedFrom": "xc-p189200-deck-vk-full-candidate-v2-003",
+    "result": {
+      "ok": true,
+      "id": "p189200-deck-xr-candidate-c3-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-092517983-2f5755fd7c264f429338366f32cfe4f7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-092517983-2f5755fd7c264f429338366f32cfe4f7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-092517983-2f5755fd7c264f429338366f32cfe4f7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "failed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "guest:fill_rate.solid",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "name": "guest:fill_rate.textured",
+            "category": "correctness",
+            "detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-092517983-2f5755fd7c264f429338366f32cfe4f7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-092517983-2f5755fd7c264f429338366f32cfe4f7/diagnostics"
+      }
+    }
+  }
+]

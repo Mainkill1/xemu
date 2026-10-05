@@ -1,0 +1,268 @@
+[
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 184.5272960074035,
+        "B": 163.28214833421472,
+        "improvementPercent": 11.513281846571026,
+        "rangeA": [
+          182.74085245901637,
+          185.90520967741938
+        ],
+        "rangeB": [
+          163.01990163934423,
+          164.3690322580645
+        ],
+        "ABBA": 11.482033684521117,
+        "BAAB": 11.222246357855054
+      },
+      "guestFlipCadence": {
+        "A": 14.056752515590828,
+        "B": 14.471891310809664,
+        "improvementPercent": 2.9533051446868024,
+        "rangeA": [
+          13.76033987723167,
+          14.215703220149805
+        ],
+        "rangeB": [
+          14.463569645544796,
+          14.562583635655743
+        ],
+        "ABBA": 2.8976546600738087,
+        "BAAB": 3.8095290384735008
+      },
+      "avgFrameMs": {
+        "A": 71.64048049747008,
+        "B": 69.3359432132964,
+        "improvementPercent": 3.216808804423163,
+        "rangeA": [
+          70.48019154929578,
+          72.88799418604651
+        ],
+        "rangeB": [
+          69.05843801652887,
+          69.40103601108031
+        ],
+        "ABBA": 3.216808804423163,
+        "BAAB": 3.423850056102824
+      },
+      "p95FrameMs": {
+        "A": 99.29599999999999,
+        "B": 83.46135,
+        "improvementPercent": 15.946916290686431,
+        "rangeA": [
+          94.09224999999996,
+          99.98479999999999
+        ],
+        "rangeB": [
+          83.432,
+          83.835
+        ],
+        "ABBA": 16.34487515022633,
+        "BAAB": 13.386233708617244
+      },
+      "p99FrameMs": {
+        "A": 103.51605500000012,
+        "B": 100.08930000000001,
+        "improvementPercent": 3.3103608903953203,
+        "rangeA": [
+          100.0554,
+          107.14375000000014
+        ],
+        "rangeB": [
+          100.0672,
+          100.14332
+        ],
+        "ABBA": 6.5022668151021685,
+        "BAAB": -0.0395790143981057
+      },
+      "maxFrameMs": {
+        "A": 137.1585,
+        "B": 125.60650000000001,
+        "improvementPercent": 8.422372656452202,
+        "rangeA": [
+          123.462,
+          157.094
+        ],
+        "rangeB": [
+          116.786,
+          133.251
+        ],
+        "ABBA": 2.6146056475170374,
+        "BAAB": 15.735116042707194
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "attempted": 0,
+    "completed": 0,
+    "completeOrder": false,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "attempted": 0,
+    "completed": 0,
+    "completeOrder": false,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 255.17256557377053,
+        "B": 198.65658196721313,
+        "improvementPercent": 22.148142563632533,
+        "rangeA": [
+          248.1434166666667,
+          261.18478688524584
+        ],
+        "rangeB": [
+          197.00255737704913,
+          200.7563
+        ],
+        "ABBA": 23.016231924844902,
+        "BAAB": 21.012737326374804
+      },
+      "guestFlipCadence": {
+        "A": 33.62794090177327,
+        "B": 34.64477565266934,
+        "improvementPercent": 3.023779403758993,
+        "rangeA": [
+          33.54540910957058,
+          34.66162938901388
+        ],
+        "rangeB": [
+          33.90440273171478,
+          35.385179043420926
+        ],
+        "ABBA": 0.17471920496569301,
+        "BAAB": 4.458741541118101
+      },
+      "avgFrameMs": {
+        "A": 29.615504621012562,
+        "B": 28.77252924272488,
+        "improvementPercent": 2.846398834242999,
+        "rangeA": [
+          28.75482873563218,
+          29.72657788347206
+        ],
+        "rangeB": [
+          28.127342696629235,
+          29.274201405152233
+        ],
+        "ABBA": 0.34532113074940274,
+        "BAAB": 4.3251669510443245
+      },
+      "p95FrameMs": {
+        "A": 33.6512,
+        "B": 33.670925,
+        "improvementPercent": -0.05861603746669954,
+        "rangeA": [
+          33.649,
+          33.698
+        ],
+        "rangeB": [
+          33.647,
+          33.6849
+        ],
+        "ABBA": -0.03135126942927069,
+        "BAAB": -0.0048257173614587225
+      },
+      "p99FrameMs": {
+        "A": 50.01379,
+        "B": 50.00538,
+        "improvementPercent": 0.016815362323066914,
+        "rangeA": [
+          49.62063,
+          50.0182
+        ],
+        "rangeB": [
+          49.714200000000005,
+          50.02892
+        ],
+        "ABBA": -0.10529093206311498,
+        "BAAB": 0.017435083306501026
+      },
+      "maxFrameMs": {
+        "A": 50.262,
+        "B": 50.3105,
+        "improvementPercent": -0.09649436950379432,
+        "rangeA": [
+          50.092,
+          50.367
+        ],
+        "rangeB": [
+          50.146,
+          50.481
+        ],
+        "ABBA": -0.4664420834412954,
+        "BAAB": 0.2016910252461554
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "attempted": 0,
+    "completed": 0,
+    "completeOrder": false,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "attempted": 0,
+    "completed": 0,
+    "completeOrder": false,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {},
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false
+  }
+]

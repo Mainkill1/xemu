@@ -1,0 +1,22 @@
+{
+  "id": "p189200-deck-vk-full-parent-v1",
+  "revision": "3e2913dd46084067b54d5e60fe6f9f77a56578ec3b7fbeb8c2ade3c8ad8fc6e9",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 4,
+  "passed": 1,
+  "failed": 3,
+  "incomplete": 0,
+  "remaining": 19,
+  "active": null,
+  "error": "Attempt xc-p189200-deck-vk-full-parent-v1-004 failed before execution: The package did not pass preflight.",
+  "next": "/api/v1/xiso-campaigns/p189200-deck-vk-full-parent-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p189200-deck-vk-full-parent-v1/attempts",
+  "comparisonEligible": 1,
+  "qualification": "unverified"
+}

@@ -1,0 +1,36 @@
+[general]
+show_welcome = false
+skip_boot_anim = false
+screenshot_dir = "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261005-080452452-d69ff6beaf334619baab5f3dadac1bdb/screenshots"
+[input]
+auto_bind = false
+background_input_capture = true
+[input.virtual_ports]
+port1_connected = 1
+port2_connected = 0
+port3_connected = 0
+port4_connected = 0
+[input.bindings]
+port1_driver = 'usb-xbox-gamepad'
+port1 = '0600cc4158656d752052756e6e657200'
+[display]
+renderer = 'OPENGL'
+[display.window]
+startup_size = '1280x720'
+vsync = false
+[audio]
+use_dsp_jit = true
+[audio.vp]
+resampler = 'linear'
+num_workers = 0
+[sys]
+mem_limit = '64'
+[sys.files]
+bootrom_path = '/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/pr73-deck-bootrom-e99e3a-v1/disk.qcow2'
+flashrom_path = '/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/pr73-deck-flashrom-1de4c8-v1/disk.qcow2'
+eeprom_path = '/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-080452452-d69ff6beaf334619baab5f3dadac1bdb/eeprom.bin'
+hdd_path = '/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-080452452-d69ff6beaf334619baab5f3dadac1bdb/hdd.qcow2'
+dvd_path = '/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/morrowind-goty-disc-v1/disk.qcow2'
+[perf]
+cache_shaders = true
+

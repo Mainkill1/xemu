@@ -1,0 +1,74 @@
+{
+  "runId": "20261005-065238561-83a2e573ad3f4312acf78d23e91dccfe",
+  "attempt": 1,
+  "job": "p189200-deck-morrowind-07-parent-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": "vm-20260929162035",
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "b9ff20c19967511ff97d5b11d0ef0c4945fbd852d25cdab802922466b2c360d9",
+  "jobSha256": "6b899a1bd556b4138b1e527c633d64cd2fa54795bd82a42ed8d8697f99c4c59c",
+  "arguments": [
+    "-name",
+    "xemu-pr267-morrowind,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-loadvm",
+    "vm-20260929162035",
+    "-qmp",
+    "tcp:127.0.0.1:45617,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_GAMECONTROLLERCONFIG",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-065238561-83a2e573ad3f4312acf78d23e91dccfe",
+  "experiment": {
+    "Id": "morrowind-snapshot-disc-v2",
+    "Variant": "matched-parent-candidate",
+    "Reference": null,
+    "VariedFactors": [],
+    "ControlledFactors": [
+      "snapshot-vm-20260929162035",
+      "morrowind-goty-disc-d719c4d8",
+      "vulkan",
+      "64mb",
+      "start-2s-b",
+      "30-second-scene-window",
+      "cold-private-application-cache",
+      "qualified-mesa-private-cache"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

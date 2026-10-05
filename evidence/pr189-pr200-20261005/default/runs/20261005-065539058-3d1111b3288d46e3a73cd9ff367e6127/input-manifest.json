@@ -1,0 +1,53 @@
+{
+  "JobId": "p189200-win-conker-02-candidate-v1-t001",
+  "CreatedUtc": "2026-10-05T06:55:39.1603765+00:00",
+  "PackageDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p189200-win-conker-02-candidate-v1-t001",
+  "JobManifestSha256": "4d3210021e19b35567f4eb2e887abf1ef34fa86f37255f7d36c07e34f97df4ae",
+  "ExecutableSha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c",
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "native-ci-executable",
+      "Bytes": 44387758,
+      "LastWriteUtc": "2026-10-05T06:55:37.4080296Z",
+      "Sha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c",
+      "ExpectedSha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Bytes": 529,
+      "LastWriteUtc": "2026-10-05T06:55:37.8832733Z",
+      "Sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+      "ExpectedSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-05T06:55:37.3919878Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-pgr2-save-portable-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "pr267-pgr2-save-portable-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

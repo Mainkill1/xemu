@@ -1,0 +1,28 @@
+xemu_version: 0.8.136-0-g9c1342550097
+xemu_commit: 9c1342550097d97b1c091fa2616ac0c25b621479
+xemu_date: Mon Oct  5 06:16:17 UTC 2026
+xemu_settings_set_path: config path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261005-065419009-2a43ddf0eb08486581c8319707ff04c7/diagnostics/run-state/effective-live.toml
+CPU: AMD Custom APU 0405
+OS_Version: SteamOS
+GL_VENDOR: AMD
+GL_RENDERER: AMD Custom GPU 0405 (radeonsi, vangogh, LLVM 20.1.8, DRM 3.64, 6.16.12-valve24.5-1-neptune-616-gb2f7cfe85e45)
+GL_VERSION: 4.6 (Core Profile) Mesa 25.3.0 (git-59b552c765)
+GL_SHADING_LANGUAGE_VERSION: 4.60
+GL geometry shader winding: 0, 0, 0, 0
+Available physical devices:
+- AMD Custom GPU 0405 (RADV VANGOGH) [00000000040000000000000000000000]: compatible
+Selected physical device: AMD Custom GPU 0405 (RADV VANGOGH) [00000000040000000000000000000000]
+- Vendor: 1002, Device: 163f
+- Driver Version: 25.99.99
+Enabled device extensions:
+- VK_KHR_external_memory_fd
+- VK_KHR_external_semaphore_fd
+- VK_EXT_custom_border_color
+- VK_EXT_memory_budget
+- VK_EXT_shader_demote_to_helper_invocation
+Vulkan presentation transport: shared external memory
+xemu_settings_get_base_path: base path: /home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-p189200-deck-conker-01-parent-v1-t001/
+VK geometry shader winding: 0, 0, 0, 0
+Resetting rate control (67195 frames)
+Resetting rate control (-280 frames)
+xemu: GLib: g_source_destroy: assertion 'g_atomic_int_get (&source->ref_count) > 0' failed

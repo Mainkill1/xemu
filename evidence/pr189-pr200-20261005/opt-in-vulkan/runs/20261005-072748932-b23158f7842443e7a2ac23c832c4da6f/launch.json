@@ -1,0 +1,74 @@
+{
+  "runId": "20261005-072748932-b23158f7842443e7a2ac23c832c4da6f",
+  "attempt": 1,
+  "job": "p189200-opt-win-morrowind-04-parent-v1-t001",
+  "launchMode": "direct",
+  "snapshotName": "vm-20260929162035",
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c",
+  "jobSha256": "204ee6c2ead39939d18f620ddf442562fb4f9322ee0b3259744a9618f41229b6",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p189200-opt-win-morrowind-04-parent-v1-t001\\xemu.toml",
+    "-drive",
+    "index=0,media=disk,file=C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-072748932-b23158f7842443e7a2ac23c832c4da6f\\hdd.qcow2,locked=on",
+    "-name",
+    "xemu-pr267-morrowind,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-loadvm",
+    "vm-20260929162035",
+    "-qmp",
+    "tcp:127.0.0.1:57613,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-072748932-b23158f7842443e7a2ac23c832c4da6f",
+  "experiment": {
+    "Id": "pr267-morrowind-user-snapshot-start-b-v12",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "morrowind-goty-disc",
+      "snapshot-vm-20260929162035",
+      "vulkan-renderer",
+      "64mb-ram",
+      "controller-connected",
+      "start-then-2s-then-b",
+      "30-second-scene-window"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

@@ -1,0 +1,290 @@
+[
+  {
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "request": "p189200-opt-deck-morrowind-01-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-01-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073132748-9eab1033038841fea95fd0e1fc3564ac",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073132748-9eab1033038841fea95fd0e1fc3564ac?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073132748-9eab1033038841fea95fd0e1fc3564ac",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073132748-9eab1033038841fea95fd0e1fc3564ac/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073132748-9eab1033038841fea95fd0e1fc3564ac/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "request": "p189200-opt-deck-morrowind-02-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-02-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073232659-0ba569509f474f12a068a071494780c9",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073232659-0ba569509f474f12a068a071494780c9?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073232659-0ba569509f474f12a068a071494780c9",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073232659-0ba569509f474f12a068a071494780c9/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073232659-0ba569509f474f12a068a071494780c9/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "request": "p189200-opt-deck-morrowind-03-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-03-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073322801-6540f44b600f4753bbff7f2978695db3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073322801-6540f44b600f4753bbff7f2978695db3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073322801-6540f44b600f4753bbff7f2978695db3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073322801-6540f44b600f4753bbff7f2978695db3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073322801-6540f44b600f4753bbff7f2978695db3/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "request": "p189200-opt-deck-morrowind-04-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-04-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073413721-e5154ac067e144c481b7cddb3e859e0e",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073413721-e5154ac067e144c481b7cddb3e859e0e?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073413721-e5154ac067e144c481b7cddb3e859e0e",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073413721-e5154ac067e144c481b7cddb3e859e0e/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073413721-e5154ac067e144c481b7cddb3e859e0e/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "request": "p189200-opt-deck-morrowind-05-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-05-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073506067-ca44cad36be240d5b13811cbef3f466c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073506067-ca44cad36be240d5b13811cbef3f466c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073506067-ca44cad36be240d5b13811cbef3f466c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073506067-ca44cad36be240d5b13811cbef3f466c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073506067-ca44cad36be240d5b13811cbef3f466c/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "request": "p189200-opt-deck-morrowind-06-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-06-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073559773-92ca6d3319be4d78ab0459f2489fc2a5",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073559773-92ca6d3319be4d78ab0459f2489fc2a5?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073559773-92ca6d3319be4d78ab0459f2489fc2a5",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073559773-92ca6d3319be4d78ab0459f2489fc2a5/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073559773-92ca6d3319be4d78ab0459f2489fc2a5/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "request": "p189200-opt-deck-morrowind-07-parent-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-07-parent-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073650508-c98e51438f1a4d4aaa7fa09c0dd9052c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073650508-c98e51438f1a4d4aaa7fa09c0dd9052c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073650508-c98e51438f1a4d4aaa7fa09c0dd9052c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073650508-c98e51438f1a4d4aaa7fa09c0dd9052c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073650508-c98e51438f1a4d4aaa7fa09c0dd9052c/diagnostics"
+      }
+    }
+  },
+  {
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "request": "p189200-opt-deck-morrowind-08-candidate-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p189200-opt-deck-morrowind-08-candidate-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-073741694-258b9b48d7ac490197e2090487f6bd83",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-073741694-258b9b48d7ac490197e2090487f6bd83?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-073741694-258b9b48d7ac490197e2090487f6bd83",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-073741694-258b9b48d7ac490197e2090487f6bd83/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-073741694-258b9b48d7ac490197e2090487f6bd83/diagnostics"
+      }
+    }
+  }
+]

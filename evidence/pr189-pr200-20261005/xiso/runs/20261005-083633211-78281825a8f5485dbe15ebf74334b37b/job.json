@@ -1,0 +1,216 @@
+{
+  "Id": "xc-p189200-win-vk-full-candidate-v1-012",
+  "Executable": "xemu.exe",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log"
+  },
+  "TimeoutSeconds": 600,
+  "Tags": [
+    "pr256",
+    "opengl",
+    "cubemap",
+    "windows",
+    "test-definition:xiso-31047a06c9e182718ddac2b55108d401@7c4e681dde6b0e2b9296f9dcf0951e45ef1ba69b4eba661cb9a5cc64e3a5b1a6"
+  ],
+  "Plan": [],
+  "TargetOs": "windows",
+  "ExpectedExecutableSha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c",
+  "RequiredFiles": [
+    "xemu.exe",
+    "xemu.toml",
+    "state/eeprom.bin",
+    "reference-results.txt"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": false,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": false,
+    "Files": [
+      {
+        "Source": "state/eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pr256-clean-fatx-compat010-v1",
+        "ExpectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "devbox-mcpx10-readonly-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "devbox-complex4627-readonly-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "pr256-converted-cubemap-20261002-v3",
+          "ExpectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+        }
+      ]
+    },
+    "Xiso": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "SuiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+      "IsoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+      "CatalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+      "Tests": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+        "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+        "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+        "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+        "game_load.s3tc_sync_factor.bc2_native_eligible",
+        "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+        "game_load.s3tc_sync_factor.bc3_native_eligible",
+        "game_load.s3tc_sync_factor.bc3_bordered_fallback"
+      ],
+      "Groups": [
+        "game_load.s3tc_sync_factor"
+      ],
+      "Settings": {
+        "warmup_iterations": 3,
+        "measurement_iterations_multiplier": 4,
+        "gpu_completion_mode": "per_iteration"
+      }
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": "fb3c68b66ffc0ad1d4f27390cfde334f30385df4c27e5fba62bf8f30defa530c"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": null
+    },
+    {
+      "Path": "reference-results.txt",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [],
+    "EvidenceRequirements": [],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 0,
+    "RequirePlanCompletion": true,
+    "GuestHddResults": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "GuestPath": "xemu_perf_tests/results.txt",
+      "ExpectedResults": "reference-results.txt",
+      "ExpectedResultsSha256": "7099950061aacc347a2f1aabf72cf007a6fa8400331b8d10c41101fda27feb38",
+      "MaximumResultBytes": 16777216,
+      "Xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "6159384dc7df5eaf73716aa166fda30367abd9d989da55425d2d66a598463369",
+        "IsoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+        "CatalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+        "Tests": [
+          "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+          "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+          "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+          "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+          "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+          "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+          "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+          "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+          "game_load.s3tc_sync_factor.bc2_native_eligible",
+          "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+          "game_load.s3tc_sync_factor.bc3_native_eligible",
+          "game_load.s3tc_sync_factor.bc3_bordered_fallback"
+        ],
+        "Groups": [
+          "game_load.s3tc_sync_factor"
+        ],
+        "Settings": {
+          "warmup_iterations": 3,
+          "measurement_iterations_multiplier": 4,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    }
+  },
+  "Experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}

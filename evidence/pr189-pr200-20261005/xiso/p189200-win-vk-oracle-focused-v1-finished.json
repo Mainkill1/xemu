@@ -1,0 +1,22 @@
+{
+  "id": "p189200-win-vk-oracle-focused-v1",
+  "revision": "d9bfc0d8b4311e2aed60c6c30a8323a171b7fda2f500be9de0ce8d969e284e4b",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 8,
+  "finished": 8,
+  "passed": 8,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p189200-win-vk-oracle-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p189200-win-vk-oracle-focused-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

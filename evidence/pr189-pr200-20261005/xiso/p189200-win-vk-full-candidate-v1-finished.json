@@ -1,0 +1,22 @@
+{
+  "id": "p189200-win-vk-full-candidate-v1",
+  "revision": "869cca2546367c527d5339980d4c550ebef91ffaa0c9a344416256c917bd41e0",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 15,
+  "passed": 5,
+  "failed": 10,
+  "incomplete": 0,
+  "remaining": 8,
+  "active": null,
+  "error": "Attempt xc-p189200-win-vk-full-candidate-v1-015 failed before execution: The package did not pass preflight.",
+  "next": "/api/v1/xiso-campaigns/p189200-win-vk-full-candidate-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p189200-win-vk-full-candidate-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}
