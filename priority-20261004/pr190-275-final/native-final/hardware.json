@@ -1,0 +1,33 @@
+{
+  "deck": {
+    "OperatingSystem": "SteamOS",
+    "CpuModel": "AMD Custom APU 0405",
+    "LogicalProcessors": 8,
+    "PhysicalMemoryBytes": 15524212736,
+    "GraphicsAdapters": [
+      {
+        "Name": "card0",
+        "DeviceId": "1002:163F",
+        "Driver": "amdgpu"
+      }
+    ]
+  },
+  "win": {
+    "OperatingSystem": "Microsoft Windows 10.0.19045",
+    "CpuModel": "AMD Ryzen 9 6900HX with Radeon Graphics",
+    "LogicalProcessors": 16,
+    "PhysicalMemoryBytes": 16361480192,
+    "GraphicsAdapters": [
+      {
+        "Name": "AMD Radeon(TM) Graphics",
+        "DeviceId": "PCI\\VEN_1002&DEV_1681&SUBSYS_0B5B1028&REV_C7",
+        "Driver": null
+      },
+      {
+        "Name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "DeviceId": "PCI\\VEN_10DE&DEV_24E0&SUBSYS_0B5C1028&REV_A1",
+        "Driver": null
+      }
+    ]
+  }
+}

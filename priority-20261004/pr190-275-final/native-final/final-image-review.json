@@ -1,0 +1,213 @@
+{
+  "observations": [
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 1,
+      "runId": "20261005-031008304-bb82d5accbf94c1d8d9327eee0a6217a",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 2,
+      "runId": "20261005-031100858-fc19687bdc524f208be8d0d1a1aa5df7",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 3,
+      "runId": "20261005-031157277-c8c39f5e01de4472886f1d668f40ee73",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 4,
+      "runId": "20261005-031247759-ff16d4c179724036bec244194fb696b1",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 5,
+      "runId": "20261005-031337394-1b05c63f5caa4faf9d10db45d5abf3c3",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 6,
+      "runId": "20261005-031426684-7327af76045645b088dfe304005cddbe",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 7,
+      "runId": "20261005-031518738-15160b4ed2c5403fb7e2d5eccc988772",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 8,
+      "runId": "20261005-031615627-8fba89d01d8146638d6edde2ec0b585c",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 1,
+      "runId": "20261005-031012175-f84bd149f6a04244a630d373b2b8c887",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 2,
+      "runId": "20261005-031101142-bcd60857f93f4de69cddd8e512fcba75",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 3,
+      "runId": "20261005-031148560-3f5ea37936d44a7e9bd9802947b6d60a",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 4,
+      "runId": "20261005-031235709-4c3f077e4af64a8b88bcb67eda0e6042",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 5,
+      "runId": "20261005-031322996-22ebc09d154f43679fe2a9533148f907",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 6,
+      "runId": "20261005-031410765-84d3011eff044775ab918dfe4e2faa06",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 7,
+      "runId": "20261005-031458181-2f6534bbe97e4ce8a97ce026ce51f7ac",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 8,
+      "runId": "20261005-031546033-13d48993d112468ebaa1451d26e5e5ca",
+      "observed": "All three retained images show the same waterfront/buildings and viewpoint; no black output or obvious new rendering difference",
+      "files": [
+        "scene-entry.png",
+        "measurement-ready.png",
+        "scene-end.png"
+      ],
+      "method": "Human visual inspection of contact sheets by Codex"
+    }
+  ],
+  "findings": []
+}

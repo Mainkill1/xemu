@@ -1,0 +1,202 @@
+[
+  {
+    "runId": "20261005-031008304-bb82d5accbf94c1d8d9327eee0a6217a",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 65.2741935483871,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "dc2c4592b65f3f0d9e0d38e937f2178b6e3c1d29f1acadd7ee4e9f1bf2561787"
+  },
+  {
+    "runId": "20261005-031100858-fc19687bdc524f208be8d0d1a1aa5df7",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 69.0,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "abf262af49989d5a17ad7bf637456d3d591cb9890d760ab8cfabc3a560de3ad5"
+  },
+  {
+    "runId": "20261005-031157277-c8c39f5e01de4472886f1d668f40ee73",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 68.35483870967742,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "2486d6bb6afe83e78caebbb35fe0f4cdebb4cf6b9d4007ed54b8f201a906f2b0"
+  },
+  {
+    "runId": "20261005-031247759-ff16d4c179724036bec244194fb696b1",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 74.25806451612904,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "762729c9798bca5187099c670cb7aa658aa6e3d333038863142ad6961634094f"
+  },
+  {
+    "runId": "20261005-031337394-1b05c63f5caa4faf9d10db45d5abf3c3",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 78.0,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "6418f5feaa280dbe658d68597e078b4070fa23f2fd1f413b11424ac69b64ad27"
+  },
+  {
+    "runId": "20261005-031426684-7327af76045645b088dfe304005cddbe",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 66.03225806451613,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "e0e13e1632d84362ac979a78b06be48829f49a9f4a6cd802ad8ac0e101ed5b56"
+  },
+  {
+    "runId": "20261005-031518738-15160b4ed2c5403fb7e2d5eccc988772",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 78.20967741935483,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "589add642c917987a3a6e3e51c5821044d4a9e4f0a9bcba340f20c9e5edd7741"
+  },
+  {
+    "runId": "20261005-031615627-8fba89d01d8146638d6edde2ec0b585c",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 75.12903225806451,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "94909974bad3ca5d594a71aa5e036c537a760f064e14d411f328c5dfcb897f6c"
+  },
+  {
+    "runId": "20261005-031706209-999d8ae1979f4816a8df439167b5db5b",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 62.333333333333336,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "6f0262b1901be6bce08ea87f5e731c9eec2332d4ed248d0948c4792c420fd6db"
+  },
+  {
+    "runId": "20261005-031909062-f31ebd4f2a764b6ab691c0f86f09fc0e",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 45.22222222222222,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "3e79e1d8f4ff9a98bacd9ee7d48b68181081c31a6c49d12fb5415fbc65d0a47b"
+  },
+  {
+    "runId": "20261005-031012175-f84bd149f6a04244a630d373b2b8c887",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 65.95081967213115,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "722f327767eb6dd328d8380b37ba2d84f4c463dc736446ad9a23a0bb307375be"
+  },
+  {
+    "runId": "20261005-031101142-bcd60857f93f4de69cddd8e512fcba75",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 67.58064516129032,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "ad71c67c2fc2cb3ebb34bf5b8411a1f3ce93b9e4987ec69af92f08bff47cb356"
+  },
+  {
+    "runId": "20261005-031148560-3f5ea37936d44a7e9bd9802947b6d60a",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 66.54098360655738,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "3fd6006bd950a2167852d090c487ca56cbe51977855cbf7f79275ad10d8cd9b3"
+  },
+  {
+    "runId": "20261005-031235709-4c3f077e4af64a8b88bcb67eda0e6042",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 66.93442622950819,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "37239315b3fe151f539f94797d10bcfc561709295712b73fcb0b5b7784975876"
+  },
+  {
+    "runId": "20261005-031322996-22ebc09d154f43679fe2a9533148f907",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.59016393442623,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "fbae8539372fb2f6364a8a72977487a39cf583a87ccb8ad334966a259aa0d26f"
+  },
+  {
+    "runId": "20261005-031410765-84d3011eff044775ab918dfe4e2faa06",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.44262295081967,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "97bdfd878d32ccbab7f271bfc6b34d8db8ac3ab31e31b097ea331689ac1f450a"
+  },
+  {
+    "runId": "20261005-031458181-2f6534bbe97e4ce8a97ce026ce51f7ac",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.24590163934427,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "f7e2bc459a0753ab58e99aaba54bf38563b6c8e95a56570ef8b7b13954e55563"
+  },
+  {
+    "runId": "20261005-031546033-13d48993d112468ebaa1451d26e5e5ca",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.40983606557377,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "d5f4298225bb76670b738cbe58645cf73c26b710d3fd7879db8b2cdf487e0eed"
+  },
+  {
+    "runId": "20261005-031633422-d2ca0c8c28a74cefb9353324635254bb",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.333333333333336,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "abde7e3b70d0db78ac76c22288d1172d25771b2a746e8c16d2d4ec4a570ea67f"
+  },
+  {
+    "runId": "20261005-031825563-dfe0cde26077408280184ea102100603",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 54.80952380952381,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "9a464815f42de358d0c7aa957ae93553d73fcf3d659222823f182f9dbf1168a1"
+  }
+]
