@@ -1,0 +1,38 @@
+[
+  {
+    "schema_version": 1,
+    "id": "uniform_thrash.uniform_thrash",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "UniformThrash::UniformThrash",
+    "outcome": "PASS",
+    "iterations": 40,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 15812,
+    "total_us": 185206,
+    "average_us": 4630,
+    "min_us": 3438,
+    "max_us": 5568,
+    "median_us": 4707,
+    "p95_us": 5568,
+    "mad_us": 532,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      5084,
+      4699,
+      5068,
+      4643,
+      5505,
+      3558,
+      4716,
+      4019,
+      3438,
+      5568
+    ],
+    "framebuffer_fnv1a64": "ad445c59f8b11925"
+  }
+]

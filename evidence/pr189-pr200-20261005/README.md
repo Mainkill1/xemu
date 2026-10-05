@@ -12,6 +12,9 @@ The Deck presentation report and synchronized screenshots are separate diagnosti
 
 No game/firmware/HDD/save payload, process dump, credential, copied executable or texture capture is published here.
 
-## Acquisition status
+## Current full-diagnostic acquisition
 
-Reference XISO coverage is complete on Deck; candidate Deck acquisition is still in progress. `xiso/current-full-summary.json` lists exact received/missing leaves. This checkpoint must not be cited as completed candidate coverage. Original per-run PNGs remain in private agent/tester storage; existing review sheets and selected presentation diagnostics are published.
+- deck: parent 171/171 leaf records; candidate 171/171 leaf records.
+- win: parent 159/171 leaf records; candidate 159/171 leaf records.
+
+See `xiso/current-full-summary.json` for every missing leaf, intrinsic guest failure, process failure, missing oracle and >1% descriptive timing shift. `current-full-before-after.csv` retains all selected IDs, including unavailable timings. `current-full-leaf-times.csv` includes mean/min/median/p95/p99/max of retained timing sample means; eight samples cannot resolve a distinct 99th percentile. `current-full-groups.csv` sums matched leaf means by ID family; those sums are not independent group wall-clock measurements. The two changing same-address queued-source tests explicitly declare framebuffer comparison ineligible. No paired speedup is inferred from the full diagnostic.
