@@ -1,0 +1,26 @@
+{
+  "currentProductHead": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+  "problem": "SampleReadCache expanded callback-local state to 256 bytes, cleared even on PCM/streaming paths. Merely removing the explicit initializer preserved the bulk clear because -ftrivial-auto-var-init=zero is enabled.",
+  "fix": "QEMU_UNINITIALIZED applies only to sample_cache; initialize both mrs.mr ownership sentinels. All other fields are guarded until QEMU cache_init writes them. No change to global compiler hardening or descriptor/payload observation.",
+  "beforeCacheInitializationBytes": 256,
+  "afterCacheInitializationBytes": 16,
+  "vpFixturePassed": 24,
+  "stateCasesPassed": 600,
+  "memoryNormalPassed": 18,
+  "sanitizerLeakScan": "ASan/UBSan repeated with detect_leaks=0:18/18 PASS. LeakSanitizer unsupported under sandbox ptrace; initial attempt failed at leak scanning after all18 cases passed. No LSAN success claimed.",
+  "gamePerformance": "No new game benchmark; prior FPS association is not established as caused or fixed by this initialization overhead.",
+  "operations": "Cancelled both future full XISO scopes on both hosts. Verified both rig queues idle.",
+  "fieldsInitializedByQemu": [
+    "fv",
+    "mrs",
+    "xlat",
+    "ptr",
+    "len",
+    "is_write"
+  ],
+  "mappingAddressFields": "SGE descriptor is stored before a direct descriptor hit; payload_physical is stored after payload cache_init. Missing-owner guards short-circuit before other field reads.",
+  "beforeBulkClearInstructions": 1,
+  "afterBulkClearInstructions": 0,
+  "fixCommit": "7dcdcb0dcdfae81ddd0795b0782e63aa0ea3caa3",
+  "memoryASanUBSanPassed": 18
+}

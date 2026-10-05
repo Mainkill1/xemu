@@ -1,0 +1,27 @@
+compile 0
+TAP version 14
+# random seed: R02Sec7a6d32b5b3b2f5009b6133364d216a
+1..18
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/real-mapping-replaced-between-words
+ok 2 /mcpx-apu/sample-memory/real-ram-mono
+ok 3 /mcpx-apu/sample-memory/real-ram-stereo
+ok 4 /mcpx-apu/sample-memory/decoded-mono-ram
+ok 5 /mcpx-apu/sample-memory/decoded-mono-sge-crossing
+ok 6 /mcpx-apu/sample-memory/decoded-stereo-ram
+ok 7 /mcpx-apu/sample-memory/decoded-stereo-sge-crossing
+ok 8 /mcpx-apu/sample-memory/mmio-payload
+ok 9 /mcpx-apu/sample-memory/threaded-mapping-replaced
+ok 10 /mcpx-apu/sample-memory/threaded-table-base-change
+ok 11 /mcpx-apu/sample-memory/threaded-descriptor-change
+ok 12 /mcpx-apu/sample-memory/owned-ram-retirement
+ok 13 /mcpx-apu/sample-memory/owned-ram-resize
+ok 14 /mcpx-apu/sample-memory/shared-descriptor
+ok 15 /mcpx-apu/sample-memory/callback-page-reuse
+ok 16 /mcpx-apu/sample-memory/32-bit-payload-address
+ok 17 /mcpx-apu/sample-memory/partial-word-mapping
+ok 18 /mcpx-apu/sample-memory/unmapped-payload
+# End of sample-memory tests
+# End of mcpx-apu tests
+
