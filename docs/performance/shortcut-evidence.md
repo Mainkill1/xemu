@@ -43,6 +43,15 @@ and OS error and forces a failing process status. A successfully written file
 may still describe an incomplete run. The configured window does not itself
 terminate guest execution; the native procedure controls the run lifetime.
 
+Evidence mode requires an explicit existing EEPROM and regular input files.
+It resolves the first `-dvd_path` and one ordinary `-drive` HDD using QEMU's
+legacy option parser, including escaped commas, without changing argv or saved
+settings. The supported management arguments are `-qmp`, `-name`, `-msg`,
+`-loadvm`, `-S`, `-no-shutdown` and `-no-reboot`. Other launch options, duplicate
+resource routes and an invalid boot ROM fail before guest startup; they cannot
+produce complete evidence for guessed inputs. Normal launches without evidence
+retain their existing argument handling and default EEPROM behavior.
+
 ## Schema: `xemu-shortcut-evidence/v1`
 
 | Fields | Meaning |
@@ -53,7 +62,8 @@ terminate guest execution; the native procedure controls the run lifetime.
 | `executable_path`, `executable_sha256` | Service-resolved running file, hashed once at initialization. On Linux `/proc/self/exe` retains the running inode if the launch pathname is replaced. |
 | `requested_backend`, `requested_gpu` | Requested renderer and automatic/UUID/legacy selector. |
 | `actual_backend`, `gpu`, `gpu_changed` | Owned successful-renderer publication. Vulkan name/UUID/driver UUID/vendor/device/API/driver/type are copied while their owner is valid. Missing identity is explicit. |
-| `base_config_sha256` | Fingerprint of a private ConfigTree copy updated from saved configuration. Obtaining it does not change the tree or persist process overrides. |
+| `base_config_sha256` | Literal fingerprint of a private ConfigTree copy updated from effective startup configuration, including actual input paths. Obtaining it does not change the tree or persist process overrides. |
+| `comparison_config_sha256`, `input_paths` | The comparison fingerprint replaces only the five bound system-input paths with a marker, retaining bound/unbound roles and every other setting. The owned path map retains the actual bootrom, flashrom, EEPROM, HDD and DVD paths; it does not attest their contents. |
 | `settings`, `initial_profile` | Every registered tweak, actual ubershader mode and cache policy. Includes requested/selected/effective/available/reason/restart/origin and cache initialization eligibility. Startup profile is preserved separately. |
 | `configured_window` | Requested owner-boundary start and count. A consumer must name its boundary; it is not automatically a guest flip or host presentation. |
 | `actual_window`, `wall_interval_ns`, `wall_interval_source` | Observed published owner bounds and monotonic interval. The wall interval names its reference source; it is not isolated shader GPU time. Absent owner progress is not fabricated. |
@@ -121,6 +131,18 @@ and `guest_settings_sha256`; `cache_policy` and `start_policy`; exact ordered
 `comparison_eligible`. Declaring a sidecar is not proof of guest input receipt.
 Preserve its source run/report links in the owning PR evidence manifest.
 
+The sidecar also requires `resource_bindings`, containing all five roles named
+in `input_paths`. Each entry has `path`, `sha256` and `verified`: bound inputs
+must match the reported path and have a verified content hash; unbound inputs
+have an empty path, null hash and `verified: false`. Pin the actual starting
+input contents using the canonical runner records, including private mutable
+state prepared for the run. A template path or an assumed parent image is not
+proof of that binding. Comparison requires identical verified starting contents
+for each bound role across all eight runs. Literal configuration hashes may
+differ for private per-run paths; the comparison hash must remain identical.
+This permits isolated copies without ignoring changed input contents or other
+configuration. Missing binding evidence rejects admission.
+
 The validator rejects missing/unknown or malformed required execution fields,
 GPU/driver identity, restart-pending policies, unbound/reused sidecars, wrong
 guest records, incomplete/overflowed windows, missing units, and unexercised
@@ -139,6 +161,9 @@ overflow, unregister/export concurrency, retired data, capacity, conflicting
 units, profile/backend/window mismatch, GPU changes, durable reopen and explicit
 output failure. Config tests check determinism, unrelated setting changes and
 exclusion of process overrides without saving or mutating global ConfigTree.
+Private input paths change the literal hash while preserving the comparison
+hash. Changed bound/unbound roles, unrelated settings, unverified or changed
+input contents, and paths not bound to the artifact are rejected.
 
 These tests use identified fixtures, not native game telemetry. Production
 startup/PGRAPH/help sources must compile; full current-head CI and native

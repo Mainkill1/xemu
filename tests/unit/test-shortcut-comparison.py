@@ -63,6 +63,14 @@ def fixtures(kind="setting_ab"):
                     "type": 1,
                 },
                 "base_config_sha256": "e" * 64,
+                "comparison_config_sha256": "9" * 64,
+                "input_paths": {
+                    "bootrom": "",
+                    "flashrom": "",
+                    "eeprom": "/run/fixed/eeprom.bin",
+                    "hdd": "",
+                    "dvd": "",
+                },
                 "workload": "fixed-work",
                 "input_sha256": "f" * 64,
                 "configured_window": {"start_frame": 100, "frame_count": 20},
@@ -123,6 +131,24 @@ def fixtures(kind="setting_ab"):
                     "actual_tests": ["texture-dma"],
                     "catalog_sha256": "3" * 64,
                     "guest_settings_sha256": "4" * 64,
+                    "resource_bindings": {
+                        role: {
+                            "path": (
+                                "/run/fixed/eeprom.bin"
+                                if role == "eeprom"
+                                else ""
+                            ),
+                            "sha256": "6" * 64 if role == "eeprom" else None,
+                            "verified": role == "eeprom",
+                        }
+                        for role in [
+                            "bootrom",
+                            "flashrom",
+                            "eeprom",
+                            "hdd",
+                            "dvd",
+                        ]
+                    },
                 },
             }
         )
@@ -136,6 +162,48 @@ class AdmissionTests(unittest.TestCase):
         result = comparison.validate(contract, runs)
         self.assertFalse(result["eligible"])
         self.assertIn(message, " ".join(result["errors"]))
+
+    def test_private_paths_with_verified_equal_inputs(self):
+        contract, runs = fixtures()
+        for i, run in enumerate(runs):
+            run["base_config_sha256"] = f"{i + 1:064x}"
+            path = f"/run/{i}/eeprom.bin"
+            run["input_paths"]["eeprom"] = path
+            run["runner"]["resource_bindings"]["eeprom"]["path"] = path
+        self.assertTrue(comparison.validate(contract, runs)["eligible"])
+
+    def test_private_paths_reject_changed_input(self):
+        self.reject(
+            lambda c, r: r[1]["runner"]["resource_bindings"]["eeprom"].update(
+                sha256="7" * 64
+            ),
+            "resource",
+        )
+
+    def test_private_paths_reject_unverified_input(self):
+        self.reject(
+            lambda c, r: r[1]["runner"]["resource_bindings"]["eeprom"].update(
+                verified=False
+            ),
+            "resource",
+        )
+
+    def test_private_paths_reject_wrong_binding(self):
+        self.reject(
+            lambda c, r: r[1]["runner"]["resource_bindings"]["eeprom"].update(
+                path="/other/eeprom.bin"
+            ),
+            "resource",
+        )
+
+    def test_comparison_settings_difference(self):
+        self.reject(
+            lambda c, r: r[1].update(comparison_config_sha256="0" * 64),
+            "comparison_config",
+        )
+
+    def test_missing_input_path_evidence(self):
+        self.reject(lambda c, r: r[1].pop("input_paths"), "input")
 
     def test_setting_ab(self):
         self.assertTrue(comparison.validate(*fixtures())["eligible"])

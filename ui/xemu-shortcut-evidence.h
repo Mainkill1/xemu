@@ -34,6 +34,8 @@ typedef struct XemuShortcutSessionIdentity {
     const char *requested_backend;
     const char *requested_gpu;
     const char *base_config_sha256;
+    const char *comparison_config_sha256;
+    const QDict *input_paths;
     XemuTweakResolution initial_profile;
 } XemuShortcutSessionIdentity;
 

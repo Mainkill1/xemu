@@ -86,6 +86,11 @@ static void init_service(bool writable)
     char *exe = xemu_shortcut_evidence_executable_path(&error);
     g_assert_null(error);
     char *commit = g_strdup("0123456789abcdef0123456789abcdef01234567");
+    g_autoptr(QDict) input_paths = qdict_new();
+    const char *roles[] = { "bootrom", "flashrom", "eeprom", "hdd", "dvd" };
+    for (size_t i = 0; i < ARRAY_SIZE(roles); i++) {
+        qdict_put_str(input_paths, roles[i], "");
+    }
     XemuShortcutSessionIdentity identity = {
         .commit = commit,
         .version = "fixture",
@@ -95,10 +100,14 @@ static void init_service(bool writable)
         .requested_gpu = "auto",
         .base_config_sha256 =
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        .comparison_config_sha256 =
+            "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        .input_paths = input_paths,
         .initial_profile = fixture(0).published.start_profile,
     };
     g_assert_true(xemu_shortcut_evidence_init(&options, &identity, &error));
     g_assert_null(error);
+    qdict_put_str(input_paths, "eeprom", "changed-after-initialization");
     memset(commit, 'x', strlen(commit));
     g_free(commit);
     g_free(exe);
@@ -179,6 +188,8 @@ static void test_owned_full_width(void)
     g_assert_cmpstr(qdict_get_str(document, "commit"), ==,
                     "0123456789abcdef0123456789abcdef01234567");
     g_assert_cmpstr(qdict_get_str(document, "session_id"), ==, "s-A1");
+    g_assert_cmpstr(qdict_get_str(qdict_get_qdict(document, "input_paths"),
+                                  "eeprom"), ==, "");
     QDict *gpu = qdict_get_qdict(document, "gpu");
     g_assert_cmpstr(qdict_get_str(gpu, "name"), ==, "fixture \"GPU\"");
     g_assert_cmpstr(qdict_get_str(gpu, "driver_uuid"), ==,

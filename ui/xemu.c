@@ -1528,7 +1528,18 @@ int main(int argc, char **argv)
     xemu_gpu_launch_request_set_current(&gpu_request);
     xemu_tweaks_apply(true);
     if (evidence_options.output_path) {
+        g_autoptr(QDict) input_paths =
+            xemu_shortcut_input_paths(argc, argv, &evidence_error);
+        if (!input_paths) {
+            fprintf(stderr, "%s\n", error_get_pretty(evidence_error));
+            error_free(evidence_error);
+            xemu_shortcut_evidence_options_clear(&evidence_options);
+            SDL_Quit();
+            return 2;
+        }
         g_autofree char *base_hash = xemu_shortcut_base_config_sha256();
+        g_autofree char *comparison_hash =
+            xemu_shortcut_comparison_config_sha256(input_paths);
         char uuid[PGRAPH_VK_DEVICE_UUID_STRING_SIZE];
         g_autofree char *requested_gpu = NULL;
         if (gpu_request.selection.kind == PGRAPH_VK_SELECTION_UUID) {
@@ -1549,6 +1560,8 @@ int main(int argc, char **argv)
                 g_config.display.renderer == CONFIG_DISPLAY_RENDERER_OPENGL ?
                 "opengl" : "none",
             .requested_gpu = requested_gpu, .base_config_sha256 = base_hash,
+            .comparison_config_sha256 = comparison_hash,
+            .input_paths = input_paths,
             .initial_profile = xemu_tweaks_snapshot(),
         };
         if (!xemu_shortcut_evidence_init(&evidence_options, &identity, &evidence_error)) {

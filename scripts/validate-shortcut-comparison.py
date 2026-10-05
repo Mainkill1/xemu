@@ -144,7 +144,7 @@ def validate_records(contract, runs):
         "requested_backend",
         "requested_gpu",
         "gpu",
-        "base_config_sha256",
+        "comparison_config_sha256",
         "workload",
         "input_sha256",
         "configured_window",
@@ -194,7 +194,11 @@ def validate_records(contract, runs):
                 errors.append(label + "unknown immutable context " + field)
         if run.get("requested_backend") not in ["opengl", "vulkan"]:
             errors.append(label + "unknown requested backend context")
-        for field in ["base_config_sha256", "input_sha256"]:
+        for field in [
+            "base_config_sha256",
+            "comparison_config_sha256",
+            "input_sha256",
+        ]:
             if not digest(run.get(field)):
                 errors.append(label + "invalid " + field)
         if run.get("actual_backend") not in ["vulkan", "opengl"]:
@@ -349,6 +353,42 @@ def validate_records(contract, runs):
             if not known(run.get("counter_units", {}).get(key)):
                 errors.append(label + "missing counter units: " + key)
         runner = run.get("runner", {})
+        roles = {"bootrom", "flashrom", "eeprom", "hdd", "dvd"}
+        paths = run.get("input_paths", {})
+        bindings = runner.get("resource_bindings", {})
+        previous_bindings = (
+            runs[0].get("runner", {}).get("resource_bindings", {})
+        )
+        if not isinstance(paths, dict) or set(paths) != roles:
+            errors.append(label + "missing input path evidence")
+            paths = {}
+        if not isinstance(bindings, dict) or set(bindings) != roles:
+            errors.append(label + "missing resource bindings")
+            bindings = {}
+        for role in roles:
+            path = paths.get(role)
+            binding = bindings.get(role, {})
+            previous = previous_bindings.get(role, {})
+            if not isinstance(binding, dict) or not isinstance(previous, dict):
+                errors.append(label + "invalid resource binding: " + role)
+                continue
+            if not isinstance(path, str) or binding.get("path") != path:
+                errors.append(label + "wrong resource path: " + role)
+            if path:
+                if binding.get("verified") is not True or not digest(
+                    binding.get("sha256")
+                ):
+                    errors.append(label + "unverified resource: " + role)
+            elif (
+                binding.get("sha256") is not None
+                or binding.get("verified") is not False
+            ):
+                errors.append(label + "invalid unbound resource: " + role)
+            if (bool(path), binding.get("sha256")) != (
+                bool(previous.get("path")),
+                previous.get("sha256"),
+            ):
+                errors.append(label + "changed resource: " + role)
         runner_id = runner.get("run_id")
         if (
             not known(runner_id)
