@@ -1,0 +1,302 @@
+[
+  {
+    "campaign": "190",
+    "runId": "20261004-203627762-bf291cf6eb8a425a984de12360f6874d",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 222.41409677419367,
+    "guestFlipCadence": 13.316088402609191,
+    "p99FrameMs": 100.01454,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "190",
+    "runId": "20261004-203857197-3366a8904ceb4109b10beb23699502eb",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 224.5159344262295,
+    "guestFlipCadence": 13.287782496664528,
+    "p99FrameMs": 100.18813,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "190",
+    "runId": "20261004-204037021-2ccc80dd5ce2453a8142395e540c71c8",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 218.96332258064513,
+    "guestFlipCadence": 13.096524949869194,
+    "p99FrameMs": 100.04654,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "190",
+    "runId": "20261004-204126770-9fc3d94aacbf4327abcfa5fc30228c53",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 220.99601612903228,
+    "guestFlipCadence": 12.971510437583392,
+    "p99FrameMs": 111.61384000000024,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "303",
+    "runId": "20261004-213637984-5a1ab6876e204aec800850d760b9b7b6",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 225.8520322580645,
+    "guestFlipCadence": 12.83455676195974,
+    "p99FrameMs": 106.69808999999981,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "303",
+    "runId": "20261004-213912517-4fc44ec023e2468eb77b70fe2a184fe4",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 221.42485483870968,
+    "guestFlipCadence": 13.126909890804397,
+    "p99FrameMs": 100.09516,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "303",
+    "runId": "20261004-214051098-f4f27eeec64e4562b6c9c5f3cb2c8fa5",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 218.1990806451613,
+    "guestFlipCadence": 13.069507254549787,
+    "p99FrameMs": 100.22874999999999,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "303",
+    "runId": "20261004-214144132-2d28246702814c8e832b3dcb25183a76",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 220.9112903225807,
+    "guestFlipCadence": 12.364246241557376,
+    "p99FrameMs": 104.23963999999997,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "305",
+    "runId": "20261004-220400091-b1f27d82e1604dd48156427118be9fd5",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 222.70229508196726,
+    "guestFlipCadence": 13.001187864627827,
+    "p99FrameMs": 103.99642000000009,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "305",
+    "runId": "20261004-220630935-3b2580403fc3447ab28c3809d20d3de9",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 214.78712903225812,
+    "guestFlipCadence": 12.908379905094723,
+    "p99FrameMs": 100.06652,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "305",
+    "runId": "20261004-220820628-baad1f3cfdf1414fbba4ea35aad7f366",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 223.30832786885242,
+    "guestFlipCadence": 12.700723690421015,
+    "p99FrameMs": 116.6892,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "305",
+    "runId": "20261004-220911357-572d41a4c6374c099112a561875fd6f3",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 219.67180327868851,
+    "guestFlipCadence": 13.040181051782042,
+    "p99FrameMs": 100.08864,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "302",
+    "runId": "20261004-223414939-4669a0aa1c04497e858a23934af4c95a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 219.61272131147544,
+    "guestFlipCadence": 12.70686559469279,
+    "p99FrameMs": 100.231,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "302",
+    "runId": "20261004-223645328-1c27e2a1b9d74d7eb52e71c06b6a31ab",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 220.5231967213115,
+    "guestFlipCadence": 13.072791927960255,
+    "p99FrameMs": 116.6061,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "302",
+    "runId": "20261004-223824432-3c723d7df457425a8361984cc68bc88a",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 220.92474193548392,
+    "guestFlipCadence": 13.029161679580124,
+    "p99FrameMs": 116.62179,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "302",
+    "runId": "20261004-223914827-8345cec2c58e4b9c9f70e6c1559cf0d5",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 220.88785483870967,
+    "guestFlipCadence": 13.218334881577256,
+    "p99FrameMs": 100.18047,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "296",
+    "runId": "20261004-230954896-3106d6738ac349b89bb176c9c1433d85",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 223.87525806451612,
+    "guestFlipCadence": 13.002692310513014,
+    "p99FrameMs": 116.53781,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "296",
+    "runId": "20261004-231223631-4b7fc18e01e84538ab0c58d38a077206",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 223.3156721311476,
+    "guestFlipCadence": 12.994188209815004,
+    "p99FrameMs": 110.93779999999963,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "296",
+    "runId": "20261004-231404691-2daed86c240c44699496d11bdc78d70b",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 189.33734426229503,
+    "guestFlipCadence": 13.434595041279081,
+    "p99FrameMs": 100.15755999999999,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  },
+  {
+    "campaign": "296",
+    "runId": "20261004-231459508-1058be76bc8947fdbc45404fcf40c865",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "cpu": 223.7243709677419,
+    "guestFlipCadence": 13.161011818588612,
+    "p99FrameMs": 100.06162,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    }
+  }
+]

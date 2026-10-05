@@ -1,0 +1,482 @@
+[
+  {
+    "runId": "20261005-013106517-aa96f36fc6724f77a1a16ef7334baa33",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 75.27868852459017,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "98bd33b2ee17019dff19e7b748ff537a833a885502b24768f43aec7e6825051e"
+  },
+  {
+    "runId": "20261005-013158987-c9d87e9e714944f3ad5a00d3e9de1ae9",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 60.435483870967744,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "bab30f3bca256bd55d07ec8c185d8a0156a49b85097cc5ba40b6396a055617ca"
+  },
+  {
+    "runId": "20261005-013248665-25073015042f429a9083149868dc437d",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 66.74193548387096,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "19dfd0b1461446134549f35255a1db7b831d3dfaacefbdd1f61153d020cb5646"
+  },
+  {
+    "runId": "20261005-013337971-5cb10983ebac49ce8f9d8a1248e33458",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 68.73770491803279,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "8dc48f31960ee73ab3c5b3fa359788521447c01c9b445d62350d9e7c5fd44300"
+  },
+  {
+    "runId": "20261005-013428265-6b7fbdeb4cc5424482b1c48998f8f7ce",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 73.11290322580645,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "d1200e8ca7564d48157bf81ab525fa3bcf1250e4b8a423fb1f4cb4a403fbbd4a"
+  },
+  {
+    "runId": "20261005-013518624-30bd409714f54e94ad1df3f602ec2561",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 71.88709677419355,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "13b76fb439876a15fe8e47d3d2f453d74ae631832be70c35119b645093f03409"
+  },
+  {
+    "runId": "20261005-013608580-7bc291dcd0d7430bb1809b8523acb7bc",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 62,
+    "meanDeviceGpuPercent": 68.66129032258064,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "5633538b0d8f74577ecd5da2deaf2300ac13bd2f5c954933ed25f32d8287ea3a"
+  },
+  {
+    "runId": "20261005-013658709-7e2bd0ed7a5f44bab9dc380c50a479d6",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 62,
+    "meanDeviceGpuPercent": 73.09677419354838,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "7b6553f6145ef776f968018d8fbd2d419573d3ae9ca63ec8efabb76bad386401"
+  },
+  {
+    "runId": "20261005-013748443-e71bed38998e446195ccfcd9849aa638",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 61.93650793650794,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "4d3ae0de2641237b77849dbfeba0d84f24f034c5718ba5a5df1c7283a4dcd285"
+  },
+  {
+    "runId": "20261005-013951074-13e465783a054d13a36a97a899636bad",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 51.25396825396825,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "709eaa22741c3b3d994f3646742dcefc8d9df758aa0c11b838951824270e02ab"
+  },
+  {
+    "runId": "20261005-014152551-f68a2494bb654e94b67170d710e024ae",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 61.142857142857146,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "51ad3c1eb732d61779354c27341871221c2ef2bcf170b86b437d24a32773925c"
+  },
+  {
+    "runId": "20261005-014354176-f99c5769095a4c5f88aa49319c960701",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 53.07936507936508,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "15f14e3a8b420ae384ea650193bb22f5e02dd48c0f9466edee5cdecb23f66f96"
+  },
+  {
+    "runId": "20261005-014556352-516bcb68525e4aa0b7a466653ce84da6",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 52.301587301587304,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "7abc1626437c23ed02a54abdbee3af98f20707dfe40354736b85867f14cdd26b"
+  },
+  {
+    "runId": "20261005-014758193-8a0cb06681a44a7ab1b1c7615bdf24c4",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 67.9047619047619,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "0b736160681e5a301db58d8adb4dd6cc38c68fa33626817f3ea228a5785fa868"
+  },
+  {
+    "runId": "20261005-015000051-b7226f4b5c434d55939d144168d7eb39",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 53.38095238095238,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "57b16302087f2db7faa09e8a873345e3c9b1a68c246c35353d9803b096b3a601"
+  },
+  {
+    "runId": "20261005-015201614-15cc4e64c5be43f8951c198241fd6d09",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 38.96825396825397,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "0b6c2c0d49408b80c08b198211303a3001d89055208080ae9b7a1aaf7538c74b"
+  },
+  {
+    "runId": "20261005-015402944-8c48b4ef5fec45a396f4d3c6f0b91079",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 64,
+    "meanDeviceGpuPercent": 50.765625,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "c7c4fe769ae106cade408d6b38738c01205b3113063bb2e9553baf3dd62308f2"
+  },
+  {
+    "runId": "20261005-015636649-686b63c419e046aebd4679f6335ea289",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 65,
+    "meanDeviceGpuPercent": 51.38461538461539,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "6dee680f72add1bbc8a7dbb771cbde08a78be293e31147efd274c3b7d989f40e"
+  },
+  {
+    "runId": "20261005-015910646-1bab1e6c017f4b25a3a9277aa1d5e811",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 74,
+    "meanDeviceGpuPercent": 28.18918918918919,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "7037396f335890fbb397394aa835c65ae36c1c4c646237cd9b22e02cf204c02b"
+  },
+  {
+    "runId": "20261005-020148480-da8189d3d635478c8adec721e008d90b",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 64,
+    "meanDeviceGpuPercent": 56.765625,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "52a1d3bd08396e440c4fcbbc45331dfd20db81d94e0ee9253512dc3b52028b12"
+  },
+  {
+    "runId": "20261005-020420311-ec529b763b384a11beaecaca909e2c01",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 64,
+    "meanDeviceGpuPercent": 44.171875,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "01396b5a89d708376e024e50ea21f7f1d1f43e4317c552c03637e385a2c553d2"
+  },
+  {
+    "runId": "20261005-020653986-35f8dd4bc425434e9158785530f28845",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 64,
+    "meanDeviceGpuPercent": 41.625,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "d2198633ac66b408ba40ed80d79550fa2c61b2dd2215491c2647412ea067d331"
+  },
+  {
+    "runId": "20261005-020927806-836a5a2830564d12bd456e216c54c425",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 64,
+    "meanDeviceGpuPercent": 59.453125,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "046b095befd46661a0f137f6c9410ba903e4b850e964da61cb27518b1829de66"
+  },
+  {
+    "runId": "20261005-021159982-c423eaffd5724cbabc381d666df319cc",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 9.015873015873016,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "cb42ee3c4880e3335672ea7c6278c29c28dbb15097001efac37c86879da8a1a7"
+  },
+  {
+    "runId": "20261005-013108728-8284c43443314bc7adf4d8ca1dc8064a",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 60,
+    "meanDeviceGpuPercent": 68.26666666666667,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "8ea525664e95993f13316a7023d7d5491f50176cac6b9ffe4bcce41cbc0f35c3"
+  },
+  {
+    "runId": "20261005-013156735-4ab92bda48884475a417d22e3c365ec2",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.57377049180327,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "4970f3966aa84478f87303af91fb0e0c4cb1febab36fff3c1f54c4e16337f0b3"
+  },
+  {
+    "runId": "20261005-013244235-5d90cfe698aa412b875b50f9ef50e3ce",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 68.27868852459017,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "bdb7ea840c4395d03a7ad27ed915769e69f918272179470a718b00281278844a"
+  },
+  {
+    "runId": "20261005-013332130-46f0b9082d53427ebea70e0c129813e2",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 70.70491803278688,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "6da75231f801b9a353967f89dec6aa2bd68542b6b99fadba23ae2cad730b84ff"
+  },
+  {
+    "runId": "20261005-013419447-4aea9350df3d47a996b14afe2d8d3ae0",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 66.81967213114754,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "e6e83721a6b4d7f26e079a089a6127f7b7543d2352042942f525fc81f2e26900"
+  },
+  {
+    "runId": "20261005-013506888-ccf06a0c011d4c5b9094fbe67d3f6fdc",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 66.68852459016394,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "ce1a2f92988db8f56e11543bfd13adfb7149dfed8c500f7a308f1417cfcf74b9"
+  },
+  {
+    "runId": "20261005-013553664-90cdf9a4d74e49be87d2cba4b789a204",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.42622950819673,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "35cd794f14e3b28249536ec0e930add676622170900fb95525f3a336fb172f0c"
+  },
+  {
+    "runId": "20261005-013641714-b80c9a672f5945c4927a351ce8579320",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "samples": 61,
+    "meanDeviceGpuPercent": 67.09836065573771,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "3b6188e64763f5d4aca6084ff2bceee96d2aee1c7e058e2fffff8fc5e633be61"
+  },
+  {
+    "runId": "20261005-013728611-a760e2215e614dd1a51df88e5885b4b2",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 57.492063492063494,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "f9cec67cdb4ce513dd80d9ac5e204fb0d5b91fc593c3a1ea700544f121bf548a"
+  },
+  {
+    "runId": "20261005-013918358-754d154aaa4b424881df141e14f19624",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 57.38095238095238,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "8198238b4593831454bddf56516a4ca9158478e338b773fdcb192485133566bc"
+  },
+  {
+    "runId": "20261005-014106271-6a0231ca2a3b4864bdb056a475913799",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.84126984126984,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "b3cae41444374d165b1e3ca3e08a2fe4b1dc6beeee50b96e4cd7bbdd4ec6e33b"
+  },
+  {
+    "runId": "20261005-014254204-4271cbd0a9d446e981b2ca3cc147cf57",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.888888888888886,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "d0f85033be5438ef0089e01719af94625b511aedebcf91a512d64754c3793578"
+  },
+  {
+    "runId": "20261005-014442128-805018cea2e7429f97b495c4267cc48b",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.96825396825397,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "d899ed4d3ff557b6470ab59f743ccd4eb87153421109276e5db2e72d7050d3b9"
+  },
+  {
+    "runId": "20261005-014630073-772463fd7b5440028bebffa809c15c41",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.53968253968254,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "bac81551a1aefb9de7741ec71513602619dec5342e2567780c7ff7912cf5c5f2"
+  },
+  {
+    "runId": "20261005-014818485-4e0dd7aa18f44c6b8852079378cc6ca5",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.61904761904762,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "3bd34dff054f284771f7c23ef8189d7015e76945caac8304d11fa71464f285de"
+  },
+  {
+    "runId": "20261005-015005966-bd2a27ce814643298eec2728c013a46b",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 56.41269841269841,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "949894659e74e078c3120cf8a6fba8f8cbc8d92aa3c62041072783a6aab50969"
+  },
+  {
+    "runId": "20261005-015153871-8d8e0844f9754024a8ee76a80d7b42eb",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 64,
+    "meanDeviceGpuPercent": 42.71875,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "642bc32c6abc34a0ee13b300a1109f5a08f2112aa0bc6d3eed9974a697353b35"
+  },
+  {
+    "runId": "20261005-015405734-708e062b0d0e465784f47eab31cf2a32",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 42.857142857142854,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "7ddfa811dcb8d809e1d2226881bc75caa806e23c18a2e678408eb2e600cf0827"
+  },
+  {
+    "runId": "20261005-015615123-f18ecf330c1e4c5c9c2842534fbb58b9",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 43.095238095238095,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "2fb7f304e902ac0a9949760af3ce32679d1529ae1ba7e648e615bbc23b498858"
+  },
+  {
+    "runId": "20261005-015824637-da9b3db7346c4bb9b3587f75324798b1",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 42.44444444444444,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "aaa286b70df7e6d630ac117f90070af71fa0c4358dcc6d445bb7b622bc6b7cfa"
+  },
+  {
+    "runId": "20261005-020034017-0333f7cfc5bb40d99cfd47cdae960900",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 42.6031746031746,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "8bcf8bf3fc8291634725b3d768230844389faa645e3940d314b64fcd6adc598b"
+  },
+  {
+    "runId": "20261005-020243329-f60f1983c92943479b571c9c3a7b93f4",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 44.96825396825397,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "0906709c857317a0c73bb8c7e55838985f06dfb127498c0982460cb8e7065902"
+  },
+  {
+    "runId": "20261005-020452739-4abf41cba4d144d4aac7342651d29068",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "samples": 63,
+    "meanDeviceGpuPercent": 42.20634920634921,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "ff8de8b1eb1b27f94c979b8d441378782ffb7319181901d154376c718ad6f4e5"
+  },
+  {
+    "runId": "20261005-020702109-c078f014c4d042db856d48360b0f1d30",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "samples": 63,
+    "meanDeviceGpuPercent": 43.095238095238095,
+    "scope": "Secondary device-wide usage in the authored segment; not xemu-exclusive",
+    "metricsSha256": "a6db30d1474f0d318ee4b825b21836075d0e2dc616cca00ab34053d22163d81e"
+  }
+]

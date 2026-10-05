@@ -1,0 +1,418 @@
+[
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "runId": "20261005-013106517-aa96f36fc6724f77a1a16ef7334baa33",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "runId": "20261005-013158987-c9d87e9e714944f3ad5a00d3e9de1ae9",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "runId": "20261005-013248665-25073015042f429a9083149868dc437d",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "runId": "20261005-013337971-5cb10983ebac49ce8f9d8a1248e33458",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "runId": "20261005-013428265-6b7fbdeb4cc5424482b1c48998f8f7ce",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "runId": "20261005-013518624-30bd409714f54e94ad1df3f602ec2561",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "runId": "20261005-013608580-7bc291dcd0d7430bb1809b8523acb7bc",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "runId": "20261005-013658709-7e2bd0ed7a5f44bab9dc380c50a479d6",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "runId": "20261005-013108728-8284c43443314bc7adf4d8ca1dc8064a",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "runId": "20261005-013156735-4ab92bda48884475a417d22e3c365ec2",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "runId": "20261005-013244235-5d90cfe698aa412b875b50f9ef50e3ce",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "runId": "20261005-013332130-46f0b9082d53427ebea70e0c129813e2",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "runId": "20261005-013419447-4aea9350df3d47a996b14afe2d8d3ae0",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "runId": "20261005-013506888-ccf06a0c011d4c5b9094fbe67d3f6fdc",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "runId": "20261005-013553664-90cdf9a4d74e49be87d2cba4b789a204",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "runId": "20261005-013641714-b80c9a672f5945c4927a351ce8579320",
+    "images": [
+      "measurement-ready.png",
+      "scene-end.png"
+    ],
+    "observation": "Same stationary waterfront/buildings view; no visible missing geometry or new texture fault",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "runId": "20261005-013748443-e71bed38998e446195ccfcd9849aa638",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "runId": "20261005-013951074-13e465783a054d13a36a97a899636bad",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "runId": "20261005-014152551-f68a2494bb654e94b67170d710e024ae",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "runId": "20261005-014354176-f99c5769095a4c5f88aa49319c960701",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "runId": "20261005-014556352-516bcb68525e4aa0b7a466653ce84da6",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "runId": "20261005-014758193-8a0cb06681a44a7ab1b1c7615bdf24c4",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "runId": "20261005-015000051-b7226f4b5c434d55939d144168d7eb39",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "runId": "20261005-015201614-15cc4e64c5be43f8951c198241fd6d09",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "runId": "20261005-013728611-a760e2215e614dd1a51df88e5885b4b2",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "runId": "20261005-013918358-754d154aaa4b424881df141e14f19624",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "runId": "20261005-014106271-6a0231ca2a3b4864bdb056a475913799",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "runId": "20261005-014254204-4271cbd0a9d446e981b2ca3cc147cf57",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "runId": "20261005-014442128-805018cea2e7429f97b495c4267cc48b",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "runId": "20261005-014630073-772463fd7b5440028bebffa809c15c41",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "runId": "20261005-014818485-4e0dd7aa18f44c6b8852079378cc6ca5",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "runId": "20261005-015005966-bd2a27ce814643298eec2728c013a46b",
+    "images": [
+      "recording-start.png",
+      "recording-end.png"
+    ],
+    "observation": "Expected Xbox Live & Co bar menu in both images; no obvious new missing geometry or texture artifact",
+    "exactGuestStateClaim": false
+  }
+]

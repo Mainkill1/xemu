@@ -1,0 +1,962 @@
+[
+  {
+    "runId": "20261005-013106517-aa96f36fc6724f77a1a16ef7334baa33",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013158987-c9d87e9e714944f3ad5a00d3e9de1ae9",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013248665-25073015042f429a9083149868dc437d",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013337971-5cb10983ebac49ce8f9d8a1248e33458",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013428265-6b7fbdeb4cc5424482b1c48998f8f7ce",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013518624-30bd409714f54e94ad1df3f602ec2561",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013608580-7bc291dcd0d7430bb1809b8523acb7bc",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013658709-7e2bd0ed7a5f44bab9dc380c50a479d6",
+    "host": "deck",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013748443-e71bed38998e446195ccfcd9849aa638",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013951074-13e465783a054d13a36a97a899636bad",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-014152551-f68a2494bb654e94b67170d710e024ae",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-014354176-f99c5769095a4c5f88aa49319c960701",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-014556352-516bcb68525e4aa0b7a466653ce84da6",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-014758193-8a0cb06681a44a7ab1b1c7615bdf24c4",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-015000051-b7226f4b5c434d55939d144168d7eb39",
+    "host": "deck",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-015201614-15cc4e64c5be43f8951c198241fd6d09",
+    "host": "deck",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-015402944-8c48b4ef5fec45a396f4d3c6f0b91079",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-015636649-686b63c419e046aebd4679f6335ea289",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-015910646-1bab1e6c017f4b25a3a9277aa1d5e811",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-020148480-da8189d3d635478c8adec721e008d90b",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-020420311-ec529b763b384a11beaecaca909e2c01",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-020653986-35f8dd4bc425434e9158785530f28845",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-020927806-836a5a2830564d12bd456e216c54c425",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "be3b02902765e89e2fe6bbb2f37395dc0533798371aca48fcf55e81bc1571f0a",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-021159982-c423eaffd5724cbabc381d666df319cc",
+    "host": "deck",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "241cece1dc771820a6ca6d555d57bdcc7777676d",
+    "executableSha256": "b257677107fdf194d7876f74cb401e9a3c138dbc2d21a5218fcafb03638c1b2c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013108728-8284c43443314bc7adf4d8ca1dc8064a",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013156735-4ab92bda48884475a417d22e3c365ec2",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013244235-5d90cfe698aa412b875b50f9ef50e3ce",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013332130-46f0b9082d53427ebea70e0c129813e2",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013419447-4aea9350df3d47a996b14afe2d8d3ae0",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013506888-ccf06a0c011d4c5b9094fbe67d3f6fdc",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013553664-90cdf9a4d74e49be87d2cba4b789a204",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013641714-b80c9a672f5945c4927a351ce8579320",
+    "host": "win",
+    "title": "morrowind",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "unmanaged",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": false,
+      "AllowUncontrolledDriverCache": false
+    }
+  },
+  {
+    "runId": "20261005-013728611-a760e2215e614dd1a51df88e5885b4b2",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-013918358-754d154aaa4b424881df141e14f19624",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-014106271-6a0231ca2a3b4864bdb056a475913799",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-014254204-4271cbd0a9d446e981b2ca3cc147cf57",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-014442128-805018cea2e7429f97b495c4267cc48b",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-014630073-772463fd7b5440028bebffa809c15c41",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-014818485-4e0dd7aa18f44c6b8852079378cc6ca5",
+    "host": "win",
+    "title": "conker",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-015005966-bd2a27ce814643298eec2728c013a46b",
+    "host": "win",
+    "title": "conker",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-015153871-8d8e0844f9754024a8ee76a80d7b42eb",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-015405734-708e062b0d0e465784f47eab31cf2a32",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-015615123-f18ecf330c1e4c5c9c2842534fbb58b9",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-015824637-da9b3db7346c4bb9b3587f75324798b1",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-020034017-0333f7cfc5bb40d99cfd47cdae960900",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-020243329-f60f1983c92943479b571c9c3a7b93f4",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-020452739-4abf41cba4d144d4aac7342651d29068",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "parent",
+    "source": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+    "ciSource": "59e5a983",
+    "executableSha256": "947949c8cd540005290310569775962e383d3fb446447b9bce1dfdd8bd662b43",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  },
+  {
+    "runId": "20261005-020702109-c078f014c4d042db856d48360b0f1d30",
+    "host": "win",
+    "title": "pgr2",
+    "variant": "candidate",
+    "source": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "ciSource": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+    "executableSha256": "27b404117e88673fd61683048fa4be6c79ce5d1f96c839b202b0dfaccf5a8267",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "renderer": "Vulkan",
+    "storage": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "DriverNamespaceVerified": false,
+      "DriverQualification": "not_verified",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": true
+    }
+  }
+]
