@@ -68,3 +68,44 @@ test_pfifo_flip = executable(
 test('test-pfifo-flip', test_pfifo_flip,
      args: ['--tap', '-k'], protocol: 'tap', env: test_env,
      suite: ['unit', 'xbox'])
+
+# The fixture includes the unmodified pgraph.c and pfifo.c to reach private
+# Kelvin methods and the actual FIFO worker/stall/wait boundaries.
+# Keep this private-state exception scoped; ordinary tests use public interfaces.
+test_pgraph_ptimer_contention = executable(
+  'test-pgraph-ptimer-contention',
+  files('test-pgraph-ptimer-contention.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c'),
+  c_args: ['-DCOMPILING_PER_TARGET',
+           '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+           '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
+           '-ffunction-sections', '-fdata-sections'],
+  include_directories: [include_directories('../../../target/i386')],
+  dependencies: [qemuutil, nv2a_vsh_cpu],
+  link_args: host_os == 'darwin' ? ['-Wl,-dead_strip'] : ['-Wl,--gc-sections'],
+  build_by_default: false,
+)
+test('test-pgraph-ptimer-contention', test_pgraph_ptimer_contention,
+     args: ['--tap', '-k'], protocol: 'tap', env: test_env,
+     suite: ['unit', 'xbox'], timeout: 60)
+
+# CPU-time diagnostic with scheduling hooks compiled out and real profiling.
+# This is not a performance acceptance test or a new runtime candidate.
+if host_os == 'linux'
+  executable(
+    'benchmark-pgraph-control-cost',
+    files('test-pgraph-ptimer-contention.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c'),
+    c_args: ['-DCOMPILING_PER_TARGET', '-DNV2A_CONTENTION_COST=1',
+             '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+             '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
+             '-ffunction-sections', '-fdata-sections'],
+    include_directories: [include_directories('../../../target/i386')],
+    dependencies: [qemuutil, nv2a_vsh_cpu],
+    link_args: ['-Wl,--gc-sections'],
+    build_by_default: false,
+  )
+endif
