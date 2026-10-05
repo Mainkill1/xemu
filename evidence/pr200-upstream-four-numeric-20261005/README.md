@@ -4,7 +4,7 @@
 
 Completed 48 selected native observations: three titles on Windows and Steam Deck, eight cells per cohort in ABBA then BAAB order. A retains upstream Auto; B caps Auto at four. Both use default sinc and the same instrumentation. This is a worker-policy comparison, not a comparison of the entire fork against upstream. All 56 attempts are retained: 48 selected, five from interrupted Deck BAAB blocks, and three pre-game ABI failures.
 
-**Conclusion:** CPU falls in all six measured cohorts and in both run orders. Deck Conker p99 worsens 9.31% (158.12 → 172.83 ms); its ABBA FPS result is 6.24% worse, while BAAB is 0.30% better. This is useful CPU reduction, not proven uplift in every requested situation. PR #200 remains HOLD for the documented tradeoffs and outstanding qualification.
+**Conclusion:** Recorded CPU is lower in all six measured cohorts and in both run orders. Deck Conker has an observed 9.31% higher p99 (158.12 → 172.83 ms); its ABBA FPS result is 6.24% lower, while BAAB is 0.30% higher. Neither favorable nor adverse tail changes are proven worker-count effects: identical wall-clock inputs can reach different guest progress and scene work. The component fixture separately establishes a CPU-cost reduction for fixed audio work. PR #200 remains HOLD for attribution and outstanding qualification.
 
 The product patch changes only `voice_work_init()` in `hw/xbox/mcpx/apu/vp/vp.c`: Auto becomes `max(1, min(logical_cpus, 4))`. Explicit choices keep the original clamp. The emulator patch contains four added lines and one removed line. Configs remain Auto (`0`) in both arms.
 
@@ -22,7 +22,7 @@ The product patch changes only `voice_work_init()` in `hw/xbox/mcpx/apu/vp/vp.c`
 
 ## CPU and average guest FPS
 
-Each entry is the median of four per-run means per arm. CPU is summed process utilization, with one logical core = 100%; values can exceed 100%. FPS is 1000 divided by each run’s canonical analyzed mean guest READ_3D interval, not independently measured SDL-presented FPS. Positive improvement percentages mean better.
+Each entry is the median of four per-run means per arm. CPU is summed process utilization, with one logical core = 100%; values can exceed 100%. FPS is 1000 divided by each run’s canonical analyzed mean guest READ_3D interval, not independently measured SDL-presented FPS. Positive improvement percentages mean a favorable observed difference, without proving attribution. CPU and frame windows also differ; these values must not be divided into a claimed fixed-work CPU-per-frame cost.
 
 | Host / game | CPU A → B | CPU reduction | Avg guest FPS A → B | FPS change | GPU device A → B | Eligible runs |
 |---|---:|---:|---:|---:|---:|---:|
@@ -57,6 +57,27 @@ Milliseconds; lower is better. Each percentile is calculated per run, then the f
 | deck / conker | +7.61% / +8.98% | -6.24% / +0.30% | -13.31% / -11.81% |
 | deck / pgr2 | +8.17% / +8.38% | -2.80% / +4.12% | +4.56% / -0.10% |
 
+## What the recorded spikes establish
+
+Offline inspection of the unchanged 48 traces exactly reproduces every canonical interval count, mean, p95, p99, and maximum. `spike-inspection.json` retains each run’s ten longest intervals, their READ_3D ordinals, relative times, and five-second summaries. No extra game runs, exclusions, thresholds, or benchmark edits were introduced.
+
+| Host / game | Positive intervals per run | Intervals at/above per-run p99 | Location of those interval endpoints in analyzed window |
+|---|---:|---:|---:|
+| deck / morrowind | 160–182 | 2–2 | 4.27–25.00 s |
+| deck / conker | 197–227 | 2–3 | 9.06–25.00 s |
+| deck / pgr2 | 196–213 | 2–3 | 1.55–22.09 s |
+| win / morrowind | 618–646 | 7–7 | 1.10–24.68 s |
+| win / conker | 716–742 | 8–8 | 0.90–25.00 s |
+| win / pgr2 | 600–628 | 6–7 | 0.08–18.66 s |
+
+- Deck PGR2 intervals above 200 ms cluster early: A has 9/12 and B 10/15 in the first five seconds of their analyzed windows. Both arms can still have later long intervals. Different flyover/countdown progress is a plausible confound; this does not identify an audio or renderer cause.
+- Deck Conker’s last recorded interval is the longest in 6/8 selected runs. Four of the five intervals above 200 ms end in the final five seconds. The saved plan includes an end screenshot before segment end and quit, making capture/lifecycle timing another candidate explanation. There is no trace linking a particular interval to that operation, so this is not a demonstrated screenshot defect.
+- Deck p99 is estimated from only about two or three upper-tail observations per run. A change in which expensive work is reached can shift the percentile without a general reduction in stuttering; the converse applies to a higher p99.
+- READ_3D ordinals count guest flip events from process start; they are not guest simulation time, identical object/pass identities, GPU completion, or SDL presentation generations. More ordinals in 25 host seconds do not prove matched scene work.
+- Only endpoint images were captured. There is no shared clock anchor between the monotonic frame trace and UTC CPU/GPU samples, per-voice processing timeline, or GPU wait attribution. Exact spike causes and the same-scene p99 effect therefore remain unknown.
+- A future targeted diagnosis would correlate one clock/scene marker with guest progress, voice-worker completion, and GPU wait/submit events on both builds. That would be a separately identified diagnostic run; the frozen benchmarks remain unchanged.
+
+
 ## Procedure and integrity checks
 
 - Frozen procedure IDs/revisions are in `verification.json`. Within each host/title, all eight plans, arguments, timing settings, snapshot selections, controller transport, consumed dependencies, and configurations are identical.
@@ -89,4 +110,4 @@ Fork PR #200 implements Auto up to four independently of #189 and preserves the 
 
 Evidence is isolated from `main`; only numeric/provenance summaries are published. Raw logs, configurations, screenshots, and game assets remain in private local storage.
 
-Files: `manifest.json`, `verification.json`, `selection.json`, `summary.json`, `per-run.json`, `per-run.csv`, `all-attempts.json`, `upstream-product.patch`.
+Files: `manifest.json`, `verification.json`, `selection.json`, `summary.json`, `per-run.json`, `per-run.csv`, `all-attempts.json`, `spike-inspection.json`, `upstream-product.patch`.

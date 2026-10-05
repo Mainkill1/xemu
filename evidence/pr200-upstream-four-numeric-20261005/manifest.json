@@ -75,7 +75,8 @@
   },
   "schedule": "ABBA followed by BAAB; four observations per side per title per host",
   "frameMetric": "1000 / canonical per-run analyzed mean READ_3D interval; not SDL presentations",
-  "statistic": "Median of four per-run values per arm; per-order results and ranges retained",
+  "statistic": "Median of four per-run values per arm; per-order results and ranges retained. Observed differences, not proven same-scene causal effects.",
+  "sceneProgressAttribution": "Unresolved: identical wall-clock inputs and endpoint images do not establish equal guest simulation progress or spike-producing work within the measurement window.",
   "recordedAttempts": 56,
   "selectedCompleteRuns": 48,
   "deckRepeatedBlockSelection": {
