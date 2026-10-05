@@ -1,0 +1,11 @@
+{
+  "head": "4aa11b5d90029c3e46eee8382d80be0abb3635a9",
+  "baseProduct": "cc51056e75f56c3b60273ce458bf9c9629be20bb",
+  "exactHeadChecks": 44,
+  "checkConclusions": [
+    "SUCCESS"
+  ],
+  "nativeAdapters": "not tested",
+  "performance": "not measured",
+  "mainEvidence": "none"
+}

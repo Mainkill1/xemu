@@ -1,0 +1,3 @@
+# PR #312 selector qualification
+
+The maintained exact-head strict-C fixture passed16/16. The unmodified reference and candidate production selector functions were extracted into a minimal property-container fixture. Reference timed out at250ms for256-,128-,192-lane X limits; candidate returned256,128,128. A1024-X/128-invocation case showed reference illegally selecting1024 versus candidate128. Zero output returns candidate0. The ordinary1024 case matches. This is source-function evidence, not a native Vulkan adapter or gameplay result. The original signed/unsigned warning was suppressed only for reference, as retained in the build flags. No runtime code change, speedup claim or live test was made here. This evidence branch must not enter main.

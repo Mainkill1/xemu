@@ -1,0 +1,126 @@
+{
+  "schema": "pr312-selector-source-reproduction/v1",
+  "commits": {
+    "reference": "cc51056e75f56c3b60273ce458bf9c9629be20bb",
+    "candidate": "4aa11b5d90029c3e46eee8382d80be0abb3635a9"
+  },
+  "source": "hw/xbox/nv2a/pgraph/vk/surface-compute.c",
+  "method": "Unmodified production selector functions extracted and compiled against a minimal property container; not a live Vulkan adapter or gameplay test",
+  "compileFlags": {
+    "reference": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pedantic",
+      "-Wno-sign-compare"
+    ],
+    "candidate": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pedantic"
+    ]
+  },
+  "referenceWarning": "Old signed/unsigned comparison needs its existing warning suppression; candidate compiled without suppression",
+  "cases": [
+    {
+      "case": "common-1024",
+      "maxSizeX": 1024,
+      "maxInvocations": 1024,
+      "outputUnits": 4096,
+      "expectedCandidate": 1024,
+      "reference": {
+        "status": "returned",
+        "workgroup": 1024
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 1024
+      }
+    },
+    {
+      "case": "x-limit-256",
+      "maxSizeX": 256,
+      "maxInvocations": 256,
+      "outputUnits": 4096,
+      "expectedCandidate": 256,
+      "reference": {
+        "status": "timed_out",
+        "timeoutMs": 250
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 256
+      }
+    },
+    {
+      "case": "x-limit-128",
+      "maxSizeX": 128,
+      "maxInvocations": 1024,
+      "outputUnits": 512,
+      "expectedCandidate": 128,
+      "reference": {
+        "status": "timed_out",
+        "timeoutMs": 250
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 128
+      }
+    },
+    {
+      "case": "invocation-limit-128",
+      "maxSizeX": 1024,
+      "maxInvocations": 128,
+      "outputUnits": 4096,
+      "expectedCandidate": 128,
+      "reference": {
+        "status": "returned",
+        "workgroup": 1024
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 128
+      }
+    },
+    {
+      "case": "empty-output",
+      "maxSizeX": 1024,
+      "maxInvocations": 1024,
+      "outputUnits": 0,
+      "expectedCandidate": 0,
+      "reference": {
+        "status": "returned",
+        "workgroup": 1024
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 0
+      }
+    },
+    {
+      "case": "non-power-of-two-192",
+      "maxSizeX": 192,
+      "maxInvocations": 192,
+      "outputUnits": 384,
+      "expectedCandidate": 128,
+      "reference": {
+        "status": "timed_out",
+        "timeoutMs": 250
+      },
+      "candidate": {
+        "status": "returned",
+        "workgroup": 128
+      }
+    }
+  ],
+  "strictMaintainedFixture": "16/16 TAP checks PASS",
+  "nativeGameplay": "not run",
+  "performance": "not measured"
+}
