@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-22.04${{ matrix.arch == 'aarch64' && '-arm' || '' }}
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
-        configuration: [debug, release]
+        arch: [x86_64]
+        configuration: [release]
     env:
       ARTIFACT_NAME: xemu-ubuntu-${{ matrix.arch }}-${{ matrix.configuration }}
       CCACHE_DIR: /tmp/xemu-ccache
@@ -73,8 +73,8 @@ jobs:
       run: |
         pushd src
         echo -e "\
-        xemu (1:0.0.0-0) unstable; urgency=medium\n\
-          Built from ${{ inputs.pkg_version }})\n\
+        xemu (1:${{ inputs.pkg_version }}-0) unstable; urgency=medium\n\
+          Built from ${{ inputs.pkg_version }}\n\
          -- Matt Borgerson <contact@mborgerson.com>  $(date -R)" > debian/changelog
         popd
     - name: Add LLVM APT repository
