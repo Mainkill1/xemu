@@ -524,13 +524,15 @@ slow_tests = {
 xemu_tweaks_test = executable('test-xemu-tweaks-config',
   files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c',
         '../../ui/xemu-tweak-resolver.c',
+        '../../ui/xemu-tweak-overrides.c',
         '../../ui/xemu-settings-migration.cc'), genh,
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 
 xemu_tweaks_profile_test = executable('test-xemu-tweaks-profile',
   files('test-xemu-tweaks-profile.cc', '../../ui/xemu-tweaks.c',
-        '../../ui/xemu-tweak-resolver.c'), genh,
+        '../../ui/xemu-tweak-resolver.c',
+        '../../ui/xemu-tweak-overrides.c'), genh,
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-profile', xemu_tweaks_profile_test,
      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
@@ -540,6 +542,48 @@ xemu_tweaks_resolver_test = executable('test-xemu-tweaks-resolver',
   dependencies: [qemuutil])
 test('test-xemu-tweaks-resolver', xemu_tweaks_resolver_test,
      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_tweak_overrides_test = executable('test-xemu-tweak-overrides',
+  files('test-xemu-tweak-overrides.c', '../../ui/xemu-tweak-overrides.c'),
+  dependencies: [qemuutil])
+test('test-xemu-tweak-overrides', xemu_tweak_overrides_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_tweak_session_test = executable('test-xemu-tweak-session',
+  files('test-xemu-tweak-session.cc', '../../ui/xemu-tweaks.c',
+        '../../ui/xemu-tweak-resolver.c', '../../ui/xemu-tweak-overrides.c',
+        '../../ui/xemu-settings-migration.cc'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweak-session', xemu_tweak_session_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_shortcut_cli_test = executable('test-xemu-shortcut-cli',
+  files('test-xemu-shortcut-cli.c', '../../ui/xemu-shortcut-cli.c',
+        '../../ui/xemu-tweak-overrides.c'),
+  dependencies: [qemuutil])
+test('test-xemu-shortcut-cli', xemu_shortcut_cli_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_shortcut_evidence_test = executable('test-xemu-shortcut-evidence',
+  files('test-xemu-shortcut-evidence.c', '../../ui/xemu-shortcut-evidence.c',
+        '../../ui/xemu-shortcut-window.c',
+        '../../ui/xemu-shortcut-cli.c', '../../ui/xemu-tweak-resolver.c',
+        '../../ui/xemu-tweak-overrides.c'),
+  c_args: ['-DXEMU_SHORTCUT_EVIDENCE_TEST'],
+  dependencies: [qemuutil])
+test('test-xemu-shortcut-evidence', xemu_shortcut_evidence_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_shortcut_config_test = executable('test-xemu-shortcut-config',
+  files('test-xemu-shortcut-config.cc', '../../ui/xemu-shortcut-config.cc',
+        '../../ui/xemu-tweaks.c', '../../ui/xemu-tweak-resolver.c',
+        '../../ui/xemu-tweak-overrides.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-shortcut-config', xemu_shortcut_config_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+test('test-xemu-shortcut-comparison', python,
+     args: files('test-shortcut-comparison.py'), suite: ['unit'])
 
 xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   files('test-xemu-tweak-policy.c'),

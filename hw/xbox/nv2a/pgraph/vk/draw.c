@@ -205,11 +205,11 @@ static void pipeline_cache_init_path(PGRAPHVkState *r)
     if (pipeline_cache_log_enabled()) {
         fprintf(stderr,
                 "nv2a/vk: pipeline cache init enabled=%d session=%d base=%s\n",
-                g_config.perf.cache_shaders,
+                xemu_tweaks_cache_requested_enabled(),
                 r->spirv_cache_session_eligible, base ? base : "(none)");
     }
     if (!r->spirv_cache_session_eligible ||
-        !g_config.perf.cache_shaders || !base || !base[0]) {
+        !xemu_tweaks_cache_requested_enabled() || !base || !base[0]) {
         return;
     }
 
@@ -261,7 +261,7 @@ static uint8_t *pipeline_cache_read(PGRAPHVkState *r, size_t *size)
 
 static void pipeline_cache_save(PGRAPHVkState *r)
 {
-    if (!r->pipeline_cache_path || !g_config.perf.cache_shaders) {
+    if (!r->pipeline_cache_path || !xemu_tweaks_cache_requested_enabled()) {
         if (pipeline_cache_log_enabled()) {
             fprintf(stderr, "nv2a/vk: pipeline cache save disabled\n");
         }
@@ -420,7 +420,7 @@ void pgraph_vk_writeback_pipeline_cache(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    if (!r->pipeline_cache_path || !g_config.perf.cache_shaders) {
+    if (!r->pipeline_cache_path || !xemu_tweaks_cache_requested_enabled()) {
         return;
     }
     /* This callback runs under PGRAPH after PFIFO was released. Stop the

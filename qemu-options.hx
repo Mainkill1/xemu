@@ -6400,6 +6400,42 @@ SRST
 ERST
 
 
+DEFHEADING(xemu performance evidence:)
+DEF("xemu-tweak", HAS_ARG, QEMU_OPTION_xemu_tweak,
+    "-xemu-tweak KEY=VALUE   repeatable process-only Advanced override\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-evidence", HAS_ARG, QEMU_OPTION_xemu_shortcut_evidence,
+    "-xemu-shortcut-evidence PATH  write instrumented run evidence on exit\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-session", HAS_ARG, QEMU_OPTION_xemu_shortcut_session,
+    "-xemu-shortcut-session ID    unique run identity\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-workload", HAS_ARG, QEMU_OPTION_xemu_shortcut_workload,
+    "-xemu-shortcut-workload ID   fixed workload declaration\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-input-sha256", HAS_ARG, QEMU_OPTION_xemu_shortcut_input_sha256,
+    "-xemu-shortcut-input-sha256 HASH  pinned input declaration\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-order-group", HAS_ARG, QEMU_OPTION_xemu_shortcut_order_group,
+    "-xemu-shortcut-order-group ID  paired comparison group\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-order", HAS_ARG, QEMU_OPTION_xemu_shortcut_order,
+    "-xemu-shortcut-order ABBA|BAAB  comparison order\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-position", HAS_ARG, QEMU_OPTION_xemu_shortcut_position,
+    "-xemu-shortcut-position 1..4   position in comparison order\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-start-frame", HAS_ARG, QEMU_OPTION_xemu_shortcut_start_frame,
+    "-xemu-shortcut-start-frame N  first measured guest frame\n", QEMU_ARCH_ALL)
+DEF("xemu-shortcut-frames", HAS_ARG, QEMU_OPTION_xemu_shortcut_frames,
+    "-xemu-shortcut-frames N       positive measurement frame count\n", QEMU_ARCH_ALL)
+SRST
+``-xemu-tweak KEY=VALUE``
+    Apply a process-only Advanced policy. Repeatable keys use the last value.
+    Policies are ``auto``, ``disabled`` or ``enabled``; Vulkan ubershader modes
+    are ``off``, ``fallback``, ``prewarm`` or ``always``. Saved settings are unchanged.
+
+``-xemu-shortcut-evidence PATH``
+    Request a durable ``xemu-shortcut-evidence/v1`` run artifact on exit.
+    All eight metadata/window options above are required. Input/workload pins
+    are declarations. The executable hash and owner windows are observed.
+    A successfully written artifact can still be incomplete; it is not proof
+    of a valid comparison or a performance improvement. Explicit write failure
+    returns a failing process status. This mode is instrumented and opt-in.
+ERST
+
 HXCOMM This is the last statement. Insert new options before this line!
 
 #undef DEF

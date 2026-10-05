@@ -100,6 +100,42 @@ availability(XemuTweak tweak, const XemuTweakEnvironment *env,
     }
 }
 
+static XemuTweakRuntimeState
+resolve_cache(XemuTweakPolicy policy, const XemuTweakEnvironment *env)
+{
+    XemuTweakAvailability available;
+    if (env->renderer == XEMU_TWEAK_RENDERER_NONE) {
+        available = XEMU_TWEAK_UNSUPPORTED_BACKEND;
+    } else if (!env->cache_installed || env->cache_renderer != env->renderer) {
+        available = XEMU_TWEAK_UNSUPPORTED_CAPABILITY;
+    } else if (env->renderer == XEMU_TWEAK_RENDERER_VULKAN &&
+               !env->cache_session_eligible) {
+        available = XEMU_TWEAK_BLOCKED_DEPENDENCY;
+    } else {
+        available = XEMU_TWEAK_AVAILABLE;
+    }
+    XemuTweakPolicyResolution resolved = xemu_tweak_policy_resolve(
+        policy, true, false, true, false, available);
+    XemuTweakRuntimeState state = {
+        .requested = resolved.selected,
+        .selected = resolved.selected,
+        .effective = resolved.effective,
+        .available = available == XEMU_TWEAK_AVAILABLE,
+        .policy_requested = policy,
+        .availability = available,
+        .reason = resolved.reason,
+    };
+    if (available == XEMU_TWEAK_BLOCKED_DEPENDENCY) {
+        state.restart_pending = state.requested;
+        state.reason =
+            "Persistent cache was disabled at Vulkan initialization; "
+            "restart xemu to enable it.";
+    } else if (available == XEMU_TWEAK_UNSUPPORTED_CAPABILITY) {
+        state.reason = "Persistent shader cache is not initialized.";
+    }
+    return state;
+}
+
 XemuTweakResolution
 xemu_tweaks_resolve(const XemuTweakRequestedState *requested,
                     const XemuTweakEnvironment *environment,
@@ -115,7 +151,13 @@ xemu_tweaks_resolve(const XemuTweakRequestedState *requested,
         .renderer = env.renderer,
         .ubershader = resolve_ubershader(requested, &env, startup_state,
                                          apply_restart_latched),
+        .cache = resolve_cache(requested->cache_policy, &env),
+        .cache_installed = env.renderer != XEMU_TWEAK_RENDERER_NONE &&
+                           env.cache_renderer == env.renderer &&
+                           env.cache_installed,
     };
+    result.cache_session_eligible =
+        result.cache_installed && env.cache_session_eligible;
     for (unsigned int i = 0; i < XEMU_TWEAK_COUNT; i++) {
         uint64_t bit = UINT64_C(1) << i;
         XemuTweakPolicy policy = requested->policy[i];

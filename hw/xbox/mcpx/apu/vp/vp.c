@@ -20,6 +20,7 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "ui/xemu-shortcut-evidence.h"
 #include "adpcm.h"
 #include "sge.h"
 #include "sample-memory.h"
@@ -1931,6 +1932,17 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
     voice_work_init(d);
+    if (xemu_shortcut_evidence_enabled()) {
+        g_autoptr(QDict) fields = qdict_new();
+        /* This parent hard-codes SRC_SINC_FASTEST in voice creation. */
+        qdict_put_str(fields, "resampler", "sinc");
+        qdict_put_int(fields, "converter", SRC_SINC_FASTEST);
+        qdict_put_str(fields, "library", src_get_version());
+        qdict_put_int(fields, "configured_workers",
+                      g_config.audio.vp.num_workers);
+        qdict_put_int(fields, "workers", d->vp.voice_work_dispatch.num_workers);
+        xemu_shortcut_evidence_publish_execution("voice", fields, &error_abort);
+    }
 }
 
 void mcpx_apu_vp_finalize(MCPXAPUState *d)

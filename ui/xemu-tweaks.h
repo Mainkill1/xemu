@@ -49,6 +49,7 @@ typedef struct XemuTweakRuntimeState {
     bool effective;
     bool available;
     bool restart_pending;
+    bool overridden;
     XemuTweakPolicy policy_requested;
     XemuTweakAvailability availability;
     const char *reason;
@@ -67,6 +68,7 @@ typedef struct XemuVulkanUbershaderRuntimeState {
     XemuVulkanUbershaderMode active;
     bool available;
     bool restart_pending;
+    bool overridden;
     const char *reason;
 } XemuVulkanUbershaderRuntimeState;
 
@@ -74,6 +76,8 @@ typedef struct XemuTweakRequestedState {
     XemuTweakPolicy policy[XEMU_TWEAK_COUNT];
     /* The hybrid Boolean permission is derived from this mode. */
     XemuVulkanUbershaderMode ubershader_mode;
+    /* Persistent-cache policy is independent of the hot permission mask. */
+    XemuTweakPolicy cache_policy;
 } XemuTweakRequestedState;
 
 typedef struct XemuTweakEnvironment {
@@ -81,6 +85,11 @@ typedef struct XemuTweakEnvironment {
     bool windows_host;
     bool ubershader_installed;
     bool ubershader_operational;
+    /* Owner publication describes initialized cache permission, not a hit or
+     * proof that any persistent artifact exists or was accepted. */
+    XemuTweakRenderer cache_renderer;
+    bool cache_installed;
+    bool cache_session_eligible;
 } XemuTweakEnvironment;
 
 typedef struct XemuTweakResolution {
@@ -91,6 +100,9 @@ typedef struct XemuTweakResolution {
     XemuTweakRenderer renderer;
     XemuTweakRuntimeState state[XEMU_TWEAK_COUNT];
     XemuVulkanUbershaderRuntimeState ubershader;
+    XemuTweakRuntimeState cache;
+    bool cache_installed;
+    bool cache_session_eligible;
 } XemuTweakResolution;
 
 /* Pure: no configuration reads, publication or platform adapter calls.
@@ -127,6 +139,12 @@ static inline bool xemu_tweak_requires_restart(XemuTweak tweak)
 
 /* UI thread only. startup=true is only valid before workers are created. */
 void xemu_tweaks_apply(bool startup);
+/* Atomic owned request; usable by initialization before renderer publication.
+ * Actual cache users retain their own capability/session correctness guards. */
+bool xemu_tweaks_cache_requested_enabled(void);
+/* Low-frequency owner lifecycle; renderer tag prevents stale backend state. */
+void xemu_tweaks_publish_cache(XemuTweakRenderer owner, bool installed,
+                              bool session_eligible);
 /* Lifecycle and status APIs are synchronized and low-frequency, never hot-path.
  * Returned values own one published generation; reasons have static lifetime.
  */

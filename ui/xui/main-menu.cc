@@ -146,11 +146,17 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
         xemu_settings_save();
     }
 
-    XemuVulkanUbershaderRuntimeState state =
-        xemu_vulkan_ubershader_runtime_state();
+    XemuTweakResolution snapshot = xemu_tweaks_snapshot();
+    XemuVulkanUbershaderRuntimeState state = snapshot.ubershader;
     ImGui::TextDisabled("Selected: %s   Active: %s",
                         VulkanUbershaderModeName(state.requested),
                         VulkanUbershaderModeName(state.active));
+    if (state.overridden) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled("Command-line override active. Changes here are "
+                            "saved for runs without the override.");
+        ImGui::PopTextWrapPos();
+    }
     if (state.reason && strcmp(state.reason, "Active.") != 0) {
         ImGui::PushTextWrapPos();
         ImGui::TextDisabled("%s", state.reason);
@@ -161,11 +167,11 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
     }
     if ((state.requested == XEMU_VK_UBERSHADER_PREWARM ||
          state.requested == XEMU_VK_UBERSHADER_ALWAYS) &&
-        !g_config.perf.cache_shaders) {
+        !snapshot.cache.effective) {
         ImGui::PushTextWrapPos();
         ImGui::TextDisabled(
-            "Cross-launch family prewarm is unavailable while persistent "
-            "shader caching is disabled.");
+            "Cross-launch family prewarm requires an enabled, initialized "
+            "persistent shader cache.");
         ImGui::PopTextWrapPos();
     }
 
@@ -201,8 +207,10 @@ void MainMenuAdvanceView::Draw()
     if (Toggle("Cache shaders", &g_config.perf.cache_shaders,
                "Stores compiled shaders on disk and reuses them on later "
                "runs. Disable this when diagnosing first-use shader stalls.")) {
+        xemu_tweaks_apply(false);
         xemu_settings_save();
     }
+    DrawTweakRuntimeStatus(xemu_tweaks_snapshot().cache);
     SectionTitle("Vulkan");
     XemuVulkanUbershaderRuntimeState ubershader_state =
         VulkanUbershaderModeCombo();

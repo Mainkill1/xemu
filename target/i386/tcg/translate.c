@@ -35,6 +35,11 @@
 
 #include "exec/log.h"
 
+#ifdef XBOX
+#include "ui/xemu-shortcut-evidence.h"
+#include "system/tcg.h"
+#endif
+
 static int g_use_hard_fpu;
 
 #if defined(XBOX) && defined(__x86_64__)
@@ -4240,6 +4245,16 @@ void tcg_x86_init(void)
 
 #if defined(XBOX) && defined(__x86_64__)
     g_use_hard_fpu = g_config.perf.hard_fpu;
+#endif
+#ifdef XBOX
+    if (xemu_shortcut_evidence_enabled()) {
+        g_autoptr(QDict) fields = qdict_new();
+        qdict_put_str(fields, "route", "tcg");
+        qdict_put_bool(fields, "hard_fpu", g_use_hard_fpu != 0);
+        qdict_put_bool(fields, "mttcg", qemu_tcg_mttcg_enabled());
+        qdict_put_int(fields, "host_pointer_bits", sizeof(void *) * 8);
+        xemu_shortcut_evidence_publish_execution("cpu", fields, &error_abort);
+    }
 #endif
 }
 
