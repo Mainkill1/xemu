@@ -468,6 +468,18 @@ test_env = environment()
 test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
 test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 
+# Exercise the private SGE resolver against RAM, MMIO and mapping changes.
+if host_os == 'linux' and have_system
+  apu_sge_test = executable('test-xbox-mcpx-apu-sge-cache',
+    files('test-xbox-mcpx-apu-sge-cache.c',
+          '../../system/memory.c', '../../system/physmem.c'), genh,
+    dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
+    c_args: ['-ffunction-sections', '-fdata-sections'],
+    link_args: ['-Wl,--gc-sections'])
+  test('test-xbox-mcpx-apu-sge-cache', apu_sge_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+endif
+
 # This test includes the private production upload implementation. Discard
 # unrelated renderer entry points rather than replacing its converters/GL calls.
 if host_os == 'linux' and epoxy.found()
