@@ -523,9 +523,28 @@ slow_tests = {
 
 xemu_tweaks_test = executable('test-xemu-tweaks-config',
   files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c',
+        '../../ui/xemu-tweak-resolver.c',
         '../../ui/xemu-settings-migration.cc'), genh,
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
+
+xemu_tweaks_profile_test = executable('test-xemu-tweaks-profile',
+  files('test-xemu-tweaks-profile.cc', '../../ui/xemu-tweaks.c',
+        '../../ui/xemu-tweak-resolver.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweaks-profile', xemu_tweaks_profile_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_tweaks_resolver_test = executable('test-xemu-tweaks-resolver',
+  files('test-xemu-tweaks-resolver.c', '../../ui/xemu-tweak-resolver.c'),
+  dependencies: [qemuutil])
+test('test-xemu-tweaks-resolver', xemu_tweaks_resolver_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
+xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
+  files('test-xemu-tweak-policy.c'),
+  include_directories: include_directories('../..'))
+test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
 
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],

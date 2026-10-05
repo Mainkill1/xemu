@@ -505,6 +505,44 @@ bool ChevronCombo(const char *label, int *current_item,
     return value_changed;
 }
 
+void DrawTweakEffectiveStatus(XemuTweak tweak)
+{
+    XemuTweakRuntimeState state = xemu_tweak_runtime_state(tweak);
+    const char *requested =
+        state.policy_requested == XEMU_TWEAK_POLICY_AUTO     ? "Auto" :
+        state.policy_requested == XEMU_TWEAK_POLICY_ENABLED  ? "Enabled" :
+        state.policy_requested == XEMU_TWEAK_POLICY_DISABLED ? "Disabled" :
+                                                               "Unknown";
+    ImGui::TextDisabled("Requested: %s   Effective: %s", requested,
+                        state.effective ? "Enabled" : "Disabled");
+    if (!state.available || state.policy_requested == XEMU_TWEAK_POLICY_AUTO ||
+        state.policy_requested == XEMU_TWEAK_POLICY_DISABLED ||
+        (!state.effective && !state.restart_pending)) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled("%s", state.reason);
+        ImGui::PopTextWrapPos();
+    }
+    if (state.restart_pending) {
+        ImGui::TextDisabled("Restart xemu to apply this change.");
+    } else if (state.available && state.effective) {
+        ImGui::TextDisabled("Active for eligible work.");
+    }
+}
+
+bool PerformancePolicyCombo(const char *label, int *requested, XemuTweak tweak,
+                            const char *help, bool allow_enabled)
+{
+    bool changed = ChevronCombo(
+        label, requested,
+        allow_enabled ? "Auto\0Disabled\0Enabled\0" : "Auto\0Disabled\0", help);
+    if (changed) {
+        xemu_tweaks_apply(false);
+        xemu_settings_save();
+    }
+    DrawTweakEffectiveStatus(tweak);
+    return changed;
+}
+
 void Hyperlink(const char *text, const char *url)
 {
     ImColor col;
