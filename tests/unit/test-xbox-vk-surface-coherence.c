@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "hw/xbox/nv2a/pgraph/vk/compute-workgroup.h"
 #include "hw/xbox/nv2a/pgraph/vk/surface-coherence.h"
 
 static bool test_clean_guest_memory_preserves_surface_state(void)
@@ -63,6 +64,18 @@ static bool test_upload_pending_transition_is_counted_once(void)
            upload_pending &&
            !pgraph_vk_surface_mark_upload_pending(&upload_pending) &&
            upload_pending;
+}
+
+static bool test_compute_workgroup_selection(void)
+{
+    return pgraph_vk_compute_workgroup_size(307200, 1024, 1024) == 1024 &&
+           pgraph_vk_compute_workgroup_size(307200, 256, 1024) == 256 &&
+           pgraph_vk_compute_workgroup_size(307200, 1024, 128) == 128 &&
+           pgraph_vk_compute_workgroup_size(1000, 256, 256) == 8 &&
+           pgraph_vk_compute_workgroup_size(1, 1, 1) == 1 &&
+           pgraph_vk_compute_workgroup_size(0, 1024, 1024) == 0 &&
+           pgraph_vk_compute_workgroup_size(32, 0, 1024) == 0 &&
+           pgraph_vk_compute_workgroup_size(33, 48, 64) == 1;
 }
 
 typedef struct DirtyPageFixture {
@@ -326,9 +339,10 @@ int main(void)
         test_consumed_guest_write_still_blocks_forced_readback();
     bool upload_retires_veto =
         test_upload_retires_guest_write_veto_only_on_success();
+    bool workgroup = test_compute_workgroup_selection();
 
     puts("TAP version 13");
-    puts("1..15");
+    puts("1..16");
     printf("%s 1 - clean guest memory preserves surface state\n",
            clean ? "ok" : "not ok");
     printf("%s 2 - guest write preempts stale surface download\n",
@@ -359,10 +373,12 @@ int main(void)
            outside_request ? "ok" : "not ok");
     printf("%s 15 - prewrite upload intent permits ordered readback\n",
            prewrite_readback ? "ok" : "not ok");
+    printf("%s 16 - compute workgroup selection respects device limits\n",
+           workgroup ? "ok" : "not ok");
 
     return clean && preempt && upload && transition && overlap &&
            clean_range && guest_write_readback && clean_readback &&
            forced_clean_readback && sparse && consumed_readback &&
            upload_retires_veto && sparse_first_third && outside_request &&
-           prewrite_readback ? 0 : 1;
+           prewrite_readback && workgroup ? 0 : 1;
 }

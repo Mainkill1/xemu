@@ -20,6 +20,7 @@
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "compute-workgroup.h"
 #include "renderer.h"
 #include <vulkan/vulkan_core.h>
 
@@ -332,30 +333,20 @@ void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
     r->compute.descriptor_set_index = 0;
 }
 
-static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_units)
+static uint32_t get_workgroup_size_for_output_units(PGRAPHVkState *r,
+                                                     uint64_t output_units)
 {
-    int group_size = 1024;
-
-    // FIXME: Smarter workgroup size calculation could factor in multiple
-    //        submissions. For now we will just pick the highest number that
-    //        evenly divides output_units.
-
-    while (group_size > 1) {
-        if (group_size > r->device_props.limits.maxComputeWorkGroupSize[0]) {
-            continue;
-        }
-        if (output_units % group_size == 0) {
-            break;
-        }
-        group_size /= 2;
-    }
-
-    return group_size;
+    return pgraph_vk_compute_workgroup_size(
+        output_units, r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations);
 }
 
-static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r, VkFormat host_fmt, bool pack, int output_units)
+static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
+                                             VkFormat host_fmt, bool pack,
+                                             uint64_t output_units)
 {
-    int workgroup_size = get_workgroup_size_for_output_units(r, output_units);
+    uint32_t workgroup_size =
+        get_workgroup_size_for_output_units(r, output_units);
 
     ComputePipelineKey key;
     memset(&key, 0, sizeof(key));
