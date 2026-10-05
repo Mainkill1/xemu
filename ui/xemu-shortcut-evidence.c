@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
+#include <glib/gstdio.h>
 #include "qobject/qdict.h"
 #include "qobject/qjson.h"
 #include "qobject/qlist.h"
@@ -191,14 +192,14 @@ static const char *backend_name(XemuTweakRenderer backend)
 static const char *policy_name(XemuTweakPolicy policy)
 {
     static const char *const names[] = {"auto", "disabled", "enabled"};
-    return policy >= 0 && policy < ARRAY_SIZE(names) ? names[policy]
+    return (unsigned int)policy < ARRAY_SIZE(names) ? names[policy]
                                                      : "invalid";
 }
 
 static const char *mode_name(XemuVulkanUbershaderMode mode)
 {
     static const char *const names[] = {"off", "fallback", "prewarm", "always"};
-    return mode >= 0 && mode < ARRAY_SIZE(names) ? names[mode] : "invalid";
+    return (unsigned int)mode < ARRAY_SIZE(names) ? names[mode] : "invalid";
 }
 
 static QDict *setting_json(const XemuTweakRuntimeState *state)
