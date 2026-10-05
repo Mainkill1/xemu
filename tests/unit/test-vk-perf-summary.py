@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check the offline schema-8 reader against valid and damaged telemetry."""
+import hashlib
 import importlib.util
 import io
 import os
@@ -59,6 +60,101 @@ class SummaryTests(unittest.TestCase):
                     patch.object(sys, 'stdout', io.StringIO()):
                 with self.assertRaisesRegex(ValueError, 'changed'):
                     self.module.main()
+
+    def test_digest_binds_consumed_bytes_after_in_place_rewrite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'trace.jsonl'
+            original_bytes = (''.join(json.dumps(x) + '\r\n'
+                                      for x in self.records())).encode('utf-8')
+            source.write_bytes(original_bytes)
+            original_stat = source.stat()
+            summarize = self.module.summarize
+
+            def rewrite_after_parse(stream):
+                result = summarize(stream)
+                source.write_bytes(original_bytes.replace(b'4000', b'5000'))
+                os.utime(source, ns=(original_stat.st_atime_ns,
+                                    original_stat.st_mtime_ns))
+                return result
+
+            output = io.StringIO()
+            with patch.object(self.module, 'summarize', rewrite_after_parse), \
+                    patch.object(sys, 'argv', [str(SCRIPT), str(source)]), \
+                    patch.object(sys, 'stdout', output):
+                self.module.main()
+            result = json.loads(output.getvalue())
+            self.assertEqual(result['regions']['bind_textures']['elapsedTotalMs'], 5)
+            self.assertEqual(result['sourceSha256'],
+                             hashlib.sha256(original_bytes).hexdigest())
+            self.assertEqual(result['sourceBytes'], len(original_bytes))
+
+    def test_schema_only_cli_does_not_decode_body(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'live.jsonl'
+            source.write_bytes((json.dumps(self.records()[0]) + '\n').encode()
+                               + b'\xffunfinished')
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source),
+                                     '--schema-only'], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report['mode'], 'liveHeaderOnly')
+            self.assertNotIn('sourceSha256', report)
+
+    def test_json_duplicate_keys_and_non_json_constants_are_rejected(self):
+        for text in ['{"type":"schema","type":"schema"}\n',
+                     '{"nested":{"hot_stride":999,"hot_stride":16}}\n',
+                     '{"unused":NaN}\n', '{"unused":Infinity}\n',
+                     '{"unused":-Infinity}\n']:
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                self.module.read_record(io.StringIO(text))
+
+    def test_cpu_frame_schema_requires_integer(self):
+        rows = self.records(); rows[1]['schema_version'] = 8.0
+        with self.assertRaises(ValueError):
+            self.summarize(rows)
+
+    def test_cpu_elapsed_requires_a_call(self):
+        rows = self.records(); rows[1]['cpu_region_calls_per_guest_frame'][0] = 0
+        with self.assertRaises(ValueError):
+            self.summarize(rows)
+
+    def test_individual_counters_are_uint64_but_totals_can_exceed_it(self):
+        for rows, summarize, field in [
+                (self.records(), self.summarize,
+                 'cpu_region_calls_per_guest_frame'),
+                (self.auxiliary_records(), self.summarize_auxiliary,
+                 'single_time_submit_count_per_guest_frame'),
+                (self.finish_records(), self.summarize_finish,
+                 'finish_count_per_guest_frame')]:
+            rows[1][field][0] = 2 ** 64
+            if field == 'single_time_submit_count_per_guest_frame':
+                for key in ('single_time_timed_submit_count_per_guest_frame',
+                            'queue_wait_idle_count_per_guest_frame'):
+                    rows[1][key][0] = 2 ** 64
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                summarize(rows)
+        rows = self.records()
+        for row in rows[1:]:
+            row['cpu_region_calls_per_guest_frame'][0] = 2 ** 64 - 1
+        result = self.summarize(rows)
+        self.assertEqual(result['regions']['bind_textures']['calls'],
+                         2 * (2 ** 64 - 1))
+
+    def test_frozen_recipes_pin_their_archived_reader(self):
+        recipes = SCRIPT.parents[2] / 'docs/performance/recipes'
+        source = json.loads((recipes / 'vk-perf-reader-v1.json').read_text())
+        self.assertEqual(source['sourceRevision'],
+                         '3e69f0b8f110430d34c796706bde35d3c05d3e16')
+        for name in ('pgr2-finish-300', 'pgr2-host-profile-30'):
+            job = json.loads((recipes / name / 'job.json').read_text())
+            pin = next(x for x in job['inputs'] if x['path'] == 'vk-perf-summary.py')
+            self.assertEqual(source['sourceSha256'], pin['expectedSha256'])
+            instructions = (recipes / name / 'README.md').read_text()
+            self.assertIn('vk-perf-reader-v1.json', instructions)
+        instructions = (recipes / 'pgr2-finish-300/README.md').read_text()
+        self.assertIn(source['sourceRevision'] + ':' + source['sourcePath'],
+                      instructions)
+        self.assertIn(source['sourceSha256'], instructions)
 
     def test_elapsed_units_and_nested_regions_are_independent(self):
         result = self.summarize(self.records())

@@ -15,23 +15,47 @@ import os
 from pathlib import Path
 import sys
 
-MAX_LINE_CHARS = 65536
+MAX_LINE_BYTES = 65536
+UINT64_MAX = (1 << 64) - 1
 
 
-def sha256_stream(stream):
-    digest = hashlib.sha256()
-    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
-        digest.update(chunk)
-    return digest.hexdigest()
+class HashedUtf8Lines:
+    """Decode one bounded record and hash the exact bytes consumed."""
+    def __init__(self, raw):
+        self.raw = raw
+        self.digest = hashlib.sha256()
+        self.bytes_read = 0
+
+    def readline(self, limit):
+        data = self.raw.readline(limit)
+        if len(data) > MAX_LINE_BYTES:
+            raise ValueError('Oversized telemetry record')
+        self.digest.update(data)
+        self.bytes_read += len(data)
+        return data.decode('utf-8')
+
+
+def unique_object(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError(f'Duplicate telemetry key: {key}')
+        value[key] = item
+    return value
+
+
+def invalid_constant(value):
+    raise ValueError(f'Non-JSON telemetry constant: {value}')
 
 
 def read_record(stream):
-    line = stream.readline(MAX_LINE_CHARS + 1)
+    line = stream.readline(MAX_LINE_BYTES + 1)
     if not line:
         return None
-    if len(line) > MAX_LINE_CHARS or not line.endswith('\n'):
+    if len(line) > MAX_LINE_BYTES or not line.endswith('\n'):
         raise ValueError('Oversized or incomplete telemetry record')
-    value = json.loads(line)
+    value = json.loads(line, object_pairs_hook=unique_object,
+                       parse_constant=invalid_constant)
     if not isinstance(value, dict):
         raise ValueError('Telemetry record must be an object')
     return value
@@ -52,8 +76,8 @@ def read_schema(stream, field='cpu_regions'):
 
 
 def nonnegative_integer(value):
-    if type(value) is not int or value < 0:
-        raise ValueError('Expected a nonnegative integer counter')
+    if type(value) is not int or not 0 <= value <= UINT64_MAX:
+        raise ValueError('Expected a uint64 integer counter')
     return value
 
 
@@ -68,7 +92,9 @@ def summarize(stream):
     previous_timestamp = -1
     previous_frame = 0
     while (row := read_record(stream)) is not None:
-        if row.get('type') != 'frame' or row.get('schema_version') != 8:
+        if (row.get('type') != 'frame' or
+                type(row.get('schema_version')) is not int or
+                row['schema_version'] != 8):
             raise ValueError('Expected a schema-8 frame record')
         frame = nonnegative_integer(row.get('guest_frame'))
         timestamp = nonnegative_integer(row.get('timestamp_us'))
@@ -80,8 +106,12 @@ def summarize(stream):
                 len(elapsed) != len(names) or len(occurrences) != len(names)):
             raise ValueError('Missing or mismatched CPU region arrays')
         for i, (duration, occurrence) in enumerate(zip(elapsed, occurrences)):
-            totals[i] += nonnegative_integer(duration)
-            calls[i] += nonnegative_integer(occurrence)
+            duration = nonnegative_integer(duration)
+            occurrence = nonnegative_integer(occurrence)
+            if duration and not occurrence:
+                raise ValueError('CPU elapsed time without a call')
+            totals[i] += duration
+            calls[i] += occurrence
             if duration > maxima[i]:
                 maxima[i] = duration
                 maximum_frames[i] = frame
@@ -350,8 +380,9 @@ def main():
     args = parser.parse_args()
     if sum((args.auxiliary, args.finish, args.schema_only)) > 1 or (args.tail_seconds is not None and not (args.auxiliary or args.finish)):
         parser.error('Select one analysis mode; tail seconds requires --auxiliary or --finish')
-    with args.log.open(encoding='utf-8') as stream:
-        before = os.fstat(stream.fileno())
+    with args.log.open('rb') as raw:
+        before = os.fstat(raw.fileno())
+        stream = HashedUtf8Lines(raw)
         if args.schema_only:
             result = {'schemaVersion': 8, 'mode': 'liveHeaderOnly',
                       'regions': read_schema(stream),
@@ -364,12 +395,12 @@ def main():
             result = summarize(stream)
         result['sourcePath'] = str(args.log)
         if not args.schema_only:
-            stream.seek(0)
-            result['sourceSha256'] = sha256_stream(stream.buffer)
+            result['sourceSha256'] = stream.digest.hexdigest()
             identity = lambda stat: (stat.st_dev, stat.st_ino, stat.st_size,
                                      stat.st_mtime_ns)
-            if (identity(before) != identity(os.fstat(stream.fileno())) or
-                    identity(before) != identity(args.log.stat())):
+            if (identity(before) != identity(os.fstat(raw.fileno())) or
+                    identity(before) != identity(args.log.stat()) or
+                    stream.bytes_read != before.st_size):
                 raise ValueError('Log changed while summarizing; use a finalized log')
             result['sourceBytes'] = before.st_size
     if args.out:

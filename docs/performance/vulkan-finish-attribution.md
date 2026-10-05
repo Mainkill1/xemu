@@ -77,3 +77,18 @@ The [separate 30-second host profile recipe](recipes/pgr2-host-profile-30/README
 retains a failed native report stage and offline attribution. It does not
 replace the 300-second recipe or qualify a converter change. VP setting zero
 means automatic worker selection, not zero workers.
+
+### Finalized input integrity
+
+The full CLI reads bounded UTF-8 records from the binary file and computes the
+source SHA-256 from those exact bytes as they are parsed, including original
+line endings. It checks the final consumed size and the descriptor/path identity;
+it does not reread the file to compute a potentially different digest. This is
+not an atomic snapshot: stop the producer before full analysis. Header-only mode
+reads only the first record and provides no full-file digest.
+
+Duplicate JSON keys, non-JSON NaN/Infinity literals, non-integer schemas, positive
+CPU duration without calls, and individual counters outside uint64 are rejected.
+Accumulated totals use Python integers and may exceed one producer's uint64 range.
+The historical native recipes use their archived v1 reader and unchanged input
+pins; see `recipes/vk-perf-reader-v1.json` and the hash-verification instructions.

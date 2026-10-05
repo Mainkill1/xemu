@@ -27,7 +27,19 @@ metadata. `CONTRACT.json` states the diagnostic-only decision boundary.
 
 Use the maintained Xemu-Test-Runner HTTP client. Supply the frozen executable
 and matching libraries/EEPROM at the six `requiredFiles` paths in `job.json`;
-copy `scripts/performance/vk-perf-summary.py` to the package root. The job
+extract the archived reader identified in
+[`vk-perf-reader-v1.json`](../vk-perf-reader-v1.json) to the package root:
+
+```sh
+git show 3e69f0b8f110430d34c796706bde35d3c05d3e16:scripts/performance/vk-perf-summary.py > /absolute/package/path/vk-perf-summary.py
+cd /absolute/package/path
+printf '%s  %s\n' 0f2a1b13d567ce183c3a341989c0071f9e218c8f85a8ee9bd2e613a6a20b84da vk-perf-summary.py | sha256sum --check
+```
+
+Fetch that immutable revision if it is absent locally. The archived reader
+matches the historical package pin; the current maintained reader is for
+subsequent offline analysis. Updating the reader packaged for execution
+requires a new recipe revision, never changing this historical job. The job
 pins their actual SHA-256 values and rejects changed inputs. Do not bundle
 firmware, retail discs or saved guest disks into this repository. The four
 private asset IDs and expected hashes are recorded in the runtime-state

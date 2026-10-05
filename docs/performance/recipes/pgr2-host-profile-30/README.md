@@ -8,7 +8,9 @@ not a replacement for that recipe's failed frame-evidence qualification.
 It records a start scene, takes a read-only procfs/sysfs snapshot, captures
 30 seconds at 99 Hz with the maintained runner perf adapter (`dwarf,4096`),
 then requests another snapshot/end scene. All pause/resume flags are false.
-Package the adjacent frozen configuration/inputs and the maintained
+Package the adjacent frozen configuration/inputs and archived telemetry
+reader pinned by [`vk-perf-reader-v1.json`](../vk-perf-reader-v1.json), using
+the adjacent extraction and hash-verification commands. Also package the maintained
 `tools/linux_performance_context.py` from Xemu-Test-Runner draft #105
 (`ef8c763`). Its SHA-256 is pinned in `job.json`; this repository does not
 copy that tool's implementation or publish guest assets.
