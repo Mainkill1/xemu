@@ -480,8 +480,7 @@ if host_os == 'linux' and have_system
        args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
 endif
 
-# This test includes the private production upload implementation. Discard
-# unrelated renderer entry points rather than replacing its converters/GL calls.
+# Inject spurious wakes into the production VP worker completion waits.
 if host_os == 'linux' and have_system
   voice_wait_test = executable('test-xbox-mcpx-apu-worker-wait',
     files('test-xbox-mcpx-apu-worker-wait.c',
@@ -493,6 +492,8 @@ if host_os == 'linux' and have_system
        args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'], timeout: 30)
 endif
 
+# This test includes the private production upload implementation. Discard
+# unrelated renderer entry points rather than replacing its converters/GL calls.
 if host_os == 'linux' and epoxy.found()
   gl_upload_test = executable('test-xbox-gl-texture-upload',
     files('test-xbox-gl-texture-upload.c',
