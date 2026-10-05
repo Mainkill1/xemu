@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "mode": "helper",
+      "iterations": 12000000,
+      "checksum": "0000b8b9e3953e73",
+      "aaMinNs": 5.47225,
+      "aaMaxNs": 5.821,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 5.47675,
+          "candidateMedianNs": 1.1535,
+          "timeReductionPercent": 78.93823891906696,
+          "samplesPerVariant": 4
+        },
+        "BAAB": {
+          "parentMedianNs": 5.449625,
+          "candidateMedianNs": 1.1535,
+          "timeReductionPercent": 78.83340596830057,
+          "samplesPerVariant": 4
+        }
+      }
+    },
+    {
+      "mode": "helper-call",
+      "iterations": 12000000,
+      "checksum": "0000b8b9e3953e73",
+      "aaMinNs": 5.495083,
+      "aaMaxNs": 5.517333,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 5.509792,
+          "candidateMedianNs": 1.5578335,
+          "timeReductionPercent": 71.72609238243476,
+          "samplesPerVariant": 4
+        },
+        "BAAB": {
+          "parentMedianNs": 5.526125,
+          "candidateMedianNs": 1.5055,
+          "timeReductionPercent": 72.75667850437695,
+          "samplesPerVariant": 4
+        }
+      }
+    },
+    {
+      "mode": "mac",
+      "iterations": 6000000,
+      "checksum": "00005b8dd79014cd",
+      "aaMinNs": 11.055333,
+      "aaMaxNs": 12.037167,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 11.0818335,
+          "candidateMedianNs": 8.855,
+          "timeReductionPercent": 20.094450074529632,
+          "samplesPerVariant": 4
+        },
+        "BAAB": {
+          "parentMedianNs": 11.087499999999999,
+          "candidateMedianNs": 8.817416999999999,
+          "timeReductionPercent": 20.474254791431793,
+          "samplesPerVariant": 4
+        }
+      }
+    },
+    {
+      "mode": "mixed",
+      "iterations": 6000000,
+      "checksum": "0000784d7e8e6ced",
+      "aaMinNs": 19.481667,
+      "aaMaxNs": 19.644167,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 19.674,
+          "candidateMedianNs": 17.7115835,
+          "timeReductionPercent": 9.974669614719934,
+          "samplesPerVariant": 4
+        },
+        "BAAB": {
+          "parentMedianNs": 19.6236665,
+          "candidateMedianNs": 15.95625,
+          "timeReductionPercent": 18.688742493661916,
+          "samplesPerVariant": 4
+        }
+      }
+    }
+  ]
+}

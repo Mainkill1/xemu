@@ -1,0 +1,11 @@
+# PR278 numeric validation
+
+Numeric performance results only; raw logs, configs, machine paths and captures stay in private local storage. This isolated evidence branch must not be merged into main.
+
+Parent `afdde9eb62accd07686be104ebf4a9381785aaab`; candidate `ad0631f676dc35730b484624067d9f3b99c16128`; tree-equivalent CI build `d1e7538f3e30d30e1c3a8a2fba26dc4b0484dcf0`. Matched O2/noLTO GCC14.2/Clang19.1 C DSP component; source/state equivalence checks passed. CPU savings count independently from capped FPS. Actual game controls use unchanged DSP JIT and do not establish a C-path game gain.
+
+[native-runs.csv](native-runs.csv) contains all48 original ABBA/BAAB run metrics. Deck PGR2 B cell5 stays at the title/profile menu despite automated PASS: withhold that entire cohort from conclusions. Windows Morrowind is cache-ineligible; other scene endpoints inspected within host. PGR2 Deck flyover versus Windows countdown starts prevent cross-host scene equivalence. CPU is one core=100%; cadence is guest READ_3D flips, not host-presented FPS; frame intervals are milliseconds.
+
+Full unpaired Vulkan diagnostics use the matching171-leaf catalog/23chunks per side. Deck171 records/side and same12 intrinsic bordered-cubemap failures; Windows159/171 per side, samefailedchunks17/18, different chunk17 exitcodes. Fullpaired admission blocked22 missing pinned oracles. [All342 comparison rows](xiso-before-after.csv), [660 leaf records](xiso-leaf-times.csv), [all92 process walls](xiso-process-times.csv), and [groups](xiso-groups.csv) retain all timing changes>1%: Deck120,Windows93. No affectedDSP/audioleaf exists. Unpairedfull timings are descriptive, not qualified speedups. Twoqueued-texture hash differences are catalog-framebuffer-comparison-ineligible. Eight focusedABBA/BAAB CPU attempts/backend/host: Deck eligible, Windows cache-ineligible. Guest raw samples are iteration means, not individual invocation tails; p99 from8 means cannot resolve a distinct99thpercentile. Shared process wall is perchunk, not leaf.
+
+Hardware: Deck AMD APU0405/RADV VANGOGH,8logicalCPUs,15.52GB; Windows Ryzen9 6900HX,16logicalCPUs,16.36GB,RTX3070Ti Laptop. Hardware descriptions were requested for performance reporting. No executable, game bytes, firmware, HDD, credential, private path, raw log/config or snapshot is included.
