@@ -7,6 +7,8 @@ Canonical tracker: #313
 ## Branches
 
 - `experimental/shader-lab` — active integration branch for the complete experimental tooling stack.
+- `archive/shader-lab-stage1` — exact Stage 1 Shader Browser foundation checkpoint from PR #237.
+- `archive/shader-lab-stage2` — exact Stage 2 details / recipe export checkpoint from PR #238.
 - `archive/shader-lab-stage3` — exact Stage 3 Shader Browser / override checkpoint from PR #239.
 - `archive/shader-lab-workbench` — exact synthetic workbench checkpoint from PR #241.
 - `archive/shader-lab-draw-capture` — exact captured-draw checkpoint from PR #259.
