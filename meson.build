@@ -4658,6 +4658,34 @@ foreach target : target_dirs
       build_by_default: false)
     test('test-xbox-mcpx-apu-sample-memory', apu_sample_memory_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    resampler_state_test = executable('test-xbox-mcpx-apu-resampler-state',
+      files('tests/xbox/mcpx-apu/test-resampler-state.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main',
+                             '-Wl,--wrap=src_callback_new',
+                             '-Wl,--wrap=src_callback_read'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-resampler-state', resampler_state_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    resampler_throughput_test = executable(
+      'test-xbox-mcpx-apu-resampler-throughput',
+      files('tests/xbox/mcpx-apu/test-resampler-throughput.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main',
+                             '-Wl,--wrap=src_callback_new',
+                             '-Wl,--wrap=qemu_cond_broadcast'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-resampler-throughput',
+      resampler_throughput_test, args: ['--tap', '-k'], protocol: 'tap',
+      suite: ['unit'])
   endif
   foreach exe: execs
     exe_name = exe['name']
