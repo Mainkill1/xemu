@@ -1,0 +1,210 @@
+{
+  "Id": "xc-p258-deck-vk-full-candidate-missing-v3-007",
+  "Executable": "xemu",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "LD_LIBRARY_PATH": "{packageDir}/lib",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log"
+  },
+  "TimeoutSeconds": 600,
+  "Tags": [
+    "pr256",
+    "opengl",
+    "cubemap",
+    "deck",
+    "test-definition:xiso-45ff9b54aee30185fb3e48029c4acc3f@3d3d0111b36fcea8ed38be19842c41abaade3091c5a16bba45c41b3d22365390"
+  ],
+  "Plan": [],
+  "TargetOs": "linux",
+  "ExpectedExecutableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+  "RequiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/eeprom.bin",
+    "reference-results.txt"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": false,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": false,
+    "Files": [
+      {
+        "Source": "state/eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pr256-clean-fatx-compat010-v1",
+        "ExpectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "pr73-deck-bootrom-e99e3a-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "pr73-deck-flashrom-1de4c8-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "pr256-converted-cubemap-20261002-v3",
+          "ExpectedSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373"
+        }
+      ]
+    },
+    "Xiso": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "SuiteRevision": "eadac6f32322bf2615c7533613a862d163bfe5c68b59a7ef632da5c585125db6",
+      "IsoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+      "CatalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+      "Tests": [
+        "vertex_buffer_allocation.mixed.arrays",
+        "vertex_buffer_allocation.mixed.inline_arrays",
+        "vertex_buffer_allocation.mixed.inline_buffers",
+        "vertex_buffer_allocation.mixed.inline_elements",
+        "vertex_buffer_allocation.tiny.arrays",
+        "vertex_buffer_allocation.tiny.inline_arrays",
+        "vertex_buffer_allocation.tiny.inline_buffers",
+        "vertex_buffer_allocation.tiny.inline_elements",
+        "vertex_buffer_allocation.disjoint_same_page",
+        "vertex_buffer_allocation.rising_transient_growth"
+      ],
+      "Groups": [],
+      "Settings": {
+        "warmup_iterations": 3,
+        "measurement_iterations_multiplier": 4,
+        "gpu_completion_mode": "per_iteration"
+      }
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": null
+    },
+    {
+      "Path": "reference-results.txt",
+      "Role": "pinned-cubemap-input",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [],
+    "EvidenceRequirements": [],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 0,
+    "RequirePlanCompletion": true,
+    "GuestHddResults": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "GuestPath": "xemu_perf_tests/results.txt",
+      "ExpectedResults": "reference-results.txt",
+      "ExpectedResultsSha256": "7099950061aacc347a2f1aabf72cf007a6fa8400331b8d10c41101fda27feb38",
+      "MaximumResultBytes": 16777216,
+      "Xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eadac6f32322bf2615c7533613a862d163bfe5c68b59a7ef632da5c585125db6",
+        "IsoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+        "CatalogId": "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd",
+        "Tests": [
+          "vertex_buffer_allocation.mixed.arrays",
+          "vertex_buffer_allocation.mixed.inline_arrays",
+          "vertex_buffer_allocation.mixed.inline_buffers",
+          "vertex_buffer_allocation.mixed.inline_elements",
+          "vertex_buffer_allocation.tiny.arrays",
+          "vertex_buffer_allocation.tiny.inline_arrays",
+          "vertex_buffer_allocation.tiny.inline_buffers",
+          "vertex_buffer_allocation.tiny.inline_elements",
+          "vertex_buffer_allocation.disjoint_same_page",
+          "vertex_buffer_allocation.rising_transient_growth"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 3,
+          "measurement_iterations_multiplier": 4,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    }
+  },
+  "Experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}

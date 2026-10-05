@@ -1,0 +1,23 @@
+[
+  {
+    "cell": 1,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-deck-counter-01-a-v1",
+    "body": "p258-deck-counter-01-a-v1-definition.json",
+    "revision": "a4fb0099b2b4c75cb331abdbe30ee4d18f41a3b7e7a9ad40928f717f4a57b081",
+    "request": "p258-deck-counter-01-a-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-01-a-v1-t001",
+      "state": "failed",
+      "event": "finished",
+      "terminal": true,
+      "runId": null,
+      "code": "test_preparation_failed",
+      "queueIssue": null,
+      "next": "/api/v1/test-runs/p258-deck-counter-01-a-v1-t001",
+      "result": null
+    }
+  }
+]

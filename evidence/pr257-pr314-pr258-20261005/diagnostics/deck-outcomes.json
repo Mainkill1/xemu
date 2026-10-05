@@ -1,0 +1,314 @@
+[
+  {
+    "cell": 1,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-deck-counter-01-a-v1",
+    "body": "p258-deck-counter-01-a-v1-definition.json",
+    "revision": "a4fb0099b2b4c75cb331abdbe30ee4d18f41a3b7e7a9ad40928f717f4a57b081",
+    "request": "p258-deck-counter-01-a-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-01-a-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-130944673-37d95d599069425aabe5b181cf0250f2",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-130944673-37d95d599069425aabe5b181cf0250f2?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-130944673-37d95d599069425aabe5b181cf0250f2",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-130944673-37d95d599069425aabe5b181cf0250f2/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-130944673-37d95d599069425aabe5b181cf0250f2/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 2,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-deck-counter-02-b-v1",
+    "body": "p258-deck-counter-02-b-v1-definition.json",
+    "revision": "745b47cdec88acd07475ab302611dcecaceade36237e3a9e79ca2f6e401e89ca",
+    "request": "p258-deck-counter-02-b-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-02-b-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131037526-7accc73baf6543c1afa18cabab0e623b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131037526-7accc73baf6543c1afa18cabab0e623b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131037526-7accc73baf6543c1afa18cabab0e623b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-deck-counter-03-b-v1",
+    "body": "p258-deck-counter-03-b-v1-definition.json",
+    "revision": "c30b13a57da2596ba6a2be29b166a4dba15e29c31d164e8a0100e97c8c2332e1",
+    "request": "p258-deck-counter-03-b-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-03-b-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-deck-counter-04-a-v1",
+    "body": "p258-deck-counter-04-a-v1-definition.json",
+    "revision": "807be4d2e12ba315431311b123d6dbec3115b031a486f13cf5396449c7bf7054",
+    "request": "p258-deck-counter-04-a-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-04-a-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131218413-227dcb1acf644998a0109e0a2d3b165b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131218413-227dcb1acf644998a0109e0a2d3b165b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131218413-227dcb1acf644998a0109e0a2d3b165b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131218413-227dcb1acf644998a0109e0a2d3b165b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131218413-227dcb1acf644998a0109e0a2d3b165b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-deck-counter-05-b-v1",
+    "body": "p258-deck-counter-05-b-v1-definition.json",
+    "revision": "50713f51bd2270d901df6b2c28acc989b4f15ba7ee1ad6473734a40ad655bd7d",
+    "request": "p258-deck-counter-05-b-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-05-b-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131307991-98d100b142cf4ff5be07da17492ece0b",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131307991-98d100b142cf4ff5be07da17492ece0b?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131307991-98d100b142cf4ff5be07da17492ece0b",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131307991-98d100b142cf4ff5be07da17492ece0b/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131307991-98d100b142cf4ff5be07da17492ece0b/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-deck-counter-06-a-v1",
+    "body": "p258-deck-counter-06-a-v1-definition.json",
+    "revision": "783ab15a415f8e361890467627f18a25f43789f929fd21533c5831f0a11d5164",
+    "request": "p258-deck-counter-06-a-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-06-a-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131359924-242fce4177ec466984d5ff437bacd7c3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131359924-242fce4177ec466984d5ff437bacd7c3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131359924-242fce4177ec466984d5ff437bacd7c3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131359924-242fce4177ec466984d5ff437bacd7c3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131359924-242fce4177ec466984d5ff437bacd7c3/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-deck-counter-07-a-v1",
+    "body": "p258-deck-counter-07-a-v1-definition.json",
+    "revision": "14d6426f55c51acfbf80d6594fd167257f1f1733f7fb71e89b077ef0abc944bf",
+    "request": "p258-deck-counter-07-a-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-07-a-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131449776-977394d9e2a9472c8be17df5d522c703",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131449776-977394d9e2a9472c8be17df5d522c703?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131449776-977394d9e2a9472c8be17df5d522c703",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131449776-977394d9e2a9472c8be17df5d522c703/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131449776-977394d9e2a9472c8be17df5d522c703/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-deck-counter-08-b-v1",
+    "body": "p258-deck-counter-08-b-v1-definition.json",
+    "revision": "bb508426c646289c1aad687a7e3e003adc0ee42d866ac442736bbf48f5e70a32",
+    "request": "p258-deck-counter-08-b-v1-t002",
+    "result": {
+      "ok": true,
+      "id": "p258-deck-counter-08-b-v1-t002",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-131539428-79adfd14cc614fd79c6cfd912716db8c",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-131539428-79adfd14cc614fd79c6cfd912716db8c?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-131539428-79adfd14cc614fd79c6cfd912716db8c",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "reasons": [],
+        "moreReasons": 0,
+        "failures": [],
+        "moreFailures": 0,
+        "truncated": false,
+        "detail": "/api/v1/runs/20261005-131539428-79adfd14cc614fd79c6cfd912716db8c/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-131539428-79adfd14cc614fd79c6cfd912716db8c/diagnostics"
+      }
+    }
+  }
+]

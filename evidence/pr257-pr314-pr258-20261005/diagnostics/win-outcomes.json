@@ -45,5 +45,334 @@
         "diagnostics": "/api/v1/runs/20261005-115833805-05888fdeb5ed49f4a0792b42ec9aa51d/diagnostics"
       }
     }
+  },
+  {
+    "cell": 2,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-win-counter-02-b-v1",
+    "body": "p258-win-counter-02-b-v1-definition.json",
+    "revision": "7e8357bb943af317f638dc17fb17ee351dbc0079215e135415f5a635c085cc71",
+    "request": "p258-win-counter-02-b-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-02-b-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-115922528-12263b3150e04e9188d04585386b4ba6",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-115922528-12263b3150e04e9188d04585386b4ba6?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-115922528-12263b3150e04e9188d04585386b4ba6",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-115922528-12263b3150e04e9188d04585386b4ba6/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-115922528-12263b3150e04e9188d04585386b4ba6/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 3,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-win-counter-03-b-v1",
+    "body": "p258-win-counter-03-b-v1-definition.json",
+    "revision": "e57c4bfab8c068b4bef9426d3a2e6e3e4655e997fd5978c4f84479b1e0fc1865",
+    "request": "p258-win-counter-03-b-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-03-b-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120009370-43c88243de554867830ba182a96c89fd",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120009370-43c88243de554867830ba182a96c89fd?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120009370-43c88243de554867830ba182a96c89fd",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120009370-43c88243de554867830ba182a96c89fd/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120009370-43c88243de554867830ba182a96c89fd/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 4,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-win-counter-04-a-v1",
+    "body": "p258-win-counter-04-a-v1-definition.json",
+    "revision": "0833dd0859cbfb338ddd0f75df20a317aca4f52ec97d3d6cc8d189f9094565ea",
+    "request": "p258-win-counter-04-a-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-04-a-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120057286-784835dc669f4b588b99d7ce9eac08fc",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120057286-784835dc669f4b588b99d7ce9eac08fc?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120057286-784835dc669f4b588b99d7ce9eac08fc",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120057286-784835dc669f4b588b99d7ce9eac08fc/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120057286-784835dc669f4b588b99d7ce9eac08fc/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 5,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-win-counter-05-b-v1",
+    "body": "p258-win-counter-05-b-v1-definition.json",
+    "revision": "29dfbe0fc4e76bed11ec822344f5b4842fa42e8d9886bcc243b269cef5147f6e",
+    "request": "p258-win-counter-05-b-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-05-b-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120144172-c1340ba1d7294a01b22d35cc0aacae42",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120144172-c1340ba1d7294a01b22d35cc0aacae42?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120144172-c1340ba1d7294a01b22d35cc0aacae42",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120144172-c1340ba1d7294a01b22d35cc0aacae42/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120144172-c1340ba1d7294a01b22d35cc0aacae42/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 6,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-win-counter-06-a-v1",
+    "body": "p258-win-counter-06-a-v1-definition.json",
+    "revision": "805887165f73a0c86d3d146703d0fa8530468bb8abdd0f1b34a52864009e61aa",
+    "request": "p258-win-counter-06-a-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-06-a-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120231123-a2ab8516175547069d2f56e8fea00fbc",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120231123-a2ab8516175547069d2f56e8fea00fbc?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120231123-a2ab8516175547069d2f56e8fea00fbc",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120231123-a2ab8516175547069d2f56e8fea00fbc/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120231123-a2ab8516175547069d2f56e8fea00fbc/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 7,
+    "side": "A",
+    "policy": "auto",
+    "testId": "p258-win-counter-07-a-v1",
+    "body": "p258-win-counter-07-a-v1-definition.json",
+    "revision": "1e2f0d6b0a14292780bc2d209eca32d8c817b84326f7d34d223efeecca16d96f",
+    "request": "p258-win-counter-07-a-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-07-a-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120319059-0d45c06431bd43b48646b5af6baa77d7",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120319059-0d45c06431bd43b48646b5af6baa77d7?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120319059-0d45c06431bd43b48646b5af6baa77d7",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120319059-0d45c06431bd43b48646b5af6baa77d7/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120319059-0d45c06431bd43b48646b5af6baa77d7/diagnostics"
+      }
+    }
+  },
+  {
+    "cell": 8,
+    "side": "B",
+    "policy": "disabled",
+    "testId": "p258-win-counter-08-b-v1",
+    "body": "p258-win-counter-08-b-v1-definition.json",
+    "revision": "2cafcb72ad0eb78896382cfb2883d50e60eedef9fcd4d5fcf79ce8b50c9a1fcf",
+    "request": "p258-win-counter-08-b-v1-t001",
+    "result": {
+      "ok": true,
+      "id": "p258-win-counter-08-b-v1-t001",
+      "state": "tested",
+      "event": "finished",
+      "terminal": true,
+      "runId": "20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3",
+      "code": null,
+      "queueIssue": null,
+      "next": "/api/v1/runs/20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3?view=summary",
+      "result": {
+        "ok": true,
+        "runId": "20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3",
+        "available": true,
+        "code": null,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "ineligible"
+        },
+        "reasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+        ],
+        "moreReasons": 0,
+        "failures": [
+          {
+            "name": "run_storage_state",
+            "category": "state",
+            "detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or its driver disk namespace is unverified without an explicit waiver. Read the run sta..."
+          }
+        ],
+        "moreFailures": 0,
+        "truncated": true,
+        "detail": "/api/v1/runs/20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3/artifacts/assessment.json",
+        "diagnostics": "/api/v1/runs/20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3/diagnostics"
+      }
+    }
   }
 ]

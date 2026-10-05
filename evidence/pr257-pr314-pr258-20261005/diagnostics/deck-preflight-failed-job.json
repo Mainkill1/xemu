@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "id": "p258-deck-counter-01-a-v1-t001",
+  "state": "draft",
+  "runId": null,
+  "cursor": "5a9c1605e3ff4df5b15f86eec2a1ada3:f2582290151c9636",
+  "changed": true,
+  "next": {
+    "method": "GET",
+    "href": "/api/v1/jobs/p258-deck-counter-01-a-v1-t001/operation"
+  },
+  "blocker": {
+    "code": "preflight_failed",
+    "hint": "Read the operation/validation details and repair this draft."
+  },
+  "operation": {
+    "id": "af58795f64314438884f446ea84dd43b",
+    "action": "submit",
+    "state": "failed",
+    "filesChecked": 41,
+    "errorCode": "preflight_failed"
+  }
+}

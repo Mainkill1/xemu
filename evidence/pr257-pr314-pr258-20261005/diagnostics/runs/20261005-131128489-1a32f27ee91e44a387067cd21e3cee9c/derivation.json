@@ -1,0 +1,37 @@
+{
+  "schema": "native-runner-binding/v1",
+  "actualSavedRevision": "c30b13a57da2596ba6a2be29b166a4dba15e29c31d164e8a0100e97c8c2332e1",
+  "actualJobManifestSha256": "699e65161c1140d42620c94d886353c3d6fcf2b0397f0328dcf98a8f5f11a7c9",
+  "sharedProcedureMeaning": "Original registered native job and revision; actual serialized guest plan compared exactly. Per-cell diagnostic argv/revisions retained separately.",
+  "catalogMeaning": "One native procedure, not an XISO leaf catalog.",
+  "requestedActualMeaning": "Declared native procedure and verified plan completion; not guest acknowledgment of each input.",
+  "resourceProofs": [
+    {
+      "role": "dvd",
+      "source": "run-state ReadOnlyAssets before/after",
+      "assetId": "morrowind-goty-disc-v1"
+    },
+    {
+      "role": "flashrom",
+      "source": "run-state ReadOnlyAssets before/after",
+      "assetId": "pr73-deck-flashrom-1de4c8-v1"
+    },
+    {
+      "role": "eeprom",
+      "source": "canonical RuntimeFiles seed and exact launch path",
+      "destination": "eeprom.bin"
+    },
+    {
+      "role": "bootrom",
+      "source": "run-state ReadOnlyAssets before/after",
+      "assetId": "pr73-deck-bootrom-e99e3a-v1"
+    },
+    {
+      "role": "hdd",
+      "source": "canonical RuntimeFiles seed and exact launch path",
+      "destination": "hdd.qcow2"
+    }
+  ],
+  "unverifiedRoles": [],
+  "outputProof": "Canonical launch argument or run-state effective config under this result directory"
+}

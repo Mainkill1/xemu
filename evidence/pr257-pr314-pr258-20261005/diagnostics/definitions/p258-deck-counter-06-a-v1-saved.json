@@ -1,0 +1,10 @@
+{
+  "id": "p258-deck-counter-06-a-v1",
+  "revision": "783ab15a415f8e361890467627f18a25f43789f929fd21533c5831f0a11d5164",
+  "description": "PR258 diagnostic only; original Morrowind guest inputs unchanged; added bounded owner counters and process policy metadata.",
+  "sourceJobId": "issue163-morrowind-auto-app-v1",
+  "stepCount": 13,
+  "fileCount": 41,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/p258-deck-counter-06-a-v1/783ab15a415f8e361890467627f18a25f43789f929fd21533c5831f0a11d5164"
+}

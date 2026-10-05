@@ -1,0 +1,390 @@
+{
+  "runId": "20261005-124344690-9b6be97f9b924fa290f3c53e8019d532",
+  "job": "xc-p258-deck-vk-full-candidate-v2-012",
+  "jobPackage": "agent-xc-p258-deck-vk-full-candidate-v2-012",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-05T12:43:44.690884+00:00",
+  "endedUtc": "2026-10-05T12:44:38.8053526+00:00",
+  "durationMs": 54114.4688,
+  "processId": 681794,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261005-124344690-9b6be97f9b924fa290f3c53e8019d532",
+    "ExecutableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+    "Platform": "linux",
+    "ProcessId": 681794,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "678f879c149cc286e37c6d185f33527738c8619b88ee4b69d2ac00041ca42e8a",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-xc-p258-deck-vk-full-candidate-v2-012/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:35601,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 12 leaves and 1 groups; received 13. Missing 0, extra 0."
+      },
+      {
+        "Name": "xiso_group:game_load.s3tc_sync_factor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc2_bordered_fallback",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc2_native_eligible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc3_bordered_fallback",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc3_native_eligible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_wait",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_queued",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_wait",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "failed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Correctness outcome is Failed; a passing correctness contract is required."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 12 leaves and 1 groups; received 13. Missing 0, extra 0."
+      },
+      {
+        "Name": "xiso_group:game_load.s3tc_sync_factor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Structural group outcome; never treated as an independent timing sample."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc2_bordered_fallback",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc2_native_eligible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc3_bordered_fallback",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.bc3_native_eligible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_wait",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_queued",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+      },
+      {
+        "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_wait",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 4 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "pr256-opengl-cubemap",
+    "Variant": "candidate",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "same-iso",
+      "same-opengl-settings",
+      "same-private-seed"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-124344690-9b6be97f9b924fa290f3c53e8019d532",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 108,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.36301703703703714,
+    "maxCollectorDutyPercent": 0.64314,
+    "maxCollectorDurationMs": 3.2157,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

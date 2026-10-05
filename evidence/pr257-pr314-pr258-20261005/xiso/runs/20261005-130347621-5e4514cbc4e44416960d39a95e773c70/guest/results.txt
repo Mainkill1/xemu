@@ -1,0 +1,37 @@
+[
+  {
+    "schema_version": 1,
+    "id": "texture_cubemap_fallback.bordered_r6g5b5_size8",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "TextureCubemapFallback::BorderedR6G5B5Size8",
+    "outcome": "FAIL",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 957,
+    "total_us": 529948,
+    "average_us": 16560,
+    "min_us": 15860,
+    "max_us": 16892,
+    "median_us": 16613,
+    "p95_us": 16892,
+    "mad_us": 118,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      15860,
+      16833,
+      16603,
+      16515,
+      16682,
+      16892,
+      16623,
+      16475
+    ],
+    "framebuffer_fnv1a64": "72ca2acdd1d976a5",
+    "metadata": {"schema_version":1,"kind":"bordered_uncompressed_cubemap_mips","oracle_status":"FAIL","source_kat":1796360377,"guest_format":39,"logical_size":8,"levels":4,"faces":6,"face_stride":768,"samples_per_cell":5,"failure_count":100,"failure_mask":16252927,"observed_rgb565":[0,32,32,0,0,0,32,32,0,0,0,32,32,0,0,0,32,32,0,0,0,32,32,0,0,0,32,32,0,0,0,0,0,0,32,0,0,0,0,32,0,0,0,0,32,0,0,0,0,32,0,0,0,0,32,0,0,0,0,32,0,32,31695,48631,48631,0,32,32,32,32,0,32,32,65535,65535,0,32,32,32,32,0,32,65535,32,32,0,32,31695,48631,48631,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31727,31727,31727,31727,31727,65535,65535,65535,65535,65535,0,0,0,0,0]}
+  }
+]

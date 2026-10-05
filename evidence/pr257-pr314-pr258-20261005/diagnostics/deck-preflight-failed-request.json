@@ -1,0 +1,16 @@
+{
+  "id": "p258-deck-counter-01-a-v1-t001",
+  "state": "failed",
+  "testId": "p258-deck-counter-01-a-v1",
+  "revision": "a4fb0099b2b4c75cb331abdbe30ee4d18f41a3b7e7a9ad40928f717f4a57b081",
+  "applicationJobId": "pr258-e6a-counter-deck-morrowind-v1",
+  "runId": null,
+  "startRequested": true,
+  "createdUtc": "2026-10-05T12:48:00.8199629+00:00",
+  "startRequestedUtc": "2026-10-05T12:48:00.8363461+00:00",
+  "errorCode": "test_preparation_failed",
+  "error": "The package did not pass preflight.",
+  "application": "/api/v1/applications/pr258-e6a-counter-deck-morrowind-v1",
+  "job": "/api/v1/jobs/p258-deck-counter-01-a-v1-t001?view=summary",
+  "result": null
+}

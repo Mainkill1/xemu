@@ -1,0 +1,22 @@
+{
+  "id": "p258-deck-vk-texture-focused-v2",
+  "revision": "fbe005b9a821a6df567bb5a71f2a15e171a3f2dd51286fd264cd225ee878ba08",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 5,
+  "chunkCount": 3,
+  "attemptCount": 24,
+  "finished": 24,
+  "passed": 16,
+  "failed": 8,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p258-deck-vk-texture-focused-v2/wait",
+  "details": "/api/v1/xiso-campaigns/p258-deck-vk-texture-focused-v2/attempts",
+  "comparisonEligible": 16,
+  "qualification": "unverified"
+}

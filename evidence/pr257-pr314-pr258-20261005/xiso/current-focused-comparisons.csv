@@ -4,3 +4,8 @@ win,Vulkan,pipeline_texture_switch.texture_switch,18220.5,18261.125,40.625,-0.22
 win,Vulkan,pipeline_texture_switch.clear_texture_normal,12385.5625,12442.25,56.6875,-0.45769015335395546,4,4,True,0
 win,Vulkan,pipeline_texture_switch.sampler_only_identity,22162.0625,22284.8125,122.75,-0.5538744419658594,4,4,True,0
 win,Vulkan,game_load.cross_title_hotpath.texture_binding_reuse,320476.125,331153.125,10677.0,-3.331605435506311,4,4,False,0
+deck,Vulkan,cpu_floating_point.x87_scalar,1077201.0499999998,1087709.9500000002,10508.900000000373,-0.9755746153422682,4,4,True,8
+deck,Vulkan,pipeline_texture_switch.texture_switch,48507.125,48629.1875,122.0625,-0.25163829025117446,4,4,True,8
+deck,Vulkan,pipeline_texture_switch.clear_texture_normal,37577.0625,36308.1875,-1268.875,3.376727491671282,4,4,True,8
+deck,Vulkan,pipeline_texture_switch.sampler_only_identity,65874.5625,65725.75,-148.8125,0.22590282857666039,4,4,True,8
+deck,Vulkan,game_load.cross_title_hotpath.texture_binding_reuse,1065643.25,1065577.6875,-65.5625,0.0061523873022233284,4,4,False,0

@@ -1,0 +1,60 @@
+{
+  "run_id": "20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3",
+  "session_id": "20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3",
+  "executable_sha256": "3688cd956b701362cf6cecd3ce301676ed4d57ea5312effedec1cac834a22bb0",
+  "input_sha256": "24f8789490b341c9a3995a6a62707fbd06836a8e2b8ba7b950ce62846f40c959",
+  "result_directory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3",
+  "screenshot_directory": "",
+  "resource_bindings": {
+    "dvd": {
+      "path": "C:/xemu-lab/games/Elder Scrolls III, The - Morrowind - Game of the Year Edition (USA).iso",
+      "sha256": null,
+      "verified": false
+    },
+    "flashrom": {
+      "path": "C:/xemu-lab/XEMU FILES/BIOS/Complex_4627v1.03.bin",
+      "sha256": null,
+      "verified": false
+    },
+    "eeprom": {
+      "path": "state/eeprom.bin",
+      "sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "verified": true
+    },
+    "bootrom": {
+      "path": "C:/xemu-lab/XEMU FILES/Boot ROM image/mcpx_1.0.bin",
+      "sha256": null,
+      "verified": false
+    },
+    "hdd": {
+      "path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-120406948-5a3fe6cf066745e3a7add73edf3b12e3\\hdd.qcow2",
+      "sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "verified": true
+    }
+  },
+  "comparison_eligible": false,
+  "correctness": "passed",
+  "requested_tests": [
+    "pr187-win-morrowind-qualified-v1"
+  ],
+  "actual_tests": [
+    "pr187-win-morrowind-qualified-v1"
+  ],
+  "baseline_sha256": "3688cd956b701362cf6cecd3ce301676ed4d57ea5312effedec1cac834a22bb0",
+  "procedure_revision": "493b0316177682b9ec1d3517a47ce677a4ffe9e700fd68c830e0b3e88843f99e",
+  "catalog_sha256": "e614081d1388f2fd7ae13caf35cee2416c22b6fc06ec400ccff977f537d0b03f",
+  "guest_settings_sha256": "adc6a464136c357b750ad8198d3268f37f5b88b1efeaf1c579bbce94ddfe6bde",
+  "cache_policy": {
+    "CacheMode": "unmanaged",
+    "CacheShaders": null,
+    "DriverCache": "uncontrolled",
+    "DriverNamespaceVerified": false,
+    "DriverQualification": "not_verified",
+    "ComparisonReady": false
+  },
+  "start_policy": {
+    "snapshot": "vm-20260929162035",
+    "startPaused": false,
+    "requireInput": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "p258-deck-vk-full-parent-v2",
+  "revision": "a330baa19dd0ea396725431238cb00d844e38199d7211d747e288a7fe0127fa6",
+  "state": "failed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 171,
+  "chunkCount": 23,
+  "attemptCount": 23,
+  "finished": 23,
+  "passed": 2,
+  "failed": 21,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p258-deck-vk-full-parent-v2/wait",
+  "details": "/api/v1/xiso-campaigns/p258-deck-vk-full-parent-v2/attempts",
+  "comparisonEligible": 2,
+  "qualification": "unverified"
+}

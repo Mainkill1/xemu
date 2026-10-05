@@ -1,0 +1,25 @@
+{
+  "schema": "native-runner-binding/v1",
+  "actualSavedRevision": "2cafcb72ad0eb78896382cfb2883d50e60eedef9fcd4d5fcf79ce8b50c9a1fcf",
+  "actualJobManifestSha256": "060b7642112fb1dfaf56259115f621c2e9a964f670977fab8546e95b32e5b47d",
+  "sharedProcedureMeaning": "Original registered native job and revision; actual serialized guest plan compared exactly. Per-cell diagnostic argv/revisions retained separately.",
+  "catalogMeaning": "One native procedure, not an XISO leaf catalog.",
+  "requestedActualMeaning": "Declared native procedure and verified plan completion; not guest acknowledgment of each input.",
+  "resourceProofs": [
+    {
+      "role": "eeprom",
+      "source": "canonical package input, exact relative startup path"
+    },
+    {
+      "role": "hdd",
+      "source": "canonical RuntimeFiles seed and exact launch path",
+      "destination": "hdd.qcow2"
+    }
+  ],
+  "unverifiedRoles": [
+    "dvd",
+    "flashrom",
+    "bootrom"
+  ],
+  "outputProof": "Canonical launch argument or run-state effective config under this result directory"
+}

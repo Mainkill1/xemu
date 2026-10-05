@@ -1,0 +1,194 @@
+{
+  "schema": "native-setting-diagnostic/v1",
+  "host": "deck",
+  "rows": [
+    {
+      "host": "deck",
+      "cell": 1,
+      "policy": "auto",
+      "runId": "20261005-130944673-37d95d599069425aabe5b181cf0250f2",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 195,
+      "forcedReference": 0,
+      "windowMs": 15546.05,
+      "runnerComparison": "eligible",
+      "cpu": 216.2738870967742,
+      "guestFlipCadence": 12.427469980437024,
+      "meanMs": 76.97444307692305,
+      "p95Ms": 100.01339999999999,
+      "p99Ms": 116.67448,
+      "maxMs": 133.318
+    },
+    {
+      "host": "deck",
+      "cell": 2,
+      "policy": "disabled",
+      "runId": "20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 0,
+      "forcedReference": 195,
+      "windowMs": 15477.093,
+      "runnerComparison": "eligible",
+      "cpu": 224.4859032258065,
+      "guestFlipCadence": 12.880758603531762,
+      "meanMs": 74.9115329341317,
+      "p95Ms": 100.0057,
+      "p99Ms": 100.11569,
+      "maxMs": 118.876
+    },
+    {
+      "host": "deck",
+      "cell": 3,
+      "policy": "disabled",
+      "runId": "20261005-131128489-1a32f27ee91e44a387067cd21e3cee9c",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 0,
+      "forcedReference": 195,
+      "windowMs": 15382.442,
+      "runnerComparison": "eligible",
+      "cpu": 214.13917741935478,
+      "guestFlipCadence": 12.940590384665004,
+      "meanMs": 76.11074164133736,
+      "p95Ms": 100.015,
+      "p99Ms": 111.89691999999951,
+      "maxMs": 139.687
+    },
+    {
+      "host": "deck",
+      "cell": 4,
+      "policy": "auto",
+      "runId": "20261005-131218413-227dcb1acf644998a0109e0a2d3b165b",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 195,
+      "forcedReference": 0,
+      "windowMs": 15469.633,
+      "runnerComparison": "eligible",
+      "cpu": 220.32183870967737,
+      "guestFlipCadence": 12.89256113107034,
+      "meanMs": 75.1004534534534,
+      "p95Ms": 99.985,
+      "p99Ms": 106.50340000000006,
+      "maxMs": 136.998
+    },
+    {
+      "host": "deck",
+      "cell": 5,
+      "policy": "disabled",
+      "runId": "20261005-131307991-98d100b142cf4ff5be07da17492ece0b",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 0,
+      "forcedReference": 195,
+      "windowMs": 15068.945,
+      "runnerComparison": "eligible",
+      "cpu": 212.17070967741935,
+      "guestFlipCadence": 12.940017659551708,
+      "meanMs": 74.80582985074625,
+      "p95Ms": 99.9816,
+      "p99Ms": 111.37962000000041,
+      "maxMs": 133.914
+    },
+    {
+      "host": "deck",
+      "cell": 6,
+      "policy": "auto",
+      "runId": "20261005-131359924-242fce4177ec466984d5ff437bacd7c3",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 195,
+      "forcedReference": 0,
+      "windowMs": 15651.207,
+      "runnerComparison": "eligible",
+      "cpu": 222.51801612903225,
+      "guestFlipCadence": 12.579394031938644,
+      "meanMs": 76.8403159509202,
+      "p95Ms": 100.03625000000001,
+      "p99Ms": 116.6925,
+      "maxMs": 149.999
+    },
+    {
+      "host": "deck",
+      "cell": 7,
+      "policy": "auto",
+      "runId": "20261005-131449776-977394d9e2a9472c8be17df5d522c703",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 195,
+      "forcedReference": 0,
+      "windowMs": 15504.269,
+      "runnerComparison": "eligible",
+      "cpu": 226.07112903225809,
+      "guestFlipCadence": 12.870156526128662,
+      "meanMs": 74.40533630952369,
+      "p95Ms": 100.018,
+      "p99Ms": 100.1149,
+      "maxMs": 116.631
+    },
+    {
+      "host": "deck",
+      "cell": 8,
+      "policy": "disabled",
+      "runId": "20261005-131539428-79adfd14cc614fd79c6cfd912716db8c",
+      "complete": true,
+      "eligibleStages": 195,
+      "skips": 0,
+      "forcedReference": 195,
+      "windowMs": 15202.406,
+      "runnerComparison": "eligible",
+      "cpu": 225.74753225806452,
+      "guestFlipCadence": 12.740980160031473,
+      "meanMs": 75.99180909090902,
+      "p95Ms": 100.02275,
+      "p99Ms": 108.39146999999977,
+      "maxMs": 116.652
+    }
+  ],
+  "admission": {
+    "eligible": true,
+    "errors": [],
+    "performance_verdict": "not_evaluated"
+  },
+  "counterBoundary": "NV097 SET_FLIP_STALL method, not completed flip/present/input acknowledgment",
+  "metrics": {
+    "cpu": {
+      "auto": 221.4199274193548,
+      "disabled": 219.31254032258065,
+      "disabledVsAutoPercent": -0.9517603593026631
+    },
+    "guestFlipCadence": {
+      "auto": 12.724775279033654,
+      "disabled": 12.910388131541735,
+      "disabledVsAutoPercent": 1.4586729308604083
+    },
+    "meanMs": {
+      "auto": 75.9703847021868,
+      "disabled": 75.45167101252036,
+      "disabledVsAutoPercent": -0.6827840765843984
+    },
+    "p95Ms": {
+      "auto": 100.0157,
+      "disabled": 100.01035,
+      "disabledVsAutoPercent": -0.005349160181844311
+    },
+    "p99Ms": {
+      "auto": 111.58894000000004,
+      "disabled": 109.88554500000009,
+      "disabledVsAutoPercent": -1.5264908870000404
+    },
+    "maxMs": {
+      "auto": 135.15800000000002,
+      "disabled": 126.395,
+      "disabledVsAutoPercent": -6.48352298791046
+    },
+    "windowMs": {
+      "auto": 15525.1595,
+      "disabled": 15292.423999999999,
+      "disabledVsAutoPercent": -1.4990860480370631
+    }
+  },
+  "timingMeaning": "Descriptive canonical per-run medians, CPU one core=100%; no timing verdict from counter admission. Owner-window and scene-monitoring intervals differ."
+}

@@ -1,0 +1,60 @@
+{
+  "run_id": "20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+  "session_id": "20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+  "executable_sha256": "87d94e352d40bcfb00c36811dede97117042fe3fa4cbddda3964a0d21ba0507b",
+  "input_sha256": "25539efeb6206fa587db6e32780e8f5c794c61c551702c3d67dc0058a477c9c1",
+  "result_directory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261005-131037526-7accc73baf6543c1afa18cabab0e623b",
+  "screenshot_directory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Results/20261005-131037526-7accc73baf6543c1afa18cabab0e623b/screenshots",
+  "resource_bindings": {
+    "dvd": {
+      "path": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/morrowind-goty-disc-v1/disk.qcow2",
+      "sha256": "d719c4d89eb7145b5aa8230b27598254b0ae95a73b36a9d51bd84edfdc1941bd",
+      "verified": true
+    },
+    "flashrom": {
+      "path": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/pr73-deck-flashrom-1de4c8-v1/disk.qcow2",
+      "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "verified": true
+    },
+    "eeprom": {
+      "path": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-131037526-7accc73baf6543c1afa18cabab0e623b/eeprom.bin",
+      "sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "verified": true
+    },
+    "bootrom": {
+      "path": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/DiskAssets/pr73-deck-bootrom-e99e3a-v1/disk.qcow2",
+      "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "verified": true
+    },
+    "hdd": {
+      "path": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-131037526-7accc73baf6543c1afa18cabab0e623b/hdd.qcow2",
+      "sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "verified": true
+    }
+  },
+  "comparison_eligible": true,
+  "correctness": "passed",
+  "requested_tests": [
+    "morrowind-snapshot-disc-deck-v2"
+  ],
+  "actual_tests": [
+    "morrowind-snapshot-disc-deck-v2"
+  ],
+  "baseline_sha256": "87d94e352d40bcfb00c36811dede97117042fe3fa4cbddda3964a0d21ba0507b",
+  "procedure_revision": "20e8eb42a44869551b735f07050914441ad62cc585b604162031183f2a787b90",
+  "catalog_sha256": "6e9ed706850bc4833992a9b0d1ec77fa1ae1f81f99ca9d31dad11c09b07dc81b",
+  "guest_settings_sha256": "eaa9dec6b743cf84c4843b93b04ee49c1940b014c932432d046498bc15a8e088",
+  "cache_policy": {
+    "CacheMode": "cold",
+    "CacheShaders": true,
+    "DriverCache": "mesa",
+    "DriverNamespaceVerified": true,
+    "DriverQualification": "mesa_private_disk_writes_observed",
+    "ComparisonReady": true
+  },
+  "start_policy": {
+    "snapshot": "vm-20260929162035",
+    "startPaused": false,
+    "requireInput": true
+  }
+}

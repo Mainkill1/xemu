@@ -1,0 +1,116 @@
+{
+  "originalCampaign": "p258-deck-vk-full-candidate-v2",
+  "resumeCampaign": "p258-deck-vk-full-candidate-missing-v3",
+  "mapping": [
+    {
+      "resumeChunk": 1,
+      "originalChunk": 17,
+      "planId": "sha256:7d763f60ac2d9cca6beabce7c478c8198f1fa6d1809bdaef2ae5bebc6218e7bc",
+      "tests": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "texture_cubemap_fallback.bordered_rgba8_size1",
+        "texture_cubemap_fallback.bordered_rgba8_size2",
+        "texture_cubemap_fallback.bordered_rgba8_size4",
+        "texture_cubemap_fallback.bordered_rgba8_size8",
+        "texture_cubemap_fallback.bordered_palette_size1",
+        "texture_cubemap_fallback.bordered_palette_size2",
+        "texture_cubemap_fallback.bordered_palette_size4",
+        "texture_cubemap_fallback.bordered_palette_size8",
+        "texture_cubemap_fallback.bordered_r6g5b5_size1",
+        "texture_cubemap_fallback.bordered_r6g5b5_size2",
+        "texture_cubemap_fallback.bordered_r6g5b5_size4"
+      ]
+    },
+    {
+      "resumeChunk": 2,
+      "originalChunk": 18,
+      "planId": "sha256:8f51adf0b2c387b961bc88350cf200b61f30b4ebe9157db3fce85428a4c2b8f3",
+      "tests": [
+        "texture_cubemap_fallback.bordered_r6g5b5_size8"
+      ]
+    },
+    {
+      "resumeChunk": 3,
+      "originalChunk": 19,
+      "planId": "sha256:96ca5a716a364301aa07cfba2d5c4079892b2bd0cd874a872d8f5855c5f9c98d",
+      "tests": [
+        "surface.basic",
+        "surface.cpu_read_after_gpu_write",
+        "surface.cpu_read_clean_surface",
+        "surface.framebuffer_working_set_002",
+        "surface.framebuffer_working_set_008",
+        "surface.framebuffer_working_set_032",
+        "surface.framebuffer_working_set_064",
+        "surface.full_clear_elision_guard",
+        "surface.overlapping_surface_churn_representative",
+        "surface.overlapping_surface_churn_stress",
+        "surface.partial_channel_clear_guard",
+        "surface.surface_download_path"
+      ]
+    },
+    {
+      "resumeChunk": 4,
+      "originalChunk": 20,
+      "planId": "sha256:6e073dc422670186b3a55ab8bda39b8d39c160962840fae88f79d68b543f402b",
+      "tests": [
+        "surface.surface_list_lookup_002",
+        "surface.surface_list_lookup_008",
+        "surface.surface_list_lookup_032",
+        "surface.surface_list_lookup_128",
+        "surface.vulkan_memory_pressure.representative.growth",
+        "surface.vulkan_memory_pressure.representative.plateau",
+        "surface.vulkan_memory_pressure.representative.alias_resize",
+        "surface.vulkan_memory_pressure.representative.reuse",
+        "surface.vulkan_memory_pressure.representative.idle_retention",
+        "surface.vulkan_memory_pressure.stress.growth",
+        "surface.vulkan_memory_pressure.stress.plateau",
+        "surface.vulkan_memory_pressure.stress.alias_resize",
+        "surface.vulkan_memory_pressure.stress.reuse",
+        "surface.vulkan_memory_pressure.stress.idle_retention"
+      ]
+    },
+    {
+      "resumeChunk": 5,
+      "originalChunk": 21,
+      "planId": "sha256:6841831480372c821bcd745f84c2cf559da15ac246c781234ea94438c0fd8899",
+      "tests": [
+        "tiny_draw.arrays.fixed_function",
+        "tiny_draw.arrays.vertex_shader",
+        "tiny_draw.inline_arrays.fixed_function",
+        "tiny_draw.inline_arrays.vertex_shader",
+        "tiny_draw.inline_buffers.fixed_function",
+        "tiny_draw.inline_buffers.vertex_shader",
+        "tiny_draw.inline_elements.fixed_function",
+        "tiny_draw.inline_elements.vertex_shader"
+      ]
+    },
+    {
+      "resumeChunk": 6,
+      "originalChunk": 22,
+      "planId": "sha256:e270e143cd49dbd3de7f00b8435dc6ef848b567e4bafd938b816796787ecd972",
+      "tests": [
+        "uniform_thrash.uniform_thrash"
+      ]
+    },
+    {
+      "resumeChunk": 7,
+      "originalChunk": 23,
+      "planId": "sha256:45ff9b54aee30185fb3e48029c4acc3f4fe815012a5456a922840f037570485c",
+      "tests": [
+        "vertex_buffer_allocation.mixed.arrays",
+        "vertex_buffer_allocation.mixed.inline_arrays",
+        "vertex_buffer_allocation.mixed.inline_buffers",
+        "vertex_buffer_allocation.mixed.inline_elements",
+        "vertex_buffer_allocation.tiny.arrays",
+        "vertex_buffer_allocation.tiny.inline_arrays",
+        "vertex_buffer_allocation.tiny.inline_buffers",
+        "vertex_buffer_allocation.tiny.inline_elements",
+        "vertex_buffer_allocation.disjoint_same_page",
+        "vertex_buffer_allocation.rising_transient_growth"
+      ]
+    }
+  ],
+  "settingsIdentical": true,
+  "isoCatalogSuiteIdentical": true,
+  "planIdsIdentical": true
+}

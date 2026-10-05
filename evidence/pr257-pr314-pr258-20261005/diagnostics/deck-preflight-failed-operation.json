@@ -1,0 +1,354 @@
+{
+  "id": "af58795f64314438884f446ea84dd43b",
+  "jobId": "p258-deck-counter-01-a-v1-t001",
+  "action": "submit",
+  "state": "failed",
+  "startedUtc": "2026-10-05T12:48:01.2671976+00:00",
+  "finishedUtc": "2026-10-05T12:48:01.5132788+00:00",
+  "filesChecked": 41,
+  "error": "The package did not pass preflight.",
+  "hint": "GET the job's validation action for detailed checks. Correct the draft and validate again.",
+  "result": {
+    "Passed": false,
+    "ExecutableSha256": "87d94e352d40bcfb00c36811dede97117042fe3fa4cbddda3964a0d21ba0507b",
+    "Checks": [
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libbrotlicommon.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libbrotlidec.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libcap.so.2"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libcrypto.so.3"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libcurl-gnutls.so.4"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libdbus-1.so.3"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libepoxy.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libffi.so.8"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libgcrypt.so.20"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libglib-2.0.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libgnutls.so.30"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libgssapi_krb5.so.2"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libhogweed.so.6"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libidn2.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libk5crypto.so.3"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libkeyutils.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libkrb5.so.3"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libkrb5support.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/liblber-2.5.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libldap-2.5.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/liblz4.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/liblzma.so.5"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libnettle.so.8"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libnghttp2.so.14"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libp11-kit.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libpcap.so.0.8"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libpcre.so.3"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libpsl.so.5"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/librtmp.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libsamplerate.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libsasl2.so.2"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libslirp.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libssh.so.4"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libsystemd.so.0"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libtasn1.so.6"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libudev.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libunistring.so.2"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "lib/libzstd.so.1"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "state/eeprom.bin"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "xemu"
+      },
+      {
+        "Name": "payload",
+        "Passed": true,
+        "Detail": "xemu.toml"
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "xemu: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "xemu: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "xemu.toml: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "state/eeprom.bin: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "lib/libslirp.so.0: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "xemu: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "xemu.toml: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "state/eeprom.bin: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "lib/libslirp.so.0: every package input must be in Files."
+      },
+      {
+        "Name": "declared_input",
+        "Passed": true,
+        "Detail": "state/eeprom.bin: every package input must be in Files."
+      },
+      {
+        "Name": "target_os",
+        "Passed": true,
+        "Detail": "Host: linux; requested: linux."
+      },
+      {
+        "Name": "executable",
+        "Passed": true,
+        "Detail": "xemu"
+      },
+      {
+        "Name": "executable_stable",
+        "Passed": true,
+        "Detail": "Executable metadata remained unchanged while hashing."
+      },
+      {
+        "Name": "sha256",
+        "Passed": true,
+        "Detail": "87d94e352d40bcfb00c36811dede97117042fe3fa4cbddda3964a0d21ba0507b"
+      },
+      {
+        "Name": "executable_bit",
+        "Passed": true,
+        "Detail": "The Linux package must retain an executable permission bit."
+      },
+      {
+        "Name": "working_directory",
+        "Passed": true,
+        "Detail": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Pending/.agent-jobs/p258-deck-counter-01-a-v1-t001/payload"
+      },
+      {
+        "Name": "required_file",
+        "Passed": true,
+        "Detail": "xemu"
+      },
+      {
+        "Name": "required_file",
+        "Passed": true,
+        "Detail": "xemu.toml"
+      },
+      {
+        "Name": "required_file",
+        "Passed": true,
+        "Detail": "state/eeprom.bin"
+      },
+      {
+        "Name": "required_file",
+        "Passed": true,
+        "Detail": "lib/libslirp.so.0"
+      },
+      {
+        "Name": "input_file",
+        "Passed": true,
+        "Detail": "pr267-base-exact-appimage-embedded-elf: xemu"
+      },
+      {
+        "Name": "input_file",
+        "Passed": true,
+        "Detail": "deck-morrowind-vulkan-snapshot-config: xemu.toml"
+      },
+      {
+        "Name": "input_file",
+        "Passed": true,
+        "Detail": "isolated-eeprom-seed: state/eeprom.bin"
+      },
+      {
+        "Name": "input_file",
+        "Passed": true,
+        "Detail": "pinned-appimage-bundled-library: lib/libslirp.so.0"
+      },
+      {
+        "Name": "runtime_seed",
+        "Passed": true,
+        "Detail": "state/eeprom.bin -> eeprom.bin"
+      },
+      {
+        "Name": "free_space",
+        "Passed": false,
+        "Detail": "Available=967024640; required=1073741824 bytes."
+      }
+    ]
+  },
+  "sourceJobId": null,
+  "errorCode": "preflight_failed"
+}

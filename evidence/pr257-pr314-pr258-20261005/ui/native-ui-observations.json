@@ -1,0 +1,56 @@
+{
+  "schema": "pr258-native-ui-observations/v1",
+  "source": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+  "host": "windows",
+  "runId": "20261005-120646166-028079130e254734a7b61f2610e3ebd8",
+  "benchmark": false,
+  "observations": [
+    {
+      "check": "Vulkan Auto resolves enabled",
+      "screenshot": "win-vulkan-policy-auto.png",
+      "result": "passed"
+    },
+    {
+      "check": "UI Disabled applies live, requested/effective Disabled",
+      "screenshot": "win-policy-no-console-disabled.png",
+      "result": "passed"
+    },
+    {
+      "check": "Restore Auto live",
+      "screenshot": "win-latched-off-pending.png",
+      "result": "passed"
+    },
+    {
+      "check": "Requested Off/active Prewarm/restart required",
+      "screenshot": "win-latched-off-pending.png",
+      "result": "passed"
+    },
+    {
+      "check": "Restore Prewarm, clear restart pending",
+      "screenshot": "win-latched-prewarm-restored.png",
+      "result": "passed"
+    },
+    {
+      "check": "OpenGL Vulkan-policy unavailable; effective disabled; saved Auto vs requested CLI Disabled",
+      "screenshot": "win-opengl-policy-unavailable.png",
+      "result": "passed",
+      "runId": "20261005-123420434-68b1095ab72341769f68e39bbb232cf1"
+    },
+    {
+      "check": "OpenGL startup-selected Off/active Off without restart pending",
+      "screenshot": "win-opengl-policy-unavailable.png",
+      "result": "passed"
+    },
+    {
+      "check": "Process override not persisted",
+      "artifact": "win-opengl-config-after.toml",
+      "result": "passed"
+    }
+  ],
+  "limitations": [
+    "StartPaused snapshot restore failed runner contract; original failure retained. Explicit HTTP pause used for the preserved session.",
+    "Earlier operator task stole focus; failed click images retained and not claimed as passing. Hidden task and paired clicks corrected operator behavior.",
+    "Full desktop images kept private; numeric observations may be published.",
+    "Saved-change restart into the same backend and reset during active counters not native-qualified; local state tests cover these paths."
+  ]
+}

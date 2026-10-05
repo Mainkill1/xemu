@@ -1,175 +1,175 @@
 host,backend,test,beforeUs,afterUs,differenceUs,improvementPercent,fixedWorkSame,beforeGuestOutcome,afterGuestOutcome,beforeRunnerCheck,afterRunnerCheck,framebufferEqual,oraclePresent,framebufferComparisonEligible,framebufferComparisonReason,beforeRunId,afterRunId
-deck,Vulkan,busy_pfifo.pfifo_saturation,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,busy_pfifo.pgraph_pattern_polling,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pfifo_array_elements.array_element16,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pfifo_array_elements.array_element32,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pfifo_array_elements.array_element_pgr2,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pfifo_packet_boundary.array_element16_overflow,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pfifo_packet_boundary.array_element32_overflow,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pfifo_packet_boundary.inline_array_overflow,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pfifo_packet_boundary.incrementing_inline_fallback,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,cpu_floating_point.sse_scalar,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,cpu_floating_point.x87_scalar,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,cpu_translation_blocks.direct_loop,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,cpu_translation_blocks.indirect_dispatch,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,cpu_translation_blocks.indirect_dispatch_stress,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,fill_rate.solid,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,fill_rate.textured,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pipeline_texture_switch.texture_switch,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pipeline_texture_switch.shader_negative_control,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pipeline_texture_switch.clear_texture_normal,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pipeline_texture_switch.sampler_only_identity,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,pipeline_texture_switch.palette_only_update,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pipeline_texture_switch.shared_page_overlap,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pipeline_texture_switch.texture_dma_remap,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,pipeline_texture_switch.palette_dma_remap,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.zero_query,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.single_boundary,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.clear_boundary,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.multiple_boundaries,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.dma_target_switch,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.fifo_producer_ordering,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.dma_descriptor_rewrite,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,report_query.dma_range_guard,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,shader_lifecycle.readiness_train_visible,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,shader_lifecycle.readiness_replay_visible,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,shader_lifecycle.readiness_identical_replay,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,shader_lifecycle.readiness_uniform_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,shader_lifecycle.readiness_early_demand,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
-deck,Vulkan,game_load.long_unlocked_scene.cpu,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.long_unlocked_scene.pfifo,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.long_unlocked_scene.alpha_overdraw,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.long_unlocked_scene.streaming_surface_reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.long_unlocked_scene.combined,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.long_unlocked_scene.full_system,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.queued_vertex_cpu_writes,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.pgr2_small_draws,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.texture_update_reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.surface_reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.pipeline_state_churn,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.blend_constant_reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.texture_binding_reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.pgr2_lagspot_inline_elements,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.scaled_surface_pressure,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.s3tc_streaming_fenced_draws,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.cross_title_hotpath.gpu_wait_control,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.dxt1_same_address_wait,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.dxt1_same_address_queued,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.dxt1_ring_payload_generations,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.dxt1_dirty_once_redraw,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.rgba8_same_address_wait,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.rgba8_same_address_queued,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.rgba8_ring_payload_generations,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.rgba8_dirty_once_redraw,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.bc2_native_eligible,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.bc2_bordered_fallback,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.bc3_native_eligible,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.s3tc_sync_factor.bc3_bordered_fallback,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.repeated_display,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.repeated_display_boosted,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.cpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.pfifo_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.gpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.streaming_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.cpu_pfifo_gpu,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.cpu_pfifo_gpu_streaming,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_representative.full_system,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.cpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.pfifo_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.gpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.streaming_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.cpu_pfifo_gpu,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.cpu_pfifo_gpu_streaming,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.doax_menu_stress.full_system,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.cpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.pfifo_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.gpu_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.streaming_only,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.cpu_pfifo_gpu,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,game_load.pgr2_ai_backup.full_system,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,high_vertex_count.arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,high_vertex_count.inline_arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,high_vertex_count.inline_buffers,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,high_vertex_count.inline_elements,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.line_loop.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.line_loop.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.line_strip.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.line_strip.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.lines.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.lines.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.points.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.points.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.polygon.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.polygon.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.quad_strip.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.quad_strip.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.quads.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.quads.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangle_fan.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangle_fan.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangle_strip.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangle_strip.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangles.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,primitive_type.triangles.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.unbordered_subblock_dxt1,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size1,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size2,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size4,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size8,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_palette_size1,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_palette_size2,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_palette_size4,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_palette_size8,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size1,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size2,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size4,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size8,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.basic,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.cpu_read_after_gpu_write,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.cpu_read_clean_surface,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.framebuffer_working_set_002,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.framebuffer_working_set_008,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.framebuffer_working_set_032,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.framebuffer_working_set_064,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.full_clear_elision_guard,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.overlapping_surface_churn_representative,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.overlapping_surface_churn_stress,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.partial_channel_clear_guard,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.surface_download_path,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.surface_list_lookup_002,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.surface_list_lookup_008,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.surface_list_lookup_032,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.surface_list_lookup_128,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.representative.growth,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.representative.plateau,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.representative.alias_resize,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.representative.reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.representative.idle_retention,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.stress.growth,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.stress.plateau,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.stress.alias_resize,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.stress.reuse,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,surface.vulkan_memory_pressure.stress.idle_retention,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.arrays.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.arrays.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_arrays.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_arrays.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_buffers.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_buffers.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_elements.fixed_function,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,tiny_draw.inline_elements.vertex_shader,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,uniform_thrash.uniform_thrash,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.mixed.arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.mixed.inline_arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.mixed.inline_buffers,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.mixed.inline_elements,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.tiny.arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.tiny.inline_arrays,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.tiny.inline_buffers,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.tiny.inline_elements,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.disjoint_same_page,,,,,False,unavailable,unavailable,unavailable,unavailable,,True,,,,
-deck,Vulkan,vertex_buffer_allocation.rising_transient_growth,,,,,False,unavailable,unavailable,unavailable,unavailable,,False,,,,
+deck,Vulkan,busy_pfifo.pfifo_saturation,122703.4,161758,39054.600000000006,-31.828457891142385,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,busy_pfifo.pgraph_pattern_polling,8718254,8985214,266960,-3.062081008422099,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_array_elements.array_element16,1887.75,1826.25,-61.5,3.2578466428287642,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_array_elements.array_element32,1777.5,1770.125,-7.375,0.4149085794655415,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_array_elements.array_element_pgr2,1418.5,1496.875,78.375,-5.5252026788861475,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_packet_boundary.array_element16_overflow,38212,31631,-6581,17.2223385323982,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_packet_boundary.array_element32_overflow,67867,63872,-3995,5.886513327537684,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_packet_boundary.inline_array_overflow,67987,67281,-706,1.0384338182299557,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,pfifo_packet_boundary.incrementing_inline_fallback,61,65,4,-6.557377049180328,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-120624372-1a43afb8b420400d96b19452756b8641,20261005-123111330-cba35865ddeb4831941bc6d8ae154d19
+deck,Vulkan,cpu_floating_point.sse_scalar,1234334.8,1211565.4,-22769.40000000014,1.8446696957746098,True,PASS,PASS,passed,passed,True,True,True,,20261005-120750554-dfe590f2c68744d9b857b03dc2f386a4,20261005-123242446-f687b57d3f0746488f75dad55aa42aac
+deck,Vulkan,cpu_floating_point.x87_scalar,1094774.6,1130934.6,36160.0,-3.3029630026125925,True,PASS,PASS,passed,passed,True,True,True,,20261005-120750554-dfe590f2c68744d9b857b03dc2f386a4,20261005-123242446-f687b57d3f0746488f75dad55aa42aac
+deck,Vulkan,cpu_translation_blocks.direct_loop,19865.1,18856.2,-1008.8999999999978,5.078756210640761,True,PASS,PASS,passed,passed,True,True,True,,20261005-120750554-dfe590f2c68744d9b857b03dc2f386a4,20261005-123242446-f687b57d3f0746488f75dad55aa42aac
+deck,Vulkan,cpu_translation_blocks.indirect_dispatch,62631.6,63192.5,560.9000000000015,-0.8955543208220794,True,PASS,PASS,passed,passed,True,True,True,,20261005-120750554-dfe590f2c68744d9b857b03dc2f386a4,20261005-123242446-f687b57d3f0746488f75dad55aa42aac
+deck,Vulkan,cpu_translation_blocks.indirect_dispatch_stress,1290668.5,1314573.1,23904.600000000093,-1.8521099724677632,True,PASS,PASS,passed,passed,True,True,True,,20261005-120750554-dfe590f2c68744d9b857b03dc2f386a4,20261005-123242446-f687b57d3f0746488f75dad55aa42aac
+deck,Vulkan,fill_rate.solid,4298.6,3950,-348.60000000000036,8.109617084632214,True,PASS,PASS,failed,failed,True,True,True,,20261005-121046473-2391c8cbc13e49d6bbff27cf82010618,20261005-123539845-4e19ba35e0754d97902db6b0b6d4fdb3
+deck,Vulkan,fill_rate.textured,8812,8534.8,-277.2000000000007,3.1457103949160317,True,PASS,PASS,failed,failed,True,True,True,,20261005-121046473-2391c8cbc13e49d6bbff27cf82010618,20261005-123539845-4e19ba35e0754d97902db6b0b6d4fdb3
+deck,Vulkan,pipeline_texture_switch.texture_switch,52947.625,51086.375,-1861.25,3.5152662654840516,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.shader_negative_control,50594.125,49159.625,-1434.5,2.8353094356311135,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.clear_texture_normal,37962.5,41186.25,3223.75,-8.491932828449128,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.sampler_only_identity,64005.375,62724.75,-1280.625,2.000808525846462,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.palette_only_update,61517,60871,-646,1.050116228034527,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.shared_page_overlap,48979,47206,-1773,3.6199187406847835,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.texture_dma_remap,16425,16544,119,-0.7245053272450532,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,pipeline_texture_switch.palette_dma_remap,16515,16572,57,-0.34514078110808355,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121104073-32d644e82635463bbae6ffd60861dff5,20261005-123557341-adf321f0e5c34f34bc5e5bd3fe63d906
+deck,Vulkan,report_query.zero_query,352.75,802,449.25,-127.35648476257973,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.single_boundary,1720,389.75,-1330.25,77.34011627906976,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.clear_boundary,1608.5,2490.75,882.25,-54.84923842088903,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.multiple_boundaries,674.5,593,-81.5,12.083024462564863,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.dma_target_switch,3119.25,1039.5,-2079.75,66.6746814138014,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.fifo_producer_ordering,6604.25,6879.25,275.0,-4.163985312488171,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.dma_descriptor_rewrite,22819,15055,-7764,34.024278013935756,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,report_query.dma_range_guard,6621,3379,-3242,48.96541307959523,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121131004-de195b2384764bcaa55b8981f71a0970,20261005-123623974-eff428d1120a4b4c8d2574e9e66a07d5
+deck,Vulkan,shader_lifecycle.readiness_train_visible,16378,16505,127,-0.7754304554890707,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121148489-a4ce6de4913444f798e9fd15fd3acbbe,20261005-123649850-e08f82f8a7bd441a922fcea6e9ec61e5
+deck,Vulkan,shader_lifecycle.readiness_replay_visible,16291,16349,58,-0.3560247989687558,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121214934-55f316f8d51849a4a48b5c7570558942,20261005-123716138-e4648fe43bbc42a3add641a607d6185d
+deck,Vulkan,shader_lifecycle.readiness_identical_replay,4015829,4028821,12992,-0.32351975146352097,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121241276-a25b6978c14b4ee788f82c1196f3f97a,20261005-123742264-57d76e16b80848ef96ae04e2d2448cc2
+deck,Vulkan,shader_lifecycle.readiness_uniform_only,16517,16299,-218,1.3198522734152691,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121335652-3f6b680a12e0451aac4a7d722f18efc2,20261005-123837302-b77c5d2cb1e146b7a8768af712330363
+deck,Vulkan,shader_lifecycle.readiness_early_demand,16291,16430,139,-0.8532318458044319,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-121402045-42e7f9eff1a3466db46ab966413b79a0,20261005-123903500-38b3c61b27664940adc034f7be95694a
+deck,Vulkan,game_load.long_unlocked_scene.cpu,39486.25,39685.5,199.25,-0.5046060337459242,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.long_unlocked_scene.pfifo,9768.625,9632.75,-135.875,1.3909327054728788,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.long_unlocked_scene.alpha_overdraw,103609.375,104635.375,1026.0,-0.9902578796561604,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.long_unlocked_scene.streaming_surface_reuse,26911,29137.75,2226.75,-8.274497417412954,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.long_unlocked_scene.combined,206672.875,203143.625,-3529.25,1.7076503145369222,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.long_unlocked_scene.full_system,204307,197274,-7033,3.442368592363453,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.queued_vertex_cpu_writes,144644.75,138650.375,-5994.375,4.14420502645274,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.pgr2_small_draws,281653.375,277345.25,-4308.125,1.5295840143935786,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.texture_update_reuse,4129.375,4177.875,48.5,-1.174511881337975,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.surface_reuse,20810.375,26198.75,5388.375,-25.89273379263949,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.pipeline_state_churn,136625.25,136781.5,156.25,-0.11436392614103176,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.blend_constant_reuse,270405.125,267220.125,-3185.0,1.1778622908866834,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.texture_binding_reuse,346000.5,349174.25,3173.75,-0.9172674605961552,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.pgr2_lagspot_inline_elements,219820,214667.875,-5152.125,2.343792648530616,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.scaled_surface_pressure,2063993.625,2058864,-5129.625,0.24852911064587227,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.s3tc_streaming_fenced_draws,2704004.875,2624521.25,-79483.625,2.939477873537488,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.cross_title_hotpath.gpu_wait_control,4800.125,4793.125,-7.0,0.14582953568917476,True,PASS,PASS,passed,passed,True,True,True,,20261005-121428468-9e145a6f6a0a49ad8c31b2097cda377d,20261005-123930764-2bdde71441be467082ec7cd4e75ca18c
+deck,Vulkan,game_load.s3tc_sync_factor.dxt1_same_address_wait,17576.25,17582.875,6.625,-0.03769290946589859,True,PASS,PASS,failed,failed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.dxt1_same_address_queued,17710.5,17589,-121.5,0.6860337088168036,True,PASS,PASS,failed,failed,False,True,False,unsynchronized same-address writes have no defined per-draw source generation,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.dxt1_ring_payload_generations,50097.5,50058.375,-39.125,0.07809770946654025,True,PASS,PASS,failed,failed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.dxt1_dirty_once_redraw,16658.625,16679.125,20.5,-0.12305937614899189,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.rgba8_same_address_wait,70396.5,70414,17.5,-0.02485919044270667,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.rgba8_same_address_queued,66636.25,66681.875,45.625,-0.06846873886210583,True,PASS,PASS,failed,failed,False,True,False,unsynchronized same-address writes have no defined per-draw source generation,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.rgba8_ring_payload_generations,284780,271324,-13456,4.725050916496945,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.rgba8_dirty_once_redraw,16599.375,16665.625,66.25,-0.3991114123272714,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.bc2_native_eligible,83367.25,83259.25,-108.0,0.12954727425937643,True,PASS,PASS,failed,failed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.bc2_bordered_fallback,208990,199032,-9958,4.764821283314991,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.bc3_native_eligible,83770.875,79852.75,-3918.125,4.67719240129699,True,PASS,PASS,failed,failed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.s3tc_sync_factor.bc3_bordered_fallback,200043.375,194843.625,-5199.75,2.5993112743673716,True,PASS,PASS,passed,passed,True,True,True,,20261005-121846937-4bcb99e347a1411d9c814d3b4cce2136,20261005-124344690-9b6be97f9b924fa290f3c53e8019d532
+deck,Vulkan,game_load.repeated_display,16617,16656,39,-0.23469940422458926,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.repeated_display_boosted,49990.125,49982,-8.125,0.01625321000897677,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.cpu_only,22518,22996.25,478.25,-2.123856470379252,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.pfifo_only,4626.5,4463.625,-162.875,3.5204798443747976,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.gpu_only,52406.25,51385.875,-1020.375,1.9470483005366725,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.streaming_only,19633,16656.25,-2976.75,15.16197218968064,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.cpu_pfifo_gpu,74794.5,72749.625,-2044.875,2.7339911357118503,True,PASS,PASS,failed,failed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.cpu_pfifo_gpu_streaming,90233.5,89381.625,-851.875,0.9440784187690824,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_representative.full_system,92613.625,88869.5,-3744.125,4.0427366923603305,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_stress.cpu_only,45497,43227.75,-2269.25,4.987691496142602,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_stress.pfifo_only,8990.125,8848,-142.125,1.5809012666675937,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_stress.gpu_only,94089.25,91707.75,-2381.5,2.531107432570671,True,PASS,PASS,passed,passed,True,True,True,,20261005-121944380-4944d8151ada4c59835f3a045588ae71,20261005-124440843-4482327c847b4d499c4c783505979891
+deck,Vulkan,game_load.doax_menu_stress.streaming_only,32052.875,32852.875,800.0,-2.4958759549650384,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.doax_menu_stress.cpu_pfifo_gpu,148011,147649.5,-361.5,0.2442386038875489,True,PASS,PASS,failed,failed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.doax_menu_stress.cpu_pfifo_gpu_streaming,173731.25,168478.375,-5252.875,3.023563693923805,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.doax_menu_stress.full_system,173453.625,166278.25,-7175.375,4.136768545482979,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.cpu_only,73807.125,70917.375,-2889.75,3.915272407643571,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.pfifo_only,33176.875,33004.5,-172.375,0.519563702126858,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.gpu_only,246771.25,235378.25,-11393.0,4.6168263118171184,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.streaming_only,9585.75,9164.875,-420.875,4.390631927600866,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.cpu_pfifo_gpu,349525.25,372367.5,22842.25,-6.535221704297472,True,PASS,PASS,failed,failed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming,362775.875,347464.125,-15311.75,4.220718921841206,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,game_load.pgr2_ai_backup.full_system,359615.375,352811.375,-6804.0,1.8920214409631402,True,PASS,PASS,passed,passed,True,True,True,,20261005-122023114-21e9d76ae74248a289c3ec8969db17a6,20261005-124518488-ead4b9e1ec56461fa2ef2562f8622c42
+deck,Vulkan,high_vertex_count.arrays,177.56,139.92,-37.640000000000015,21.198468123451235,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,high_vertex_count.inline_arrays,116232.1,113784.8,-2447.300000000003,2.105528507185195,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,high_vertex_count.inline_buffers,641686,651461.2,9775.199999999953,-1.5233618935117728,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,high_vertex_count.inline_elements,6564.58,6022.08,-542.5,8.264047357180505,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.line_loop.fixed_function,2346.9,2263.8,-83.09999999999991,3.5408411095487624,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.line_loop.vertex_shader,3032.1,2381.7,-650.4000000000001,21.450479865439796,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.line_strip.fixed_function,1560,1315.3,-244.70000000000005,15.685897435897438,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.line_strip.vertex_shader,1289.1,1167.8,-121.29999999999995,9.409665658211154,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.lines.fixed_function,4454.2,4674,219.80000000000018,-4.934668402855736,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.lines.vertex_shader,4410.4,4174,-236.39999999999964,5.360058044621796,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.points.fixed_function,2140.2,2272.2,132.0,-6.167647883375386,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.points.vertex_shader,2355,2349.7,-5.300000000000182,0.225053078556271,True,PASS,PASS,failed,failed,True,True,True,,20261005-122150485-498f1e531d49446ebea249430823d31c,20261005-124644944-7360a555ce3048d1afaece90f8d7e1d4
+deck,Vulkan,primitive_type.polygon.fixed_function,2863.9,2681.1,-182.80000000000018,6.382904431020642,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.polygon.vertex_shader,6293.3,5826.6,-466.6999999999998,7.415823177029536,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.quad_strip.fixed_function,7427.5,7401.6,-25.899999999999636,0.34870414002019035,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.quad_strip.vertex_shader,4403.7,4283.3,-120.39999999999964,2.734064536639636,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.quads.fixed_function,7012.4,6659.4,-353.0,5.033939877930523,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.quads.vertex_shader,7379.3,7033,-346.3000000000002,4.692857046061281,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangle_fan.fixed_function,1594.3,1325.6,-268.70000000000005,16.853791632691465,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangle_fan.vertex_shader,1644,1327,-317,19.282238442822383,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangle_strip.fixed_function,2158.5,2165.1,6.599999999999909,-0.3057678943710868,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangle_strip.vertex_shader,2243.2,2276.3,33.100000000000364,-1.4755706134094315,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangles.fixed_function,5822.9,6105.4,282.5,-4.851534458774838,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,primitive_type.triangles.vertex_shader,6162.7,5922.5,-240.19999999999982,3.8976422671880804,True,PASS,PASS,failed,failed,True,True,True,,20261005-122231486-c740d3e215cf469e8e579ad9faa91ed4,20261005-124725334-c6f1acb7f817493887806c0ae63173d9
+deck,Vulkan,texture_cubemap_fallback.unbordered_subblock_dxt1,16668.125,16662,-6.125,0.03674678465634257,True,PASS,PASS,passed,passed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size1,16651.875,16655.25,3.375,-0.020267987839207295,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size2,16658.25,16651.25,-7.0,0.04202122071646181,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size4,16648.125,16654.125,6.0,-0.03604009460524834,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_rgba8_size8,16647.875,16655.75,7.875,-0.04730333450965964,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_palette_size1,16641.25,16657.25,16.0,-0.09614662360099151,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_palette_size2,16571.25,16621.75,50.5,-0.3047446631968017,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_palette_size4,16643,16649.25,6.25,-0.03755332572252599,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_palette_size8,16664.25,16659.125,-5.125,0.030754459396612508,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size1,16658.625,16655.625,-3.0,0.0180086891925354,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size2,16658.125,16663.375,5.25,-0.03151615202791431,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size4,16651.125,16648.25,-2.875,0.017266100638845722,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122252391-73c3ccc3794c4eefbc75d5d296696b89,20261005-130132692-fb97274b521a4e1cad199a07e11dc0d1
+deck,Vulkan,texture_cubemap_fallback.bordered_r6g5b5_size8,16625.75,16560.375,-65.375,0.3932153436687067,True,FAIL,FAIL,failed,failed,True,True,True,,20261005-122507513-2c3db9cb759946ffb6542f718a0da7f2,20261005-130347621-5e4514cbc4e44416960d39a95e773c70
+deck,Vulkan,surface.basic,41031.3,43447.7,2416.399999999994,-5.889162663625072,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.cpu_read_after_gpu_write,4030.8,3964.25,-66.55000000000018,1.651037014984623,True,PASS,PASS,passed,passed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.cpu_read_clean_surface,374.5,372.24,-2.259999999999991,0.6034712950600777,True,PASS,PASS,passed,passed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.framebuffer_working_set_002,5363,5181.2,-181.80000000000018,3.3898937162036207,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.framebuffer_working_set_008,4720.6,5009.2,288.59999999999945,-6.113629623352952,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.framebuffer_working_set_032,5118.8,5549.9,431.09999999999945,-8.421895756817992,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.framebuffer_working_set_064,3272.75,5543.55,2270.8,-69.38507371476588,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.full_clear_elision_guard,5931.64,6391.32,459.6799999999994,-7.749627421758559,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.overlapping_surface_churn_representative,6609.53,6970.45,360.9200000000001,-5.460600072925005,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.overlapping_surface_churn_stress,78908.3,82707.4,3799.0999999999913,-4.814575906463567,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.partial_channel_clear_guard,6773.05,7461.61,688.5599999999995,-10.166173289729139,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.surface_download_path,61102.4,81989.2,20886.799999999996,-34.18327267014061,True,PASS,PASS,failed,failed,True,True,True,,20261005-122534266-b53949f565734e0590764d5b40a8abb1,20261005-130414401-3fd3706ba8684bc99e31db01780cd21f
+deck,Vulkan,surface.surface_list_lookup_002,4268.5,4819.55,551.0500000000002,-12.909687243762448,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.surface_list_lookup_008,6139.4,5761.35,-378.0499999999993,6.157767860051459,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.surface_list_lookup_032,5473.1,4957.95,-515.1500000000005,9.412398823335963,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.surface_list_lookup_128,5746.5,4535.95,-1210.5500000000002,21.065866179413558,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.representative.growth,185582.5,181344.25,-4238.25,2.2837552032115096,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.representative.plateau,154066.75,187283.75,33217.0,-21.560135460766194,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.representative.alias_resize,112096,127390,15294,-13.64366257493577,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.representative.reuse,170123.5,154687,-15436.5,9.073702339770813,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.representative.idle_retention,1786,1997.25,211.25,-11.828107502799552,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.stress.growth,653299,757361,104062,-15.928694211991752,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.stress.plateau,690420,675182,-15238,2.207062367834072,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.stress.alias_resize,437641.75,510198.5,72556.75,-16.579028394800083,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.stress.reuse,656546.25,674591.75,18045.5,-2.7485497023248553,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,surface.vulkan_memory_pressure.stress.idle_retention,3132,2833.75,-298.25,9.522669220945083,True,PASS,PASS,failed,failed,True,True,True,,20261005-122611243-295436907c4745b5af219bb1ee86c165,20261005-130453495-31287019972048b8881bf3b02a84248f
+deck,Vulkan,tiny_draw.arrays.fixed_function,71258,71289.1,31.10000000000582,-0.04364422240310677,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.arrays.vertex_shader,63731.9,64018.6,286.6999999999971,-0.44985321322602506,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_arrays.fixed_function,78187.2,79476,1288.800000000003,-1.648351648351652,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_arrays.vertex_shader,75527.2,78537.1,3009.9000000000087,-3.985186793631975,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_buffers.fixed_function,64296.4,66081.1,1784.7000000000044,-2.7757386105598516,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_buffers.vertex_shader,63050.3,63504.2,453.8999999999942,-0.7199014120471975,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_elements.fixed_function,59789.2,60457,667.8000000000029,-1.116924126765374,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,tiny_draw.inline_elements.vertex_shader,59536.1,60370.2,834.0999999999985,-1.4009987217839237,True,PASS,PASS,failed,failed,True,True,True,,20261005-122730160-7a18453af6ac45a086a0826d59f7e37f,20261005-130616032-ba07109264314b429ae4272654f0d5c0
+deck,Vulkan,uniform_thrash.uniform_thrash,4373.5,4569.7,196.19999999999982,-4.486109523265116,True,PASS,PASS,failed,failed,True,True,True,,20261005-122810994-46650b7de8e141a5a815ff1ff94ed5bf,20261005-130657192-28761743cb784d5b9c1e629df164ac9a
+deck,Vulkan,vertex_buffer_allocation.mixed.arrays,56658.4,58694.1,2035.699999999997,-3.5929359106504895,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.mixed.inline_arrays,442699.3,434785.8,-7913.5,1.7875564745641117,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.mixed.inline_buffers,1738661.7,1752331.8,13670.100000000093,-0.7862426600873588,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.mixed.inline_elements,56504.6,56362.2,-142.40000000000146,0.2520148802044461,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.tiny.arrays,68343.5,75724.7,7381.199999999997,-10.800149246087773,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.tiny.inline_arrays,83592.6,84520.3,927.6999999999971,-1.1097872299701135,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.tiny.inline_buffers,81454.7,85683.3,4228.600000000006,-5.191351757479932,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.tiny.inline_elements,70724.6,72465.6,1741.0,-2.461661147606349,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.disjoint_same_page,76396.9,71004.5,-5392.399999999994,7.0584015843574734,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
+deck,Vulkan,vertex_buffer_allocation.rising_transient_growth,1373033,1306191,-66842,4.868200545798972,True,PASS,PASS,not evaluated,not evaluated,True,False,True,,20261005-122832298-309dcf33cb9247c984e88bd32f16fded,20261005-130714031-615ef484048442478797116e693388e4
 win,Vulkan,busy_pfifo.pfifo_saturation,86969.3,85467.7,-1501.6000000000058,1.726586278146433,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-113153768-83657a7c21514af09c280f216d929632,20261005-114511156-40ee4f91ee214cb592771c2b1af6ad41
 win,Vulkan,busy_pfifo.pgraph_pattern_polling,4504561,4435881,-68680,1.5246768775026023,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-113153768-83657a7c21514af09c280f216d929632,20261005-114511156-40ee4f91ee214cb592771c2b1af6ad41
 win,Vulkan,pfifo_array_elements.array_element16,544,507.625,-36.375,6.686580882352941,True,PASS,PASS,not evaluated,not evaluated,True,True,True,,20261005-113153768-83657a7c21514af09c280f216d929632,20261005-114511156-40ee4f91ee214cb592771c2b1af6ad41

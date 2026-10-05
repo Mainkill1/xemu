@@ -1,0 +1,26 @@
+{
+  "campaign": "p258-deck-vk-full-candidate-missing-v3",
+  "attempts": 7,
+  "terminal": {
+    "id": "p258-deck-vk-full-candidate-missing-v3",
+    "revision": "7fa9db3c676d0af2a2a1a8fd5b628b641026c54a06e2417db335fd99787edd82",
+    "state": "failed",
+    "event": "finished",
+    "terminal": true,
+    "startRequested": true,
+    "selectedLeaves": 58,
+    "chunkCount": 7,
+    "attemptCount": 7,
+    "finished": 7,
+    "passed": 0,
+    "failed": 7,
+    "incomplete": 0,
+    "remaining": 0,
+    "active": null,
+    "error": null,
+    "next": "/api/v1/xiso-campaigns/p258-deck-vk-full-candidate-missing-v3/wait",
+    "details": "/api/v1/xiso-campaigns/p258-deck-vk-full-candidate-missing-v3/attempts",
+    "comparisonEligible": 0,
+    "qualification": "unverified"
+  }
+}

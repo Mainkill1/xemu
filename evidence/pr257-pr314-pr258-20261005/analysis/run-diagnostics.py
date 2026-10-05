@@ -14,9 +14,11 @@ from runner_transport import RunnerApi, inside
 from runner_tests import upload_application
 
 host = sys.argv[1]
+request_suffix = sys.argv[2] if len(sys.argv) > 2 else 't001'
+assert request_suffix in ['t001', 't002']
 api = RunnerApi({'deck': 'http://10.0.0.42:9368', 'win': 'http://10.0.7.1:9368'}[host])
 client = root / 'xemu-test-runner-upload-config/scripts/runner_tests.py'
-xiso_done = p / 'xiso' / ('stack-deck-xiso-finished-v2.json' if host == 'deck' else 'stack-win-xiso-finished.json')
+xiso_done = p / 'xiso' / ('deck-missing-work-finished.json' if host == 'deck' and request_suffix == 't002' else 'stack-deck-xiso-finished-v2.json' if host == 'deck' else 'stack-win-xiso-finished.json')
 while not xiso_done.exists():
     time.sleep(10)
 state = api.json('/api/v1/status')
@@ -37,7 +39,7 @@ for cell in setup['cells']:
         receipt.write_text(json.dumps(saved, indent=2))
     saved = json.loads(receipt.read_text())
     revision = saved['revision']
-    request = identity + '-t001'
+    request = identity + '-' + request_suffix
     state = api.json('/api/v1/status')
     assert not state.get('ProcessId') and not state['Queue']['Pending'] and not state['Queue']['Testing']
     selected = api.json('/api/v1/test-runs', 'POST', {'id': request, 'applicationJobId': app['id'], 'testId': identity, 'revision': revision})
