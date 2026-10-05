@@ -1,0 +1,14 @@
+{
+  "reviewed": [
+    "morrowind",
+    "conker",
+    "pgr2"
+  ],
+  "findings": [],
+  "observations": [
+    "All48 Morrowind screenshots show the same saved camera location; moving water/NPCs and fog vary.",
+    "All32 Conker screenshots show the New File bar menu; no intro or black view in these captures.",
+    "PGR2: reviewed all32 original recording-start/end images. Both variants finish parked at0mph in same Hong Kong start lane; allDeck starts remain flyover and allWindows starts countdown3. No black screen or unintended race/course observed. Original inputs and immediate measurement boundary unchanged; cross-host phase mismatch remains diagnostic limitation."
+  ],
+  "method": "Human/model visual inspection of contact sheets generated from retained original capture images; no pixel equality claim."
+}

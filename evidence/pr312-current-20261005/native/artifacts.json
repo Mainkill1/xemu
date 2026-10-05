@@ -1,0 +1,110 @@
+[
+  {
+    "variant": "parent",
+    "host": "deck",
+    "sha": "afdde9eb62ac",
+    "artifact": {
+      "id": 11346852102,
+      "node_id": "MDg6QXJ0aWZhY3QxMTM0Njg1MjEwMg==",
+      "name": "xemu-ubuntu-x86_64-release",
+      "size_in_bytes": 60214176,
+      "url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11346852102",
+      "archive_download_url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11346852102/zip",
+      "expired": false,
+      "digest": "sha256:4d048b4b0eac491275e4d0e3f3514bffb41048a4bde27fae3aeb15aa066ef976",
+      "created_at": "2026-10-05T13:06:39Z",
+      "updated_at": "2026-10-05T13:06:39Z",
+      "expires_at": "2027-01-03T12:54:00Z",
+      "workflow_run": {
+        "id": 37312741205,
+        "repository_id": 1359613971,
+        "head_repository_id": 1359613971,
+        "head_branch": "main",
+        "head_sha": "afdde9eb62accd07686be104ebf4a9381785aaab"
+      }
+    },
+    "archiveDigest": "sha256:4d048b4b0eac491275e4d0e3f3514bffb41048a4bde27fae3aeb15aa066ef976",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/parent-deck"
+  },
+  {
+    "variant": "parent",
+    "host": "win",
+    "sha": "afdde9eb62ac",
+    "artifact": {
+      "id": 11347162102,
+      "node_id": "MDg6QXJ0aWZhY3QxMTM0NzE2MjEwMg==",
+      "name": "xemu-windows-x86_64-release",
+      "size_in_bytes": 15480526,
+      "url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11347162102",
+      "archive_download_url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11347162102/zip",
+      "expired": false,
+      "digest": "sha256:b9f84dfcf08dc05ff9487a7103665782db8855d84995edb1d30ffb9218c8478a",
+      "created_at": "2026-10-05T13:12:24Z",
+      "updated_at": "2026-10-05T13:12:24Z",
+      "expires_at": "2027-01-03T12:54:00Z",
+      "workflow_run": {
+        "id": 37312741205,
+        "repository_id": 1359613971,
+        "head_repository_id": 1359613971,
+        "head_branch": "main",
+        "head_sha": "afdde9eb62accd07686be104ebf4a9381785aaab"
+      }
+    },
+    "archiveDigest": "sha256:b9f84dfcf08dc05ff9487a7103665782db8855d84995edb1d30ffb9218c8478a",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/parent-win"
+  },
+  {
+    "variant": "candidate",
+    "host": "deck",
+    "sha": "e428a42bc3e0",
+    "artifact": {
+      "id": 11350897246,
+      "node_id": "MDg6QXJ0aWZhY3QxMTM1MDg5NzI0Ng==",
+      "name": "xemu-ubuntu-x86_64-release",
+      "size_in_bytes": 60214871,
+      "url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11350897246",
+      "archive_download_url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11350897246/zip",
+      "expired": false,
+      "digest": "sha256:f22dc4c98f7bfabd6edcab9f810474904ba33b13abcd44d8ea0ab0ae13f019ca",
+      "created_at": "2026-10-05T14:12:22Z",
+      "updated_at": "2026-10-05T14:12:22Z",
+      "expires_at": "2027-01-03T14:08:07Z",
+      "workflow_run": {
+        "id": 37322248179,
+        "repository_id": 1359613971,
+        "head_repository_id": 1359613971,
+        "head_branch": "fix/vk-compute-workgroup-selection",
+        "head_sha": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800"
+      }
+    },
+    "archiveDigest": "sha256:f22dc4c98f7bfabd6edcab9f810474904ba33b13abcd44d8ea0ab0ae13f019ca",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/candidate-deck"
+  },
+  {
+    "variant": "candidate",
+    "host": "win",
+    "sha": "e428a42bc3e0",
+    "artifact": {
+      "id": 11351155790,
+      "node_id": "MDg6QXJ0aWZhY3QxMTM1MTE1NTc5MA==",
+      "name": "xemu-windows-x86_64-release",
+      "size_in_bytes": 15480595,
+      "url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11351155790",
+      "archive_download_url": "https://api.github.com/repos/Mainkill1/xemu/actions/artifacts/11351155790/zip",
+      "expired": false,
+      "digest": "sha256:dc4bafc3434865c74fc0d39126426d000674118a2741ae0a910f77eb3ee52d0c",
+      "created_at": "2026-10-05T14:11:50Z",
+      "updated_at": "2026-10-05T14:11:50Z",
+      "expires_at": "2027-01-03T14:08:07Z",
+      "workflow_run": {
+        "id": 37322248179,
+        "repository_id": 1359613971,
+        "head_repository_id": 1359613971,
+        "head_branch": "fix/vk-compute-workgroup-selection",
+        "head_sha": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800"
+      }
+    },
+    "archiveDigest": "sha256:dc4bafc3434865c74fc0d39126426d000674118a2741ae0a910f77eb3ee52d0c",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/candidate-win"
+  }
+]

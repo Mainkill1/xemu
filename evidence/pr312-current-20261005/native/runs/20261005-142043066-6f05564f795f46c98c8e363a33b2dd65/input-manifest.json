@@ -1,0 +1,53 @@
+{
+  "JobId": "p312-win-morrowind-01-parent-v1-t001",
+  "CreatedUtc": "2026-10-05T14:20:43.7859242+00:00",
+  "PackageDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-morrowind-01-parent-v1-t001",
+  "JobManifestSha256": "733673240f300ea0ec8331cd8ff59cfdd8919c0e5b3f43b372437e1610a633ad",
+  "ExecutableSha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "pr267-candidate",
+      "Bytes": 44383381,
+      "LastWriteUtc": "2026-10-05T14:20:41.2371753Z",
+      "Sha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+      "ExpectedSha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "morrowind-vulkan-snapshot-config",
+      "Bytes": 777,
+      "LastWriteUtc": "2026-10-05T14:20:41.7067242Z",
+      "Sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+      "ExpectedSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "isolated-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-05T14:20:41.2181447Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-morrowind-user-snapshot-20260929-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 557449216,
+      "Sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "DiskAssetId": "pr267-morrowind-user-snapshot-20260929-v1",
+      "AssetKind": "snapshot-carrier",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

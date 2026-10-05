@@ -1,0 +1,34 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=129 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 pack scale=2 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=130 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 pack scale=2 pixels=1000 deviceX=192 inv=1024
+PASS 32 actual adapter dispatches and zero-output pack/unpack

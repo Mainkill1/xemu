@@ -1,0 +1,86 @@
+{
+  "deck-parent-morrowind": {
+    "id": "pr312-parent-deck-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-deck-morrowind",
+    "sha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354"
+  },
+  "deck-parent-pgr2": {
+    "id": "pr312-parent-deck-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-deck-pgr2",
+    "sha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+  },
+  "deck-parent-conker": {
+    "id": "pr312-parent-deck-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-deck-conker",
+    "sha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+  },
+  "win-parent-morrowind": {
+    "id": "pr312-parent-win-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-win-morrowind",
+    "sha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d"
+  },
+  "win-parent-pgr2": {
+    "id": "pr312-parent-win-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-win-pgr2",
+    "sha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a"
+  },
+  "win-parent-conker": {
+    "id": "pr312-parent-win-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/parent-win-conker",
+    "sha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714"
+  },
+  "deck-candidate-morrowind": {
+    "id": "pr312-candidate-deck-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-deck-morrowind",
+    "sha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354"
+  },
+  "deck-candidate-pgr2": {
+    "id": "pr312-candidate-deck-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-deck-pgr2",
+    "sha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+  },
+  "deck-candidate-conker": {
+    "id": "pr312-candidate-deck-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-deck-conker",
+    "sha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+  },
+  "win-candidate-morrowind": {
+    "id": "pr312-candidate-win-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-win-morrowind",
+    "sha256": "8864778a421c6ec2a7f79c99bec7f056eda24247e0e8e9fc434ef873dccd1b3e",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d"
+  },
+  "win-candidate-pgr2": {
+    "id": "pr312-candidate-win-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-win-pgr2",
+    "sha256": "8864778a421c6ec2a7f79c99bec7f056eda24247e0e8e9fc434ef873dccd1b3e",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a"
+  },
+  "win-candidate-conker": {
+    "id": "pr312-candidate-win-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/packages/candidate-win-conker",
+    "sha256": "8864778a421c6ec2a7f79c99bec7f056eda24247e0e8e9fc434ef873dccd1b3e",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714"
+  }
+}

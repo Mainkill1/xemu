@@ -1,0 +1,42 @@
+[
+  {
+    "compile": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/home/codex/xemu-shader-workbench-handoff/xemu-pr312",
+      "/home/codex/xemu-shader-workbench-handoff/xemu-pr312/tests/unit/test-xbox-vk-surface-coherence.c",
+      "-o",
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-maintained-exact-strict"
+    ],
+    "run": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-maintained-exact-strict"
+    ],
+    "exitCode": 0
+  },
+  {
+    "compile": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/home/codex/xemu-shader-workbench-handoff/xemu-pr312",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "/home/codex/xemu-shader-workbench-handoff/xemu-pr312/tests/unit/test-xbox-vk-surface-coherence.c",
+      "-o",
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-maintained-exact-sanitized"
+    ],
+    "run": [
+      "env",
+      "ASAN_OPTIONS=detect_leaks=0",
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-maintained-exact-sanitized"
+    ],
+    "exitCode": 0
+  }
+]

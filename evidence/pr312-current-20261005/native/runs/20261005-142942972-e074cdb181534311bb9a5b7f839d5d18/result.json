@@ -1,0 +1,400 @@
+{
+  "runId": "20261005-142942972-e074cdb181534311bb9a5b7f839d5d18",
+  "job": "p312-deck-conker-02-candidate-v1-t001",
+  "jobPackage": "agent-p312-deck-conker-02-candidate-v1-t001",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-10-05T14:29:42.9721989+00:00",
+  "endedUtc": "2026-10-05T14:31:31.9493533+00:00",
+  "durationMs": 108977.1545,
+  "processId": 687475,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261005-142942972-e074cdb181534311bb9a5b7f839d5d18",
+    "ExecutableSha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+    "Platform": "linux",
+    "ProcessId": 687475,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-p312-deck-conker-02-candidate-v1-t001/xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:38379,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 197."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "metric:guest/interval_max_ms",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Reported metric was extracted successfully."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "monitor/cpu_mean",
+        "Value": 190.4273015873016,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_mean"
+      },
+      {
+        "Name": "monitor/cpu_median",
+        "Value": 188.15,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_median"
+      },
+      {
+        "Name": "monitor/cpu_samples",
+        "Value": 63,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/cpu_samples"
+      },
+      {
+        "Name": "monitor/collector_duty_mean",
+        "Value": 0.3566190476190477,
+        "Unit": "pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/collector_duty_mean"
+      },
+      {
+        "Name": "monitor/duty_samples",
+        "Value": 63,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/duty_samples"
+      },
+      {
+        "Name": "monitor/overruns",
+        "Value": 0,
+        "Unit": "count",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/overruns"
+      },
+      {
+        "Name": "guest/cadence_fps",
+        "Value": 8.402802778648335,
+        "Unit": "fps",
+        "Direction": "higher",
+        "Source": "result:performance.json#guest/cadence_fps"
+      },
+      {
+        "Name": "guest/flip_frames",
+        "Value": 212,
+        "Unit": "frames",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_frames"
+      },
+      {
+        "Name": "guest/flip_elapsed_s",
+        "Value": 25.229677,
+        "Unit": "s",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_elapsed_s"
+      },
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 119.3175095238096,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 116.691,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 158.9288,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 178.87805999999998,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 210,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      },
+      {
+        "Name": "guest/interval_max_ms",
+        "Value": 183.514,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#Frames.IntervalsMs.Max"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "eligible",
+    "ComparisonReasons": [],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 55; actual 197."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "metric:guest/interval_max_ms",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Reported metric was extracted successfully."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "eligible",
+  "experiment": {
+    "Id": "fresh-start-conker-20261002",
+    "Variant": "comparison",
+    "Reference": null,
+    "VariedFactors": [
+      "xemu-build"
+    ],
+    "ControlledFactors": [
+      "conker-menu-fresh-v1",
+      "no-gameplay-input-during-measurement",
+      "same-firmware-iso-portable-seed",
+      "vulkan-1x",
+      "cold-application-cache"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": "controller-input.json",
+  "runtimeDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Runtime/20261005-142942972-e074cdb181534311bb9a5b7f839d5d18",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-03T19:19:32.8243956+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B3aa5e059d52339bf4b14725260e124322c30beca",
+    "machine": "MainDeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 197,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3707959390862945,
+    "maxCollectorDutyPercent": 0.91868,
+    "maxCollectorDurationMs": 4.5934,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

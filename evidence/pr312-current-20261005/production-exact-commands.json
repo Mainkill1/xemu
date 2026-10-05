@@ -1,0 +1,41 @@
+{
+  "source": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+  "priorHelper": "4aa11b5d90029c3e46eee8382d80be0abb3635a9",
+  "candidateHeaderSha256": "79044bd016e9eef0b9995efbaf2e9a8d3f73a2c81c084f6dfdecd61fff8f0c72",
+  "commands": [
+    {
+      "compiler": "gcc",
+      "compile": [
+        "gcc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/home/codex/xemu-shader-workbench-handoff/xemu-pr312",
+        "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact.c",
+        "-o",
+        "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc"
+      ],
+      "dependencies": "production-differential-exact.o: \\\n /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact.c \\\n /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/baseline-workgroup.h \\\n /home/codex/xemu-shader-workbench-handoff/xemu-pr312/hw/xbox/nv2a/pgraph/vk/compute-workgroup.h\n",
+      "differential": "equivalent: 3146496 cases\n"
+    },
+    {
+      "compiler": "clang-19",
+      "compile": [
+        "clang-19",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/home/codex/xemu-shader-workbench-handoff/xemu-pr312",
+        "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact.c",
+        "-o",
+        "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19"
+      ],
+      "dependencies": "production-differential-exact.o: \\\n  /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact.c \\\n  /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/baseline-workgroup.h \\\n  /home/codex/xemu-shader-workbench-handoff/xemu-pr312/hw/xbox/nv2a/pgraph/vk/compute-workgroup.h\n",
+      "differential": "equivalent: 3146496 cases\n"
+    }
+  ]
+}

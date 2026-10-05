@@ -1,0 +1,4 @@
+production-differential-exact.o: \
+  /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact.c \
+  /home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/baseline-workgroup.h \
+  /home/codex/xemu-shader-workbench-handoff/xemu-pr312/hw/xbox/nv2a/pgraph/vk/compute-workgroup.h

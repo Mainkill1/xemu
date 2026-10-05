@@ -1,0 +1,53 @@
+{
+  "JobId": "p312-deck-conker-01-parent-v1-t001",
+  "CreatedUtc": "2026-10-05T14:27:42.0660605+00:00",
+  "PackageDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-p312-deck-conker-01-parent-v1-t001",
+  "JobManifestSha256": "abf17942f13133483acddde7c920e176e16333ede9c28edfedc8c3924e8f344a",
+  "ExecutableSha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "native-ci-executable",
+      "Bytes": 25552240,
+      "LastWriteUtc": "2026-10-05T14:27:40.2581908Z",
+      "Sha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+      "ExpectedSha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "frozen-game-settings",
+      "Bytes": 511,
+      "LastWriteUtc": "2026-10-05T14:27:40.2821907Z",
+      "Sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "ExpectedSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "private-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-05T14:27:40.2191909Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-deck-pgr2-portable-save-seed-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "pr267-deck-pgr2-portable-save-seed-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

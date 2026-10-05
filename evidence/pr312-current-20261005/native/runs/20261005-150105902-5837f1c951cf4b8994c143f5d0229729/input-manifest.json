@@ -1,0 +1,62 @@
+{
+  "JobId": "p312-deck-pgr2-08-candidate-v1-t001",
+  "CreatedUtc": "2026-10-05T15:01:09.8103987+00:00",
+  "PackageDirectory": "/home/deck/xemu-performance/pr30-disk-assets-live/workspace/Queue/Testing/agent-p312-deck-pgr2-08-candidate-v1-t001",
+  "JobManifestSha256": "552e3d6e412f2a152398fde2e10a3481c63cc241417148b6aa737a7b77973b9f",
+  "ExecutableSha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pr267-base-exact-appimage-embedded-elf",
+      "Bytes": 25552240,
+      "LastWriteUtc": "2026-10-05T15:01:04.368682Z",
+      "Sha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+      "ExpectedSha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "portable-run-config",
+      "Bytes": 512,
+      "LastWriteUtc": "2026-10-05T15:01:04.3961881Z",
+      "Sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+      "ExpectedSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+      "Verified": true
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "required",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-05T15:01:04.339682Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-appimage-bundled-library",
+      "Bytes": 133360,
+      "LastWriteUtc": "2026-10-05T15:01:04.311682Z",
+      "Sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:pgr2-freshboot-base-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1275527168,
+      "Sha256": "da7052b0309c3ba245e73adafb497602c20004bea6a9de2b13195c4751e331c4",
+      "DiskAssetId": "pgr2-freshboot-base-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

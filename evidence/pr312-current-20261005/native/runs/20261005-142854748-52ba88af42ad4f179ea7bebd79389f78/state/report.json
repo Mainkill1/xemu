@@ -1,0 +1,107 @@
+{
+  "Schema": 1,
+  "Status": "complete",
+  "CacheMode": "cold",
+  "CacheShaders": false,
+  "DriverCache": "uncontrolled",
+  "DriverNamespaceVerified": false,
+  "DriverQualification": "not_verified",
+  "ComparisonReady": true,
+  "AllowUncontrolledDriverCache": true,
+  "ContractSha256": "5670a2c14cb410baeef0b9099a7d89efd34b4deb144c9ad464cfab58ccb0bb0e",
+  "CacheDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-conker-02-candidate-v1-t001\\cache",
+  "PriorCacheDirectory": null,
+  "DriverCacheDirectory": null,
+  "ConfigSourcePath": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-conker-02-candidate-v1-t001\\xemu.toml",
+  "EffectiveConfigPath": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261005-142854748-52ba88af42ad4f179ea7bebd79389f78\\diagnostics\\run-state\\effective-live.toml",
+  "ConfigSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+  "EffectiveConfigSha256": "d7dfe33c86a2f2d1540f0b52b52a89cd1211a47f91ab5dd4360f70b1c94a7307",
+  "ConfigAfterSha256": "058e43ebaf09d27ab92a9bce2b72e572d0eef8bcb77c31bf7b133052175b0dae",
+  "SeedSha256": null,
+  "Before": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "After": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "DriverBefore": null,
+  "DriverAfter": null,
+  "TargetStopped": true,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-cache"
+  ],
+  "Issues": [],
+  "RuntimeSeeds": [
+    {
+      "Source": "state/eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Source": "disk-asset:pr267-pgr2-save-portable-v1",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "pr267-pgr2-save-portable-v1",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ],
+  "ReadOnlyAssets": [
+    {
+      "Field": "bootrom_path",
+      "AssetId": "devbox-mcpx10-readonly-v1",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-mcpx10-readonly-v1\\disk.qcow2",
+      "Bytes": 512,
+      "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "BeforeSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "AfterSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+    },
+    {
+      "Field": "flashrom_path",
+      "AssetId": "devbox-complex4627-readonly-v1",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-complex4627-readonly-v1\\disk.qcow2",
+      "Bytes": 1048576,
+      "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "BeforeSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "AfterSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+    },
+    {
+      "Field": "dvd_path",
+      "AssetId": "conker-usa-readonly-v1",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\conker-usa-readonly-v1\\disk.qcow2",
+      "Bytes": 4757782528,
+      "ExpectedSha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba",
+      "BeforeSha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba",
+      "AfterSha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba"
+    }
+  ],
+  "StoragePaths": {
+    "bootrom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-mcpx10-readonly-v1\\disk.qcow2",
+    "flashrom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-complex4627-readonly-v1\\disk.qcow2",
+    "dvd_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\conker-usa-readonly-v1\\disk.qcow2",
+    "hdd_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-142854748-52ba88af42ad4f179ea7bebd79389f78\\hdd.qcow2",
+    "eeprom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20261005-142854748-52ba88af42ad4f179ea7bebd79389f78\\eeprom.bin",
+    "screenshots": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20261005-142854748-52ba88af42ad4f179ea7bebd79389f78\\screenshots",
+    "applicationBase": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-conker-02-candidate-v1-t001",
+    "openglShaders": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-conker-02-candidate-v1-t001\\shaders",
+    "openglReloadList": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-p312-win-conker-02-candidate-v1-t001\\shader_cache_list"
+  },
+  "CacheEnvironment": {},
+  "Limitations": [
+    "Cold refers to the application cache, not RAM, OS page cache or a fully reset GPU driver.",
+    "The effective file pins authored values and shader caching; omitted build defaults are not introspected.",
+    "Directory redirection is not an OS sandbox and does not prove an arbitrary executable obeyed it.",
+    "Driver namespaces are requested controls, not proof the loaded driver used them."
+  ]
+}

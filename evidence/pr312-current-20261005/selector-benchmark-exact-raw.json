@@ -1,0 +1,1362 @@
+[
+  {
+    "mode": 0,
+    "elapsedNs": 54418733,
+    "checksum": 20480000000,
+    "nsPerCall": 2.720937,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 17392949,
+    "checksum": 20480000000,
+    "nsPerCall": 0.869647,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 19255990,
+    "checksum": 20480000000,
+    "nsPerCall": 0.9628,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 55640270,
+    "checksum": 20480000000,
+    "nsPerCall": 2.782014,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 19756029,
+    "checksum": 20480000000,
+    "nsPerCall": 0.987801,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 47179120,
+    "checksum": 20480000000,
+    "nsPerCall": 2.358956,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 65393215,
+    "checksum": 20480000000,
+    "nsPerCall": 3.269661,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 19400954,
+    "checksum": 20480000000,
+    "nsPerCall": 0.970048,
+    "compiler": "gcc",
+    "case": "1024",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 52522193,
+    "checksum": 5120000000,
+    "nsPerCall": 2.62611,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 26467772,
+    "checksum": 5120000000,
+    "nsPerCall": 1.323389,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 22496702,
+    "checksum": 5120000000,
+    "nsPerCall": 1.124835,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 46941551,
+    "checksum": 5120000000,
+    "nsPerCall": 2.347078,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 20779665,
+    "checksum": 5120000000,
+    "nsPerCall": 1.038983,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 42418024,
+    "checksum": 5120000000,
+    "nsPerCall": 2.120901,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 46132955,
+    "checksum": 5120000000,
+    "nsPerCall": 2.306648,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 21785002,
+    "checksum": 5120000000,
+    "nsPerCall": 1.08925,
+    "compiler": "gcc",
+    "case": "256",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 51023656,
+    "checksum": 2560000000,
+    "nsPerCall": 2.551183,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 29702875,
+    "checksum": 2560000000,
+    "nsPerCall": 1.485144,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 24469458,
+    "checksum": 2560000000,
+    "nsPerCall": 1.223473,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43193051,
+    "checksum": 2560000000,
+    "nsPerCall": 2.159653,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 24512976,
+    "checksum": 2560000000,
+    "nsPerCall": 1.225649,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43607952,
+    "checksum": 2560000000,
+    "nsPerCall": 2.180398,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43373413,
+    "checksum": 2560000000,
+    "nsPerCall": 2.168671,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 26045051,
+    "checksum": 2560000000,
+    "nsPerCall": 1.302253,
+    "compiler": "gcc",
+    "case": "192",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 275247637,
+    "checksum": 20000000,
+    "nsPerCall": 13.762382,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 61965101,
+    "checksum": 20000000,
+    "nsPerCall": 3.098255,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 61217653,
+    "checksum": 20000000,
+    "nsPerCall": 3.060883,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 273156767,
+    "checksum": 20000000,
+    "nsPerCall": 13.657838,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 62750017,
+    "checksum": 20000000,
+    "nsPerCall": 3.137501,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 272642808,
+    "checksum": 20000000,
+    "nsPerCall": 13.63214,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 273172655,
+    "checksum": 20000000,
+    "nsPerCall": 13.658633,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 65365576,
+    "checksum": 20000000,
+    "nsPerCall": 3.268279,
+    "compiler": "gcc",
+    "case": "odd",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 84147256,
+    "checksum": 5120000000,
+    "nsPerCall": 4.207363,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 24458298,
+    "checksum": 5120000000,
+    "nsPerCall": 1.222915,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 24691579,
+    "checksum": 5120000000,
+    "nsPerCall": 1.234579,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 83582140,
+    "checksum": 5120000000,
+    "nsPerCall": 4.179107,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 26536139,
+    "checksum": 5120000000,
+    "nsPerCall": 1.326807,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 83685576,
+    "checksum": 5120000000,
+    "nsPerCall": 4.184279,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 85089296,
+    "checksum": 5120000000,
+    "nsPerCall": 4.254465,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 24364542,
+    "checksum": 5120000000,
+    "nsPerCall": 1.218227,
+    "compiler": "gcc",
+    "case": "partial",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-gcc",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 57485092,
+    "checksum": 20480000000,
+    "nsPerCall": 2.874255,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 20445140,
+    "checksum": 20480000000,
+    "nsPerCall": 1.022257,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 21804992,
+    "checksum": 20480000000,
+    "nsPerCall": 1.09025,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 56461795,
+    "checksum": 20480000000,
+    "nsPerCall": 2.82309,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 20439549,
+    "checksum": 20480000000,
+    "nsPerCall": 1.021977,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 54851444,
+    "checksum": 20480000000,
+    "nsPerCall": 2.742572,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 57796358,
+    "checksum": 20480000000,
+    "nsPerCall": 2.889818,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 20602294,
+    "checksum": 20480000000,
+    "nsPerCall": 1.030115,
+    "compiler": "clang-19",
+    "case": "1024",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 49976291,
+    "checksum": 5120000000,
+    "nsPerCall": 2.498815,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 26864566,
+    "checksum": 5120000000,
+    "nsPerCall": 1.343228,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 27877573,
+    "checksum": 5120000000,
+    "nsPerCall": 1.393879,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 40582851,
+    "checksum": 5120000000,
+    "nsPerCall": 2.029143,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 26927754,
+    "checksum": 5120000000,
+    "nsPerCall": 1.346388,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 47272246,
+    "checksum": 5120000000,
+    "nsPerCall": 2.363612,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43600413,
+    "checksum": 5120000000,
+    "nsPerCall": 2.180021,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 27492040,
+    "checksum": 5120000000,
+    "nsPerCall": 1.374602,
+    "compiler": "clang-19",
+    "case": "256",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "256",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43652781,
+    "checksum": 2560000000,
+    "nsPerCall": 2.182639,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 31419381,
+    "checksum": 2560000000,
+    "nsPerCall": 1.570969,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 31529347,
+    "checksum": 2560000000,
+    "nsPerCall": 1.576467,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 36537925,
+    "checksum": 2560000000,
+    "nsPerCall": 1.826896,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 32362122,
+    "checksum": 2560000000,
+    "nsPerCall": 1.618106,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 43513696,
+    "checksum": 2560000000,
+    "nsPerCall": 2.175685,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 38042860,
+    "checksum": 2560000000,
+    "nsPerCall": 1.902143,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 30423754,
+    "checksum": 2560000000,
+    "nsPerCall": 1.521188,
+    "compiler": "clang-19",
+    "case": "192",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "307200",
+      "192",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 102300503,
+    "checksum": 20000000,
+    "nsPerCall": 5.115025,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 68430316,
+    "checksum": 20000000,
+    "nsPerCall": 3.421516,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 64673106,
+    "checksum": 20000000,
+    "nsPerCall": 3.233655,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 97814094,
+    "checksum": 20000000,
+    "nsPerCall": 4.890705,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 60590349,
+    "checksum": 20000000,
+    "nsPerCall": 3.029517,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 92993969,
+    "checksum": 20000000,
+    "nsPerCall": 4.649698,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 92203433,
+    "checksum": 20000000,
+    "nsPerCall": 4.610172,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 60153408,
+    "checksum": 20000000,
+    "nsPerCall": 3.00767,
+    "compiler": "clang-19",
+    "case": "odd",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "4099",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 63434218,
+    "checksum": 5120000000,
+    "nsPerCall": 3.171711,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 1,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 30229603,
+    "checksum": 5120000000,
+    "nsPerCall": 1.51148,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 2,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 27491279,
+    "checksum": 5120000000,
+    "nsPerCall": 1.374564,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 3,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 60520072,
+    "checksum": 5120000000,
+    "nsPerCall": 3.026004,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 4,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 30915423,
+    "checksum": 5120000000,
+    "nsPerCall": 1.545771,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 5,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 62756977,
+    "checksum": 5120000000,
+    "nsPerCall": 3.137849,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 6,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 0,
+    "elapsedNs": 67737975,
+    "checksum": 5120000000,
+    "nsPerCall": 3.386899,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 7,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "0",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  },
+  {
+    "mode": 1,
+    "elapsedNs": 28257006,
+    "checksum": 5120000000,
+    "nsPerCall": 1.41285,
+    "compiler": "clang-19",
+    "case": "partial",
+    "cell": 8,
+    "command": [
+      "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-current-fixture/production-differential-exact-clang-19",
+      "1",
+      "768",
+      "1024",
+      "1024",
+      "20000000"
+    ]
+  }
+]

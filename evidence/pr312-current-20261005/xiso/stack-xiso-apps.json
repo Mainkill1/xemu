@@ -1,0 +1,30 @@
+{
+  "deck-parent": {
+    "id": "pr312-xiso-deck-parent-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/xiso/packages/parent-deck",
+    "sha256": "d040919edffab35b3cdea292a0d4a2801264946c3bc6a1444d7737cecfd8b475",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+  },
+  "deck-candidate": {
+    "id": "pr312-xiso-deck-candidate-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/xiso/packages/candidate-deck",
+    "sha256": "55848e897e2e7df62892cf9f05db7a311a746853fe489109d1e5fc70f367c927",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+  },
+  "win-parent": {
+    "id": "pr312-xiso-win-parent-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/xiso/packages/parent-win",
+    "sha256": "e26dfc8a42446a1bc9095bef2a3987bfaf46ebeff490170d8107dc21edb256ca",
+    "productSource": "afdde9eb62accd07686be104ebf4a9381785aaab",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+  },
+  "win-candidate": {
+    "id": "pr312-xiso-win-candidate-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/landing-units-20261005/pr312-native/xiso/packages/candidate-win",
+    "sha256": "8864778a421c6ec2a7f79c99bec7f056eda24247e0e8e9fc434ef873dccd1b3e",
+    "productSource": "e428a42bc3e0f2f60caccc9b738bde47e7a2f800",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35"
+  }
+}
