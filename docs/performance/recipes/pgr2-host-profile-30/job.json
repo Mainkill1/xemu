@@ -1,0 +1,577 @@
+{
+  "id": "i250-pgr2-host-profile-30-v1",
+  "executable": "xemu",
+  "arguments": [
+    "-config_path",
+    "xemu.toml"
+  ],
+  "workingDirectory": ".",
+  "environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+    "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "LD_LIBRARY_PATH": "{packageDir}/lib",
+    "XEMU_VK_PERF_LOG": "{resultDir}/vk-perf.jsonl"
+  },
+  "timeoutSeconds": 420,
+  "tags": [
+    "issue250",
+    "deck",
+    "pgr2",
+    "root-cause",
+    "diagnostic-only",
+    "host-profile"
+  ],
+  "plan": [
+    {
+      "type": "require_input",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 12000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "LStickRight",
+      "durationMs": 80,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 10000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 60000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "segment_start",
+      "name": "host-profile"
+    },
+    {
+      "type": "screenshot",
+      "name": "profile-start"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "context-before"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "host-cpu-profile"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "context-after"
+    },
+    {
+      "type": "screenshot",
+      "name": "profile-end"
+    },
+    {
+      "type": "segment_end",
+      "name": "host-profile"
+    },
+    {
+      "type": "quit"
+    }
+  ],
+  "targetOs": "linux",
+  "expectedExecutableSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b",
+  "requiredFiles": [
+    "lib/libpcap.so.0.8",
+    "lib/libslirp.so.0",
+    "state/seed-eeprom.bin",
+    "vk-perf-summary.py",
+    "xemu",
+    "xemu.toml",
+    "linux_performance_context.py"
+  ],
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "requireInput": true,
+  "diagnostics": [
+    {
+      "id": "context-before",
+      "type": "external",
+      "toolExecutable": "python3",
+      "toolArguments": [
+        "{packageDir}/linux_performance_context.py",
+        "--pid",
+        "{pid}",
+        "--samples",
+        "1"
+      ],
+      "toolWorkingDirectory": "result",
+      "durationMs": 10000,
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "host-cpu-profile",
+      "type": "perf",
+      "durationMs": 30000,
+      "frequency": 99,
+      "callGraph": "dwarf,4096",
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false,
+      "outputName": "host-cpu-profile.data"
+    },
+    {
+      "id": "context-after",
+      "type": "external",
+      "toolExecutable": "python3",
+      "toolArguments": [
+        "{packageDir}/linux_performance_context.py",
+        "--pid",
+        "{pid}",
+        "--samples",
+        "1"
+      ],
+      "toolWorkingDirectory": "result",
+      "durationMs": 10000,
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    }
+  ],
+  "runtimeState": {
+    "enabled": true,
+    "keepOnSuccess": false,
+    "keepOnFailure": true,
+    "files": [
+      {
+        "source": "state/seed-eeprom.bin",
+        "destination": "eeprom.bin",
+        "expectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+      }
+    ],
+    "diskAssets": [
+      {
+        "assetId": "research247-pgr2-save-7b0f55",
+        "expectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "destination": "hdd.qcow2",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "isolation": {
+      "cacheMode": "cold",
+      "cacheShaders": true,
+      "driverCache": "mesa",
+      "allowUncontrolledDriverCache": false,
+      "seedDirectory": null,
+      "seedSha256": null,
+      "requirePrivateGuestState": true,
+      "maximumFiles": 4096,
+      "maximumBytes": 268435456,
+      "deadlineSeconds": 15,
+      "readOnlyAssets": [
+        {
+          "field": "bootrom_path",
+          "assetId": "research247-bootrom-e99e3a",
+          "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "field": "flashrom_path",
+          "assetId": "research247-bios-1de4c8",
+          "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "field": "dvd_path",
+          "assetId": "research247-pgr2-disc-694365",
+          "expectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+        }
+      ]
+    }
+  },
+  "inputs": [
+    {
+      "path": "lib/libpcap.so.0.8",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+    },
+    {
+      "path": "lib/libslirp.so.0",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+    },
+    {
+      "path": "state/seed-eeprom.bin",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "path": "vk-perf-summary.py",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "0f2a1b13d567ce183c3a341989c0071f9e218c8f85a8ee9bd2e613a6a20b84da"
+    },
+    {
+      "path": "xemu",
+      "role": "baseline-build",
+      "hash": true,
+      "expectedSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b"
+    },
+    {
+      "path": "xemu.toml",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "a99952540c388a62748e195092032b04095853cef0b98ba4280272d334967d82"
+    },
+    {
+      "path": "linux_performance_context.py",
+      "role": "fixed-input",
+      "hash": true,
+      "expectedSha256": "96e8de0baa215b6c54ff670f24e05b3327f24b7d02b4561c156251fbf97c4696"
+    }
+  ],
+  "workload": {
+    "correctnessChecks": [
+      {
+        "name": "profile-scene-start-visible",
+        "scope": "result",
+        "path": "screenshots/profile-start.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": {
+          "x": 0.08333333333333333,
+          "y": 0,
+          "width": 0.8333333333333334,
+          "height": 1
+        }
+      },
+      {
+        "name": "profile-scene-end-visible",
+        "scope": "result",
+        "path": "screenshots/profile-end.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": {
+          "x": 0.08333333333333333,
+          "y": 0,
+          "width": 0.8333333333333334,
+          "height": 1
+        }
+      }
+    ],
+    "evidenceRequirements": [
+      {
+        "name": "measurement-boundaries",
+        "scope": "result",
+        "path": "segments.jsonl",
+        "mustExist": true,
+        "minimumBytes": 20,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "guest-frame-progress",
+        "scope": "result",
+        "path": "guest-frames.log",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "vulkan-finish-telemetry",
+        "scope": "result",
+        "path": "vk-perf.jsonl",
+        "mustExist": true,
+        "minimumBytes": 1000
+      }
+    ],
+    "reportedMetrics": [],
+    "minimumMetricSamples": 0,
+    "requirePlanCompletion": true
+  },
+  "experiment": {
+    "id": "issue250-host-root-cause-20261003",
+    "variant": "main-host-profile-diagnostic",
+    "reference": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+    "variedFactors": [
+      "Explicit 30-second 99 Hz perf sampling plus before/after procfs/sysfs context; no performance comparison"
+    ],
+    "controlledFactors": [
+      "Same navigation and 60-second settling as preserved failed 300-second attempt; new diagnostic recipe, no frame evidence qualification",
+      "Fixed controller auto_bind=false and virtual port 1 connected",
+      "Vulkan/RADV, full DSP/JIT, VP workers 0, 128 MiB, private guest/Mesa disk state",
+      "Declared non-pausing offline schema-header query; no TCG observer"
+    ],
+    "requireCorrectnessPass": true,
+    "requireCompleteEvidence": true,
+    "allowOperatorIntervention": false,
+    "allowDiagnostics": true
+  },
+  "operations": {
+    "mode": "diagnostic",
+    "allowPreview": false,
+    "allowManualInput": false,
+    "allowPauseResume": false,
+    "allowDiagnostics": true,
+    "allowBulkTransfers": false
+  }
+}
