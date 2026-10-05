@@ -1,0 +1,862 @@
+[
+  {
+    "host": "win",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 250.49212295081966,
+        "B": 244.6612950819672,
+        "improvementPercent": 2.3277489927287043,
+        "rangeA": [
+          249.0748196721311,
+          252.94130645161292
+        ],
+        "rangeB": [
+          243.48221311475413,
+          245.54524193548386
+        ],
+        "ABBA": 3.1299538425356617,
+        "BAAB": 1.780998465116762
+      },
+      "avgGuestFps": {
+        "A": 24.979965012049654,
+        "B": 25.622734164878313,
+        "improvementPercent": 2.573138723447391,
+        "rangeA": [
+          24.719988134405682,
+          25.182710558239158
+        ],
+        "rangeB": [
+          25.399844552951325,
+          25.82277001493525
+        ],
+        "ABBA": 2.5273945403410063,
+        "BAAB": 2.69077559388526
+      },
+      "guestFlipCadence": {
+        "A": 25.03291411336086,
+        "B": 25.5947082500914,
+        "improvementPercent": 2.2442218839823096,
+        "rangeA": [
+          24.77392101595257,
+          25.15273331733042
+        ],
+        "rangeB": [
+          25.526767917544564,
+          25.90190863644833
+        ],
+        "ABBA": 2.7221128173482967,
+        "BAAB": 2.5292345016157167
+      },
+      "avgFrameMs": {
+        "A": 40.03272318933111,
+        "B": 39.02793553592292,
+        "improvementPercent": 2.5099158222540474,
+        "rangeA": [
+          39.70978412698409,
+          40.45309385113271
+        ],
+        "rangeB": [
+          38.725512383900906,
+          39.370319685039384
+        ],
+        "ABBA": 2.460005406585518,
+        "BAAB": 2.6284072620822485
+      },
+      "p95FrameMs": {
+        "A": 50.150975,
+        "B": 50.085875,
+        "improvementPercent": 0.12980804460930429,
+        "rangeA": [
+          50.1184,
+          50.17085
+        ],
+        "rangeB": [
+          50.06775,
+          50.100699999999996
+        ],
+        "ABBA": 0.09749048034133626,
+        "BAAB": 0.1527535509593819
+      },
+      "p99FrameMs": {
+        "A": 50.408519999999996,
+        "B": 50.23332,
+        "improvementPercent": 0.3475602933789699,
+        "rangeA": [
+          50.23862,
+          50.69834000000002
+        ],
+        "rangeB": [
+          50.20444,
+          50.2401
+        ],
+        "ABBA": 0.01328612958922834,
+        "BAAB": 0.8190413916722832
+      },
+      "maxFrameMs": {
+        "A": 66.7415,
+        "B": 66.6865,
+        "improvementPercent": 0.08240749758397221,
+        "rangeA": [
+          51.03,
+          67.816
+        ],
+        "rangeB": [
+          66.622,
+          66.765
+        ],
+        "ABBA": 0.018728976723631986,
+        "BAAB": -12.16364034128201
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "runner comparison admission incomplete"
+    ],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 38.450819672131146,
+      "B": 38.8360655737705,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        618,
+        646
+      ],
+      "cpuSamples": [
+        61,
+        62
+      ],
+      "collectorMeanDutyPct": [
+        0.4272131147540985,
+        0.4464098360655737
+      ]
+    }
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 254.38233246527778,
+        "B": 247.20726190476188,
+        "improvementPercent": 2.820585254872319,
+        "rangeA": [
+          252.90652380952378,
+          256.56121874999997
+        ],
+        "rangeB": [
+          246.0700634920635,
+          248.12998412698414
+        ],
+        "ABBA": 2.996793254028704,
+        "BAAB": 2.820585254872319
+      },
+      "avgGuestFps": {
+        "A": 29.17074284882689,
+        "B": 29.560417489890472,
+        "improvementPercent": 1.3358406506238594,
+        "rangeA": [
+          28.62085264957743,
+          29.659966472245973
+        ],
+        "rangeB": [
+          29.540303707100176,
+          29.66019529439802
+        ],
+        "ABBA": -0.3036848493287802,
+        "BAAB": 3.275693748932422
+      },
+      "guestFlipCadence": {
+        "A": 29.15357275011192,
+        "B": 29.581324524434464,
+        "improvementPercent": 1.4672362045948635,
+        "rangeA": [
+          28.74432165095264,
+          29.58139927992017
+        ],
+        "rangeB": [
+          29.561068400043677,
+          29.601735379794654
+        ],
+        "ABBA": -0.03455146043121789,
+        "BAAB": 2.9796754736093236
+      },
+      "avgFrameMs": {
+        "A": 34.28836931166582,
+        "B": 33.829037196905944,
+        "improvementPercent": 1.3396149306044638,
+        "rangeA": [
+          33.71547978436659,
+          34.939560055865925
+        ],
+        "rangeB": [
+          33.71521967654987,
+          33.85205548037898
+        ],
+        "ABBA": -0.30450927353660534,
+        "BAAB": 3.1720442525563053
+      },
+      "p95FrameMs": {
+        "A": 42.053399999999996,
+        "B": 34.027075,
+        "improvementPercent": 19.08603109379977,
+        "rangeA": [
+          34.007,
+          49.9962
+        ],
+        "rangeB": [
+          33.854899999999994,
+          34.2082
+        ],
+        "ABBA": -0.2382680328247839,
+        "BAAB": 32.16396117130268
+      },
+      "p99FrameMs": {
+        "A": 50.092420000000004,
+        "B": 50.03686,
+        "improvementPercent": 0.11091498474221635,
+        "rangeA": [
+          50.0168,
+          50.16642
+        ],
+        "rangeB": [
+          50.021589999999996,
+          50.0751
+        ],
+        "ABBA": -0.07429924754143172,
+        "BAAB": 0.27109441587168537
+      },
+      "maxFrameMs": {
+        "A": 50.3175,
+        "B": 50.2135,
+        "improvementPercent": 0.2066875341580945,
+        "rangeA": [
+          50.237,
+          50.999
+        ],
+        "rangeB": [
+          50.204,
+          50.243
+        ],
+        "ABBA": 0.16397352572892893,
+        "BAAB": 0.8217689762457342
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 53.092013888888886,
+      "B": 53.73809523809524,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        716,
+        742
+      ],
+      "cpuSamples": [
+        63,
+        64
+      ],
+      "collectorMeanDutyPct": [
+        0.42969841269841275,
+        0.43882539682539695
+      ]
+    }
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "A": 292.11822222222224,
+        "B": 256.6485555555555,
+        "improvementPercent": 12.142230086449041,
+        "rangeA": [
+          288.1065714285714,
+          297.5185714285715
+        ],
+        "rangeB": [
+          255.35271428571428,
+          263.7986129032257
+        ],
+        "ABBA": 12.113879737812873,
+        "BAAB": 11.382101718731013
+      },
+      "avgGuestFps": {
+        "A": 24.16579193208804,
+        "B": 24.653019269935943,
+        "improvementPercent": 2.0161860998271153,
+        "rangeA": [
+          23.97649536206669,
+          24.30777610555204
+        ],
+        "rangeB": [
+          24.37635785804067,
+          25.111031344045156
+        ],
+        "ABBA": 3.574701713330899,
+        "BAAB": 0.9451021991967382
+      },
+      "guestFlipCadence": {
+        "A": 23.103736265064796,
+        "B": 23.853760803387324,
+        "improvementPercent": 3.2463344011446376,
+        "rangeA": [
+          23.00022616889066,
+          23.286212388885957
+        ],
+        "rangeB": [
+          23.55038714728074,
+          24.373305368284228
+        ],
+        "ABBA": 4.8396527284696536,
+        "BAAB": 1.9562603209155511
+      },
+      "avgFrameMs": {
+        "A": 41.381037354481684,
+        "B": 40.56309119278783,
+        "improvementPercent": 1.9766207277190648,
+        "rangeA": [
+          41.13909868421052,
+          41.70751333333328
+        ],
+        "rangeB": [
+          39.82313535031848,
+          41.023355737704875
+        ],
+        "ABBA": 3.4452665406877805,
+        "BAAB": 0.9342517441070949
+      },
+      "p95FrameMs": {
+        "A": 49.417325,
+        "B": 48.873349999999995,
+        "improvementPercent": 1.100777915437558,
+        "rangeA": [
+          49.129,
+          50.49655
+        ],
+        "rangeB": [
+          47.9814,
+          49.7872
+        ],
+        "ABBA": 2.727785000644782,
+        "BAAB": 0.22951922906636096
+      },
+      "p99FrameMs": {
+        "A": 52.050585,
+        "B": 51.873050000000006,
+        "improvementPercent": 0.341081661233955,
+        "rangeA": [
+          51.056819999999995,
+          53.08504
+        ],
+        "rangeB": [
+          50.62944,
+          52.542049999999996
+        ],
+        "ABBA": 1.8376728511954596,
+        "BAAB": -0.5824786948715355
+      },
+      "maxFrameMs": {
+        "A": 55.0245,
+        "B": 55.3835,
+        "improvementPercent": -0.6524366418595255,
+        "rangeA": [
+          54.406,
+          58.65
+        ],
+        "rangeB": [
+          53.385,
+          61.121
+        ],
+        "ABBA": 2.3192853426457454,
+        "BAAB": -4.373427644292122
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 35.198412698412696,
+      "B": 35.83333333333333,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        600,
+        628
+      ],
+      "cpuSamples": [
+        62,
+        63
+      ],
+      "collectorMeanDutyPct": [
+        0.4193870967741936,
+        0.4601111111111109
+      ]
+    }
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 180.32867014806982,
+        "B": 163.47608302485457,
+        "improvementPercent": 9.345484059399652,
+        "rangeA": [
+          178.26250000000002,
+          183.48798360655738
+        ],
+        "rangeB": [
+          161.77679032258064,
+          163.98508196721312
+        ],
+        "ABBA": 8.797590444599322,
+        "BAAB": 10.478568065109947
+      },
+      "avgGuestFps": {
+        "A": 6.787332675082462,
+        "B": 7.189684471454869,
+        "improvementPercent": 5.927981073471079,
+        "rangeA": [
+          6.381455235826477,
+          7.037124349505815
+        ],
+        "rangeB": [
+          7.0259525914268055,
+          7.252969343731012
+        ],
+        "ABBA": 2.0902407058342836,
+        "BAAB": 10.553757077118123
+      },
+      "guestFlipCadence": {
+        "A": 6.86665515342015,
+        "B": 7.238539586688382,
+        "improvementPercent": 5.415801798099662,
+        "rangeA": [
+          6.395101272982643,
+          7.097384594062131
+        ],
+        "rangeB": [
+          7.05186556512587,
+          7.35508262901497
+        ],
+        "ABBA": 1.4421315828890042,
+        "BAAB": 11.122788802675467
+      },
+      "avgFrameMs": {
+        "A": 147.41737913723858,
+        "B": 139.09647163730125,
+        "improvementPercent": 5.644454913413543,
+        "rangeA": [
+          142.10350000000005,
+          156.70406875000003
+        ],
+        "rangeB": [
+          137.87456593406588,
+          142.32945454545452
+        ],
+        "ABBA": 2.0265288594243556,
+        "BAAB": 9.572636762058652
+      },
+      "p95FrameMs": {
+        "A": 193.340825,
+        "B": 183.602625,
+        "improvementPercent": 5.036804823813081,
+        "rangeA": [
+          183.7325,
+          203.60449999999983
+        ],
+        "rangeB": [
+          182.58429999999984,
+          184.34269999999998
+        ],
+        "ABBA": 4.507505602421274,
+        "BAAB": 5.787773772064581
+      },
+      "p99FrameMs": {
+        "A": 226.02935499999995,
+        "B": 217.002725,
+        "improvementPercent": 3.993565349067141,
+        "rangeA": [
+          216.64875,
+          233.98971000000003
+        ],
+        "rangeB": [
+          199.911,
+          236.65259999999998
+        ],
+        "ABBA": 11.219958900090338,
+        "BAAB": -4.077640711756239
+      },
+      "maxFrameMs": {
+        "A": 238.43849999999998,
+        "B": 245.94299999999998,
+        "improvementPercent": -3.147352461955602,
+        "rangeA": [
+          233.087,
+          282.532
+        ],
+        "rangeB": [
+          216.53,
+          281.604
+        ],
+        "ABBA": 5.68595256219108,
+        "BAAB": -4.778528331966069
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 70.60113696456901,
+      "B": 68.7037281861449,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        160,
+        182
+      ],
+      "cpuSamples": [
+        61,
+        62
+      ],
+      "collectorMeanDutyPct": [
+        0.33175806451612894,
+        0.3789838709677419
+      ]
+    }
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 217.8468168402778,
+        "B": 199.25694444444446,
+        "improvementPercent": 8.533460651602347,
+        "rangeA": [
+          214.1892222222222,
+          219.26239682539682
+        ],
+        "rangeB": [
+          198.17226984126984,
+          200.3283492063492
+        ],
+        "ABBA": 7.611622382747641,
+        "BAAB": 8.977092714731894
+      },
+      "avgGuestFps": {
+        "A": 7.863585357556778,
+        "B": 7.897685694666706,
+        "improvementPercent": 0.43364871822950485,
+        "rangeA": [
+          7.847038983571843,
+          9.06730468536393
+        ],
+        "rangeB": [
+          7.8785664160549365,
+          7.958530855204129
+        ],
+        "ABBA": -6.237135945027184,
+        "BAAB": 0.2969945424538866
+      },
+      "guestFlipCadence": {
+        "A": 7.8969258856624425,
+        "B": 7.936338327858438,
+        "improvementPercent": 0.4990858818562872,
+        "rangeA": [
+          7.8937974802051185,
+          9.081607801527543
+        ],
+        "rangeB": [
+          7.84967377702477,
+          8.003835532613856
+        ],
+        "ABBA": -5.897154425696669,
+        "BAAB": -0.2655553483462627
+      },
+      "avgFrameMs": {
+        "A": 127.16849746192898,
+        "B": 126.61979292929291,
+        "improvementPercent": 0.43147834848039623,
+        "rangeA": [
+          110.28635682819383,
+          127.43660406091375
+        ],
+        "rangeB": [
+          125.65133165829145,
+          126.92664467005073
+        ],
+        "ABBA": -6.109478488277903,
+        "BAAB": 0.29628583242579265
+      },
+      "p95FrameMs": {
+        "A": 150.1461,
+        "B": 150.1491,
+        "improvementPercent": -0.001998053895515318,
+        "rangeA": [
+          133.4064,
+          150.3152
+        ],
+        "rangeB": [
+          150.0846,
+          151.74169999999998
+        ],
+        "ABBA": -5.8615904854034895,
+        "BAAB": -0.49404541928438683
+      },
+      "p99FrameMs": {
+        "A": 158.11638,
+        "B": 172.83155999999997,
+        "improvementPercent": -9.30655002347004,
+        "rangeA": [
+          134.51598,
+          167.45319999999987
+        ],
+        "rangeB": [
+          166.72306000000003,
+          183.33896000000001
+        ],
+        "ABBA": -13.30582147489363,
+        "BAAB": -11.808934659394543
+      },
+      "maxFrameMs": {
+        "A": 183.92450000000002,
+        "B": 217.5885,
+        "improvementPercent": -18.303162438935534,
+        "rangeA": [
+          166.631,
+          263.716
+        ],
+        "rangeB": [
+          201.516,
+          220.088
+        ],
+        "ABBA": -19.596104497316695,
+        "BAAB": 2.228647150945671
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 25.555555555555557,
+      "B": 26.134920634920633,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        197,
+        227
+      ],
+      "cpuSamples": [
+        63,
+        64
+      ],
+      "collectorMeanDutyPct": [
+        0.39142857142857146,
+        0.46646031746031746
+      ]
+    }
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "A": 293.1163033234127,
+        "B": 268.97349999999994,
+        "improvementPercent": 8.236595184122036,
+        "rangeA": [
+          292.6854126984127,
+          293.99695238095234
+        ],
+        "rangeB": [
+          267.64920312500004,
+          270.23290476190476
+        ],
+        "ABBA": 8.171158426492767,
+        "BAAB": 8.383213136742155
+      },
+      "avgGuestFps": {
+        "A": 8.3182870232914,
+        "B": 8.392732770705294,
+        "improvementPercent": 0.8949648792527051,
+        "rangeA": [
+          7.816991779077137,
+          8.464486627488604
+        ],
+        "rangeB": [
+          7.828335779688263,
+          8.498193974189984
+        ],
+        "ABBA": -2.796204879265451,
+        "BAAB": 4.116139919955688
+      },
+      "guestFlipCadence": {
+        "A": 8.077205078720691,
+        "B": 8.27137234744858,
+        "improvementPercent": 2.403891777360212,
+        "rangeA": [
+          7.685882981882609,
+          8.143697197413815
+        ],
+        "rangeB": [
+          7.771999370389546,
+          8.404044357571966
+        ],
+        "ABBA": -0.0007481271692017728,
+        "BAAB": 4.649084089378259
+      },
+      "avgFrameMs": {
+        "A": 120.2173712964667,
+        "B": 119.16136787917273,
+        "improvementPercent": 0.8784116687177989,
+        "rangeA": [
+          118.14065566037735,
+          127.92644897959181
+        ],
+        "rangeB": [
+          117.6720610328639,
+          127.74107142857144
+        ],
+        "ABBA": -3.0436716529592465,
+        "BAAB": 4.032781621280794
+      },
+      "p95FrameMs": {
+        "A": 175.19209999999998,
+        "B": 169.52534999999986,
+        "improvementPercent": 3.2345921990775395,
+        "rangeA": [
+          161.1115,
+          185.96575
+        ],
+        "rangeB": [
+          161.0084,
+          179.6515
+        ],
+        "ABBA": -1.8882152212724068,
+        "BAAB": 6.714461131918154
+      },
+      "p99FrameMs": {
+        "A": 210.24448499999988,
+        "B": 208.0822549999999,
+        "improvementPercent": 1.0284360134345474,
+        "rangeA": [
+          184.48035000000002,
+          231.25325000000007
+        ],
+        "rangeB": [
+          192.57799999999997,
+          208.72300000000007
+        ],
+        "ABBA": 4.563251682915662,
+        "BAAB": -0.10365051080781028
+      },
+      "maxFrameMs": {
+        "A": 246.316,
+        "B": 228.171,
+        "improvementPercent": 7.366553532860232,
+        "rangeA": [
+          199.403,
+          262.493
+        ],
+        "rangeB": [
+          216.466,
+          247.958
+        ],
+        "ABBA": 5.679290017700842,
+        "BAAB": 1.2522299392070926
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "gpuUsage": {
+      "scope": "Whole-device utilization in the frozen CPU monitoring segment; not per-process",
+      "A": 38.16666666666667,
+      "B": 34.26190476190476,
+      "availableRunCount": 8,
+      "processUtilization": "Unavailable; no process_gpu_pct samples supplied"
+    },
+    "sampleRanges": {
+      "frameIntervals": [
+        196,
+        213
+      ],
+      "cpuSamples": [
+        63,
+        64
+      ],
+      "collectorMeanDutyPct": [
+        0.3660476190476191,
+        0.40579687500000006
+      ]
+    }
+  }
+]

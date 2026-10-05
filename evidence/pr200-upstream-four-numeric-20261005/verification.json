@@ -1,0 +1,134 @@
+[
+  {
+    "host": "win",
+    "title": "morrowind",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "pr187-win-morrowind-qualified-v1",
+      "revision": "a52cd44bac83a858b2d86688db7c2b723ed4a4bbcea5f8bb12474e65ecf339ad"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "saved legacy keyboard",
+    "isolationPolicy": {
+      "CacheMode": null,
+      "DriverCache": null,
+      "AllowUncontrolledDriverCache": null,
+      "RequirePrivateGuestState": null
+    },
+    "runnerEligible": 0
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "fresh-windows-conker-qualified-v6",
+      "revision": "19b869c5612b8c70e287bdaa4d8aa214329c5ca014aecd98e76d2b1dbd2c13f2"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "saved legacy keyboard",
+    "isolationPolicy": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": true,
+      "RequirePrivateGuestState": true
+    },
+    "runnerEligible": 8
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "fresh-windows-pgr2-balanced-v1",
+      "revision": "f80f332c4606260aac30f7d77450c4a348ea4631a33dbc6c12af0af4c0984a09"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "saved legacy keyboard",
+    "isolationPolicy": {
+      "CacheMode": "cold",
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": true,
+      "RequirePrivateGuestState": true
+    },
+    "runnerEligible": 8
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "morrowind-snapshot-disc-deck-v2",
+      "revision": "cee664023dae652e04ac933339ad66a79ed727bedc5d00a418bbbd704addc823"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "native-os-gamepad",
+    "isolationPolicy": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "RequirePrivateGuestState": true
+    },
+    "runnerEligible": 8
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "native-os-gamepad",
+    "isolationPolicy": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "RequirePrivateGuestState": true
+    },
+    "runnerEligible": 8
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "runs": 8,
+    "exactOrder": true,
+    "frozenProcedure": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "identicalWithinHostPlansAndDependencies": true,
+    "allBuildConfigIdentitiesMatch": true,
+    "allSceneEndpointsReviewed": true,
+    "collectorOverruns": 0,
+    "transport": "native-os-gamepad",
+    "isolationPolicy": {
+      "CacheMode": "cold",
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "RequirePrivateGuestState": true
+    },
+    "runnerEligible": 8
+  }
+]

@@ -1,0 +1,254 @@
+{
+  "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+  "reference": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+  "candidate": "b079767d5b0ba5396d7f5653333c27366a5498c2",
+  "forkCandidate": "f1a9d4c419b463db91de1de46212d0fcdcb8a349",
+  "runnerRevision": "3aa5e059d52339bf4b14725260e124322c30beca",
+  "builds": {
+    "win-parent": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "build": "local exact source, matched compiler/options per host; not pending GitHub artifacts",
+      "numWorkersSetting": 0
+    },
+    "win-candidate": {
+      "sha256": "6657aba74985a745378f48b042b4bcca7f920851b45bd35fe8587c6ad0250a7b",
+      "productSource": "b079767d5b0ba5396d7f5653333c27366a5498c2",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "build": "local exact source, matched compiler/options per host; not pending GitHub artifacts",
+      "numWorkersSetting": 0
+    },
+    "deck-parent": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "build": "Ubuntu22 GCC11.4 release LTO x86v3; exact source, frozen old test libs unchanged",
+      "numWorkersSetting": 0
+    },
+    "deck-candidate": {
+      "sha256": "db8022f2fb2b9df611c2043f154999d8a470e1e1c5ec606e6b8accebbd6bec63",
+      "productSource": "b079767d5b0ba5396d7f5653333c27366a5498c2",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "build": "Ubuntu22 GCC11.4 release LTO x86v3; exact source, frozen old test libs unchanged",
+      "numWorkersSetting": 0
+    }
+  },
+  "hardware": {
+    "win": {
+      "OperatingSystem": "Microsoft Windows 10.0.19045",
+      "OsArchitecture": "X64",
+      "CpuModel": "AMD Ryzen 9 6900HX with Radeon Graphics",
+      "LogicalProcessors": 16,
+      "PhysicalMemoryBytes": 16361480192,
+      "GraphicsAdapters": [
+        {
+          "Name": "AMD Radeon(TM) Graphics",
+          "Driver": null
+        },
+        {
+          "Name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+          "Driver": null
+        }
+      ]
+    },
+    "deck": {
+      "OperatingSystem": "SteamOS",
+      "OsArchitecture": "X64",
+      "CpuModel": "AMD Custom APU 0405",
+      "LogicalProcessors": 8,
+      "PhysicalMemoryBytes": 15524212736,
+      "GraphicsAdapters": [
+        {
+          "Name": "card0",
+          "Driver": "amdgpu"
+        }
+      ]
+    }
+  },
+  "renderer": "Vulkan",
+  "defaultConverter": "sinc",
+  "recordedSettingBothArms": "Auto (0)",
+  "expectedWorkerCounts": {
+    "deck": "8 \u2192 4",
+    "win": "16 \u2192 4"
+  },
+  "schedule": "ABBA followed by BAAB; four observations per side per title per host",
+  "frameMetric": "1000 / canonical per-run analyzed mean READ_3D interval; not SDL presentations",
+  "statistic": "Median of four per-run values per arm; per-order results and ranges retained",
+  "recordedAttempts": 56,
+  "selectedCompleteRuns": 48,
+  "deckRepeatedBlockSelection": {
+    "policy": "Retain original complete ABBA; repeat each entire interrupted BAAB once with same immutable apps/procedure. Choose whole blocks by evidence completeness, not favorable numeric results.",
+    "chronology": "Original Deck Morrowind, Conker ABBA plus interrupted BAAB, PGR2 ABBA plus interrupted BAAB, then bounded PGR2 BAAB and Conker BAAB retries.",
+    "limits": "Conker blocks separated by PGR2; available host journal did not identify the stall cause. All original attempts retained. Three complete original BAAB samples are excluded with their interrupted blocks, not selectively pooled.",
+    "selectedRunIds": [
+      "20261005-200109619-6046b4066a2045eda462bce9bb6d2f8a",
+      "20261005-200204412-732d9dcb13104bbca20c75b235e0dc2b",
+      "20261005-200257805-4ae64b1e2a514784a7af47e404467183",
+      "20261005-200351229-107bb85ffe6147468ee36fbb4b1b0241",
+      "20261005-200443997-bcfbdeeb2f71465bab2b4400c31b8cbb",
+      "20261005-200536169-b82688e2ca3745afbf1e88e69b46262e",
+      "20261005-200629098-8c981198ebae4f30bc1b60d1064448ec",
+      "20261005-200720631-095c6c9a7f814b94b44bd37ed3250053",
+      "20261005-200811905-51ba6c4a08d14ebb9497d7987fcf7802",
+      "20261005-201014651-0fe99d754826467fb9cdba0788953418",
+      "20261005-201211328-0b86ff3f5839469c9a1dd820bd47cc1d",
+      "20261005-201408888-ed3b9bf6b9df4fa49278a127ada2e400",
+      "20261005-201958631-35cf1fcd81a248c4835eb8ad9f759c13",
+      "20261005-202234351-8c43e0ea1c3f45649119b464eb5fe6f1",
+      "20261005-202511498-11601e3fe3214921a41be57027e05811",
+      "20261005-202747168-950f202f1f3d4f38855551be107c1887",
+      "20261005-204353855-17cdc6bf87ba402aa4002fd0b00378d0",
+      "20261005-204628665-410b83e7626841399ea871101fabad5e",
+      "20261005-204902502-290b3c06d9544fb2bf55ed1ef6cf9001",
+      "20261005-205135937-8eb7ca9f311e425594dbca1801b40c23",
+      "20261005-205408869-dd1a19d1e35f4e7e85583dd086f384ca",
+      "20261005-205611324-b13947b0121e4c778ce8aac5e4383520",
+      "20261005-205807526-11fe5d05e6104b68b47eea0af998d35e",
+      "20261005-210004298-2d083d10669340bd8059016fe0111a82"
+    ],
+    "excludedAttempts": [
+      {
+        "cell": 5,
+        "variant": "candidate",
+        "request": "up-four-deck-conker-05-candidate-v2-t001",
+        "runId": "20261005-201605723-953c8f40c93f44cbb9503b499a82aee7",
+        "title": "conker",
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        }
+      },
+      {
+        "cell": 6,
+        "variant": "parent",
+        "request": "up-four-deck-conker-06-parent-v2-t001",
+        "runId": "20261005-201802070-52c8faa69c814460b3701b0b1bfd7a6e",
+        "title": "conker",
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        }
+      },
+      {
+        "cell": 5,
+        "variant": "candidate",
+        "request": "up-four-deck-pgr2-05-candidate-v2-t001",
+        "runId": "20261005-203024028-ae95f4d2084d446bbea1ffffa3bf7362",
+        "title": "pgr2",
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        }
+      },
+      {
+        "cell": 6,
+        "variant": "parent",
+        "request": "up-four-deck-pgr2-06-parent-v2-t001",
+        "runId": "20261005-203259477-c648d983acbe4fd98f0862ae76c47590",
+        "title": "pgr2",
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        }
+      },
+      {
+        "cell": 7,
+        "variant": "parent",
+        "request": "up-four-deck-pgr2-07-parent-v2-t001",
+        "runId": "20261005-203535452-9b8716c09af5447f8a10f5a3661e2bcb",
+        "title": "pgr2",
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "incomplete",
+          "comparison": "ineligible"
+        }
+      }
+    ],
+    "failures": [
+      {
+        "title": "conker",
+        "runId": "20261005-201802070-52c8faa69c814460b3701b0b1bfd7a6e",
+        "positiveIntervals": 154,
+        "requiredIntervals": 160,
+        "longestTailGapMs": 4998.913,
+        "zeroCpuSamples": 8,
+        "gameplayExitCode": 0,
+        "cause": "Unresolved ~5s stall/gap; no crash observed. No threshold/procedure change made."
+      },
+      {
+        "title": "pgr2",
+        "runId": "20261005-203535452-9b8716c09af5447f8a10f5a3661e2bcb",
+        "positiveIntervals": 157,
+        "requiredIntervals": 160,
+        "longestTailGapMs": 5004.65,
+        "zeroCpuSamples": 8,
+        "gameplayExitCode": 0,
+        "cause": "Unresolved ~5s stall/gap; no crash observed. No threshold/procedure change made."
+      }
+    ]
+  },
+  "cpuUnits": "Summed process CPU; one logical core = 100%",
+  "gpuUtilization": "Whole-device gpu_pct from the original frozen monitoring segment; per-process values unavailable",
+  "initialFailures": [
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 1,
+      "request": "up-four-deck-morrowind-01-parent-v1-t001",
+      "runId": "20261005-194610582-2b15c5290f684c1387b77fd48d8c78bb",
+      "outcome": {
+        "execution": "runnerFailure",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "classification": "Debian13 executable incompatible with frozen Ubuntu22 libraries; before gameplay"
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 1,
+      "request": "up-four-deck-conker-01-parent-v1-t001",
+      "runId": "20261005-194632190-b795eb12486d417d8996a835f9a5e5d6",
+      "outcome": {
+        "execution": "runnerFailure",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "classification": "Debian13 executable incompatible with frozen Ubuntu22 libraries; before gameplay"
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 1,
+      "request": "up-four-deck-pgr2-01-parent-v1-t001",
+      "runId": "20261005-194702851-5814d642df3c409f95d49a0fbe5c401f",
+      "outcome": {
+        "execution": "runnerFailure",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "classification": "Debian13 executable incompatible with frozen Ubuntu22 libraries; before gameplay"
+    }
+  ],
+  "ci": {
+    "forkExactHead": "22/22 successful; run 37358909444",
+    "upstreamDiagnostic": "Runs 37363933185 and 37363974655 failed to acquire hosted runners during Actions incident; local source builds used"
+  },
+  "runtimeWarnings": {
+    "glibTeardownAssertion": "All 53 gameplay attempts, on both arms, emit g_source_destroy ref-count assertion on teardown; all exit0. Attribution unresolved, not a candidate-only failure."
+  }
+}
