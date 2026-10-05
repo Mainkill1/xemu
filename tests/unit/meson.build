@@ -480,6 +480,18 @@ if host_os == 'linux' and have_system
        args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
 endif
 
+# Inject spurious wakes into the production VP worker completion waits.
+if host_os == 'linux' and have_system
+  voice_wait_test = executable('test-xbox-mcpx-apu-worker-wait',
+    files('test-xbox-mcpx-apu-worker-wait.c',
+          '../../system/memory.c', '../../system/physmem.c'), genh,
+    dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
+    c_args: ['-ffunction-sections', '-fdata-sections'],
+    link_args: ['-Wl,--gc-sections'])
+  test('test-xbox-mcpx-apu-worker-wait', voice_wait_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'], timeout: 30)
+endif
+
 # This test includes the private production upload implementation. Discard
 # unrelated renderer entry points rather than replacing its converters/GL calls.
 if host_os == 'linux' and epoxy.found()
