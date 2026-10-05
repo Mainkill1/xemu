@@ -163,11 +163,10 @@ static MCPXAPUState *prepare_voice_frame(enum Payload payload, unsigned workers)
     return d;
 }
 
-static uint64_t run_voice_frame(MCPXAPUState *d, enum Payload payload,
-                                double *maximum_error)
+static uint64_t
+validate_voice_frame(float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
+                     enum Payload payload, double *maximum_error)
 {
-    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
-    mcpx_apu_vp_frame(d, bins);
     uint64_t checksum = 0;
     for (unsigned b = 0; b < NUM_MIXBINS; b++) {
         /* 45 voices * (4096 / 32768) / 64 = 45/512. The constant zero-
@@ -191,6 +190,37 @@ static uint64_t run_voice_frame(MCPXAPUState *d, enum Payload payload,
         }
     }
     return checksum;
+}
+
+static bool vp_only_timing;
+static bool changing_encoded_data;
+
+static uint64_t run_voice_frame(MCPXAPUState *d, enum Payload payload,
+                                double *maximum_error)
+{
+    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    mcpx_apu_vp_frame(d, bins);
+    return validate_voice_frame(bins, payload, maximum_error);
+}
+
+/*
+ * Toggle zero-delta nibble signs at index 0: fresh bytes, known constant PCM.
+ */
+static void change_encoded_payload(enum Payload payload, uint64_t frame)
+{
+    if (payload == MONO_PCM) {
+        return;
+    }
+    uint8_t *data = memory_region_get_ram_ptr(&ram);
+    unsigned block_size = payload == STEREO_ADPCM ? 72 : 36;
+    unsigned header_size = payload == STEREO_ADPCM ? 8 : 4;
+    for (unsigned block = 0; block < 64; block++) {
+        for (unsigned byte = header_size; byte < block_size; byte++) {
+            unsigned offset = block * block_size + byte;
+            data[0x9000 + offset / 4096 * 8192 + offset % 4096] =
+                frame % 2 ? 0 : 0x88;
+        }
+    }
 }
 
 typedef struct ProgressOracle {
@@ -254,11 +284,25 @@ static void run_workload(enum Payload payload, unsigned workers,
     }
     max_error = 0;
     checksum = 0;
+    int64_t elapsed = 0;
     int64_t started = g_get_monotonic_time();
     for (uint64_t i = 0; i < frames; i++) {
-        checksum += run_voice_frame(d, payload, &max_error);
+        if (vp_only_timing) {
+            float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+            if (changing_encoded_data) {
+                change_encoded_payload(payload, i);
+            }
+            int64_t frame_start = g_get_monotonic_time();
+            mcpx_apu_vp_frame(d, bins);
+            elapsed += g_get_monotonic_time() - frame_start;
+            checksum += validate_voice_frame(bins, payload, &max_error);
+        } else {
+            checksum += run_voice_frame(d, payload, &max_error);
+        }
     }
-    int64_t elapsed = g_get_monotonic_time() - started;
+    if (!vp_only_timing) {
+        elapsed = g_get_monotonic_time() - started;
+    }
     g_assert_cmpuint(checksum, ==, frames * 184320);
     g_assert_cmpfloat(max_error * 8388608.0, <=, 32);
     mcpx_apu_vp_finalize(d);
@@ -292,17 +336,25 @@ static void run_workload(enum Payload payload, unsigned workers,
                "\"actual_workers\":%u,\"busy_workers\":%u,"
                "\"probe_frames\":1,\"pitch\":0,\"ratio\":1,"
                "\"adpcm_decode\":\"%s\",\"library\":\"%s\","
-               "\"timing_scope\":\"VP+clear+validation+checksum\","
+               "\"timing_scope\":\"%s\","
                "\"distribution\":[",
                converter == SRC_LINEAR ? "linear" : "sinc",
                payload == MONO_PCM     ? "mono-pcm" :
                payload == STEREO_ADPCM ? "stereo-adpcm" :
                                          "mono-adpcm",
                workers, frames, elapsed, checksum, frames * 184320, final_cbo,
-               expected_cbo, independent_profile ? 2 : 1,
+               expected_cbo, vp_only_timing ? 3 : (independent_profile ? 2 : 1),
                independent_profile ? "independent" : "grouped-one-busy-worker",
-               actual_pool, busy_workers, payload == MONO_PCM ? "N/A" :
-                   "encoded-byte-cache-hit", src_get_version());
+               actual_pool, busy_workers,
+               payload == MONO_PCM ?
+                   "N/A" :
+                   (changing_encoded_data ?
+                        "encoded-byte-change; unchanged PCM oracle" :
+                        "encoded-byte-cache-hit"),
+               src_get_version(),
+               vp_only_timing ?
+                   "VP-only; per-frame clocks; full validation outside" :
+                   "VP+clear+validation+checksum");
         for (unsigned w = 0; w < actual_pool; w++) {
             printf("%s%u", w ? "," : "", distribution[w]);
         }
@@ -324,6 +376,20 @@ static void test_independent_workers(gconstpointer opaque)
     independent_profile = true;
     converter = GPOINTER_TO_UINT(opaque) ? SRC_LINEAR : SRC_SINC_FASTEST;
     run_workload(MONO_PCM, 8, 132, false);
+    independent_profile = false;
+}
+
+static void test_vp_only_workload(gconstpointer opaque)
+{
+    unsigned variant = GPOINTER_TO_UINT(opaque);
+    converter = variant < 4 ? SRC_SINC_FASTEST : SRC_LINEAR;
+    variant %= 4;
+    independent_profile = true;
+    vp_only_timing = true;
+    changing_encoded_data = variant >= 2;
+    run_workload(variant % 2 ? STEREO_ADPCM : MONO_ADPCM, 8, 132, false);
+    changing_encoded_data = false;
+    vp_only_timing = false;
     independent_profile = false;
 }
 
@@ -391,19 +457,26 @@ static void test_signed_reduction(gconstpointer opaque)
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
-    bool benchmark = argc > 1 &&
-        (!strcmp(argv[1], "--benchmark") ||
-         !strcmp(argv[1], "--benchmark-v2"));
-    independent_profile = benchmark && !strcmp(argv[1], "--benchmark-v2");
+    bool benchmark = argc > 1 && (!strcmp(argv[1], "--benchmark") ||
+                                  !strcmp(argv[1], "--benchmark-v2") ||
+                                  !strcmp(argv[1], "--benchmark-v3") ||
+                                  !strcmp(argv[1], "--benchmark-v3-changing"));
+    vp_only_timing = benchmark && (!strcmp(argv[1], "--benchmark-v3") ||
+                                   !strcmp(argv[1], "--benchmark-v3-changing"));
+    changing_encoded_data =
+        benchmark && !strcmp(argv[1], "--benchmark-v3-changing");
+    independent_profile =
+        benchmark && (vp_only_timing || !strcmp(argv[1], "--benchmark-v2"));
     enum Payload payload = MONO_ADPCM;
     uint64_t frames = 0, workers = 0;
     if (benchmark) {
         if (argc != 6 || qemu_strtou64(argv[4], NULL, 10, &frames) ||
             qemu_strtou64(argv[5], NULL, 10, &workers) || !frames ||
             frames > 1000000 || !workers || workers > MAX_VOICE_WORKERS) {
-            fprintf(stderr, "usage: --benchmark[-v2] sinc|linear "
-                            "mono-adpcm|stereo-adpcm|mono-pcm "
-                            "frames(1..1000000) workers(1..16)\n");
+            fprintf(stderr,
+                    "usage: --benchmark[-v2|-v3|-v3-changing] sinc|linear "
+                    "mono-adpcm|stereo-adpcm|mono-pcm "
+                    "frames(1..1000000) workers(1..16)\n");
             return 2;
         }
         if (!strcmp(argv[2], "linear")) {
@@ -471,5 +544,19 @@ int __wrap_main(int argc, char **argv)
                          GUINT_TO_POINTER(0), test_signed_reduction);
     g_test_add_data_func("/mcpx-apu/voice-frame/signed-reduction/linear",
                          GUINT_TO_POINTER(1), test_signed_reduction);
+    const char *v3_names[] = {
+        "/mcpx-apu/voice-frame/v3/sinc/mono-constant",
+        "/mcpx-apu/voice-frame/v3/sinc/stereo-constant",
+        "/mcpx-apu/voice-frame/v3/sinc/mono-changing",
+        "/mcpx-apu/voice-frame/v3/sinc/stereo-changing",
+        "/mcpx-apu/voice-frame/v3/linear/mono-constant",
+        "/mcpx-apu/voice-frame/v3/linear/stereo-constant",
+        "/mcpx-apu/voice-frame/v3/linear/mono-changing",
+        "/mcpx-apu/voice-frame/v3/linear/stereo-changing",
+    };
+    for (unsigned i = 0; i < ARRAY_SIZE(v3_names); i++) {
+        g_test_add_data_func(v3_names[i], GUINT_TO_POINTER(i),
+                             test_vp_only_workload);
+    }
     return g_test_run();
 }
