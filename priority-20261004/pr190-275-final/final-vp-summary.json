@@ -1,0 +1,104 @@
+[
+  {
+    "workers": 8,
+    "payload": "mono-pcm",
+    "currentMedianUs": 1103629.0,
+    "inlineMedianUs": 1012489.5,
+    "timeReductionPercent": 8.258164654970102,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 1138860.5,
+          "candidate": 1007032.5
+        },
+        "time_reduction_percent": 11.575430002182008
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 1100438.5,
+          "candidate": 1017002.5
+        },
+        "time_reduction_percent": 7.582068420906751
+      }
+    },
+    "ranges": {
+      "current": [
+        1095971,
+        1175369
+      ],
+      "candidate": [
+        1005605,
+        1017486
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 8,
+    "payload": "mono-adpcm",
+    "currentMedianUs": 959278.5,
+    "inlineMedianUs": 943199.5,
+    "timeReductionPercent": 1.676155569003157,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 959278.5,
+          "candidate": 965624.5
+        },
+        "time_reduction_percent": -0.6615388544619627
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 962671.5,
+          "candidate": 930541.0
+        },
+        "time_reduction_percent": 3.337639059637687
+      }
+    },
+    "ranges": {
+      "current": [
+        956609,
+        968734
+      ],
+      "candidate": [
+        926488,
+        979444
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "currentMedianUs": 1080407.0,
+    "inlineMedianUs": 982529.5,
+    "timeReductionPercent": 9.059317460919825,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 1092176.0,
+          "candidate": 981897.0
+        },
+        "time_reduction_percent": 10.097182139142413
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 1070538.0,
+          "candidate": 1007702.5
+        },
+        "time_reduction_percent": 5.869525416192611
+      }
+    },
+    "ranges": {
+      "current": [
+        1051546,
+        1113068
+      ],
+      "candidate": [
+        977396,
+        1036744
+      ]
+    },
+    "checks": "8/8 PASS"
+  }
+]

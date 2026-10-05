@@ -1,0 +1,5 @@
+{
+  "productHead": "7dcdcb0dcdfae81ddd0795b0782e63aa0ea3caa3",
+  "privateFixture": "all existing sample-memory cases plus empty/descriptor-only cleanup, all callback caches poisoned except ownership markers",
+  "sourceUnchanged": true
+}

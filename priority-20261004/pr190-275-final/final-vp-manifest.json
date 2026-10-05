@@ -1,0 +1,44 @@
+{
+  "purpose": "Isolate the sample reader stack on main versus final PR190/275 stack",
+  "currentCommit": "7dcdcb0dcdfae81ddd0795b0782e63aa0ea3caa3",
+  "sourceChange": "Callback-owned fresh SGE/payload mapping, sentinel-only initialization",
+  "fixtureObjectSha256": "7e98dc411aff9214136c84aecced21ed336b0829f975e29ae4e4cdb0370cf866",
+  "fixtureCommit": "37c72b07783f810076fb6961756380c28942a4d2",
+  "order": [
+    "current",
+    "candidate",
+    "candidate",
+    "current",
+    "candidate",
+    "current",
+    "current",
+    "candidate"
+  ],
+  "cpuAffinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "frames": 20000,
+  "warmupFrames": 256,
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "executables": {
+    "current": {
+      "path": ".scratch/pr190-final/main-final-v3",
+      "sha256": "4183e97acdd5c9c98bacc75697e56e999a768d1c855fb7d4833de54fec2827f1"
+    },
+    "candidate": {
+      "path": ".scratch/pr190-final/candidate-final-v3",
+      "sha256": "4a9a4bd130266dc44277a1dfb6fca853b4edef75f41d31e25913ea7f50cf7ac9"
+    }
+  },
+  "measurement": "Production VP-only; full output/state checks outside timing; fixed work, not game FPS",
+  "baselineProductHead": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "fixtureIdentity": "Both newly linked binaries use the identical current #303 fixture object, the same remaining objects/link arguments, and separately pass all 24 production cases."
+}
