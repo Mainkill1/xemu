@@ -5,6 +5,7 @@
 #include "qemu/module.h"
 #include "qapi/error.h"
 #include "hw/boards.h"
+#include "monitor/monitor.h"
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
 
@@ -74,7 +75,7 @@ SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
 SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
                                    int channels, int *error, void *opaque)
 {
-    #ifdef MCPX_TEST_RESAMPLER_SELECTOR
+#ifdef MCPX_TEST_RESAMPLER_SELECTOR
     g_assert_cmpint(type, ==, converter);
 #else
     g_assert_cmpint(type, ==, SRC_SINC_FASTEST);
@@ -506,6 +507,7 @@ int __wrap_main(int argc, char **argv)
     }
     qemu_init_cpu_loop();
     bql_lock();
+    monitor_init_globals();
     module_call_init(MODULE_INIT_QOM);
     current_machine = MACHINE(object_new("xbox-machine"));
     object_property_add_child(object_get_root(), "machine",
