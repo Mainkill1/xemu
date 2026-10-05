@@ -1,0 +1,24 @@
+{
+  "reference": "afdde9eb62accd07686be104ebf4a9381785aaab",
+  "comparison": "same executable Auto0 vs explicit4; unchanged sinc converter; confirms proposed worker setting effect, not new-head binary qualification",
+  "schedule": "ABBA + BAAB for three original frozen procedures perhost",
+  "inputChanges": false,
+  "measurementBoundaryChanges": false,
+  "settingDifference": "audio.vp.num_workers:0 ->4",
+  "expectedPool": {
+    "deck": [
+      8,
+      4
+    ],
+    "win": [
+      16,
+      4
+    ]
+  },
+  "knownLimits": [
+    "Windows driver cache uncontrolled",
+    "Morrowind Windows remains descriptive",
+    "PGR2 scene must be reviewed; previous unrelated Deck cohort invalid"
+  ],
+  "artifactPolicy": "smalltext, perfmetrics, screenshots; no binaries/game resources in published evidence"
+}
