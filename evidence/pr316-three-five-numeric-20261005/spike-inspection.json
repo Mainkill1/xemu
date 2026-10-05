@@ -1,0 +1,6289 @@
+{
+  "method": "Read-only inspection of unchanged C/D canonical READ_3D windows; scene-rejected traces retained as evidence, without validating their comparability.",
+  "verification": "Raw interval count, mean, p95, p99, and max exactly reproduce all 48 retained canonical records, including rejected scenes.",
+  "timeOrigin": "Relative to each analyzed frame window, not the input or scene boundary.",
+  "ordinalMeaning": "Process-start READ_3D event sequence; not guest simulation time, scene identity, completed GPU commands, or SDL presentations.",
+  "binMeaning": "Five-second host-clock bins by interval endpoint; intervals may cross a bin or window boundary. The 200ms count is descriptive, not a new failure threshold.",
+  "attribution": "Unresolved. These logs have no shared UTC/monotonic anchor for exact alignment with CPU/GPU samples, intermediate scene evidence, guest simulation timestamp, per-voice execution time, or GPU wait attribution.",
+  "cohorts": [
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            171,
+            244
+          ],
+          "tailCountRange": [
+            2,
+            3
+          ],
+          "tailEndSecondsRange": [
+            2.348799,
+            24.827673
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            200.459,
+            182.3065,
+            200.6325,
+            185.64100000000002,
+            225.858
+          ],
+          "countAbove200MsByBin": [
+            2,
+            2,
+            4,
+            0,
+            6
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            177,
+            228
+          ],
+          "tailCountRange": [
+            2,
+            3
+          ],
+          "tailEndSecondsRange": [
+            9.367009,
+            25.0
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            170.7615,
+            207.26049999999998,
+            208.30599999999998,
+            184.4735,
+            216.59699999999998
+          ],
+          "countAbove200MsByBin": [
+            0,
+            4,
+            5,
+            0,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            196,
+            210
+          ],
+          "tailCountRange": [
+            2,
+            3
+          ],
+          "tailEndSecondsRange": [
+            2.862368,
+            25.0
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            174.96949999999998,
+            157.5455,
+            157.82049999999998,
+            158.534,
+            194.55450000000002
+          ],
+          "countAbove200MsByBin": [
+            2,
+            0,
+            0,
+            0,
+            2
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            197,
+            1185
+          ],
+          "tailCountRange": [
+            2,
+            12
+          ],
+          "tailEndSecondsRange": [
+            1.583535,
+            25.0
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            158.645,
+            150.652,
+            150.2425,
+            149.89249999999998,
+            202.95299999999997
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            173,
+            184
+          ],
+          "tailCountRange": [
+            2,
+            2
+          ],
+          "tailEndSecondsRange": [
+            2.127574,
+            16.501112
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            298.8615,
+            206.104,
+            248.2905,
+            241.894,
+            216.7985
+          ],
+          "countAbove200MsByBin": [
+            24,
+            4,
+            11,
+            12,
+            4
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            204,
+            214
+          ],
+          "tailCountRange": [
+            3,
+            3
+          ],
+          "tailEndSecondsRange": [
+            1.246594,
+            18.966757
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            235.9075,
+            178.4575,
+            194.078,
+            223.558,
+            152.6465
+          ],
+          "countAbove200MsByBin": [
+            9,
+            0,
+            1,
+            2,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            631,
+            643
+          ],
+          "tailCountRange": [
+            7,
+            7
+          ],
+          "tailEndSecondsRange": [
+            1.000657,
+            23.483406
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            50.343500000000006,
+            51.134,
+            50.288,
+            50.6345,
+            50.2765
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            612,
+            618
+          ],
+          "tailCountRange": [
+            7,
+            7
+          ],
+          "tailEndSecondsRange": [
+            0.216876,
+            24.919941
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            50.242,
+            66.535,
+            51.059,
+            50.272499999999994,
+            50.6925
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            737,
+            743
+          ],
+          "tailCountRange": [
+            8,
+            9
+          ],
+          "tailEndSecondsRange": [
+            0.582775,
+            24.516782
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            50.0525,
+            50.047,
+            50.0685,
+            50.1115,
+            50.105500000000006
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            726,
+            736
+          ],
+          "tailCountRange": [
+            8,
+            8
+          ],
+          "tailEndSecondsRange": [
+            0.450088,
+            24.817709
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            50.1045,
+            50.135,
+            50.0835,
+            50.1225,
+            50.670500000000004
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "arms": {
+        "three": {
+          "intervalCountRange": [
+            599,
+            604
+          ],
+          "tailCountRange": [
+            6,
+            7
+          ],
+          "tailEndSecondsRange": [
+            1.172568,
+            17.781551
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            52.7485,
+            55.2685,
+            54.3605,
+            61.184,
+            45.5775
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "five": {
+          "intervalCountRange": [
+            539,
+            606
+          ],
+          "tailCountRange": [
+            6,
+            8
+          ],
+          "tailEndSecondsRange": [
+            0.80342,
+            18.103498
+          ],
+          "fiveSecondBinMedianMaxMs": [
+            54.5745,
+            53.953500000000005,
+            54.1105,
+            55.4055,
+            45.7645
+          ],
+          "countAbove200MsByBin": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  ],
+  "runs": [
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-224818539-dfe7e09664914ddfa89f4caeb4bd4ed4",
+      "intervalCount": 182,
+      "p99Ms": 214.81172,
+      "firstRead3dOrdinal": 70,
+      "lastRead3dOrdinal": 251,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        14.317517,
+        24.785737
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 250,
+          "endSecondsFromAnalyzedWindowStart": 24.785737,
+          "startSecondsFromAnalyzedWindowStart": 24.551908,
+          "intervalMs": 233.829
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 175,
+          "endSecondsFromAnalyzedWindowStart": 14.317517,
+          "startSecondsFromAnalyzedWindowStart": 14.100366000000001,
+          "intervalMs": 217.151
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 251,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.785737,
+          "intervalMs": 214.263
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 146,
+          "endSecondsFromAnalyzedWindowStart": 10.284197,
+          "startSecondsFromAnalyzedWindowStart": 10.083339,
+          "intervalMs": 200.858
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 93,
+          "endSecondsFromAnalyzedWindowStart": 3.283322,
+          "startSecondsFromAnalyzedWindowStart": 3.083459,
+          "intervalMs": 199.863
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 180,
+          "endSecondsFromAnalyzedWindowStart": 14.990342,
+          "startSecondsFromAnalyzedWindowStart": 14.799959,
+          "intervalMs": 190.383
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 186,
+          "endSecondsFromAnalyzedWindowStart": 15.971716,
+          "startSecondsFromAnalyzedWindowStart": 15.783762000000001,
+          "intervalMs": 187.954
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 249,
+          "endSecondsFromAnalyzedWindowStart": 24.551908,
+          "startSecondsFromAnalyzedWindowStart": 24.367699,
+          "intervalMs": 184.209
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 184,
+          "endSecondsFromAnalyzedWindowStart": 15.666589,
+          "startSecondsFromAnalyzedWindowStart": 15.485074000000001,
+          "intervalMs": 181.515
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 131,
+          "endSecondsFromAnalyzedWindowStart": 8.299995,
+          "startSecondsFromAnalyzedWindowStart": 8.118644,
+          "intervalMs": 181.351
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 37,
+          "p99Ms": 188.09172,
+          "maxMs": 199.863,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 38,
+          "p99Ms": 176.24093000000002,
+          "maxMs": 181.351,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 36,
+          "p99Ms": 211.44844999999998,
+          "maxMs": 217.151,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 35,
+          "p99Ms": 185.76474,
+          "maxMs": 187.954,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 36,
+          "p99Ms": 226.9809,
+          "maxMs": 233.829,
+          "countAbove200Ms": 2
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-224914356-c835d3a146e84233916e80c1818f76e0",
+      "intervalCount": 183,
+      "p99Ms": 216.76396,
+      "firstRead3dOrdinal": 71,
+      "lastRead3dOrdinal": 253,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        9.367009,
+        9.950792
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 137,
+          "endSecondsFromAnalyzedWindowStart": 9.367009,
+          "startSecondsFromAnalyzedWindowStart": 9.133515,
+          "intervalMs": 233.494
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 141,
+          "endSecondsFromAnalyzedWindowStart": 9.950792,
+          "startSecondsFromAnalyzedWindowStart": 9.733395,
+          "intervalMs": 217.397
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 252,
+          "endSecondsFromAnalyzedWindowStart": 24.800053,
+          "startSecondsFromAnalyzedWindowStart": 24.583427999999998,
+          "intervalMs": 216.625
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 253,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.800053,
+          "intervalMs": 199.947
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 132,
+          "endSecondsFromAnalyzedWindowStart": 8.561698,
+          "startSecondsFromAnalyzedWindowStart": 8.366746,
+          "intervalMs": 194.952
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 158,
+          "endSecondsFromAnalyzedWindowStart": 12.203887,
+          "startSecondsFromAnalyzedWindowStart": 12.016783,
+          "intervalMs": 187.104
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 190,
+          "endSecondsFromAnalyzedWindowStart": 16.569538,
+          "startSecondsFromAnalyzedWindowStart": 16.383331000000002,
+          "intervalMs": 186.207
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 118,
+          "endSecondsFromAnalyzedWindowStart": 6.583327,
+          "startSecondsFromAnalyzedWindowStart": 6.399979999999999,
+          "intervalMs": 183.347
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 160,
+          "endSecondsFromAnalyzedWindowStart": 12.566674,
+          "startSecondsFromAnalyzedWindowStart": 12.383349,
+          "intervalMs": 183.325
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 251,
+          "endSecondsFromAnalyzedWindowStart": 24.583428,
+          "startSecondsFromAnalyzedWindowStart": 24.400389,
+          "intervalMs": 183.039
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 37,
+          "p99Ms": 169.20316,
+          "maxMs": 169.768,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 34,
+          "p99Ms": 228.18199,
+          "maxMs": 233.494,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 37,
+          "p99Ms": 185.74356,
+          "maxMs": 187.104,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 38,
+          "p99Ms": 179.61693000000002,
+          "maxMs": 186.207,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 37,
+          "p99Ms": 210.62092,
+          "maxMs": 216.625,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+      "intervalCount": 228,
+      "p99Ms": 168.00825999999998,
+      "firstRead3dOrdinal": 96,
+      "lastRead3dOrdinal": 323,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        9.597718,
+        10.347476,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 189,
+          "endSecondsFromAnalyzedWindowStart": 10.347476,
+          "startSecondsFromAnalyzedWindowStart": 10.14747,
+          "intervalMs": 200.006
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 184,
+          "endSecondsFromAnalyzedWindowStart": 9.597718,
+          "startSecondsFromAnalyzedWindowStart": 9.397802,
+          "intervalMs": 199.916
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 323,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.831894,
+          "intervalMs": 168.106
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 322,
+          "endSecondsFromAnalyzedWindowStart": 24.831894,
+          "startSecondsFromAnalyzedWindowStart": 24.66415,
+          "intervalMs": 167.744
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 109,
+          "endSecondsFromAnalyzedWindowStart": 1.414463,
+          "startSecondsFromAnalyzedWindowStart": 1.248302,
+          "intervalMs": 166.161
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 319,
+          "endSecondsFromAnalyzedWindowStart": 24.352783,
+          "startSecondsFromAnalyzedWindowStart": 24.187682,
+          "intervalMs": 165.101
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 138,
+          "endSecondsFromAnalyzedWindowStart": 4.630825,
+          "startSecondsFromAnalyzedWindowStart": 4.466831,
+          "intervalMs": 163.994
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 320,
+          "endSecondsFromAnalyzedWindowStart": 24.514175,
+          "startSecondsFromAnalyzedWindowStart": 24.352783000000002,
+          "intervalMs": 161.392
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 288,
+          "endSecondsFromAnalyzedWindowStart": 20.703364,
+          "startSecondsFromAnalyzedWindowStart": 20.54763,
+          "intervalMs": 155.734
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 285,
+          "endSecondsFromAnalyzedWindowStart": 20.336142,
+          "startSecondsFromAnalyzedWindowStart": 20.180871999999997,
+          "intervalMs": 155.27
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 46,
+          "p99Ms": 165.18585,
+          "maxMs": 166.161,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 45,
+          "p99Ms": 178.11268000000013,
+          "maxMs": 199.916,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 46,
+          "p99Ms": 177.75349999999986,
+          "maxMs": 200.006,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 50,
+          "p99Ms": 150.027,
+          "maxMs": 150.076,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 41,
+          "p99Ms": 167.9612,
+          "maxMs": 168.106,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-225107257-b2b0dfc2c37c4a2497319dc8f7b3e7e1",
+      "intervalCount": 172,
+      "p99Ms": 239.96271999999988,
+      "firstRead3dOrdinal": 70,
+      "lastRead3dOrdinal": 241,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        2.348799,
+        10.567932
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 84,
+          "endSecondsFromAnalyzedWindowStart": 2.348799,
+          "startSecondsFromAnalyzedWindowStart": 2.0818440000000002,
+          "intervalMs": 266.955
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 142,
+          "endSecondsFromAnalyzedWindowStart": 10.567932,
+          "startSecondsFromAnalyzedWindowStart": 10.315709,
+          "intervalMs": 252.223
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 241,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.765045,
+          "intervalMs": 234.955
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 140,
+          "endSecondsFromAnalyzedWindowStart": 10.16514,
+          "startSecondsFromAnalyzedWindowStart": 9.931740999999999,
+          "intervalMs": 233.399
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 218,
+          "endSecondsFromAnalyzedWindowStart": 21.648408,
+          "startSecondsFromAnalyzedWindowStart": 21.431864,
+          "intervalMs": 216.544
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 239,
+          "endSecondsFromAnalyzedWindowStart": 24.598533,
+          "startSecondsFromAnalyzedWindowStart": 24.387025,
+          "intervalMs": 211.508
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 180,
+          "endSecondsFromAnalyzedWindowStart": 15.998426,
+          "startSecondsFromAnalyzedWindowStart": 15.799777,
+          "intervalMs": 198.649
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 146,
+          "endSecondsFromAnalyzedWindowStart": 11.238298,
+          "startSecondsFromAnalyzedWindowStart": 11.04893,
+          "intervalMs": 189.368
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 200,
+          "endSecondsFromAnalyzedWindowStart": 18.884101,
+          "startSecondsFromAnalyzedWindowStart": 18.698424000000003,
+          "intervalMs": 185.677
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 83,
+          "endSecondsFromAnalyzedWindowStart": 2.081844,
+          "startSecondsFromAnalyzedWindowStart": 1.8983869999999998,
+          "intervalMs": 183.457
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 33,
+          "p99Ms": 240.23563999999996,
+          "maxMs": 266.955,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 37,
+          "p99Ms": 177.59992,
+          "maxMs": 183.262,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 34,
+          "p99Ms": 246.01108000000005,
+          "maxMs": 252.223,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 35,
+          "p99Ms": 194.23851999999997,
+          "maxMs": 198.649,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 33,
+          "p99Ms": 229.06348,
+          "maxMs": 234.955,
+          "countAbove200Ms": 3
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-225159881-39a7269bc6ac4221a64e7770593641dd",
+      "intervalCount": 180,
+      "p99Ms": 215.01744,
+      "firstRead3dOrdinal": 70,
+      "lastRead3dOrdinal": 249,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        14.699516,
+        24.799685
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 174,
+          "endSecondsFromAnalyzedWindowStart": 14.699516,
+          "startSecondsFromAnalyzedWindowStart": 14.482909999999999,
+          "intervalMs": 216.606
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 248,
+          "endSecondsFromAnalyzedWindowStart": 24.799685,
+          "startSecondsFromAnalyzedWindowStart": 24.583116,
+          "intervalMs": 216.569
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 125,
+          "endSecondsFromAnalyzedWindowStart": 7.749432,
+          "startSecondsFromAnalyzedWindowStart": 7.534827,
+          "intervalMs": 214.605
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 147,
+          "endSecondsFromAnalyzedWindowStart": 10.95161,
+          "startSecondsFromAnalyzedWindowStart": 10.749573,
+          "intervalMs": 202.037
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 129,
+          "endSecondsFromAnalyzedWindowStart": 8.450268,
+          "startSecondsFromAnalyzedWindowStart": 8.249490999999999,
+          "intervalMs": 200.777
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 249,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.799685,
+          "intervalMs": 200.315
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 144,
+          "endSecondsFromAnalyzedWindowStart": 10.519064,
+          "startSecondsFromAnalyzedWindowStart": 10.332768,
+          "intervalMs": 186.296
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 136,
+          "endSecondsFromAnalyzedWindowStart": 9.385097,
+          "startSecondsFromAnalyzedWindowStart": 9.199725,
+          "intervalMs": 185.372
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 141,
+          "endSecondsFromAnalyzedWindowStart": 10.100046,
+          "startSecondsFromAnalyzedWindowStart": 9.916303000000001,
+          "intervalMs": 183.743
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 220,
+          "endSecondsFromAnalyzedWindowStart": 20.899631,
+          "startSecondsFromAnalyzedWindowStart": 20.716159,
+          "intervalMs": 183.472
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 36,
+          "p99Ms": 183.1987,
+          "maxMs": 183.352,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 35,
+          "p99Ms": 209.90347999999994,
+          "maxMs": 214.605,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 36,
+          "p99Ms": 211.50685,
+          "maxMs": 216.606,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 38,
+          "p99Ms": 177.20804000000004,
+          "maxMs": 183.316,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 35,
+          "p99Ms": 211.04263999999995,
+          "maxMs": 216.569,
+          "countAbove200Ms": 2
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+      "intervalCount": 244,
+      "p99Ms": 168.12995999999998,
+      "firstRead3dOrdinal": 123,
+      "lastRead3dOrdinal": 366,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        2.716001,
+        24.335477,
+        24.532662
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 363,
+          "endSecondsFromAnalyzedWindowStart": 24.532662,
+          "startSecondsFromAnalyzedWindowStart": 24.335476999999997,
+          "intervalMs": 197.185
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 148,
+          "endSecondsFromAnalyzedWindowStart": 2.716001,
+          "startSecondsFromAnalyzedWindowStart": 2.5244809999999998,
+          "intervalMs": 191.52
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 362,
+          "endSecondsFromAnalyzedWindowStart": 24.335477,
+          "startSecondsFromAnalyzedWindowStart": 24.166217,
+          "intervalMs": 169.26
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 153,
+          "endSecondsFromAnalyzedWindowStart": 3.399378,
+          "startSecondsFromAnalyzedWindowStart": 3.232746,
+          "intervalMs": 166.632
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 365,
+          "endSecondsFromAnalyzedWindowStart": 24.836652,
+          "startSecondsFromAnalyzedWindowStart": 24.67051,
+          "intervalMs": 166.142
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 262,
+          "endSecondsFromAnalyzedWindowStart": 14.499728,
+          "startSecondsFromAnalyzedWindowStart": 14.335662999999998,
+          "intervalMs": 164.065
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 366,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.836652,
+          "intervalMs": 163.348
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 280,
+          "endSecondsFromAnalyzedWindowStart": 16.515993,
+          "startSecondsFromAnalyzedWindowStart": 16.354331000000002,
+          "intervalMs": 161.662
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 319,
+          "endSecondsFromAnalyzedWindowStart": 19.969495,
+          "startSecondsFromAnalyzedWindowStart": 19.816657999999997,
+          "intervalMs": 152.837
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 239,
+          "endSecondsFromAnalyzedWindowStart": 12.15073,
+          "startSecondsFromAnalyzedWindowStart": 11.999366,
+          "intervalMs": 151.364
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 44,
+          "p99Ms": 180.81816,
+          "maxMs": 191.52,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 48,
+          "p99Ms": 150.11511,
+          "maxMs": 150.25,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 52,
+          "p99Ms": 157.58749000000003,
+          "maxMs": 164.065,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 53,
+          "p99Ms": 157.07299999999998,
+          "maxMs": 161.662,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 47,
+          "p99Ms": 184.3395,
+          "maxMs": 197.185,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-225352129-72fd1e6e6eaa4c20a9c6d591f7d664ed",
+      "intervalCount": 171,
+      "p99Ms": 216.674,
+      "firstRead3dOrdinal": 70,
+      "lastRead3dOrdinal": 240,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        9.393248,
+        24.827673
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 239,
+          "endSecondsFromAnalyzedWindowStart": 24.827673,
+          "startSecondsFromAnalyzedWindowStart": 24.609786,
+          "intervalMs": 217.887
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 134,
+          "endSecondsFromAnalyzedWindowStart": 9.393248,
+          "startSecondsFromAnalyzedWindowStart": 9.176553,
+          "intervalMs": 216.695
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 130,
+          "endSecondsFromAnalyzedWindowStart": 8.726404,
+          "startSecondsFromAnalyzedWindowStart": 8.509739,
+          "intervalMs": 216.665
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 72,
+          "endSecondsFromAnalyzedWindowStart": 0.394145,
+          "startSecondsFromAnalyzedWindowStart": 0.19309,
+          "intervalMs": 201.055
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 74,
+          "endSecondsFromAnalyzedWindowStart": 0.759729,
+          "startSecondsFromAnalyzedWindowStart": 0.559742,
+          "intervalMs": 199.987
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 83,
+          "endSecondsFromAnalyzedWindowStart": 2.076598,
+          "startSecondsFromAnalyzedWindowStart": 1.8774520000000001,
+          "intervalMs": 199.146
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 237,
+          "endSecondsFromAnalyzedWindowStart": 24.426638,
+          "startSecondsFromAnalyzedWindowStart": 24.228859,
+          "intervalMs": 197.779
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 216,
+          "endSecondsFromAnalyzedWindowStart": 21.428601,
+          "startSecondsFromAnalyzedWindowStart": 21.24412,
+          "intervalMs": 184.481
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 169,
+          "endSecondsFromAnalyzedWindowStart": 14.577199,
+          "startSecondsFromAnalyzedWindowStart": 14.393085000000001,
+          "intervalMs": 184.114
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 167,
+          "endSecondsFromAnalyzedWindowStart": 14.226502,
+          "startSecondsFromAnalyzedWindowStart": 14.043107,
+          "intervalMs": 183.395
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 34,
+          "p99Ms": 200.70256,
+          "maxMs": 201.055,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 35,
+          "p99Ms": 216.6848,
+          "maxMs": 216.695,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 34,
+          "p99Ms": 183.87673,
+          "maxMs": 184.114,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 35,
+          "p99Ms": 178.80225999999996,
+          "maxMs": 183.328,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 33,
+          "p99Ms": 211.45244,
+          "maxMs": 217.887,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-225444306-bdb6a9a647774a818d2c73ddb494b1ce",
+      "intervalCount": 177,
+      "p99Ms": 222.74876000000012,
+      "firstRead3dOrdinal": 68,
+      "lastRead3dOrdinal": 244,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        24.767619,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 243,
+          "endSecondsFromAnalyzedWindowStart": 24.767619,
+          "startSecondsFromAnalyzedWindowStart": 24.532001,
+          "intervalMs": 235.618
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 244,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.767619,
+          "intervalMs": 232.381
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 139,
+          "endSecondsFromAnalyzedWindowStart": 10.43539,
+          "startSecondsFromAnalyzedWindowStart": 10.215683,
+          "intervalMs": 219.707
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 138,
+          "endSecondsFromAnalyzedWindowStart": 10.215683,
+          "startSecondsFromAnalyzedWindowStart": 9.997803000000001,
+          "intervalMs": 217.88
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 204,
+          "endSecondsFromAnalyzedWindowStart": 19.267084,
+          "startSecondsFromAnalyzedWindowStart": 19.081453,
+          "intervalMs": 185.631
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 142,
+          "endSecondsFromAnalyzedWindowStart": 10.882262,
+          "startSecondsFromAnalyzedWindowStart": 10.697947000000001,
+          "intervalMs": 184.315
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 118,
+          "endSecondsFromAnalyzedWindowStart": 7.29808,
+          "startSecondsFromAnalyzedWindowStart": 7.114572,
+          "intervalMs": 183.508
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 202,
+          "endSecondsFromAnalyzedWindowStart": 18.981328,
+          "startSecondsFromAnalyzedWindowStart": 18.798009,
+          "intervalMs": 183.319
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 226,
+          "endSecondsFromAnalyzedWindowStart": 22.415567,
+          "startSecondsFromAnalyzedWindowStart": 22.232283,
+          "intervalMs": 183.284
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 126,
+          "endSecondsFromAnalyzedWindowStart": 8.397872,
+          "startSecondsFromAnalyzedWindowStart": 8.214682999999999,
+          "intervalMs": 183.189
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 35,
+          "p99Ms": 170.5973,
+          "maxMs": 171.755,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 35,
+          "p99Ms": 183.39954,
+          "maxMs": 183.508,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 35,
+          "p99Ms": 219.08581999999998,
+          "maxMs": 219.707,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 36,
+          "p99Ms": 184.8218,
+          "maxMs": 185.631,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 36,
+          "p99Ms": 234.48505,
+          "maxMs": 235.618,
+          "countAbove200Ms": 2
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-225536222-5f1c803e52c74cc796e326a66f62f8f3",
+      "intervalCount": 210,
+      "p99Ms": 182.25883999999996,
+      "firstRead3dOrdinal": 1621,
+      "lastRead3dOrdinal": 1830,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        3.572478,
+        21.872336,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1830,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.795349,
+          "intervalMs": 204.651
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1650,
+          "endSecondsFromAnalyzedWindowStart": 3.572478,
+          "startSecondsFromAnalyzedWindowStart": 3.3890399999999996,
+          "intervalMs": 183.438
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1805,
+          "endSecondsFromAnalyzedWindowStart": 21.872336,
+          "startSecondsFromAnalyzedWindowStart": 21.689139,
+          "intervalMs": 183.197
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1829,
+          "endSecondsFromAnalyzedWindowStart": 24.795349,
+          "startSecondsFromAnalyzedWindowStart": 24.622576000000002,
+          "intervalMs": 172.773
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1645,
+          "endSecondsFromAnalyzedWindowStart": 2.889239,
+          "startSecondsFromAnalyzedWindowStart": 2.738938,
+          "intervalMs": 150.301
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1786,
+          "endSecondsFromAnalyzedWindowStart": 19.572494,
+          "startSecondsFromAnalyzedWindowStart": 19.422345999999997,
+          "intervalMs": 150.148
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1724,
+          "endSecondsFromAnalyzedWindowStart": 12.372313,
+          "startSecondsFromAnalyzedWindowStart": 12.222281,
+          "intervalMs": 150.032
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1712,
+          "endSecondsFromAnalyzedWindowStart": 10.955571,
+          "startSecondsFromAnalyzedWindowStart": 10.805593,
+          "intervalMs": 149.978
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1652,
+          "endSecondsFromAnalyzedWindowStart": 3.838882,
+          "startSecondsFromAnalyzedWindowStart": 3.688908,
+          "intervalMs": 149.974
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1671,
+          "endSecondsFromAnalyzedWindowStart": 6.139054,
+          "startSecondsFromAnalyzedWindowStart": 5.989167999999999,
+          "intervalMs": 149.886
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 41,
+          "p99Ms": 170.18320000000003,
+          "maxMs": 183.438,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 42,
+          "p99Ms": 143.91680999999994,
+          "maxMs": 149.886,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 43,
+          "p99Ms": 150.00932,
+          "maxMs": 150.032,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 43,
+          "p99Ms": 149.8435,
+          "maxMs": 150.148,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 41,
+          "p99Ms": 196.06940000000003,
+          "maxMs": 204.651,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-225738695-8eb782de754f4c238b8581b5bd7db31f",
+      "intervalCount": 197,
+      "p99Ms": 167.21656,
+      "firstRead3dOrdinal": 1674,
+      "lastRead3dOrdinal": 1870,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        24.829506,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1869,
+          "endSecondsFromAnalyzedWindowStart": 24.829506,
+          "startSecondsFromAnalyzedWindowStart": 24.623936999999998,
+          "intervalMs": 205.569
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1870,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.829506,
+          "intervalMs": 170.494
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1701,
+          "endSecondsFromAnalyzedWindowStart": 3.551258,
+          "startSecondsFromAnalyzedWindowStart": 3.384178,
+          "intervalMs": 167.08
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1865,
+          "endSecondsFromAnalyzedWindowStart": 24.204675,
+          "startSecondsFromAnalyzedWindowStart": 24.037819000000002,
+          "intervalMs": 166.856
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1851,
+          "endSecondsFromAnalyzedWindowStart": 22.421466,
+          "startSecondsFromAnalyzedWindowStart": 22.254634,
+          "intervalMs": 166.832
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1867,
+          "endSecondsFromAnalyzedWindowStart": 24.521392,
+          "startSecondsFromAnalyzedWindowStart": 24.354785999999997,
+          "intervalMs": 166.606
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1837,
+          "endSecondsFromAnalyzedWindowStart": 20.64221,
+          "startSecondsFromAnalyzedWindowStart": 20.488360999999998,
+          "intervalMs": 153.849
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1740,
+          "endSecondsFromAnalyzedWindowStart": 8.42024,
+          "startSecondsFromAnalyzedWindowStart": 8.269096,
+          "intervalMs": 151.144
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1733,
+          "endSecondsFromAnalyzedWindowStart": 7.552115,
+          "startSecondsFromAnalyzedWindowStart": 7.400976,
+          "intervalMs": 151.139
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1752,
+          "endSecondsFromAnalyzedWindowStart": 9.921134,
+          "startSecondsFromAnalyzedWindowStart": 9.770119000000001,
+          "intervalMs": 151.015
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 39,
+          "p99Ms": 160.74919999999997,
+          "maxMs": 167.08,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 40,
+          "p99Ms": 151.14205,
+          "maxMs": 151.144,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 40,
+          "p99Ms": 150.20569,
+          "maxMs": 150.256,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 40,
+          "p99Ms": 150.01766,
+          "maxMs": 150.059,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 38,
+          "p99Ms": 192.5912500000001,
+          "maxMs": 205.569,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-225936249-9267ca9c470943deab6873ba06381dcd",
+      "intervalCount": 208,
+      "p99Ms": 188.39136000000025,
+      "firstRead3dOrdinal": 1620,
+      "lastRead3dOrdinal": 1827,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        4.205539,
+        5.046681,
+        24.846997
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1826,
+          "endSecondsFromAnalyzedWindowStart": 24.846997,
+          "startSecondsFromAnalyzedWindowStart": 24.64666,
+          "intervalMs": 200.337
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1655,
+          "endSecondsFromAnalyzedWindowStart": 4.205539,
+          "startSecondsFromAnalyzedWindowStart": 4.0055499999999995,
+          "intervalMs": 199.989
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1662,
+          "endSecondsFromAnalyzedWindowStart": 5.046681,
+          "startSecondsFromAnalyzedWindowStart": 4.855626,
+          "intervalMs": 191.055
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1827,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.846997,
+          "intervalMs": 153.003
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1814,
+          "endSecondsFromAnalyzedWindowStart": 23.347376,
+          "startSecondsFromAnalyzedWindowStart": 23.196847,
+          "intervalMs": 150.529
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1732,
+          "endSecondsFromAnalyzedWindowStart": 13.563596,
+          "startSecondsFromAnalyzedWindowStart": 13.413367000000001,
+          "intervalMs": 150.229
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1789,
+          "endSecondsFromAnalyzedWindowStart": 20.396861,
+          "startSecondsFromAnalyzedWindowStart": 20.246718,
+          "intervalMs": 150.143
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1676,
+          "endSecondsFromAnalyzedWindowStart": 6.713345,
+          "startSecondsFromAnalyzedWindowStart": 6.563346,
+          "intervalMs": 149.999
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1706,
+          "endSecondsFromAnalyzedWindowStart": 10.446732,
+          "startSecondsFromAnalyzedWindowStart": 10.296736000000001,
+          "intervalMs": 149.996
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1734,
+          "endSecondsFromAnalyzedWindowStart": 13.830317,
+          "startSecondsFromAnalyzedWindowStart": 13.680341,
+          "intervalMs": 149.976
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 42,
+          "p99Ms": 173.34350999999975,
+          "maxMs": 199.989,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 41,
+          "p99Ms": 174.63260000000005,
+          "maxMs": 191.055,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 41,
+          "p99Ms": 150.13580000000002,
+          "maxMs": 150.229,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 43,
+          "p99Ms": 149.6819,
+          "maxMs": 149.726,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 41,
+          "p99Ms": 181.40340000000006,
+          "maxMs": 200.337,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-230132216-ab7db50144364c479b05ca7ba21ccbe2",
+      "intervalCount": 197,
+      "p99Ms": 185.38151999999968,
+      "firstRead3dOrdinal": 1649,
+      "lastRead3dOrdinal": 1845,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        2.862368,
+        3.235926
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1670,
+          "endSecondsFromAnalyzedWindowStart": 2.862368,
+          "startSecondsFromAnalyzedWindowStart": 2.63055,
+          "intervalMs": 231.818
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1672,
+          "endSecondsFromAnalyzedWindowStart": 3.235926,
+          "startSecondsFromAnalyzedWindowStart": 3.0110040000000002,
+          "intervalMs": 224.922
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1845,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.816266,
+          "intervalMs": 183.734
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1764,
+          "endSecondsFromAnalyzedWindowStart": 14.782911,
+          "startSecondsFromAnalyzedWindowStart": 14.615127000000001,
+          "intervalMs": 167.784
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1663,
+          "endSecondsFromAnalyzedWindowStart": 1.860911,
+          "startSecondsFromAnalyzedWindowStart": 1.694303,
+          "intervalMs": 166.608
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1665,
+          "endSecondsFromAnalyzedWindowStart": 2.131646,
+          "startSecondsFromAnalyzedWindowStart": 1.9776729999999998,
+          "intervalMs": 153.973
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1836,
+          "endSecondsFromAnalyzedWindowStart": 23.766483,
+          "startSecondsFromAnalyzedWindowStart": 23.616177,
+          "intervalMs": 150.306
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1818,
+          "endSecondsFromAnalyzedWindowStart": 21.549937,
+          "startSecondsFromAnalyzedWindowStart": 21.399672,
+          "intervalMs": 150.265
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1697,
+          "endSecondsFromAnalyzedWindowStart": 6.427841,
+          "startSecondsFromAnalyzedWindowStart": 6.277599,
+          "intervalMs": 150.242
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1711,
+          "endSecondsFromAnalyzedWindowStart": 8.194493,
+          "startSecondsFromAnalyzedWindowStart": 8.044257,
+          "intervalMs": 150.236
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 38,
+          "p99Ms": 229.26648000000003,
+          "maxMs": 231.818,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 39,
+          "p99Ms": 150.23971999999998,
+          "maxMs": 150.242,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 41,
+          "p99Ms": 160.62840000000003,
+          "maxMs": 167.784,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 39,
+          "p99Ms": 150.0779,
+          "maxMs": 150.133,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 40,
+          "p99Ms": 170.69708,
+          "maxMs": 183.734,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-230328477-6eba6e26018b4b3b96ddcaaaaaffaa4c",
+      "intervalCount": 197,
+      "p99Ms": 166.7244,
+      "firstRead3dOrdinal": 1648,
+      "lastRead3dOrdinal": 1844,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        14.927823,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1844,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.750362,
+          "intervalMs": 249.638
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1766,
+          "endSecondsFromAnalyzedWindowStart": 14.927823,
+          "startSecondsFromAnalyzedWindowStart": 14.759721,
+          "intervalMs": 168.102
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1732,
+          "endSecondsFromAnalyzedWindowStart": 10.658677,
+          "startSecondsFromAnalyzedWindowStart": 10.49201,
+          "intervalMs": 166.667
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1830,
+          "endSecondsFromAnalyzedWindowStart": 23.012272,
+          "startSecondsFromAnalyzedWindowStart": 22.847075999999998,
+          "intervalMs": 165.196
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1840,
+          "endSecondsFromAnalyzedWindowStart": 24.313928,
+          "startSecondsFromAnalyzedWindowStart": 24.162293000000002,
+          "intervalMs": 151.635
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1750,
+          "endSecondsFromAnalyzedWindowStart": 12.859742,
+          "startSecondsFromAnalyzedWindowStart": 12.708608,
+          "intervalMs": 151.134
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1824,
+          "endSecondsFromAnalyzedWindowStart": 22.229215,
+          "startSecondsFromAnalyzedWindowStart": 22.078892,
+          "intervalMs": 150.323
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1817,
+          "endSecondsFromAnalyzedWindowStart": 21.34582,
+          "startSecondsFromAnalyzedWindowStart": 21.195566,
+          "intervalMs": 150.254
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1657,
+          "endSecondsFromAnalyzedWindowStart": 1.225331,
+          "startSecondsFromAnalyzedWindowStart": 1.075121,
+          "intervalMs": 150.21
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1669,
+          "endSecondsFromAnalyzedWindowStart": 2.725311,
+          "startSecondsFromAnalyzedWindowStart": 2.575131,
+          "intervalMs": 150.18
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 40,
+          "p99Ms": 150.19830000000002,
+          "maxMs": 150.21,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 40,
+          "p99Ms": 150.15025,
+          "maxMs": 150.16,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 39,
+          "p99Ms": 167.5567,
+          "maxMs": 168.102,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 40,
+          "p99Ms": 150.12721000000002,
+          "maxMs": 150.151,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 38,
+          "p99Ms": 218.3944600000002,
+          "maxMs": 249.638,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-230524351-58614bb6a582492cb2b2cfd6b0d7238b",
+      "intervalCount": 196,
+      "p99Ms": 166.92454999999998,
+      "firstRead3dOrdinal": 1684,
+      "lastRead3dOrdinal": 1879,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        22.467101,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1879,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.791117,
+          "intervalMs": 208.883
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1860,
+          "endSecondsFromAnalyzedWindowStart": 22.467101,
+          "startSecondsFromAnalyzedWindowStart": 22.30009,
+          "intervalMs": 167.011
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1821,
+          "endSecondsFromAnalyzedWindowStart": 17.533057,
+          "startSecondsFromAnalyzedWindowStart": 17.366137,
+          "intervalMs": 166.92
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1858,
+          "endSecondsFromAnalyzedWindowStart": 22.18357,
+          "startSecondsFromAnalyzedWindowStart": 22.01675,
+          "intervalMs": 166.82
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1803,
+          "endSecondsFromAnalyzedWindowStart": 15.216042,
+          "startSecondsFromAnalyzedWindowStart": 15.049516,
+          "intervalMs": 166.526
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1708,
+          "endSecondsFromAnalyzedWindowStart": 3.116117,
+          "startSecondsFromAnalyzedWindowStart": 2.949616,
+          "intervalMs": 166.501
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1876,
+          "endSecondsFromAnalyzedWindowStart": 24.516734,
+          "startSecondsFromAnalyzedWindowStart": 24.350343,
+          "intervalMs": 166.391
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1747,
+          "endSecondsFromAnalyzedWindowStart": 8.083058,
+          "startSecondsFromAnalyzedWindowStart": 7.9180269999999995,
+          "intervalMs": 165.031
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1878,
+          "endSecondsFromAnalyzedWindowStart": 24.791117,
+          "startSecondsFromAnalyzedWindowStart": 24.633422,
+          "intervalMs": 157.695
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1712,
+          "endSecondsFromAnalyzedWindowStart": 3.619141,
+          "startSecondsFromAnalyzedWindowStart": 3.466354,
+          "intervalMs": 152.787
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 40,
+          "p99Ms": 161.15254,
+          "maxMs": 166.501,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 39,
+          "p99Ms": 159.38229999999996,
+          "maxMs": 165.031,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 39,
+          "p99Ms": 150.22666,
+          "maxMs": 150.357,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 39,
+          "p99Ms": 166.77027999999999,
+          "maxMs": 166.92,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 39,
+          "p99Ms": 192.9716399999999,
+          "maxMs": 208.883,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-230720175-a0d81fc61e4c4f1c95bdb07d6b600771",
+      "intervalCount": 199,
+      "p99Ms": 165.64394000000019,
+      "firstRead3dOrdinal": 1582,
+      "lastRead3dOrdinal": 1780,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        18.46486,
+        25.0
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 1780,
+          "endSecondsFromAnalyzedWindowStart": 25.0,
+          "startSecondsFromAnalyzedWindowStart": 24.815542,
+          "intervalMs": 184.458
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1729,
+          "endSecondsFromAnalyzedWindowStart": 18.46486,
+          "startSecondsFromAnalyzedWindowStart": 18.281579,
+          "intervalMs": 183.281
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1695,
+          "endSecondsFromAnalyzedWindowStart": 14.098259,
+          "startSecondsFromAnalyzedWindowStart": 13.932975,
+          "intervalMs": 165.284
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1660,
+          "endSecondsFromAnalyzedWindowStart": 9.715118,
+          "startSecondsFromAnalyzedWindowStart": 9.550269,
+          "intervalMs": 164.849
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1704,
+          "endSecondsFromAnalyzedWindowStart": 15.2489,
+          "startSecondsFromAnalyzedWindowStart": 15.098215000000001,
+          "intervalMs": 150.685
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1646,
+          "endSecondsFromAnalyzedWindowStart": 7.948553,
+          "startSecondsFromAnalyzedWindowStart": 7.7982380000000004,
+          "intervalMs": 150.315
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1623,
+          "endSecondsFromAnalyzedWindowStart": 5.048498,
+          "startSecondsFromAnalyzedWindowStart": 4.8983170000000005,
+          "intervalMs": 150.181
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1655,
+          "endSecondsFromAnalyzedWindowStart": 9.081821,
+          "startSecondsFromAnalyzedWindowStart": 8.931651,
+          "intervalMs": 150.17
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1720,
+          "endSecondsFromAnalyzedWindowStart": 17.29831,
+          "startSecondsFromAnalyzedWindowStart": 17.148174,
+          "intervalMs": 150.136
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 1741,
+          "endSecondsFromAnalyzedWindowStart": 19.965651,
+          "startSecondsFromAnalyzedWindowStart": 19.815528,
+          "intervalMs": 150.123
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 41,
+          "p99Ms": 149.9556,
+          "maxMs": 150.068,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 40,
+          "p99Ms": 159.18074,
+          "maxMs": 164.849,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 40,
+          "p99Ms": 159.36458,
+          "maxMs": 165.284,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 39,
+          "p99Ms": 170.89451999999991,
+          "maxMs": 183.281,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 39,
+          "p99Ms": 171.3654799999999,
+          "maxMs": 184.458,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+      "intervalCount": 1185,
+      "p99Ms": 76.4477200000004,
+      "firstRead3dOrdinal": 1973,
+      "lastRead3dOrdinal": 3157,
+      "intervalsAtOrAbovePerRunP99": 12,
+      "tailEndSeconds": [
+        1.583535,
+        1.816644,
+        2.233648,
+        2.316593,
+        3.083967,
+        3.308529,
+        5.36672,
+        5.450145,
+        5.883425,
+        6.316703,
+        24.16689,
+        24.983592
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3156,
+          "endSecondsFromAnalyzedWindowStart": 24.983592,
+          "startSecondsFromAnalyzedWindowStart": 24.850031,
+          "intervalMs": 133.561
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2134,
+          "endSecondsFromAnalyzedWindowStart": 5.883425,
+          "startSecondsFromAnalyzedWindowStart": 5.750037,
+          "intervalMs": 133.388
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2124,
+          "endSecondsFromAnalyzedWindowStart": 5.36672,
+          "startSecondsFromAnalyzedWindowStart": 5.266664,
+          "intervalMs": 100.056
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2032,
+          "endSecondsFromAnalyzedWindowStart": 1.816644,
+          "startSecondsFromAnalyzedWindowStart": 1.7205659999999998,
+          "intervalMs": 96.078
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2053,
+          "endSecondsFromAnalyzedWindowStart": 3.083967,
+          "startSecondsFromAnalyzedWindowStart": 2.990411,
+          "intervalMs": 93.556
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2125,
+          "endSecondsFromAnalyzedWindowStart": 5.450145,
+          "startSecondsFromAnalyzedWindowStart": 5.36672,
+          "intervalMs": 83.425
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2144,
+          "endSecondsFromAnalyzedWindowStart": 6.316703,
+          "startSecondsFromAnalyzedWindowStart": 6.233332000000001,
+          "intervalMs": 83.371
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2029,
+          "endSecondsFromAnalyzedWindowStart": 1.583535,
+          "startSecondsFromAnalyzedWindowStart": 1.500228,
+          "intervalMs": 83.307
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2040,
+          "endSecondsFromAnalyzedWindowStart": 2.316593,
+          "startSecondsFromAnalyzedWindowStart": 2.233648,
+          "intervalMs": 82.945
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2056,
+          "endSecondsFromAnalyzedWindowStart": 3.308529,
+          "startSecondsFromAnalyzedWindowStart": 3.225811,
+          "intervalMs": 82.718
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 140,
+          "p99Ms": 89.55888999999985,
+          "maxMs": 96.078,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 212,
+          "p99Ms": 83.41906,
+          "maxMs": 133.388,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 280,
+          "p99Ms": 49.961639999999996,
+          "maxMs": 66.86,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 286,
+          "p99Ms": 49.969249999999995,
+          "maxMs": 50.275,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 267,
+          "p99Ms": 50.11502,
+          "maxMs": 133.561,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-231114976-18aca1ab12424b009fcc0a6c35bb9641",
+      "intervalCount": 184,
+      "p99Ms": 252.98118999999983,
+      "firstRead3dOrdinal": 2636,
+      "lastRead3dOrdinal": 2819,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        2.525342,
+        3.03568
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2657,
+          "endSecondsFromAnalyzedWindowStart": 3.03568,
+          "startSecondsFromAnalyzedWindowStart": 2.7521750000000003,
+          "intervalMs": 283.505
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2655,
+          "endSecondsFromAnalyzedWindowStart": 2.525342,
+          "startSecondsFromAnalyzedWindowStart": 2.2606520000000003,
+          "intervalMs": 264.69
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2744,
+          "endSecondsFromAnalyzedWindowStart": 14.963406,
+          "startSecondsFromAnalyzedWindowStart": 14.712823,
+          "intervalMs": 250.583
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2654,
+          "endSecondsFromAnalyzedWindowStart": 2.260652,
+          "startSecondsFromAnalyzedWindowStart": 2.011053,
+          "intervalMs": 249.599
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2659,
+          "endSecondsFromAnalyzedWindowStart": 3.458977,
+          "startSecondsFromAnalyzedWindowStart": 3.22263,
+          "intervalMs": 236.347
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2656,
+          "endSecondsFromAnalyzedWindowStart": 2.752175,
+          "startSecondsFromAnalyzedWindowStart": 2.5253419999999998,
+          "intervalMs": 226.833
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2733,
+          "endSecondsFromAnalyzedWindowStart": 13.325225,
+          "startSecondsFromAnalyzedWindowStart": 13.098791,
+          "intervalMs": 226.434
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2768,
+          "endSecondsFromAnalyzedWindowStart": 18.178786,
+          "startSecondsFromAnalyzedWindowStart": 17.957940999999998,
+          "intervalMs": 220.845
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2806,
+          "endSecondsFromAnalyzedWindowStart": 23.281678,
+          "startSecondsFromAnalyzedWindowStart": 23.062960999999998,
+          "intervalMs": 218.717
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2725,
+          "endSecondsFromAnalyzedWindowStart": 12.104873,
+          "startSecondsFromAnalyzedWindowStart": 11.891399999999999,
+          "intervalMs": 213.473
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 36,
+          "p99Ms": 276.91974999999996,
+          "maxMs": 283.505,
+          "countAbove200Ms": 6
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 39,
+          "p99Ms": 200.92296,
+          "maxMs": 205.866,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 34,
+          "p99Ms": 242.61383000000004,
+          "maxMs": 250.583,
+          "countAbove200Ms": 4
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 36,
+          "p99Ms": 217.20465,
+          "maxMs": 220.845,
+          "countAbove200Ms": 3
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 39,
+          "p99Ms": 204.1835199999999,
+          "maxMs": 218.717,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-231351386-2ccad0df1ee0431ba6f0bba9599b92be",
+      "intervalCount": 210,
+      "p99Ms": 220.27531999999997,
+      "firstRead3dOrdinal": 2645,
+      "lastRead3dOrdinal": 2854,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        1.71479,
+        1.948772,
+        18.966757
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2802,
+          "endSecondsFromAnalyzedWindowStart": 18.966757,
+          "startSecondsFromAnalyzedWindowStart": 18.715072000000003,
+          "intervalMs": 251.685
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2659,
+          "endSecondsFromAnalyzedWindowStart": 1.948772,
+          "startSecondsFromAnalyzedWindowStart": 1.71479,
+          "intervalMs": 233.982
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2658,
+          "endSecondsFromAnalyzedWindowStart": 1.71479,
+          "startSecondsFromAnalyzedWindowStart": 1.493898,
+          "intervalMs": 220.892
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2660,
+          "endSecondsFromAnalyzedWindowStart": 2.162812,
+          "startSecondsFromAnalyzedWindowStart": 1.9487720000000002,
+          "intervalMs": 214.04
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2661,
+          "endSecondsFromAnalyzedWindowStart": 2.356641,
+          "startSecondsFromAnalyzedWindowStart": 2.162812,
+          "intervalMs": 193.829
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2743,
+          "endSecondsFromAnalyzedWindowStart": 12.063044,
+          "startSecondsFromAnalyzedWindowStart": 11.871222,
+          "intervalMs": 191.822
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2747,
+          "endSecondsFromAnalyzedWindowStart": 12.589775,
+          "startSecondsFromAnalyzedWindowStart": 12.405137999999999,
+          "intervalMs": 184.637
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2657,
+          "endSecondsFromAnalyzedWindowStart": 1.493898,
+          "startSecondsFromAnalyzedWindowStart": 1.3113789999999999,
+          "intervalMs": 182.519
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2753,
+          "endSecondsFromAnalyzedWindowStart": 13.389412,
+          "startSecondsFromAnalyzedWindowStart": 13.212214,
+          "intervalMs": 177.198
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2656,
+          "endSecondsFromAnalyzedWindowStart": 1.311379,
+          "startSecondsFromAnalyzedWindowStart": 1.13426,
+          "intervalMs": 177.119
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 39,
+          "p99Ms": 229.00779999999997,
+          "maxMs": 233.982,
+          "countAbove200Ms": 3
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 43,
+          "p99Ms": 155.36746,
+          "maxMs": 157.483,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 40,
+          "p99Ms": 189.01985,
+          "maxMs": 191.822,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 43,
+          "p99Ms": 211.42967999999985,
+          "maxMs": 251.685,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 45,
+          "p99Ms": 160.89092000000002,
+          "maxMs": 166.119,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-231626662-8de50392270d4cdd914bdad5bab9e8cd",
+      "intervalCount": 204,
+      "p99Ms": 206.64129,
+      "firstRead3dOrdinal": 2580,
+      "lastRead3dOrdinal": 2783,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        2.043179,
+        2.285051,
+        2.837109
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2598,
+          "endSecondsFromAnalyzedWindowStart": 2.043179,
+          "startSecondsFromAnalyzedWindowStart": 1.7971119999999998,
+          "intervalMs": 246.067
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2599,
+          "endSecondsFromAnalyzedWindowStart": 2.285051,
+          "startSecondsFromAnalyzedWindowStart": 2.0431790000000003,
+          "intervalMs": 241.872
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2602,
+          "endSecondsFromAnalyzedWindowStart": 2.837109,
+          "startSecondsFromAnalyzedWindowStart": 2.630121,
+          "intervalMs": 206.988
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2731,
+          "endSecondsFromAnalyzedWindowStart": 18.869606,
+          "startSecondsFromAnalyzedWindowStart": 18.674175,
+          "intervalMs": 195.431
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2698,
+          "endSecondsFromAnalyzedWindowStart": 14.921306,
+          "startSecondsFromAnalyzedWindowStart": 14.729834,
+          "intervalMs": 191.472
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2626,
+          "endSecondsFromAnalyzedWindowStart": 5.833865,
+          "startSecondsFromAnalyzedWindowStart": 5.643089000000001,
+          "intervalMs": 190.776
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2636,
+          "endSecondsFromAnalyzedWindowStart": 7.021306,
+          "startSecondsFromAnalyzedWindowStart": 6.831111,
+          "intervalMs": 190.195
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2678,
+          "endSecondsFromAnalyzedWindowStart": 12.289926,
+          "startSecondsFromAnalyzedWindowStart": 12.100883999999999,
+          "intervalMs": 189.042
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2688,
+          "endSecondsFromAnalyzedWindowStart": 13.624819,
+          "startSecondsFromAnalyzedWindowStart": 13.445188,
+          "intervalMs": 179.631
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2690,
+          "endSecondsFromAnalyzedWindowStart": 13.969985,
+          "startSecondsFromAnalyzedWindowStart": 13.791312999999999,
+          "intervalMs": 178.672
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 40,
+          "p99Ms": 244.43095,
+          "maxMs": 246.067,
+          "countAbove200Ms": 3
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 40,
+          "p99Ms": 190.54941,
+          "maxMs": 190.776,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 39,
+          "p99Ms": 190.5486,
+          "maxMs": 191.472,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 41,
+          "p99Ms": 184.66580000000005,
+          "maxMs": 195.431,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 44,
+          "p99Ms": 136.88413,
+          "maxMs": 138.393,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-231901413-3031861622164605a3da99e652ff48c9",
+      "intervalCount": 174,
+      "p99Ms": 259.16713000000004,
+      "firstRead3dOrdinal": 2606,
+      "lastRead3dOrdinal": 2779,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        3.262679,
+        3.763455
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2630,
+          "endSecondsFromAnalyzedWindowStart": 3.262679,
+          "startSecondsFromAnalyzedWindowStart": 2.948461,
+          "intervalMs": 314.218
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2632,
+          "endSecondsFromAnalyzedWindowStart": 3.763455,
+          "startSecondsFromAnalyzedWindowStart": 3.499456,
+          "intervalMs": 263.999
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2634,
+          "endSecondsFromAnalyzedWindowStart": 4.211013,
+          "startSecondsFromAnalyzedWindowStart": 3.9536330000000004,
+          "intervalMs": 257.38
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2724,
+          "endSecondsFromAnalyzedWindowStart": 17.007084,
+          "startSecondsFromAnalyzedWindowStart": 16.75731,
+          "intervalMs": 249.774
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2704,
+          "endSecondsFromAnalyzedWindowStart": 13.860749,
+          "startSecondsFromAnalyzedWindowStart": 13.614751,
+          "intervalMs": 245.998
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2736,
+          "endSecondsFromAnalyzedWindowStart": 18.901671,
+          "startSecondsFromAnalyzedWindowStart": 18.658156,
+          "intervalMs": 243.515
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2628,
+          "endSecondsFromAnalyzedWindowStart": 2.735793,
+          "startSecondsFromAnalyzedWindowStart": 2.496448,
+          "intervalMs": 239.345
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2631,
+          "endSecondsFromAnalyzedWindowStart": 3.499456,
+          "startSecondsFromAnalyzedWindowStart": 3.262679,
+          "intervalMs": 236.777
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2708,
+          "endSecondsFromAnalyzedWindowStart": 14.519092,
+          "startSecondsFromAnalyzedWindowStart": 14.298713000000001,
+          "intervalMs": 220.379
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2719,
+          "endSecondsFromAnalyzedWindowStart": 16.208712,
+          "startSecondsFromAnalyzedWindowStart": 15.991077999999998,
+          "intervalMs": 217.634
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 35,
+          "p99Ms": 297.14353999999986,
+          "maxMs": 314.218,
+          "countAbove200Ms": 6
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 38,
+          "p99Ms": 190.1419200000001,
+          "maxMs": 206.342,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 33,
+          "p99Ms": 237.79992,
+          "maxMs": 245.998,
+          "countAbove200Ms": 3
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 33,
+          "p99Ms": 247.77112,
+          "maxMs": 249.774,
+          "countAbove200Ms": 3
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 35,
+          "p99Ms": 211.16889999999995,
+          "maxMs": 214.88,
+          "countAbove200Ms": 2
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-232135988-f7589383d5d2448aa0bea182410b1a05",
+      "intervalCount": 214,
+      "p99Ms": 197.29883,
+      "firstRead3dOrdinal": 2595,
+      "lastRead3dOrdinal": 2808,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        1.80987,
+        2.030346,
+        2.330598
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2612,
+          "endSecondsFromAnalyzedWindowStart": 2.030346,
+          "startSecondsFromAnalyzedWindowStart": 1.80987,
+          "intervalMs": 220.476
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2614,
+          "endSecondsFromAnalyzedWindowStart": 2.330598,
+          "startSecondsFromAnalyzedWindowStart": 2.132572,
+          "intervalMs": 198.026
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2611,
+          "endSecondsFromAnalyzedWindowStart": 1.80987,
+          "startSecondsFromAnalyzedWindowStart": 1.612427,
+          "intervalMs": 197.443
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2708,
+          "endSecondsFromAnalyzedWindowStart": 13.542499,
+          "startSecondsFromAnalyzedWindowStart": 13.346165,
+          "intervalMs": 196.334
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2795,
+          "endSecondsFromAnalyzedWindowStart": 23.400135,
+          "startSecondsFromAnalyzedWindowStart": 23.204362,
+          "intervalMs": 195.773
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2616,
+          "endSecondsFromAnalyzedWindowStart": 2.711866,
+          "startSecondsFromAnalyzedWindowStart": 2.520335,
+          "intervalMs": 191.531
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2615,
+          "endSecondsFromAnalyzedWindowStart": 2.520335,
+          "startSecondsFromAnalyzedWindowStart": 2.330598,
+          "intervalMs": 189.737
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2755,
+          "endSecondsFromAnalyzedWindowStart": 18.807774,
+          "startSecondsFromAnalyzedWindowStart": 18.622611,
+          "intervalMs": 185.163
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2690,
+          "endSecondsFromAnalyzedWindowStart": 11.263125,
+          "startSecondsFromAnalyzedWindowStart": 11.084261,
+          "intervalMs": 178.864
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2691,
+          "endSecondsFromAnalyzedWindowStart": 11.434762,
+          "startSecondsFromAnalyzedWindowStart": 11.263124999999999,
+          "intervalMs": 171.637
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 42,
+          "p99Ms": 211.27149999999992,
+          "maxMs": 220.476,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 43,
+          "p99Ms": 164.522,
+          "maxMs": 166.139,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 40,
+          "p99Ms": 189.5207,
+          "maxMs": 196.334,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 44,
+          "p99Ms": 175.98379,
+          "maxMs": 185.163,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 45,
+          "p99Ms": 178.57780000000008,
+          "maxMs": 195.773,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-232416755-b2349928ba2041db8b70387768f4c9bc",
+      "intervalCount": 173,
+      "p99Ms": 311.75188,
+      "firstRead3dOrdinal": 2641,
+      "lastRead3dOrdinal": 2813,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        2.127574,
+        2.932268
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2654,
+          "endSecondsFromAnalyzedWindowStart": 2.127574,
+          "startSecondsFromAnalyzedWindowStart": 1.612011,
+          "intervalMs": 515.563
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2657,
+          "endSecondsFromAnalyzedWindowStart": 2.932268,
+          "startSecondsFromAnalyzedWindowStart": 2.6152450000000003,
+          "intervalMs": 317.023
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2653,
+          "endSecondsFromAnalyzedWindowStart": 1.612011,
+          "startSecondsFromAnalyzedWindowStart": 1.3023090000000002,
+          "intervalMs": 309.702
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2682,
+          "endSecondsFromAnalyzedWindowStart": 6.633383,
+          "startSecondsFromAnalyzedWindowStart": 6.3775960000000005,
+          "intervalMs": 255.787
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2794,
+          "endSecondsFromAnalyzedWindowStart": 22.337352,
+          "startSecondsFromAnalyzedWindowStart": 22.082852,
+          "intervalMs": 254.5
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2655,
+          "endSecondsFromAnalyzedWindowStart": 2.375296,
+          "startSecondsFromAnalyzedWindowStart": 2.127574,
+          "intervalMs": 247.722
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2656,
+          "endSecondsFromAnalyzedWindowStart": 2.615245,
+          "startSecondsFromAnalyzedWindowStart": 2.3752959999999996,
+          "intervalMs": 239.949
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2744,
+          "endSecondsFromAnalyzedWindowStart": 15.441687,
+          "startSecondsFromAnalyzedWindowStart": 15.207673,
+          "intervalMs": 234.014
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2659,
+          "endSecondsFromAnalyzedWindowStart": 3.382507,
+          "startSecondsFromAnalyzedWindowStart": 3.153204,
+          "intervalMs": 229.303
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2732,
+          "endSecondsFromAnalyzedWindowStart": 13.663725,
+          "startSecondsFromAnalyzedWindowStart": 13.434591,
+          "intervalMs": 229.134
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 31,
+          "p99Ms": 456.00099999999986,
+          "maxMs": 515.563,
+          "countAbove200Ms": 8
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 35,
+          "p99Ms": 244.4456199999999,
+          "maxMs": 255.787,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 35,
+          "p99Ms": 221.3894799999999,
+          "maxMs": 229.134,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 35,
+          "p99Ms": 225.6642799999999,
+          "maxMs": 234.014,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 37,
+          "p99Ms": 232.35640000000004,
+          "maxMs": 254.5,
+          "countAbove200Ms": 1
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-232655421-a1476115723e4e8184fbacacedc44547",
+      "intervalCount": 176,
+      "p99Ms": 269.7765,
+      "firstRead3dOrdinal": 2688,
+      "lastRead3dOrdinal": 2863,
+      "intervalsAtOrAbovePerRunP99": 2,
+      "tailEndSeconds": [
+        2.938998,
+        16.501112
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2803,
+          "endSecondsFromAnalyzedWindowStart": 16.501112,
+          "startSecondsFromAnalyzedWindowStart": 16.195766,
+          "intervalMs": 305.346
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2710,
+          "endSecondsFromAnalyzedWindowStart": 2.938998,
+          "startSecondsFromAnalyzedWindowStart": 2.6628990000000003,
+          "intervalMs": 276.099
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2709,
+          "endSecondsFromAnalyzedWindowStart": 2.662899,
+          "startSecondsFromAnalyzedWindowStart": 2.3952299999999997,
+          "intervalMs": 267.669
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2787,
+          "endSecondsFromAnalyzedWindowStart": 13.994429,
+          "startSecondsFromAnalyzedWindowStart": 13.727136,
+          "intervalMs": 267.293
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2819,
+          "endSecondsFromAnalyzedWindowStart": 18.951281,
+          "startSecondsFromAnalyzedWindowStart": 18.692404000000003,
+          "intervalMs": 258.877
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2786,
+          "endSecondsFromAnalyzedWindowStart": 13.727136,
+          "startSecondsFromAnalyzedWindowStart": 13.476966,
+          "intervalMs": 250.17
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2798,
+          "endSecondsFromAnalyzedWindowStart": 15.708255,
+          "startSecondsFromAnalyzedWindowStart": 15.477323,
+          "intervalMs": 230.932
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2711,
+          "endSecondsFromAnalyzedWindowStart": 3.167722,
+          "startSecondsFromAnalyzedWindowStart": 2.9389979999999998,
+          "intervalMs": 228.724
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2720,
+          "endSecondsFromAnalyzedWindowStart": 4.573022,
+          "startSecondsFromAnalyzedWindowStart": 4.345137,
+          "intervalMs": 227.885
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2797,
+          "endSecondsFromAnalyzedWindowStart": 15.477323,
+          "startSecondsFromAnalyzedWindowStart": 15.262948,
+          "intervalMs": 214.375
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 36,
+          "p99Ms": 273.14849999999996,
+          "maxMs": 276.099,
+          "countAbove200Ms": 4
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 37,
+          "p99Ms": 191.26808,
+          "maxMs": 193.112,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 34,
+          "p99Ms": 261.64241000000004,
+          "maxMs": 267.293,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 32,
+          "p99Ms": 290.94061000000005,
+          "maxMs": 305.346,
+          "countAbove200Ms": 4
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 37,
+          "p99Ms": 171.4616,
+          "maxMs": 172.385,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-232935234-562b2df941ed4875a4754ab80dc1d4c7",
+      "intervalCount": 212,
+      "p99Ms": 218.51573999999977,
+      "firstRead3dOrdinal": 2605,
+      "lastRead3dOrdinal": 2816,
+      "intervalsAtOrAbovePerRunP99": 3,
+      "tailEndSeconds": [
+        1.246594,
+        1.603674,
+        18.876637
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 2763,
+          "endSecondsFromAnalyzedWindowStart": 18.876637,
+          "startSecondsFromAnalyzedWindowStart": 18.502903999999997,
+          "intervalMs": 373.733
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2614,
+          "endSecondsFromAnalyzedWindowStart": 1.246594,
+          "startSecondsFromAnalyzedWindowStart": 1.008761,
+          "intervalMs": 237.833
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2616,
+          "endSecondsFromAnalyzedWindowStart": 1.603674,
+          "startSecondsFromAnalyzedWindowStart": 1.383215,
+          "intervalMs": 220.459
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2703,
+          "endSecondsFromAnalyzedWindowStart": 11.946964,
+          "startSecondsFromAnalyzedWindowStart": 11.744171,
+          "intervalMs": 202.793
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2671,
+          "endSecondsFromAnalyzedWindowStart": 7.899896,
+          "startSecondsFromAnalyzedWindowStart": 7.701769,
+          "intervalMs": 198.127
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2685,
+          "endSecondsFromAnalyzedWindowStart": 9.482755,
+          "startSecondsFromAnalyzedWindowStart": 9.293707999999999,
+          "intervalMs": 189.047
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2612,
+          "endSecondsFromAnalyzedWindowStart": 0.874629,
+          "startSecondsFromAnalyzedWindowStart": 0.685759,
+          "intervalMs": 188.87
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2768,
+          "endSecondsFromAnalyzedWindowStart": 19.555903,
+          "startSecondsFromAnalyzedWindowStart": 19.370044,
+          "intervalMs": 185.859
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2688,
+          "endSecondsFromAnalyzedWindowStart": 9.993829,
+          "startSecondsFromAnalyzedWindowStart": 9.808916,
+          "intervalMs": 184.913
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 2692,
+          "endSecondsFromAnalyzedWindowStart": 10.492847,
+          "startSecondsFromAnalyzedWindowStart": 10.313958,
+          "intervalMs": 178.889
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 40,
+          "p99Ms": 231.05714,
+          "maxMs": 237.833,
+          "countAbove200Ms": 2
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 44,
+          "p99Ms": 194.2226,
+          "maxMs": 198.127,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 41,
+          "p99Ms": 193.23140000000004,
+          "maxMs": 202.793,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 42,
+          "p99Ms": 296.7046599999993,
+          "maxMs": 373.733,
+          "countAbove200Ms": 1
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 45,
+          "p99Ms": 136.25548,
+          "maxMs": 139.174,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-224820735-3e5e908a953641edb63191586ff546a7",
+      "intervalCount": 641,
+      "p99Ms": 50.2234,
+      "firstRead3dOrdinal": 358,
+      "lastRead3dOrdinal": 998,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        6.067875,
+        8.00023,
+        13.650296,
+        16.701033,
+        19.266919,
+        19.901043,
+        20.533562
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 515,
+          "endSecondsFromAnalyzedWindowStart": 6.067875,
+          "startSecondsFromAnalyzedWindowStart": 6.016669,
+          "intervalMs": 51.206
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 870,
+          "endSecondsFromAnalyzedWindowStart": 19.901043,
+          "startSecondsFromAnalyzedWindowStart": 19.850026,
+          "intervalMs": 51.017
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 788,
+          "endSecondsFromAnalyzedWindowStart": 16.701033,
+          "startSecondsFromAnalyzedWindowStart": 16.650163,
+          "intervalMs": 50.87
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 710,
+          "endSecondsFromAnalyzedWindowStart": 13.650296,
+          "startSecondsFromAnalyzedWindowStart": 13.600015,
+          "intervalMs": 50.281
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 854,
+          "endSecondsFromAnalyzedWindowStart": 19.266919,
+          "startSecondsFromAnalyzedWindowStart": 19.216674,
+          "intervalMs": 50.245
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 565,
+          "endSecondsFromAnalyzedWindowStart": 8.00023,
+          "startSecondsFromAnalyzedWindowStart": 7.949994,
+          "intervalMs": 50.236
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 886,
+          "endSecondsFromAnalyzedWindowStart": 20.533562,
+          "startSecondsFromAnalyzedWindowStart": 20.483337,
+          "intervalMs": 50.225
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 540,
+          "endSecondsFromAnalyzedWindowStart": 7.033562,
+          "startSecondsFromAnalyzedWindowStart": 6.983341,
+          "intervalMs": 50.221
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 530,
+          "endSecondsFromAnalyzedWindowStart": 6.650222,
+          "startSecondsFromAnalyzedWindowStart": 6.600008,
+          "intervalMs": 50.214
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 969,
+          "endSecondsFromAnalyzedWindowStart": 23.833562,
+          "startSecondsFromAnalyzedWindowStart": 23.783348,
+          "intervalMs": 50.214
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 130,
+          "p99Ms": 50.15327,
+          "maxMs": 50.185,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 129,
+          "p99Ms": 50.2318,
+          "maxMs": 51.206,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 128,
+          "p99Ms": 50.18965,
+          "maxMs": 50.281,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 128,
+          "p99Ms": 50.70125,
+          "maxMs": 51.017,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 126,
+          "p99Ms": 50.194,
+          "maxMs": 50.225,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-224908300-eb1c519d95224029b4a64c7eec1f2d00",
+      "intervalCount": 616,
+      "p99Ms": 50.226549999999996,
+      "firstRead3dOrdinal": 346,
+      "lastRead3dOrdinal": 961,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        0.216876,
+        6.983919,
+        7.967649,
+        8.866667,
+        11.651011,
+        13.101016,
+        24.919941
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 566,
+          "endSecondsFromAnalyzedWindowStart": 8.866667,
+          "startSecondsFromAnalyzedWindowStart": 8.800173,
+          "intervalMs": 66.494
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 959,
+          "endSecondsFromAnalyzedWindowStart": 24.919941,
+          "startSecondsFromAnalyzedWindowStart": 24.866664,
+          "intervalMs": 53.277
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 635,
+          "endSecondsFromAnalyzedWindowStart": 11.651011,
+          "startSecondsFromAnalyzedWindowStart": 11.599979000000001,
+          "intervalMs": 51.032
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 544,
+          "endSecondsFromAnalyzedWindowStart": 7.967649,
+          "startSecondsFromAnalyzedWindowStart": 7.916662,
+          "intervalMs": 50.987
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 670,
+          "endSecondsFromAnalyzedWindowStart": 13.101016,
+          "startSecondsFromAnalyzedWindowStart": 13.050188,
+          "intervalMs": 50.828
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 519,
+          "endSecondsFromAnalyzedWindowStart": 6.983919,
+          "startSecondsFromAnalyzedWindowStart": 6.933309,
+          "intervalMs": 50.61
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 351,
+          "endSecondsFromAnalyzedWindowStart": 0.216876,
+          "startSecondsFromAnalyzedWindowStart": 0.16664900000000002,
+          "intervalMs": 50.227
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 371,
+          "endSecondsFromAnalyzedWindowStart": 1.033555,
+          "startSecondsFromAnalyzedWindowStart": 0.983331,
+          "intervalMs": 50.224
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 509,
+          "endSecondsFromAnalyzedWindowStart": 6.566874,
+          "startSecondsFromAnalyzedWindowStart": 6.516651,
+          "intervalMs": 50.223
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 875,
+          "endSecondsFromAnalyzedWindowStart": 21.500222,
+          "startSecondsFromAnalyzedWindowStart": 21.450003000000002,
+          "intervalMs": 50.219
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 125,
+          "p99Ms": 50.210319999999996,
+          "maxMs": 50.227,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 124,
+          "p99Ms": 50.90029,
+          "maxMs": 66.494,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 122,
+          "p99Ms": 50.6999,
+          "maxMs": 51.032,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 122,
+          "p99Ms": 50.150580000000005,
+          "maxMs": 50.179,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 123,
+          "p99Ms": 50.21636,
+          "maxMs": 53.277,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-224956529-84879bd5bbea42eca6677a67dbe799a1",
+      "intervalCount": 612,
+      "p99Ms": 50.2489,
+      "firstRead3dOrdinal": 340,
+      "lastRead3dOrdinal": 951,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        2.216889,
+        8.783321,
+        9.916948,
+        12.83448,
+        14.151063,
+        20.083592,
+        22.966887
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 556,
+          "endSecondsFromAnalyzedWindowStart": 8.783321,
+          "startSecondsFromAnalyzedWindowStart": 8.716745000000001,
+          "intervalMs": 66.576
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 687,
+          "endSecondsFromAnalyzedWindowStart": 14.151063,
+          "startSecondsFromAnalyzedWindowStart": 14.099977,
+          "intervalMs": 51.086
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 655,
+          "endSecondsFromAnalyzedWindowStart": 12.83448,
+          "startSecondsFromAnalyzedWindowStart": 12.783399999999999,
+          "intervalMs": 51.08
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 833,
+          "endSecondsFromAnalyzedWindowStart": 20.083592,
+          "startSecondsFromAnalyzedWindowStart": 20.033313,
+          "intervalMs": 50.279
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 584,
+          "endSecondsFromAnalyzedWindowStart": 9.916948,
+          "startSecondsFromAnalyzedWindowStart": 9.866676,
+          "intervalMs": 50.272
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 394,
+          "endSecondsFromAnalyzedWindowStart": 2.216889,
+          "startSecondsFromAnalyzedWindowStart": 2.166632,
+          "intervalMs": 50.257
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 902,
+          "endSecondsFromAnalyzedWindowStart": 22.966887,
+          "startSecondsFromAnalyzedWindowStart": 22.916637,
+          "intervalMs": 50.25
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 920,
+          "endSecondsFromAnalyzedWindowStart": 23.716884,
+          "startSecondsFromAnalyzedWindowStart": 23.666644,
+          "intervalMs": 50.24
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 489,
+          "endSecondsFromAnalyzedWindowStart": 6.066881,
+          "startSecondsFromAnalyzedWindowStart": 6.016643,
+          "intervalMs": 50.238
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 783,
+          "endSecondsFromAnalyzedWindowStart": 18.050198,
+          "startSecondsFromAnalyzedWindowStart": 17.999965000000003,
+          "intervalMs": 50.233
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 124,
+          "p99Ms": 50.22039,
+          "maxMs": 50.257,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 123,
+          "p99Ms": 50.26452,
+          "maxMs": 66.576,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 121,
+          "p99Ms": 50.901199999999996,
+          "maxMs": 51.086,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 124,
+          "p99Ms": 50.17766,
+          "maxMs": 50.233,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 120,
+          "p99Ms": 50.2481,
+          "maxMs": 50.279,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-225044171-1bc1797cb4814c078bc5fc740497bbf7",
+      "intervalCount": 639,
+      "p99Ms": 50.25786,
+      "firstRead3dOrdinal": 355,
+      "lastRead3dOrdinal": 993,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        3.617496,
+        8.750364,
+        10.483643,
+        16.283596,
+        20.901003,
+        21.016942,
+        22.300996
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 888,
+          "endSecondsFromAnalyzedWindowStart": 20.901003,
+          "startSecondsFromAnalyzedWindowStart": 20.850005,
+          "intervalMs": 50.998
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 924,
+          "endSecondsFromAnalyzedWindowStart": 22.300996,
+          "startSecondsFromAnalyzedWindowStart": 22.250144000000002,
+          "intervalMs": 50.852
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 447,
+          "endSecondsFromAnalyzedWindowStart": 3.617496,
+          "startSecondsFromAnalyzedWindowStart": 3.566749,
+          "intervalMs": 50.747
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 579,
+          "endSecondsFromAnalyzedWindowStart": 8.750364,
+          "startSecondsFromAnalyzedWindowStart": 8.700045,
+          "intervalMs": 50.319
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 623,
+          "endSecondsFromAnalyzedWindowStart": 10.483643,
+          "startSecondsFromAnalyzedWindowStart": 10.433348,
+          "intervalMs": 50.295
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 891,
+          "endSecondsFromAnalyzedWindowStart": 21.016942,
+          "startSecondsFromAnalyzedWindowStart": 20.966664,
+          "intervalMs": 50.278
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 770,
+          "endSecondsFromAnalyzedWindowStart": 16.283596,
+          "startSecondsFromAnalyzedWindowStart": 16.233337,
+          "intervalMs": 50.259
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 737,
+          "endSecondsFromAnalyzedWindowStart": 15.000267,
+          "startSecondsFromAnalyzedWindowStart": 14.950011,
+          "intervalMs": 50.256
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 453,
+          "endSecondsFromAnalyzedWindowStart": 3.850237,
+          "startSecondsFromAnalyzedWindowStart": 3.799987,
+          "intervalMs": 50.25
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 591,
+          "endSecondsFromAnalyzedWindowStart": 9.233574,
+          "startSecondsFromAnalyzedWindowStart": 9.183329,
+          "intervalMs": 50.245
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 127,
+          "p99Ms": 50.24558,
+          "maxMs": 50.747,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 129,
+          "p99Ms": 50.245,
+          "maxMs": 50.319,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 126,
+          "p99Ms": 50.223,
+          "maxMs": 50.295,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 128,
+          "p99Ms": 50.22657,
+          "maxMs": 50.259,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 129,
+          "p99Ms": 50.69128,
+          "maxMs": 50.998,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-225132557-00bb6d2f4df44cd089f94db7c81ef33a",
+      "intervalCount": 618,
+      "p99Ms": 50.226319999999994,
+      "firstRead3dOrdinal": 348,
+      "lastRead3dOrdinal": 965,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        5.966006,
+        8.815796,
+        10.333449,
+        12.632604,
+        14.149353,
+        17.266101,
+        18.482684
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 659,
+          "endSecondsFromAnalyzedWindowStart": 12.632604,
+          "startSecondsFromAnalyzedWindowStart": 12.566361,
+          "intervalMs": 66.243
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 566,
+          "endSecondsFromAnalyzedWindowStart": 8.815796,
+          "startSecondsFromAnalyzedWindowStart": 8.750093000000001,
+          "intervalMs": 65.703
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 603,
+          "endSecondsFromAnalyzedWindowStart": 10.333449,
+          "startSecondsFromAnalyzedWindowStart": 10.282708,
+          "intervalMs": 50.741
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 774,
+          "endSecondsFromAnalyzedWindowStart": 17.266101,
+          "startSecondsFromAnalyzedWindowStart": 17.215788999999997,
+          "intervalMs": 50.312
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 697,
+          "endSecondsFromAnalyzedWindowStart": 14.149353,
+          "startSecondsFromAnalyzedWindowStart": 14.099117,
+          "intervalMs": 50.236
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 495,
+          "endSecondsFromAnalyzedWindowStart": 5.966006,
+          "startSecondsFromAnalyzedWindowStart": 5.915779000000001,
+          "intervalMs": 50.227
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 804,
+          "endSecondsFromAnalyzedWindowStart": 18.482684,
+          "startSecondsFromAnalyzedWindowStart": 18.432457,
+          "intervalMs": 50.227
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 597,
+          "endSecondsFromAnalyzedWindowStart": 10.082677,
+          "startSecondsFromAnalyzedWindowStart": 10.032454,
+          "intervalMs": 50.223
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 895,
+          "endSecondsFromAnalyzedWindowStart": 22.149335,
+          "startSecondsFromAnalyzedWindowStart": 22.099119,
+          "intervalMs": 50.216
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 867,
+          "endSecondsFromAnalyzedWindowStart": 21.032668,
+          "startSecondsFromAnalyzedWindowStart": 20.982458,
+          "intervalMs": 50.21
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 124,
+          "p99Ms": 50.16088,
+          "maxMs": 50.194,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 124,
+          "p99Ms": 50.222629999999995,
+          "maxMs": 65.703,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 123,
+          "p99Ms": 50.6299,
+          "maxMs": 66.243,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 123,
+          "p99Ms": 50.21424,
+          "maxMs": 50.312,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 124,
+          "p99Ms": 50.20908,
+          "maxMs": 50.216,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-225220792-bc402347458e432887fccd5da4023d80",
+      "intervalCount": 631,
+      "p99Ms": 50.39540000000001,
+      "firstRead3dOrdinal": 353,
+      "lastRead3dOrdinal": 983,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        1.000657,
+        7.167389,
+        8.434317,
+        8.799972,
+        12.56761,
+        14.484283,
+        18.917651
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 578,
+          "endSecondsFromAnalyzedWindowStart": 8.799972,
+          "startSecondsFromAnalyzedWindowStart": 8.73434,
+          "intervalMs": 65.632
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 569,
+          "endSecondsFromAnalyzedWindowStart": 8.434317,
+          "startSecondsFromAnalyzedWindowStart": 8.383303,
+          "intervalMs": 51.014
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 831,
+          "endSecondsFromAnalyzedWindowStart": 18.917651,
+          "startSecondsFromAnalyzedWindowStart": 18.866640999999998,
+          "intervalMs": 51.01
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 721,
+          "endSecondsFromAnalyzedWindowStart": 14.484283,
+          "startSecondsFromAnalyzedWindowStart": 14.433302,
+          "intervalMs": 50.981
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 673,
+          "endSecondsFromAnalyzedWindowStart": 12.56761,
+          "startSecondsFromAnalyzedWindowStart": 12.516635,
+          "intervalMs": 50.975
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 536,
+          "endSecondsFromAnalyzedWindowStart": 7.167389,
+          "startSecondsFromAnalyzedWindowStart": 7.116631,
+          "intervalMs": 50.758
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 378,
+          "endSecondsFromAnalyzedWindowStart": 1.000657,
+          "startSecondsFromAnalyzedWindowStart": 0.9501979999999999,
+          "intervalMs": 50.459
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 498,
+          "endSecondsFromAnalyzedWindowStart": 5.700209,
+          "startSecondsFromAnalyzedWindowStart": 5.649962,
+          "intervalMs": 50.247
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 564,
+          "endSecondsFromAnalyzedWindowStart": 8.233525,
+          "startSecondsFromAnalyzedWindowStart": 8.183292,
+          "intervalMs": 50.233
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 913,
+          "endSecondsFromAnalyzedWindowStart": 22.216883,
+          "startSecondsFromAnalyzedWindowStart": 22.166650999999998,
+          "intervalMs": 50.232
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 128,
+          "p99Ms": 50.20971,
+          "maxMs": 50.459,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 128,
+          "p99Ms": 50.944880000000005,
+          "maxMs": 65.632,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 126,
+          "p99Ms": 50.78075,
+          "maxMs": 50.981,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 123,
+          "p99Ms": 50.19934,
+          "maxMs": 51.01,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 126,
+          "p99Ms": 50.21875,
+          "maxMs": 50.232,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-225308898-c46c356a01684e19824c87415fe46c64",
+      "intervalCount": 643,
+      "p99Ms": 50.22858,
+      "firstRead3dOrdinal": 357,
+      "lastRead3dOrdinal": 999,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        6.917621,
+        8.750197,
+        11.266761,
+        19.06675,
+        20.316848,
+        22.316737,
+        23.483406
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 537,
+          "endSecondsFromAnalyzedWindowStart": 6.917621,
+          "startSecondsFromAnalyzedWindowStart": 6.866559,
+          "intervalMs": 51.062
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 585,
+          "endSecondsFromAnalyzedWindowStart": 8.750197,
+          "startSecondsFromAnalyzedWindowStart": 8.699874,
+          "intervalMs": 50.323
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 879,
+          "endSecondsFromAnalyzedWindowStart": 20.316848,
+          "startSecondsFromAnalyzedWindowStart": 20.266527,
+          "intervalMs": 50.321
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 649,
+          "endSecondsFromAnalyzedWindowStart": 11.266761,
+          "startSecondsFromAnalyzedWindowStart": 11.216506,
+          "intervalMs": 50.255
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 960,
+          "endSecondsFromAnalyzedWindowStart": 23.483406,
+          "startSecondsFromAnalyzedWindowStart": 23.433172,
+          "intervalMs": 50.234
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 930,
+          "endSecondsFromAnalyzedWindowStart": 22.316737,
+          "startSecondsFromAnalyzedWindowStart": 22.266506,
+          "intervalMs": 50.231
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 847,
+          "endSecondsFromAnalyzedWindowStart": 19.06675,
+          "startSecondsFromAnalyzedWindowStart": 19.016520999999997,
+          "intervalMs": 50.229
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 404,
+          "endSecondsFromAnalyzedWindowStart": 1.816739,
+          "startSecondsFromAnalyzedWindowStart": 1.7665110000000002,
+          "intervalMs": 50.228
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 791,
+          "endSecondsFromAnalyzedWindowStart": 16.850067,
+          "startSecondsFromAnalyzedWindowStart": 16.799843,
+          "intervalMs": 50.224
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 504,
+          "endSecondsFromAnalyzedWindowStart": 5.66672,
+          "startSecondsFromAnalyzedWindowStart": 5.616498,
+          "intervalMs": 50.222
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 130,
+          "p99Ms": 50.20843,
+          "maxMs": 50.228,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 130,
+          "p99Ms": 50.29371,
+          "maxMs": 51.062,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 128,
+          "p99Ms": 50.183009999999996,
+          "maxMs": 50.255,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 126,
+          "p99Ms": 50.21975,
+          "maxMs": 50.229,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 129,
+          "p99Ms": 50.233160000000005,
+          "maxMs": 50.321,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "morrowind",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-225357126-cfde692091474ceb8f5676b98c2dd5e0",
+      "intervalCount": 613,
+      "p99Ms": 50.467,
+      "firstRead3dOrdinal": 346,
+      "lastRead3dOrdinal": 958,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        1.267578,
+        3.850942,
+        8.749951,
+        17.667066,
+        21.717662,
+        23.117595,
+        23.851043
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 563,
+          "endSecondsFromAnalyzedWindowStart": 8.749951,
+          "startSecondsFromAnalyzedWindowStart": 8.683309999999999,
+          "intervalMs": 66.641
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 930,
+          "endSecondsFromAnalyzedWindowStart": 23.851043,
+          "startSecondsFromAnalyzedWindowStart": 23.799937,
+          "intervalMs": 51.106
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 441,
+          "endSecondsFromAnalyzedWindowStart": 3.850942,
+          "startSecondsFromAnalyzedWindowStart": 3.7999389999999997,
+          "intervalMs": 51.003
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 377,
+          "endSecondsFromAnalyzedWindowStart": 1.267578,
+          "startSecondsFromAnalyzedWindowStart": 1.216628,
+          "intervalMs": 50.95
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 878,
+          "endSecondsFromAnalyzedWindowStart": 21.717662,
+          "startSecondsFromAnalyzedWindowStart": 21.666724000000002,
+          "intervalMs": 50.938
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 912,
+          "endSecondsFromAnalyzedWindowStart": 23.117595,
+          "startSecondsFromAnalyzedWindowStart": 23.066832,
+          "intervalMs": 50.763
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 779,
+          "endSecondsFromAnalyzedWindowStart": 17.667066,
+          "startSecondsFromAnalyzedWindowStart": 17.616595999999998,
+          "intervalMs": 50.47
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 683,
+          "endSecondsFromAnalyzedWindowStart": 13.71724,
+          "startSecondsFromAnalyzedWindowStart": 13.666795,
+          "intervalMs": 50.445
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 632,
+          "endSecondsFromAnalyzedWindowStart": 11.60017,
+          "startSecondsFromAnalyzedWindowStart": 11.549927,
+          "intervalMs": 50.243
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 628,
+          "endSecondsFromAnalyzedWindowStart": 11.433488,
+          "startSecondsFromAnalyzedWindowStart": 11.383256000000001,
+          "intervalMs": 50.232
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 125,
+          "p99Ms": 50.775040000000004,
+          "maxMs": 51.003,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 123,
+          "p99Ms": 50.2217,
+          "maxMs": 66.641,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 121,
+          "p99Ms": 50.2408,
+          "maxMs": 50.445,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 122,
+          "p99Ms": 50.2206,
+          "maxMs": 50.47,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 122,
+          "p99Ms": 50.90125,
+          "maxMs": 51.106,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-225445366-287d93721f0843628aec81d7d21f7f37",
+      "intervalCount": 743,
+      "p99Ms": 49.987,
+      "firstRead3dOrdinal": 3217,
+      "lastRead3dOrdinal": 3959,
+      "intervalsAtOrAbovePerRunP99": 9,
+      "tailEndSeconds": [
+        2.066644,
+        9.36667,
+        15.283499,
+        15.933482,
+        16.583602,
+        19.183318,
+        21.616673,
+        23.633322,
+        23.883339
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3710,
+          "endSecondsFromAnalyzedWindowStart": 16.583602,
+          "startSecondsFromAnalyzedWindowStart": 16.533355,
+          "intervalMs": 50.247
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3672,
+          "endSecondsFromAnalyzedWindowStart": 15.283499,
+          "startSecondsFromAnalyzedWindowStart": 15.233302,
+          "intervalMs": 50.197
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3691,
+          "endSecondsFromAnalyzedWindowStart": 15.933482,
+          "startSecondsFromAnalyzedWindowStart": 15.883305,
+          "intervalMs": 50.177
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3859,
+          "endSecondsFromAnalyzedWindowStart": 21.616673,
+          "startSecondsFromAnalyzedWindowStart": 21.566643,
+          "intervalMs": 50.03
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3496,
+          "endSecondsFromAnalyzedWindowStart": 9.36667,
+          "startSecondsFromAnalyzedWindowStart": 9.316645,
+          "intervalMs": 50.025
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3278,
+          "endSecondsFromAnalyzedWindowStart": 2.066644,
+          "startSecondsFromAnalyzedWindowStart": 2.016639,
+          "intervalMs": 50.005
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3926,
+          "endSecondsFromAnalyzedWindowStart": 23.883339,
+          "startSecondsFromAnalyzedWindowStart": 23.833341,
+          "intervalMs": 49.998
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3787,
+          "endSecondsFromAnalyzedWindowStart": 19.183318,
+          "startSecondsFromAnalyzedWindowStart": 19.133331,
+          "intervalMs": 49.987
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3919,
+          "endSecondsFromAnalyzedWindowStart": 23.633322,
+          "startSecondsFromAnalyzedWindowStart": 23.583334999999998,
+          "intervalMs": 49.987
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3764,
+          "endSecondsFromAnalyzedWindowStart": 18.400133,
+          "startSecondsFromAnalyzedWindowStart": 18.350175,
+          "intervalMs": 49.958
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 150,
+          "p99Ms": 34.22715,
+          "maxMs": 50.005,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 148,
+          "p99Ms": 42.40673000000002,
+          "maxMs": 50.025,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 149,
+          "p99Ms": 42.29864000000016,
+          "maxMs": 49.86,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 148,
+          "p99Ms": 50.1876,
+          "maxMs": 50.247,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 148,
+          "p99Ms": 49.99283,
+          "maxMs": 50.03,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-225636361-be43f7c8f58842ac941ed795dd609f1d",
+      "intervalCount": 736,
+      "p99Ms": 50.044399999999996,
+      "firstRead3dOrdinal": 3212,
+      "lastRead3dOrdinal": 3947,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        7.46683,
+        14.483417,
+        14.850078,
+        18.433404,
+        18.816868,
+        19.833369,
+        21.800074,
+        21.983568
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3857,
+          "endSecondsFromAnalyzedWindowStart": 21.983568,
+          "startSecondsFromAnalyzedWindowStart": 21.933327000000002,
+          "intervalMs": 50.241
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3764,
+          "endSecondsFromAnalyzedWindowStart": 18.816868,
+          "startSecondsFromAnalyzedWindowStart": 18.766685,
+          "intervalMs": 50.183
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3431,
+          "endSecondsFromAnalyzedWindowStart": 7.46683,
+          "startSecondsFromAnalyzedWindowStart": 7.4166609999999995,
+          "intervalMs": 50.169
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3638,
+          "endSecondsFromAnalyzedWindowStart": 14.483417,
+          "startSecondsFromAnalyzedWindowStart": 14.433323,
+          "intervalMs": 50.094
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3852,
+          "endSecondsFromAnalyzedWindowStart": 21.800074,
+          "startSecondsFromAnalyzedWindowStart": 21.74999,
+          "intervalMs": 50.084
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3753,
+          "endSecondsFromAnalyzedWindowStart": 18.433404,
+          "startSecondsFromAnalyzedWindowStart": 18.383322,
+          "intervalMs": 50.082
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3648,
+          "endSecondsFromAnalyzedWindowStart": 14.850078,
+          "startSecondsFromAnalyzedWindowStart": 14.800004,
+          "intervalMs": 50.074
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3794,
+          "endSecondsFromAnalyzedWindowStart": 19.833369,
+          "startSecondsFromAnalyzedWindowStart": 19.783319000000002,
+          "intervalMs": 50.05
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3734,
+          "endSecondsFromAnalyzedWindowStart": 17.766695,
+          "startSecondsFromAnalyzedWindowStart": 17.716661,
+          "intervalMs": 50.034
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3414,
+          "endSecondsFromAnalyzedWindowStart": 6.883351,
+          "startSecondsFromAnalyzedWindowStart": 6.833318,
+          "intervalMs": 50.033
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 147,
+          "p99Ms": 49.9069,
+          "maxMs": 50.004,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 148,
+          "p99Ms": 50.01279,
+          "maxMs": 50.169,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 146,
+          "p99Ms": 50.05555,
+          "maxMs": 50.094,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 146,
+          "p99Ms": 50.0676,
+          "maxMs": 50.183,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 149,
+          "p99Ms": 49.98416,
+          "maxMs": 50.241,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-225826121-d93520fdc988468094c0e641153c605e",
+      "intervalCount": 735,
+      "p99Ms": 50.03288,
+      "firstRead3dOrdinal": 3200,
+      "lastRead3dOrdinal": 3934,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        3.08373,
+        6.383856,
+        10.716115,
+        12.19953,
+        12.866311,
+        21.21611,
+        23.34949,
+        24.416371
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3387,
+          "endSecondsFromAnalyzedWindowStart": 6.383856,
+          "startSecondsFromAnalyzedWindowStart": 6.332731,
+          "intervalMs": 51.125
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3290,
+          "endSecondsFromAnalyzedWindowStart": 3.08373,
+          "startSecondsFromAnalyzedWindowStart": 3.0327390000000003,
+          "intervalMs": 50.991
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3917,
+          "endSecondsFromAnalyzedWindowStart": 24.416371,
+          "startSecondsFromAnalyzedWindowStart": 24.36607,
+          "intervalMs": 50.301
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3578,
+          "endSecondsFromAnalyzedWindowStart": 12.866311,
+          "startSecondsFromAnalyzedWindowStart": 12.816139999999999,
+          "intervalMs": 50.171
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3886,
+          "endSecondsFromAnalyzedWindowStart": 23.34949,
+          "startSecondsFromAnalyzedWindowStart": 23.299432,
+          "intervalMs": 50.058
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3823,
+          "endSecondsFromAnalyzedWindowStart": 21.21611,
+          "startSecondsFromAnalyzedWindowStart": 21.166064000000002,
+          "intervalMs": 50.046
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3559,
+          "endSecondsFromAnalyzedWindowStart": 12.19953,
+          "startSecondsFromAnalyzedWindowStart": 12.14949,
+          "intervalMs": 50.04
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3515,
+          "endSecondsFromAnalyzedWindowStart": 10.716115,
+          "startSecondsFromAnalyzedWindowStart": 10.666076,
+          "intervalMs": 50.039
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3689,
+          "endSecondsFromAnalyzedWindowStart": 16.649417,
+          "startSecondsFromAnalyzedWindowStart": 16.599396,
+          "intervalMs": 50.021
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3278,
+          "endSecondsFromAnalyzedWindowStart": 2.666074,
+          "startSecondsFromAnalyzedWindowStart": 2.616065,
+          "intervalMs": 50.009
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 147,
+          "p99Ms": 49.99612,
+          "maxMs": 50.991,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 148,
+          "p99Ms": 49.972100000000005,
+          "maxMs": 51.125,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 147,
+          "p99Ms": 50.03954,
+          "maxMs": 50.171,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 146,
+          "p99Ms": 49.9725,
+          "maxMs": 50.021,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 50.05248,
+          "maxMs": 50.301,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-230015294-b6af4b761a6f4496ab6b46899303a9db",
+      "intervalCount": 740,
+      "p99Ms": 50.02488,
+      "firstRead3dOrdinal": 3230,
+      "lastRead3dOrdinal": 3969,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        0.582775,
+        0.966222,
+        3.749372,
+        4.849567,
+        6.482743,
+        11.499376,
+        13.949489,
+        23.16609
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3257,
+          "endSecondsFromAnalyzedWindowStart": 0.966222,
+          "startSecondsFromAnalyzedWindowStart": 0.916012,
+          "intervalMs": 50.21
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3641,
+          "endSecondsFromAnalyzedWindowStart": 13.949489,
+          "startSecondsFromAnalyzedWindowStart": 13.899391,
+          "intervalMs": 50.098
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3372,
+          "endSecondsFromAnalyzedWindowStart": 4.849567,
+          "startSecondsFromAnalyzedWindowStart": 4.799479000000001,
+          "intervalMs": 50.088
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3246,
+          "endSecondsFromAnalyzedWindowStart": 0.582775,
+          "startSecondsFromAnalyzedWindowStart": 0.532699,
+          "intervalMs": 50.076
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3915,
+          "endSecondsFromAnalyzedWindowStart": 23.16609,
+          "startSecondsFromAnalyzedWindowStart": 23.116015,
+          "intervalMs": 50.075
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3419,
+          "endSecondsFromAnalyzedWindowStart": 6.482743,
+          "startSecondsFromAnalyzedWindowStart": 6.432682,
+          "intervalMs": 50.061
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3568,
+          "endSecondsFromAnalyzedWindowStart": 11.499376,
+          "startSecondsFromAnalyzedWindowStart": 11.449342999999999,
+          "intervalMs": 50.033
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3340,
+          "endSecondsFromAnalyzedWindowStart": 3.749372,
+          "startSecondsFromAnalyzedWindowStart": 3.699344,
+          "intervalMs": 50.028
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3899,
+          "endSecondsFromAnalyzedWindowStart": 22.616037,
+          "startSecondsFromAnalyzedWindowStart": 22.566017,
+          "intervalMs": 50.02
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3410,
+          "endSecondsFromAnalyzedWindowStart": 6.149363,
+          "startSecondsFromAnalyzedWindowStart": 6.0993450000000005,
+          "intervalMs": 50.018
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 147,
+          "p99Ms": 50.082480000000004,
+          "maxMs": 50.21,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 148,
+          "p99Ms": 50.01236,
+          "maxMs": 50.061,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 148,
+          "p99Ms": 50.02595,
+          "maxMs": 50.098,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 149,
+          "p99Ms": 47.117560000000054,
+          "maxMs": 50.009,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 148,
+          "p99Ms": 50.011070000000004,
+          "maxMs": 50.075,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-230204472-2df7c684580141bb960d5a66cb068dcc",
+      "intervalCount": 735,
+      "p99Ms": 50.0319,
+      "firstRead3dOrdinal": 3210,
+      "lastRead3dOrdinal": 3944,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        0.700166,
+        1.183415,
+        1.983363,
+        6.050011,
+        9.866758,
+        13.866815,
+        18.366833,
+        24.801077
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3938,
+          "endSecondsFromAnalyzedWindowStart": 24.801077,
+          "startSecondsFromAnalyzedWindowStart": 24.749999,
+          "intervalMs": 51.078
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3749,
+          "endSecondsFromAnalyzedWindowStart": 18.366833,
+          "startSecondsFromAnalyzedWindowStart": 18.316689,
+          "intervalMs": 50.144
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3230,
+          "endSecondsFromAnalyzedWindowStart": 0.700166,
+          "startSecondsFromAnalyzedWindowStart": 0.6500429999999999,
+          "intervalMs": 50.123
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3498,
+          "endSecondsFromAnalyzedWindowStart": 9.866758,
+          "startSecondsFromAnalyzedWindowStart": 9.816657000000001,
+          "intervalMs": 50.101
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3244,
+          "endSecondsFromAnalyzedWindowStart": 1.183415,
+          "startSecondsFromAnalyzedWindowStart": 1.1333220000000002,
+          "intervalMs": 50.093
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3616,
+          "endSecondsFromAnalyzedWindowStart": 13.866815,
+          "startSecondsFromAnalyzedWindowStart": 13.816742000000001,
+          "intervalMs": 50.073
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3267,
+          "endSecondsFromAnalyzedWindowStart": 1.983363,
+          "startSecondsFromAnalyzedWindowStart": 1.933325,
+          "intervalMs": 50.038
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3385,
+          "endSecondsFromAnalyzedWindowStart": 6.050011,
+          "startSecondsFromAnalyzedWindowStart": 5.999974,
+          "intervalMs": 50.037
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3338,
+          "endSecondsFromAnalyzedWindowStart": 4.449992,
+          "startSecondsFromAnalyzedWindowStart": 4.39997,
+          "intervalMs": 50.022
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3926,
+          "endSecondsFromAnalyzedWindowStart": 24.383328,
+          "startSecondsFromAnalyzedWindowStart": 24.333311,
+          "intervalMs": 50.017
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 145,
+          "p99Ms": 50.0688,
+          "maxMs": 50.123,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 147,
+          "p99Ms": 50.0186,
+          "maxMs": 50.101,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 147,
+          "p99Ms": 49.98286,
+          "maxMs": 50.073,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 149,
+          "p99Ms": 49.99024,
+          "maxMs": 50.144,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 49.996300000000005,
+          "maxMs": 51.078,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-230354235-58989302524f42d399cb60e51a75ac09",
+      "intervalCount": 742,
+      "p99Ms": 49.98677,
+      "firstRead3dOrdinal": 3206,
+      "lastRead3dOrdinal": 3947,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        7.916678,
+        8.233345,
+        11.783485,
+        13.933465,
+        14.016664,
+        23.15,
+        23.333335,
+        24.38354
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3619,
+          "endSecondsFromAnalyzedWindowStart": 13.933465,
+          "startSecondsFromAnalyzedWindowStart": 13.883318,
+          "intervalMs": 50.147
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3929,
+          "endSecondsFromAnalyzedWindowStart": 24.38354,
+          "startSecondsFromAnalyzedWindowStart": 24.333404,
+          "intervalMs": 50.136
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3555,
+          "endSecondsFromAnalyzedWindowStart": 11.783485,
+          "startSecondsFromAnalyzedWindowStart": 11.733432,
+          "intervalMs": 50.053
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3440,
+          "endSecondsFromAnalyzedWindowStart": 7.916678,
+          "startSecondsFromAnalyzedWindowStart": 7.866645,
+          "intervalMs": 50.033
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3449,
+          "endSecondsFromAnalyzedWindowStart": 8.233345,
+          "startSecondsFromAnalyzedWindowStart": 8.183341,
+          "intervalMs": 50.004
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3898,
+          "endSecondsFromAnalyzedWindowStart": 23.333335,
+          "startSecondsFromAnalyzedWindowStart": 23.283332,
+          "intervalMs": 50.003
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3893,
+          "endSecondsFromAnalyzedWindowStart": 23.15,
+          "startSecondsFromAnalyzedWindowStart": 23.100008,
+          "intervalMs": 49.992
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3621,
+          "endSecondsFromAnalyzedWindowStart": 14.016664,
+          "startSecondsFromAnalyzedWindowStart": 13.966676,
+          "intervalMs": 49.988
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3820,
+          "endSecondsFromAnalyzedWindowStart": 20.683317,
+          "startSecondsFromAnalyzedWindowStart": 20.633332,
+          "intervalMs": 49.985
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3933,
+          "endSecondsFromAnalyzedWindowStart": 24.533348,
+          "startSecondsFromAnalyzedWindowStart": 24.483371,
+          "intervalMs": 49.977
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 148,
+          "p99Ms": 49.532070000000004,
+          "maxMs": 49.881,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 149,
+          "p99Ms": 49.92864,
+          "maxMs": 50.033,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 148,
+          "p99Ms": 50.02245,
+          "maxMs": 50.147,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 150,
+          "p99Ms": 34.518049999999995,
+          "maxMs": 48.749,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 49.99794,
+          "maxMs": 50.136,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-230543899-b63897a91e9144cfafedae3d5873a2a9",
+      "intervalCount": 737,
+      "p99Ms": 50.0442,
+      "firstRead3dOrdinal": 3209,
+      "lastRead3dOrdinal": 3945,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        3.916762,
+        6.201023,
+        17.883541,
+        19.933431,
+        21.300196,
+        24.116741,
+        24.200036,
+        24.516782
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3391,
+          "endSecondsFromAnalyzedWindowStart": 6.201023,
+          "startSecondsFromAnalyzedWindowStart": 6.150057,
+          "intervalMs": 50.966
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3737,
+          "endSecondsFromAnalyzedWindowStart": 17.883541,
+          "startSecondsFromAnalyzedWindowStart": 17.833327,
+          "intervalMs": 50.214
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3837,
+          "endSecondsFromAnalyzedWindowStart": 21.300196,
+          "startSecondsFromAnalyzedWindowStart": 21.249993,
+          "intervalMs": 50.203
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3323,
+          "endSecondsFromAnalyzedWindowStart": 3.916762,
+          "startSecondsFromAnalyzedWindowStart": 3.866662,
+          "intervalMs": 50.1
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3920,
+          "endSecondsFromAnalyzedWindowStart": 24.116741,
+          "startSecondsFromAnalyzedWindowStart": 24.066666,
+          "intervalMs": 50.075
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3931,
+          "endSecondsFromAnalyzedWindowStart": 24.516782,
+          "startSecondsFromAnalyzedWindowStart": 24.46671,
+          "intervalMs": 50.072
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3922,
+          "endSecondsFromAnalyzedWindowStart": 24.200036,
+          "startSecondsFromAnalyzedWindowStart": 24.149989,
+          "intervalMs": 50.047
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3797,
+          "endSecondsFromAnalyzedWindowStart": 19.933431,
+          "startSecondsFromAnalyzedWindowStart": 19.883385,
+          "intervalMs": 50.046
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3316,
+          "endSecondsFromAnalyzedWindowStart": 3.666698,
+          "startSecondsFromAnalyzedWindowStart": 3.616657,
+          "intervalMs": 50.041
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3645,
+          "endSecondsFromAnalyzedWindowStart": 14.766695,
+          "startSecondsFromAnalyzedWindowStart": 14.716656,
+          "intervalMs": 50.039
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 147,
+          "p99Ms": 50.03778,
+          "maxMs": 50.1,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 148,
+          "p99Ms": 49.98631,
+          "maxMs": 50.966,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 148,
+          "p99Ms": 49.951910000000005,
+          "maxMs": 50.039,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 147,
+          "p99Ms": 50.032199999999996,
+          "maxMs": 50.214,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 50.073620000000005,
+          "maxMs": 50.203,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "conker",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-230733501-f62d2add043f490cbd4b9495c1bce774",
+      "intervalCount": 726,
+      "p99Ms": 50.037499999999994,
+      "firstRead3dOrdinal": 3209,
+      "lastRead3dOrdinal": 3934,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        0.450088,
+        5.216735,
+        10.916712,
+        16.000027,
+        17.650096,
+        20.184116,
+        24.433455,
+        24.817709
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 3929,
+          "endSecondsFromAnalyzedWindowStart": 24.817709,
+          "startSecondsFromAnalyzedWindowStart": 24.766669,
+          "intervalMs": 51.04
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3797,
+          "endSecondsFromAnalyzedWindowStart": 20.184116,
+          "startSecondsFromAnalyzedWindowStart": 20.133444,
+          "intervalMs": 50.672
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3919,
+          "endSecondsFromAnalyzedWindowStart": 24.433455,
+          "startSecondsFromAnalyzedWindowStart": 24.383326,
+          "intervalMs": 50.129
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3724,
+          "endSecondsFromAnalyzedWindowStart": 17.650096,
+          "startSecondsFromAnalyzedWindowStart": 17.599995,
+          "intervalMs": 50.101
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3221,
+          "endSecondsFromAnalyzedWindowStart": 0.450088,
+          "startSecondsFromAnalyzedWindowStart": 0.40000199999999997,
+          "intervalMs": 50.086
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3361,
+          "endSecondsFromAnalyzedWindowStart": 5.216735,
+          "startSecondsFromAnalyzedWindowStart": 5.166667,
+          "intervalMs": 50.068
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3528,
+          "endSecondsFromAnalyzedWindowStart": 10.916712,
+          "startSecondsFromAnalyzedWindowStart": 10.866665000000001,
+          "intervalMs": 50.047
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3677,
+          "endSecondsFromAnalyzedWindowStart": 16.000027,
+          "startSecondsFromAnalyzedWindowStart": 15.949988999999999,
+          "intervalMs": 50.038
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3738,
+          "endSecondsFromAnalyzedWindowStart": 18.133388,
+          "startSecondsFromAnalyzedWindowStart": 18.083352,
+          "intervalMs": 50.036
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 3858,
+          "endSecondsFromAnalyzedWindowStart": 22.300028,
+          "startSecondsFromAnalyzedWindowStart": 22.249995000000002,
+          "intervalMs": 50.033
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 147,
+          "p99Ms": 49.98046,
+          "maxMs": 50.086,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 145,
+          "p99Ms": 50.028800000000004,
+          "maxMs": 50.068,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 147,
+          "p99Ms": 49.98144,
+          "maxMs": 50.047,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 145,
+          "p99Ms": 50.03712,
+          "maxMs": 50.101,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 142,
+          "p99Ms": 50.44937,
+          "maxMs": 51.04,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 1,
+      "variant": "three",
+      "runId": "20261005-230922682-7c32ab6e09d943c785322762e064b1fd",
+      "intervalCount": 603,
+      "p99Ms": 53.545380000000016,
+      "firstRead3dOrdinal": 4075,
+      "lastRead3dOrdinal": 4677,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        1.172568,
+        4.459923,
+        6.140058,
+        7.264041,
+        8.504965,
+        12.80383,
+        17.636765
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4471,
+          "endSecondsFromAnalyzedWindowStart": 17.636765,
+          "startSecondsFromAnalyzedWindowStart": 17.576016,
+          "intervalMs": 60.749
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4238,
+          "endSecondsFromAnalyzedWindowStart": 7.264041,
+          "startSecondsFromAnalyzedWindowStart": 7.208752,
+          "intervalMs": 55.289
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4101,
+          "endSecondsFromAnalyzedWindowStart": 1.172568,
+          "startSecondsFromAnalyzedWindowStart": 1.117534,
+          "intervalMs": 55.034
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4213,
+          "endSecondsFromAnalyzedWindowStart": 6.140058,
+          "startSecondsFromAnalyzedWindowStart": 6.085529,
+          "intervalMs": 54.529
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4176,
+          "endSecondsFromAnalyzedWindowStart": 4.459923,
+          "startSecondsFromAnalyzedWindowStart": 4.405792,
+          "intervalMs": 54.131
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4362,
+          "endSecondsFromAnalyzedWindowStart": 12.80383,
+          "startSecondsFromAnalyzedWindowStart": 12.749827,
+          "intervalMs": 54.003
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4266,
+          "endSecondsFromAnalyzedWindowStart": 8.504965,
+          "startSecondsFromAnalyzedWindowStart": 8.451405000000001,
+          "intervalMs": 53.56
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4186,
+          "endSecondsFromAnalyzedWindowStart": 4.914863,
+          "startSecondsFromAnalyzedWindowStart": 4.862034,
+          "intervalMs": 52.829
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4322,
+          "endSecondsFromAnalyzedWindowStart": 11.004909,
+          "startSecondsFromAnalyzedWindowStart": 10.95214,
+          "intervalMs": 52.769
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4459,
+          "endSecondsFromAnalyzedWindowStart": 17.120382,
+          "startSecondsFromAnalyzedWindowStart": 17.068182,
+          "intervalMs": 52.2
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 113,
+          "p99Ms": 53.974759999999996,
+          "maxMs": 55.034,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 112,
+          "p99Ms": 54.422410000000006,
+          "maxMs": 55.289,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 112,
+          "p99Ms": 52.68419,
+          "maxMs": 54.003,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 119,
+          "p99Ms": 52.03062,
+          "maxMs": 60.749,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 42.949679999999994,
+          "maxMs": 45.014,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 2,
+      "variant": "five",
+      "runId": "20261005-231135929-48248e40227d419891d4ed682ba70020",
+      "intervalCount": 602,
+      "p99Ms": 52.998270000000005,
+      "firstRead3dOrdinal": 4078,
+      "lastRead3dOrdinal": 4679,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        9.205693,
+        11.200138,
+        11.749181,
+        12.336094,
+        14.81877,
+        16.387292,
+        17.683326
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4445,
+          "endSecondsFromAnalyzedWindowStart": 16.387292,
+          "startSecondsFromAnalyzedWindowStart": 16.331805,
+          "intervalMs": 55.487
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4474,
+          "endSecondsFromAnalyzedWindowStart": 17.683326,
+          "startSecondsFromAnalyzedWindowStart": 17.628346,
+          "intervalMs": 54.98
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4341,
+          "endSecondsFromAnalyzedWindowStart": 11.749181,
+          "startSecondsFromAnalyzedWindowStart": 11.69437,
+          "intervalMs": 54.811
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4354,
+          "endSecondsFromAnalyzedWindowStart": 12.336094,
+          "startSecondsFromAnalyzedWindowStart": 12.28196,
+          "intervalMs": 54.134
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4329,
+          "endSecondsFromAnalyzedWindowStart": 11.200138,
+          "startSecondsFromAnalyzedWindowStart": 11.146579000000001,
+          "intervalMs": 53.559
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4285,
+          "endSecondsFromAnalyzedWindowStart": 9.205693,
+          "startSecondsFromAnalyzedWindowStart": 9.152298,
+          "intervalMs": 53.395
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4410,
+          "endSecondsFromAnalyzedWindowStart": 14.81877,
+          "startSecondsFromAnalyzedWindowStart": 14.765771,
+          "intervalMs": 52.999
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4082,
+          "endSecondsFromAnalyzedWindowStart": 0.222994,
+          "startSecondsFromAnalyzedWindowStart": 0.170068,
+          "intervalMs": 52.926
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4362,
+          "endSecondsFromAnalyzedWindowStart": 12.689739,
+          "startSecondsFromAnalyzedWindowStart": 12.637443,
+          "intervalMs": 52.296
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4159,
+          "endSecondsFromAnalyzedWindowStart": 3.642985,
+          "startSecondsFromAnalyzedWindowStart": 3.591048,
+          "intervalMs": 51.937
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 112,
+          "p99Ms": 51.88574,
+          "maxMs": 52.926,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 113,
+          "p99Ms": 51.02392,
+          "maxMs": 53.395,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 112,
+          "p99Ms": 54.070750000000004,
+          "maxMs": 54.811,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 118,
+          "p99Ms": 54.45333999999999,
+          "maxMs": 55.487,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 41.506699999999995,
+          "maxMs": 42.439,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 3,
+      "variant": "five",
+      "runId": "20261005-231346894-9336f2729f6f494ab758fe0493c348ee",
+      "intervalCount": 606,
+      "p99Ms": 52.027,
+      "firstRead3dOrdinal": 4079,
+      "lastRead3dOrdinal": 4684,
+      "intervalsAtOrAbovePerRunP99": 8,
+      "tailEndSeconds": [
+        2.294356,
+        3.139439,
+        4.515919,
+        6.741383,
+        7.355187,
+        8.469428,
+        11.274496,
+        17.444683
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4150,
+          "endSecondsFromAnalyzedWindowStart": 3.139439,
+          "startSecondsFromAnalyzedWindowStart": 3.0832159999999997,
+          "intervalMs": 56.223
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4231,
+          "endSecondsFromAnalyzedWindowStart": 6.741383,
+          "startSecondsFromAnalyzedWindowStart": 6.686871,
+          "intervalMs": 54.512
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4472,
+          "endSecondsFromAnalyzedWindowStart": 17.444683,
+          "startSecondsFromAnalyzedWindowStart": 17.390853,
+          "intervalMs": 53.83
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4245,
+          "endSecondsFromAnalyzedWindowStart": 7.355187,
+          "startSecondsFromAnalyzedWindowStart": 7.302155,
+          "intervalMs": 53.032
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4181,
+          "endSecondsFromAnalyzedWindowStart": 4.515919,
+          "startSecondsFromAnalyzedWindowStart": 4.463305,
+          "intervalMs": 52.614
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4270,
+          "endSecondsFromAnalyzedWindowStart": 8.469428,
+          "startSecondsFromAnalyzedWindowStart": 8.41684,
+          "intervalMs": 52.588
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4131,
+          "endSecondsFromAnalyzedWindowStart": 2.294356,
+          "startSecondsFromAnalyzedWindowStart": 2.2423290000000002,
+          "intervalMs": 52.027
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4333,
+          "endSecondsFromAnalyzedWindowStart": 11.274496,
+          "startSecondsFromAnalyzedWindowStart": 11.222468999999998,
+          "intervalMs": 52.027
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4328,
+          "endSecondsFromAnalyzedWindowStart": 11.044462,
+          "startSecondsFromAnalyzedWindowStart": 10.992785999999999,
+          "intervalMs": 51.676
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4175,
+          "endSecondsFromAnalyzedWindowStart": 4.249454,
+          "startSecondsFromAnalyzedWindowStart": 4.198088,
+          "intervalMs": 51.366
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 114,
+          "p99Ms": 52.53769,
+          "maxMs": 56.223,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 112,
+          "p99Ms": 52.98316,
+          "maxMs": 54.512,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 112,
+          "p99Ms": 51.62518,
+          "maxMs": 52.027,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 120,
+          "p99Ms": 50.17708,
+          "maxMs": 53.83,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 148,
+          "p99Ms": 41.273759999999996,
+          "maxMs": 45.653,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 4,
+      "variant": "three",
+      "runId": "20261005-231559125-2349765f4f08474c8b4a08fa8a368e36",
+      "intervalCount": 600,
+      "p99Ms": 54.10254,
+      "firstRead3dOrdinal": 4097,
+      "lastRead3dOrdinal": 4696,
+      "intervalsAtOrAbovePerRunP99": 6,
+      "tailEndSeconds": [
+        8.363423,
+        8.644518,
+        10.745232,
+        11.261152,
+        13.79025,
+        17.620438
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4491,
+          "endSecondsFromAnalyzedWindowStart": 17.620438,
+          "startSecondsFromAnalyzedWindowStart": 17.558819,
+          "intervalMs": 61.619
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4284,
+          "endSecondsFromAnalyzedWindowStart": 8.363423,
+          "startSecondsFromAnalyzedWindowStart": 8.308174999999999,
+          "intervalMs": 55.248
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4404,
+          "endSecondsFromAnalyzedWindowStart": 13.79025,
+          "startSecondsFromAnalyzedWindowStart": 13.735532000000001,
+          "intervalMs": 54.718
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4348,
+          "endSecondsFromAnalyzedWindowStart": 11.261152,
+          "startSecondsFromAnalyzedWindowStart": 11.206696999999998,
+          "intervalMs": 54.455
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4290,
+          "endSecondsFromAnalyzedWindowStart": 8.644518,
+          "startSecondsFromAnalyzedWindowStart": 8.590131,
+          "intervalMs": 54.387
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4337,
+          "endSecondsFromAnalyzedWindowStart": 10.745232,
+          "startSecondsFromAnalyzedWindowStart": 10.691075999999999,
+          "intervalMs": 54.156
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4266,
+          "endSecondsFromAnalyzedWindowStart": 7.530559,
+          "startSecondsFromAnalyzedWindowStart": 7.476457,
+          "intervalMs": 54.102
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4246,
+          "endSecondsFromAnalyzedWindowStart": 6.617377,
+          "startSecondsFromAnalyzedWindowStart": 6.563392,
+          "intervalMs": 53.985
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4269,
+          "endSecondsFromAnalyzedWindowStart": 7.679507,
+          "startSecondsFromAnalyzedWindowStart": 7.625832,
+          "intervalMs": 53.675
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4275,
+          "endSecondsFromAnalyzedWindowStart": 7.951389,
+          "startSecondsFromAnalyzedWindowStart": 7.897857999999999,
+          "intervalMs": 53.531
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 113,
+          "p99Ms": 51.58696,
+          "maxMs": 51.729,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 111,
+          "p99Ms": 54.3585,
+          "maxMs": 55.248,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 111,
+          "p99Ms": 54.4251,
+          "maxMs": 54.718,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 118,
+          "p99Ms": 53.318059999999996,
+          "maxMs": 61.619,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 147,
+          "p99Ms": 44.308419999999984,
+          "maxMs": 46.141,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 5,
+      "variant": "five",
+      "runId": "20261005-231811077-f8198636091042cdab3217af16652522",
+      "intervalCount": 604,
+      "p99Ms": 52.688100000000006,
+      "firstRead3dOrdinal": 4098,
+      "lastRead3dOrdinal": 4701,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        0.80342,
+        10.015457,
+        10.335481,
+        10.695588,
+        15.118262,
+        16.453843,
+        17.548214
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4492,
+          "endSecondsFromAnalyzedWindowStart": 17.548214,
+          "startSecondsFromAnalyzedWindowStart": 17.492890000000003,
+          "intervalMs": 55.324
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4467,
+          "endSecondsFromAnalyzedWindowStart": 16.453843,
+          "startSecondsFromAnalyzedWindowStart": 16.398913999999998,
+          "intervalMs": 54.929
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4437,
+          "endSecondsFromAnalyzedWindowStart": 15.118262,
+          "startSecondsFromAnalyzedWindowStart": 15.064194,
+          "intervalMs": 54.068
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4330,
+          "endSecondsFromAnalyzedWindowStart": 10.335481,
+          "startSecondsFromAnalyzedWindowStart": 10.282071,
+          "intervalMs": 53.41
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4323,
+          "endSecondsFromAnalyzedWindowStart": 10.015457,
+          "startSecondsFromAnalyzedWindowStart": 9.962396,
+          "intervalMs": 53.061
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4116,
+          "endSecondsFromAnalyzedWindowStart": 0.80342,
+          "startSecondsFromAnalyzedWindowStart": 0.750604,
+          "intervalMs": 52.816
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4338,
+          "endSecondsFromAnalyzedWindowStart": 10.695588,
+          "startSecondsFromAnalyzedWindowStart": 10.642896,
+          "intervalMs": 52.692
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4244,
+          "endSecondsFromAnalyzedWindowStart": 6.461605,
+          "startSecondsFromAnalyzedWindowStart": 6.409043,
+          "intervalMs": 52.562
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4291,
+          "endSecondsFromAnalyzedWindowStart": 8.588899,
+          "startSecondsFromAnalyzedWindowStart": 8.536614,
+          "intervalMs": 52.285
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4355,
+          "endSecondsFromAnalyzedWindowStart": 11.466102,
+          "startSecondsFromAnalyzedWindowStart": 11.413955999999999,
+          "intervalMs": 52.146
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 113,
+          "p99Ms": 51.996919999999996,
+          "maxMs": 52.816,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 112,
+          "p99Ms": 52.218669999999996,
+          "maxMs": 52.562,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 112,
+          "p99Ms": 53.02041,
+          "maxMs": 53.41,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 119,
+          "p99Ms": 54.77401999999999,
+          "maxMs": 55.324,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 148,
+          "p99Ms": 43.260470000000005,
+          "maxMs": 45.876,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 6,
+      "variant": "three",
+      "runId": "20261005-232023151-f16fb88062c24fee81843747556190a9",
+      "intervalCount": 604,
+      "p99Ms": 53.03058,
+      "firstRead3dOrdinal": 4076,
+      "lastRead3dOrdinal": 4679,
+      "intervalsAtOrAbovePerRunP99": 7,
+      "tailEndSeconds": [
+        3.335689,
+        7.154338,
+        7.256189,
+        7.442915,
+        7.676788,
+        8.040807,
+        15.87702
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4238,
+          "endSecondsFromAnalyzedWindowStart": 7.154338,
+          "startSecondsFromAnalyzedWindowStart": 7.093894,
+          "intervalMs": 60.444
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4244,
+          "endSecondsFromAnalyzedWindowStart": 7.442915,
+          "startSecondsFromAnalyzedWindowStart": 7.386483,
+          "intervalMs": 56.432
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4240,
+          "endSecondsFromAnalyzedWindowStart": 7.256189,
+          "startSecondsFromAnalyzedWindowStart": 7.201934,
+          "intervalMs": 54.255
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4152,
+          "endSecondsFromAnalyzedWindowStart": 3.335689,
+          "startSecondsFromAnalyzedWindowStart": 3.281921,
+          "intervalMs": 53.768
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4249,
+          "endSecondsFromAnalyzedWindowStart": 7.676788,
+          "startSecondsFromAnalyzedWindowStart": 7.623412,
+          "intervalMs": 53.376
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4433,
+          "endSecondsFromAnalyzedWindowStart": 15.87702,
+          "startSecondsFromAnalyzedWindowStart": 15.823764,
+          "intervalMs": 53.256
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4257,
+          "endSecondsFromAnalyzedWindowStart": 8.040807,
+          "startSecondsFromAnalyzedWindowStart": 7.987772999999999,
+          "intervalMs": 53.034
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4372,
+          "endSecondsFromAnalyzedWindowStart": 13.159484,
+          "startSecondsFromAnalyzedWindowStart": 13.106564,
+          "intervalMs": 52.92
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4364,
+          "endSecondsFromAnalyzedWindowStart": 12.793828,
+          "startSecondsFromAnalyzedWindowStart": 12.741128999999999,
+          "intervalMs": 52.699
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4204,
+          "endSecondsFromAnalyzedWindowStart": 5.628777,
+          "startSecondsFromAnalyzedWindowStart": 5.576191000000001,
+          "intervalMs": 52.586
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 114,
+          "p99Ms": 52.04158,
+          "maxMs": 53.768,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 112,
+          "p99Ms": 56.192530000000005,
+          "maxMs": 60.444,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 112,
+          "p99Ms": 52.60759,
+          "maxMs": 52.92,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 118,
+          "p99Ms": 52.13211,
+          "maxMs": 53.256,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 148,
+          "p99Ms": 40.542609999999996,
+          "maxMs": 43.259,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 7,
+      "variant": "three",
+      "runId": "20261005-232235347-15d03fe46b974b30969aea9ff6d814b4",
+      "intervalCount": 599,
+      "p99Ms": 52.74708,
+      "firstRead3dOrdinal": 4076,
+      "lastRead3dOrdinal": 4674,
+      "intervalsAtOrAbovePerRunP99": 6,
+      "tailEndSeconds": [
+        13.157474,
+        14.40931,
+        14.738488,
+        15.924629,
+        17.641097,
+        17.781551
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4473,
+          "endSecondsFromAnalyzedWindowStart": 17.781551,
+          "startSecondsFromAnalyzedWindowStart": 17.719612,
+          "intervalMs": 61.939
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4405,
+          "endSecondsFromAnalyzedWindowStart": 14.738488,
+          "startSecondsFromAnalyzedWindowStart": 14.68167,
+          "intervalMs": 56.818
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4431,
+          "endSecondsFromAnalyzedWindowStart": 15.924629,
+          "startSecondsFromAnalyzedWindowStart": 15.868659,
+          "intervalMs": 55.97
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4370,
+          "endSecondsFromAnalyzedWindowStart": 13.157474,
+          "startSecondsFromAnalyzedWindowStart": 13.102472,
+          "intervalMs": 55.002
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4398,
+          "endSecondsFromAnalyzedWindowStart": 14.40931,
+          "startSecondsFromAnalyzedWindowStart": 14.355323,
+          "intervalMs": 53.987
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4470,
+          "endSecondsFromAnalyzedWindowStart": 17.641097,
+          "startSecondsFromAnalyzedWindowStart": 17.588051999999998,
+          "intervalMs": 53.045
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4350,
+          "endSecondsFromAnalyzedWindowStart": 12.240373,
+          "startSecondsFromAnalyzedWindowStart": 12.187632,
+          "intervalMs": 52.741
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4368,
+          "endSecondsFromAnalyzedWindowStart": 13.062309,
+          "startSecondsFromAnalyzedWindowStart": 13.010219000000001,
+          "intervalMs": 52.09
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4214,
+          "endSecondsFromAnalyzedWindowStart": 6.13286,
+          "startSecondsFromAnalyzedWindowStart": 6.081053,
+          "intervalMs": 51.807
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4103,
+          "endSecondsFromAnalyzedWindowStart": 1.195545,
+          "startSecondsFromAnalyzedWindowStart": 1.143969,
+          "intervalMs": 51.576
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 113,
+          "p99Ms": 51.41519999999999,
+          "maxMs": 51.576,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 111,
+          "p99Ms": 51.2337,
+          "maxMs": 51.807,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 111,
+          "p99Ms": 54.90050000000001,
+          "maxMs": 56.818,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 118,
+          "p99Ms": 55.47274999999999,
+          "maxMs": 61.939,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 146,
+          "p99Ms": 44.706450000000025,
+          "maxMs": 46.861,
+          "countAbove200Ms": 0
+        }
+      ]
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 8,
+      "variant": "five",
+      "runId": "20261005-232447279-d88bea8f891349538870568971a4ddce",
+      "intervalCount": 539,
+      "p99Ms": 58.31304,
+      "firstRead3dOrdinal": 4063,
+      "lastRead3dOrdinal": 4601,
+      "intervalsAtOrAbovePerRunP99": 6,
+      "tailEndSeconds": [
+        0.803768,
+        1.841826,
+        7.934376,
+        9.904944,
+        17.074244,
+        18.103498
+      ],
+      "longestIntervals": [
+        {
+          "read3dOrdinalSinceProcessStart": 4414,
+          "endSecondsFromAnalyzedWindowStart": 17.074244,
+          "startSecondsFromAnalyzedWindowStart": 17.014318,
+          "intervalMs": 59.926
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4100,
+          "endSecondsFromAnalyzedWindowStart": 1.841826,
+          "startSecondsFromAnalyzedWindowStart": 1.7821259999999999,
+          "intervalMs": 59.7
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4226,
+          "endSecondsFromAnalyzedWindowStart": 7.934376,
+          "startSecondsFromAnalyzedWindowStart": 7.874727,
+          "intervalMs": 59.649
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4435,
+          "endSecondsFromAnalyzedWindowStart": 18.103498,
+          "startSecondsFromAnalyzedWindowStart": 18.0443,
+          "intervalMs": 59.198
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4266,
+          "endSecondsFromAnalyzedWindowStart": 9.904944,
+          "startSecondsFromAnalyzedWindowStart": 9.846048,
+          "intervalMs": 58.896
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4079,
+          "endSecondsFromAnalyzedWindowStart": 0.803768,
+          "startSecondsFromAnalyzedWindowStart": 0.7454200000000001,
+          "intervalMs": 58.348
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4116,
+          "endSecondsFromAnalyzedWindowStart": 2.615807,
+          "startSecondsFromAnalyzedWindowStart": 2.557551,
+          "intervalMs": 58.256
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4470,
+          "endSecondsFromAnalyzedWindowStart": 19.773591,
+          "startSecondsFromAnalyzedWindowStart": 19.715369,
+          "intervalMs": 58.222
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4087,
+          "endSecondsFromAnalyzedWindowStart": 1.203911,
+          "startSecondsFromAnalyzedWindowStart": 1.146179,
+          "intervalMs": 57.732
+        },
+        {
+          "read3dOrdinalSinceProcessStart": 4441,
+          "endSecondsFromAnalyzedWindowStart": 18.395774,
+          "startSecondsFromAnalyzedWindowStart": 18.339505,
+          "intervalMs": 56.269
+        }
+      ],
+      "fiveSecondBins": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 5,
+          "intervalCount": 103,
+          "p99Ms": 58.34616,
+          "maxMs": 59.7,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 10,
+          "intervalCount": 102,
+          "p99Ms": 58.86139999999998,
+          "maxMs": 59.649,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 15,
+          "intervalCount": 103,
+          "p99Ms": 55.40752,
+          "maxMs": 56.121,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 20,
+          "intervalCount": 104,
+          "p99Ms": 59.16872,
+          "maxMs": 59.926,
+          "countAbove200Ms": 0
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 25,
+          "intervalCount": 127,
+          "p99Ms": 51.713440000000006,
+          "maxMs": 54.375,
+          "countAbove200Ms": 0
+        }
+      ]
+    }
+  ]
+}

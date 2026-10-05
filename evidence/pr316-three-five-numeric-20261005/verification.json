@@ -1,0 +1,118 @@
+[
+  {
+    "host": "win",
+    "title": "morrowind",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "pr187-win-morrowind-qualified-v1",
+      "revision": "a52cd44bac83a858b2d86688db7c2b723ed4a4bbcea5f8bb12474e65ecf339ad"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": []
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "fresh-windows-conker-qualified-v6",
+      "revision": "19b869c5612b8c70e287bdaa4d8aa214329c5ca014aecd98e76d2b1dbd2c13f2"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": []
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "fresh-windows-pgr2-balanced-v1",
+      "revision": "f80f332c4606260aac30f7d77450c4a348ea4631a33dbc6c12af0af4c0984a09"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": []
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "morrowind-snapshot-disc-deck-v2",
+      "revision": "cee664023dae652e04ac933339ad66a79ed727bedc5d00a418bbbd704addc823"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": [
+      {
+        "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+        "host": "deck",
+        "title": "morrowind",
+        "cell": 3,
+        "variant": "five",
+        "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+      },
+      {
+        "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+        "host": "deck",
+        "title": "morrowind",
+        "cell": 6,
+        "variant": "three",
+        "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": [
+      {
+        "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+        "host": "deck",
+        "title": "conker",
+        "cell": 8,
+        "variant": "five",
+        "finding": "Opening movie at start instead of expected tavern menu; end screenshot black. Recorded correctness failure, normal process exit 0. Withhold entire cohort, retain failed event. Cause of scene/input transition failure unresolved; not a proven worker-count crash."
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "recordedRuns": 8,
+    "completeSchedule": true,
+    "frozenProcedure": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "sameExecutableBothConditions": true,
+    "onlyConfiguredWorkerCountChanges": true,
+    "plansAndOtherDependenciesUnchanged": true,
+    "reviewedEndpointRunCount": 8,
+    "sceneFindings": []
+  }
+]

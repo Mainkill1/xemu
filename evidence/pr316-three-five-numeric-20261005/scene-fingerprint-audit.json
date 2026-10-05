@@ -1,0 +1,77 @@
+{
+  "method": "Offline reproduction of maintained PngInspector region/cell-average/luma/difference-bit algorithm; no test definitions changed",
+  "runs": [
+    {
+      "runId": "20261005-224818539-dfe7e09664914ddfa89f4caeb4bd4ed4",
+      "cell": 1,
+      "condition": "three",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4a0",
+      "hammingDistance": 0,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-224914356-c835d3a146e84233916e80c1818f76e0",
+      "cell": 2,
+      "condition": "five",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4a0",
+      "hammingDistance": 0,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+      "cell": 3,
+      "condition": "five",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cc4c4b0a0",
+      "hammingDistance": 2,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225107257-b2b0dfc2c37c4a2497319dc8f7b3e7e1",
+      "cell": 4,
+      "condition": "three",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4a0",
+      "hammingDistance": 0,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225159881-39a7269bc6ac4221a64e7770593641dd",
+      "cell": 5,
+      "condition": "five",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4b0",
+      "hammingDistance": 1,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+      "cell": 6,
+      "condition": "three",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cc4c4b0a0",
+      "hammingDistance": 2,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225352129-72fd1e6e6eaa4c20a9c6d591f7d664ed",
+      "cell": 7,
+      "condition": "three",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4b0",
+      "hammingDistance": 1,
+      "maximum": 8
+    },
+    {
+      "runId": "20261005-225444306-bdb6a9a647774a818d2c73ddb494b1ce",
+      "cell": 8,
+      "condition": "five",
+      "expected": "c6d2524cccc4b4a0",
+      "actual": "c6d2524cccc4b4b0",
+      "hammingDistance": 1,
+      "maximum": 8
+    }
+  ]
+}

@@ -1,0 +1,636 @@
+[
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Aggregate comparison withheld; all attempted per-run records retained",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "avgGuestFps": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "guestFlipCadence": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "avgFrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "p95FrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "p99FrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "maxFrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+        "findings": [
+          {
+            "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+            "host": "deck",
+            "title": "morrowind",
+            "cell": 3,
+            "variant": "five",
+            "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+          }
+        ]
+      },
+      {
+        "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+        "findings": [
+          {
+            "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+            "host": "deck",
+            "title": "morrowind",
+            "cell": 6,
+            "variant": "three",
+            "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "manual scene failure retained"
+    ],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved"
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 7,
+    "completeOrder": false,
+    "runnerEligible": 7,
+    "statistic": "Aggregate comparison withheld; all attempted per-run records retained",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "avgGuestFps": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "guestFlipCadence": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "avgFrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "p95FrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "p99FrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      },
+      "maxFrameMs": {
+        "status": "not comparable: retained scene mismatch"
+      }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+        "findings": [
+          {
+            "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+            "host": "deck",
+            "title": "conker",
+            "cell": 8,
+            "variant": "five",
+            "finding": "Opening movie at start instead of expected tavern menu; end screenshot black. Recorded correctness failure, normal process exit 0. Withhold entire cohort, retain failed event. Cause of scene/input transition failure unresolved; not a proven worker-count crash."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "manual scene failure retained",
+      "CDDC/DCCD schedule incomplete"
+    ],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved"
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per condition; independent CDDC/DCCD blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "improvementPercent": -14.426330615423565,
+        "C": 244.3352814980159,
+        "D": 279.5838970170455,
+        "rangeC": [
+          243.78986363636358,
+          247.70134375000006
+        ],
+        "rangeD": [
+          276.6789523809524,
+          280.39418750000004
+        ],
+        "CDDC": -13.34042333168406,
+        "DCCD": -14.429414122367774
+      },
+      "avgGuestFps": {
+        "improvementPercent": 20.65849785493757,
+        "C": 6.9869837052256845,
+        "D": 8.43038958409457,
+        "rangeC": [
+          6.894711851658957,
+          7.3542995353441665
+        ],
+        "rangeD": [
+          8.12898305226577,
+          8.534735476043812
+        ],
+        "CDDC": 15.51230606951077,
+        "DCCD": 22.14583666748879
+      },
+      "guestFlipCadence": {
+        "improvementPercent": 18.705504114824762,
+        "C": 6.978977103842606,
+        "D": 8.284429953174563,
+        "rangeC": [
+          6.900469015021138,
+          7.269543327683238
+        ],
+        "rangeD": [
+          7.8781688301081605,
+          8.375653649970266
+        ],
+        "CDDC": 13.474162194776266,
+        "DCCD": 19.986388104424346
+      },
+      "avgFrameMs": {
+        "improvementPercent": 17.12233906485148,
+        "C": 143.12791137669797,
+        "D": 118.6210650943396,
+        "rangeC": [
+          135.97488043478256,
+          145.03869364161855
+        ],
+        "rangeD": [
+          117.16824766355145,
+          123.0166176470589
+        ],
+        "CDDC": 13.477504753600323,
+        "DCCD": 18.136820189355632
+      },
+      "p95FrameMs": {
+        "improvementPercent": 20.031133460793026,
+        "C": 218.173625,
+        "D": 174.4709749999999,
+        "rangeC": [
+          213.01864999999998,
+          229.20159999999998
+        ],
+        "rangeD": [
+          167.73954999999998,
+          177.5084
+        ],
+        "CDDC": 18.789442125754224,
+        "DCCD": 23.10748463880297
+      },
+      "p99FrameMs": {
+        "improvementPercent": 19.621485941706162,
+        "C": 264.471815,
+        "D": 212.57851499999987,
+        "rangeC": [
+          252.98118999999983,
+          311.75188
+        ],
+        "rangeD": [
+          197.29883,
+          220.27531999999997
+        ],
+        "CDDC": 16.64199738075875,
+        "DCCD": 28.496254989309413
+      },
+      "maxFrameMs": {
+        "improvementPercent": 19.660922842515067,
+        "C": 309.78200000000004,
+        "D": 248.876,
+        "rangeC": [
+          283.505,
+          515.563
+        ],
+        "rangeD": [
+          220.476,
+          373.733
+        ],
+        "CDDC": 16.725305869106585,
+        "DCCD": 27.6157284181316
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved",
+    "gpuUsage": {
+      "C": 47.789682539682545,
+      "D": 31.8671875
+    }
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per condition; independent CDDC/DCCD blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "improvementPercent": -2.9361738070585286,
+        "C": 244.7394426229508,
+        "D": 251.92541803278692,
+        "rangeC": [
+          243.10360655737702,
+          246.49837096774183
+        ],
+        "rangeD": [
+          251.05967741935487,
+          256.26000000000005
+        ],
+        "CDDC": -2.9102943195779796,
+        "DCCD": -3.644854295296216
+      },
+      "avgGuestFps": {
+        "improvementPercent": -4.079338781348225,
+        "C": 25.582948456392927,
+        "D": 24.539333318598963,
+        "rangeC": [
+          25.223341496342147,
+          25.685863487425213
+        ],
+        "rangeD": [
+          24.463659254164583,
+          24.71917437957572
+        ],
+        "CDDC": -4.094648496728557,
+        "DCCD": -3.3756920725552098
+      },
+      "guestFlipCadence": {
+        "improvementPercent": -4.147213369397882,
+        "C": 25.62074142121277,
+        "D": 24.558194607653373,
+        "rangeC": [
+          25.265044239689274,
+          25.731162963593277
+        ],
+        "rangeD": [
+          24.525552978558736,
+          24.733835999348305
+        ],
+        "CDDC": -4.242835876375822,
+        "DCCD": -3.3090742225343606
+      },
+      "avgFrameMs": {
+        "improvementPercent": -4.253368203217612,
+        "C": 39.088631373611676,
+        "D": 40.75121479152982,
+        "rangeC": [
+          38.93192068429238,
+          39.645817749603815
+        ],
+        "rangeD": [
+          40.45442556634305,
+          40.876959150326805
+        ],
+        "CDDC": -4.270105502033824,
+        "DCCD": -3.487707301485665
+      },
+      "p95FrameMs": {
+        "improvementPercent": -0.03646554579592783,
+        "C": 50.1158,
+        "D": 50.134074999999996,
+        "rangeC": [
+          50.092,
+          50.141000000000005
+        ],
+        "rangeD": [
+          50.106249999999996,
+          50.149
+        ],
+        "CDDC": -0.04316151888628358,
+        "DCCD": -0.015509736723456312
+      },
+      "p99FrameMs": {
+        "improvementPercent": 0.010936799034781923,
+        "C": 50.24322,
+        "D": 50.237725,
+        "rangeC": [
+          50.2234,
+          50.39540000000001
+        ],
+        "rangeD": [
+          50.226319999999994,
+          50.467
+        ],
+        "CDDC": 0.005782172715585735,
+        "DCCD": -0.06891001528659732
+      },
+      "maxFrameMs": {
+        "improvementPercent": -30.118903273751314,
+        "C": 51.134,
+        "D": 66.535,
+        "rangeC": [
+          50.998,
+          65.632
+        ],
+        "rangeD": [
+          66.243,
+          66.641
+        ],
+        "CDDC": -30.20038354663221,
+        "DCCD": -13.873892402351458
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "runner comparison admission incomplete"
+    ],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved",
+    "gpuUsage": {
+      "C": 38.75409836065574,
+      "D": 38.119777895293495
+    }
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per condition; independent CDDC/DCCD blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "improvementPercent": -2.082190338530287,
+        "C": 248.45097619047618,
+        "D": 253.62419841269846,
+        "rangeC": [
+          245.51249206349212,
+          250.7760793650793
+        ],
+        "rangeD": [
+          251.73910937500003,
+          257.87573015873016
+        ],
+        "CDDC": -1.642989294732664,
+        "DCCD": -3.1249292366384385
+      },
+      "avgGuestFps": {
+        "improvementPercent": -0.8084475145200656,
+        "C": 29.619859608438517,
+        "D": 29.380398589629763,
+        "rangeC": [
+          29.479998820800024,
+          29.700252895854625
+        ],
+        "rangeD": [
+          29.020652511383734,
+          29.420388369113162
+        ],
+        "CDDC": -0.8091527736462294,
+        "DCCD": -1.2486750223091163
+      },
+      "guestFlipCadence": {
+        "improvementPercent": -1.075173761192924,
+        "C": 29.671052886463926,
+        "D": 29.35203751115899,
+        "rangeC": [
+          29.521487014854255,
+          29.7408677396502
+        ],
+        "rangeD": [
+          29.102808261529795,
+          29.441990613224075
+        ],
+        "CDDC": -0.9729237683309384,
+        "DCCD": -1.3133133986710772
+      },
+      "avgFrameMs": {
+        "improvementPercent": -0.8148495828217971,
+        "C": 33.76119500254972,
+        "D": 34.03629795918365,
+        "rangeC": [
+          33.66974697173618,
+          33.921303934871126
+        ],
+        "rangeD": [
+          33.99003396739129,
+          34.458219008264436
+        ],
+        "CDDC": -0.8153834381065779,
+        "DCCD": -1.2673810329097477
+      },
+      "p95FrameMs": {
+        "improvementPercent": -1.3088231064396838,
+        "C": 33.898775,
+        "D": 34.34245,
+        "rangeC": [
+          33.7164,
+          34.151199999999996
+        ],
+        "rangeD": [
+          34.309,
+          49.8825
+        ],
+        "CDDC": -1.4595863716740909,
+        "DCCD": -23.848533468176708
+      },
+      "p99FrameMs": {
+        "improvementPercent": -0.058493051025533274,
+        "C": 50.00594,
+        "D": 50.03519,
+        "rangeC": [
+          49.98677,
+          50.0442
+        ],
+        "rangeD": [
+          50.0319,
+          50.044399999999996
+        ],
+        "CDDC": -0.06539223140290612,
+        "DCCD": -0.038418101913842574
+      },
+      "maxFrameMs": {
+        "improvementPercent": -1.6534437620076265,
+        "C": 50.2285,
+        "D": 51.059,
+        "rangeC": [
+          50.147,
+          50.966
+        ],
+        "rangeD": [
+          50.241,
+          51.125
+        ],
+        "CDDC": -0.9048647680101994,
+        "DCCD": -0.993937475893303
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved",
+    "gpuUsage": {
+      "C": 54.06349206349206,
+      "D": 52.32539682539682
+    }
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per condition; independent CDDC/DCCD blocks",
+    "metricSource": "Average guest FPS = 1000 / per-run canonical analyzed mean interval (frozen warmup/window settings preserved). READ_3D 5-second cadence retained separately; not SDL presentations. Frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "improvementPercent": -4.634631398738137,
+        "C": 248.40711111111113,
+        "D": 259.919865079365,
+        "rangeC": [
+          244.53550793650805,
+          249.35257142857142
+        ],
+        "rangeD": [
+          244.2975555555555,
+          261.2294603174603
+        ],
+        "CDDC": -4.634631398738137,
+        "DCCD": -2.3565939317464
+      },
+      "avgGuestFps": {
+        "improvementPercent": 0.30371175195784733,
+        "C": 24.033827083234343,
+        "D": 24.106820640531353,
+        "rangeC": [
+          23.927741575917004,
+          24.1167056899454
+        ],
+        "rangeD": [
+          21.540962097698074,
+          24.223493142832766
+        ],
+        "CDDC": 0.4672897575697562,
+        "DCCD": -4.90924606190111
+      },
+      "guestFlipCadence": {
+        "improvementPercent": -0.0627464851885788,
+        "C": 23.072638862031056,
+        "D": 23.058161592104877,
+        "rangeC": [
+          22.923699840502877,
+          23.23111378074443
+        ],
+        "rangeD": [
+          20.815195490704305,
+          23.27528448156675
+        ],
+        "CDDC": 0.39201060573908986,
+        "DCCD": -4.92839151794103
+      },
+      "avgFrameMs": {
+        "improvementPercent": 0.30316318136047926,
+        "C": 41.60828023217247,
+        "D": 41.48213924611123,
+        "rangeC": [
+          41.465033112582795,
+          41.79249415692823
+        ],
+        "rangeD": [
+          41.28223762376235,
+          46.423181818181774
+        ],
+        "CDDC": 0.46471301777178403,
+        "DCCD": -5.503800725305009
+      },
+      "p95FrameMs": {
+        "improvementPercent": -0.40546250324921634,
+        "C": 49.819649999999996,
+        "D": 50.021649999999994,
+        "rangeC": [
+          49.633700000000005,
+          50.16064999999999
+        ],
+        "rangeD": [
+          49.90225,
+          54.047
+        ],
+        "CDDC": -0.09372798556428306,
+        "DCCD": -4.4845747020694935
+      },
+      "p99FrameMs": {
+        "improvementPercent": 0.8347004333810347,
+        "C": 53.287980000000005,
+        "D": 52.843185000000005,
+        "rangeC": [
+          52.74708,
+          54.10254
+        ],
+        "rangeD": [
+          52.027,
+          58.31304
+        ],
+        "CDDC": 2.4363220394783354,
+        "DCCD": -4.938169363928082
+      },
+      "maxFrameMs": {
+        "improvementPercent": 8.709793410041831,
+        "C": 61.184,
+        "D": 55.855000000000004,
+        "rangeC": [
+          60.444,
+          61.939
+        ],
+        "rangeD": [
+          55.324,
+          59.926
+        ],
+        "CDDC": 8.709793410041831,
+        "DCCD": 5.828423882401975
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": [],
+    "attribution": "Observed wall-clock measurements; matched intermediate guest progress and spike cause unresolved",
+    "gpuUsage": {
+      "C": 36.32539682539682,
+      "D": 36.37301587301587
+    }
+  }
+]

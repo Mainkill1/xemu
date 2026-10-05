@@ -1,0 +1,194 @@
+{
+  "conditions": {
+    "C": 3,
+    "D": 5
+  },
+  "source": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+  "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+  "method": "Same instrumented upstream reference executable per host; config-only worker overrides",
+  "schedule": [
+    "C",
+    "D",
+    "D",
+    "C",
+    "D",
+    "C",
+    "C",
+    "D"
+  ],
+  "titles": [
+    "morrowind",
+    "conker",
+    "pgr2"
+  ],
+  "hosts": [
+    "deck",
+    "win"
+  ],
+  "plannedRuns": 48,
+  "previousABRepeated": false,
+  "inputsAndBaselinesModified": false,
+  "limits": "Original cache, scene-progress, READ_3D, input-transport and tail-attribution limits remain.",
+  "recordedRuns": 48,
+  "hardware": {
+    "win": {
+      "OperatingSystem": "Microsoft Windows 10.0.19045",
+      "OsArchitecture": "X64",
+      "CpuModel": "AMD Ryzen 9 6900HX with Radeon Graphics",
+      "LogicalProcessors": 16,
+      "PhysicalMemoryBytes": 16361480192
+    },
+    "deck": {
+      "OperatingSystem": "SteamOS",
+      "OsArchitecture": "X64",
+      "CpuModel": "AMD Custom APU 0405",
+      "LogicalProcessors": 8,
+      "PhysicalMemoryBytes": 15524212736
+    }
+  },
+  "builds": {
+    "win-three-morrowind": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "35954730a36692bc73d88c2559c5f862349b44b766333cee6a0a27685cfa6970",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "win-five-morrowind": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "1e0ec39e97d94f3c086b035869b4fd5784fd7e68540844c41ba177e03c751796",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    },
+    "win-three-conker": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "0b0d4ccb9c9133a26353540153e26cf54be3cb898cc82667c15d6e93df47e91b",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "win-five-conker": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "a88326822101ced8c25c03a5ba8bf4c46a5a5f4704c3486d350822592a3c267c",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    },
+    "win-three-pgr2": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "57f16398084ee1951f084faabf13417bde094b38126a8b2b71e77758e601818f",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "win-five-pgr2": {
+      "sha256": "0a6afbad917885df4ad26ed563e18f744c778b77617b349483c72ee053c1e089",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "f719201690b3017387d0f1f4ed134280e6f2f483f75bfcb4a55d2894f3e3ff63",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    },
+    "deck-three-morrowind": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "f8603e18824756e7f0f9f2db01158c8996db4d7c9886a0d9ee73e9b4803b22d7",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "deck-five-morrowind": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "95fdd6d5cade5567550d2f1c1514c4c84bdc4ef40b3c2f8d5f9675f3042a3270",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    },
+    "deck-three-conker": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "9fb56ae42a824c6318ead29f853b547c880039c15dcc99866cccab50a7a821f2",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "deck-five-conker": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "878c3015dad429c9e82472a86ea081abf828e3843dadf8ee9655a3a8b4db0ab8",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    },
+    "deck-three-pgr2": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "f5fc166f83f29b433b569eaefbd40a527c3dc281d82e86683c0713eae60a1c38",
+      "numWorkersSetting": 3,
+      "condition": "C"
+    },
+    "deck-five-pgr2": {
+      "sha256": "91ebdf484ad8e3c93f6b31217fdd7fd919e37820323477070809402615f1ee5a",
+      "productSource": "07a6df72ee485d92cdbc7be35af462ee2bfdca81",
+      "upstream": "478b4f496102379c7eaa7f3ec10e714a703c4300",
+      "configSha256": "21aa66b791e8e7cdfd64157c4c0fa1906de38a84d5b8f4fbf569cf1a71427e55",
+      "numWorkersSetting": 5,
+      "condition": "D"
+    }
+  },
+  "renderer": "Vulkan",
+  "defaultConverter": "sinc",
+  "runnerRevision": "3aa5e059d52339bf4b14725260e124322c30beca",
+  "glibTeardownWarningRuns": 48,
+  "manualSceneFindings": [
+    {
+      "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 3,
+      "variant": "five",
+      "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+    },
+    {
+      "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+      "host": "deck",
+      "title": "morrowind",
+      "cell": 6,
+      "variant": "three",
+      "finding": "Menu overlay visible at both start/end images; expected unobstructed stationary game scene. Withhold entire cohort despite automatic admission. Cause of incomplete input/scene transition unresolved."
+    },
+    {
+      "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+      "host": "deck",
+      "title": "conker",
+      "cell": 8,
+      "variant": "five",
+      "finding": "Opening movie at start instead of expected tavern menu; end screenshot black. Recorded correctness failure, normal process exit 0. Withhold entire cohort, retain failed event. Cause of scene/input transition failure unresolved; not a proven worker-count crash."
+    }
+  ],
+  "sceneReviewMethod": "All 48 start/end endpoint pairs manually reviewed. Expected within-host scenes in Windows all titles and Deck PGR2. Windows PGR2 cell 8 starts during a bright fade at countdown 3; all PGR2 runs end parked at 0 mph on the expected course. Deck Morrowind cells 3/6 contain menu overlays; Deck Conker cell 8 shows movie then black. Both entire affected cohorts withheld. Endpoints do not prove matched intermediate guest progress.",
+  "outcomeCounts": {
+    "execution": {
+      "completed": 48
+    },
+    "correctness": {
+      "failed": 1,
+      "passed": 47
+    },
+    "evidence": {
+      "complete": 48
+    },
+    "comparison": {
+      "eligible": 39,
+      "ineligible": 9
+    }
+  }
+}

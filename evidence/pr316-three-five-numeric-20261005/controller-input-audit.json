@@ -1,0 +1,130 @@
+{
+  "method": "Existing archived OS-submission receipts retrieved after tester idle; native worker timestamps compared only within each same session. No additional gameplay or test changes. Receipt is not guest consumption acknowledgment.",
+  "runs": [
+    {
+      "runId": "20261005-224914356-c835d3a146e84233916e80c1818f76e0",
+      "title": "morrowind",
+      "cell": 2,
+      "condition": "five",
+      "backend": "linux-uinput",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 1103,
+      "failure": null,
+      "cleanup": "complete",
+      "presses": [
+        {
+          "button": "start",
+          "sequence": 136,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 318.429
+        },
+        {
+          "button": "b",
+          "sequence": 195,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 200.076
+        }
+      ]
+    },
+    {
+      "runId": "20261005-225006760-bc7dbe8827944a2494f5833605d2e3ff",
+      "title": "morrowind",
+      "cell": 3,
+      "condition": "five",
+      "backend": "linux-uinput",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 1291,
+      "failure": null,
+      "cleanup": "complete",
+      "presses": [
+        {
+          "button": "start",
+          "sequence": 318,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 301.105
+        },
+        {
+          "button": "b",
+          "sequence": 377,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 200.276
+        }
+      ]
+    },
+    {
+      "runId": "20261005-225252203-3a99110f3806417c9b13052545ba1e24",
+      "title": "morrowind",
+      "cell": 6,
+      "condition": "three",
+      "backend": "linux-uinput",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 1321,
+      "failure": null,
+      "cleanup": "complete",
+      "presses": [
+        {
+          "button": "start",
+          "sequence": 174,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 299.661
+        },
+        {
+          "button": "b",
+          "sequence": 234,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 200.484
+        }
+      ]
+    },
+    {
+      "runId": "20261005-230328477-6eba6e26018b4b3b96ddcaaaaaffaa4c",
+      "title": "conker",
+      "cell": 5,
+      "condition": "five",
+      "backend": "linux-uinput",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 2576,
+      "failure": null,
+      "cleanup": "complete",
+      "presses": [
+        {
+          "button": "a",
+          "sequence": 915,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 100.42
+        },
+        {
+          "button": "a",
+          "sequence": 1415,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 100.553
+        }
+      ]
+    },
+    {
+      "runId": "20261005-230916634-fc9dcc717d3f4a10939fdc9fabcc16d7",
+      "title": "conker",
+      "cell": 8,
+      "condition": "five",
+      "backend": "linux-uinput",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 2598,
+      "failure": null,
+      "cleanup": "complete",
+      "presses": [
+        {
+          "button": "a",
+          "sequence": 904,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 100.922
+        },
+        {
+          "button": "a",
+          "sequence": 1404,
+          "followingButtonState": "none",
+          "nativeSubmittedIntervalMs": 100.888
+        }
+      ]
+    }
+  ]
+}
