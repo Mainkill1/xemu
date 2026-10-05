@@ -684,6 +684,7 @@ static bool shader_cache_read_file(const char *path, size_t max_size,
 
 static void shader_spirv_cache_init(PGRAPHVkState *r)
 {
+    xemu_tweaks_publish_cache(XEMU_TWEAK_RENDERER_VULKAN, false, false);
     const char *base = xemu_settings_get_base_path();
     if (!base || !base[0]) {
         return;
@@ -724,7 +725,7 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
                          fallback_family_history_filename(r->vk_api_version),
                          NULL);
     r->spirv_cache_initialized = true;
-    r->spirv_cache_session_eligible = g_config.perf.cache_shaders;
+    r->spirv_cache_session_eligible = xemu_tweaks_cache_requested_enabled();
     r->fallback_family_history_initialized =
         r->ubershader_runtime_enabled &&
         pgraph_vk_family_history_init(
@@ -732,6 +733,8 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
             PGRAPH_VK_FAMILY_HISTORY_MAX_RECORDS);
     qemu_event_init(&r->spirv_cache_writeback_complete, false);
     r->spirv_cache_writeback_complete_initialized = true;
+    xemu_tweaks_publish_cache(XEMU_TWEAK_RENDERER_VULKAN, true,
+                              r->spirv_cache_session_eligible);
 
     if (!r->spirv_cache_session_eligible) {
         return;
@@ -796,7 +799,7 @@ void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
     bool active = r->spirv_cache_initialized &&
                   pgraph_vk_spirv_cache_is_active(
                       &r->spirv_cache, r->spirv_cache_session_eligible,
-                      g_config.perf.cache_shaders);
+                      xemu_tweaks_cache_requested_enabled());
     bool written = !was_dirty || !active;
     bool family_dirty = r->fallback_family_history_initialized &&
                         r->fallback_family_history.dirty;
@@ -895,6 +898,7 @@ static void shader_spirv_cache_finalize(PGRAPHVkState *r)
     r->spirv_cache_initialized = false;
     r->fallback_family_history_initialized = false;
     r->spirv_cache_session_eligible = false;
+    xemu_tweaks_publish_cache(XEMU_TWEAK_RENDERER_VULKAN, false, false);
 }
 
 static bool shader_spirv_cache_active(PGRAPHVkState *r)
@@ -902,7 +906,7 @@ static bool shader_spirv_cache_active(PGRAPHVkState *r)
     return r->spirv_cache_initialized &&
            pgraph_vk_spirv_cache_is_active(
                &r->spirv_cache, r->spirv_cache_session_eligible,
-               g_config.perf.cache_shaders);
+               xemu_tweaks_cache_requested_enabled());
 }
 
 static bool hybrid_compile_job(

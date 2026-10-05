@@ -20,6 +20,8 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "dsp_internal.h"
+#include "ui/xemu-shortcut-evidence.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
 
@@ -45,6 +47,12 @@ void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
         dsp_set_engine(d->gp.dsp, g_config.audio.use_dsp_jit);
         dsp_set_engine(d->ep.dsp, g_config.audio.use_dsp_jit);
         last_known_jit_pref = g_config.audio.use_dsp_jit;
+    }
+    if (xemu_shortcut_evidence_enabled()) {
+        xemu_shortcut_evidence_publish_dsp(&d->shortcut_dsp_state,
+                                          d->gp.realtime, d->ep.realtime,
+                                          d->gp.dsp->ops == &jit_dsp_ops,
+                                          d->ep.dsp->ops == &jit_dsp_ops);
     }
 }
 

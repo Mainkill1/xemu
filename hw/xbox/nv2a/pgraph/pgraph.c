@@ -28,6 +28,7 @@
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
 #include "ui/xemu-tweaks.h"
+#include "ui/xemu-shortcut-evidence.h"
 #include "inline-elements.h"
 #include "renderer-switch.h"
 #include "texture-state.h"
@@ -420,6 +421,19 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
     xemu_gpu_info_record_initialized(
         device, pg->renderer->name, XEMU_GPU_PRESENTATION_UNKNOWN,
         fallback, fallback ? "requested renderer failed to initialize" : NULL);
+    xemu_shortcut_evidence_publish_gpu(
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ? "vulkan" :
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_OPENGL ? "opengl" : "none",
+        device);
+    if (xemu_shortcut_evidence_enabled()) {
+        g_autoptr(QDict) fields = qdict_new();
+        if (pg->renderer->ops.get_surface_scale_factor) {
+            qdict_put_int(fields, "surface_scale",
+                          pg->renderer->ops.get_surface_scale_factor(d));
+        }
+        xemu_shortcut_evidence_publish_execution("renderer", fields,
+                                                &error_abort);
+    }
     if (pg->renderer->type != CONFIG_DISPLAY_RENDERER_VULKAN) {
         xemu_vulkan_ubershader_publish_runtime(false, false);
     }
@@ -529,6 +543,15 @@ void nv2a_set_surface_scale_factor(unsigned int scale)
     qemu_mutex_lock(&d->pgraph.renderer_lock);
     if (d->pgraph.renderer->ops.set_surface_scale_factor) {
         d->pgraph.renderer->ops.set_surface_scale_factor(d, scale);
+    }
+    if (xemu_shortcut_evidence_enabled()) {
+        g_autoptr(QDict) fields = qdict_new();
+        if (d->pgraph.renderer->ops.get_surface_scale_factor) {
+            qdict_put_int(fields, "surface_scale",
+                          d->pgraph.renderer->ops.get_surface_scale_factor(d));
+        }
+        xemu_shortcut_evidence_publish_execution("renderer", fields,
+                                                &error_abort);
     }
     qemu_mutex_unlock(&d->pgraph.renderer_lock);
     qemu_event_set(&d->pgraph.renderer_switch_progress);
