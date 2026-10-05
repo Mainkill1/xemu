@@ -19,7 +19,9 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "sample-diagnostic.h"
 #include "adpcm.h"
 #include "sge.h"
 #include "sample-memory.h"
@@ -847,6 +849,10 @@ static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
 static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                        int num_samples_requested)
 {
+    DIAG_COUNT(callbacks);
+    DIAG_ADD(requested_samples, num_samples_requested);
+    g_auto(MCPXDiagScope) diag_scope = diag_scope_begin(
+        DIAG_callback, diag_should_sample());
     assert(v < MCPX_HW_MAX_VOICES);
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
                                  NV_PAVS_VOICE_CFG_FMT_STEREO);
@@ -930,6 +936,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                    NV_PAVS_VOICE_PAR_STATE_NEW_VOICE, 0);
 
     if (paused) {
+        DIAG_COUNT(paused_callbacks);
         return -1;
     }
 
@@ -1009,10 +1016,13 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     bool adpcm =
         (container_size_index == NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE_ADPCM);
 
+    if (stream) { DIAG_COUNT(stream_callbacks); }
     if (adpcm) {
+        DIAG_COUNT(adpcm_callbacks);
         block_size = 36;
         DPRINTF("ADPCM:\n");
     } else {
+        DIAG_COUNT(pcm_callbacks);
         assert(container_size_index < 4);
         assert(sample_size < 4);
         block_size = container_size;
@@ -1040,11 +1050,13 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             unsigned int block_index = cbo / ADPCM_SAMPLES_PER_BLOCK;
             unsigned int block_position = cbo % ADPCM_SAMPLES_PER_BLOCK;
             if (adpcm_block_index != block_index) {
+                DIAG_COUNT(adpcm_blocks);
                 uint32_t linear_addr = block_index * block_size;
                 if (stream) {
                     hwaddr addr = segment_offset + linear_addr;
                     int max_seg_byte = (seg_len >> 6) * block_size;
                     assert(linear_addr + block_size <= max_seg_byte);
+                    DIAG_COUNT(stream_blocks);
                     memcpy(adpcm_block, &d->ram_ptr[addr],
                            block_size); // FIXME: Use idiomatic DMA function
                 } else {
@@ -1053,9 +1065,14 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                         &sample_cache, &d->regs[NV_PAPU_VPSGEADDR],
                         linear_addr, adpcm_block, 9 * samples_per_block);
                 }
+                bool decode_hit = false;
+                int64_t decode_start = diag_start();
                 adpcm_decoded = mcpx_apu_adpcm_decode_cached(
                     &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
-                    block_size, channels, &adpcm_decoded_samples, NULL);
+                    block_size, channels, &adpcm_decoded_samples, &decode_hit);
+                if (decode_hit) { DIAG_COUNT(adpcm_decode_hits); }
+                else { DIAG_COUNT(adpcm_decodes); }
+                diag_stop(DIAG_decode, decode_start);
                 adpcm_block_index = block_index;
             }
             if (adpcm_decoded == NULL || adpcm_decoded_samples <= 0 ||
@@ -1084,20 +1101,25 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             for (unsigned int channel = 0; channel < channels; channel++) {
                 uint32_t ival;
                 float fval;
+                int64_t pcm_start = diag_start();
                 switch (sample_size) {
                 case NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE_U8:
+                    DIAG_COUNT(pcm_u8);
                     ival = ldub_phys(&address_space_memory, addr);
                     fval = uint8_to_float(ival & 0xff);
                     break;
                 case NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE_S16:
+                    DIAG_COUNT(pcm_s16);
                     ival = lduw_le_phys(&address_space_memory, addr);
                     fval = int16_to_float(ival & 0xffff);
                     break;
                 case NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE_S24:
+                    DIAG_COUNT(pcm_s24);
                     ival = ldl_le_phys(&address_space_memory, addr);
                     fval = int24_to_float(ival);
                     break;
                 case NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE_S32:
+                    DIAG_COUNT(pcm_s32);
                     ival = ldl_le_phys(&address_space_memory, addr);
                     fval = int32_to_float(ival);
                     break;
@@ -1105,6 +1127,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                     assert(!"Invalid sample size for NV_PAYS_VOICE_CFG_FMT");
                     break;
                 }
+                diag_stop(DIAG_pcm_read, pcm_start);
                 samples[sample_count][channel] = fval;
                 addr += container_size;
             }
@@ -1142,6 +1165,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
 
     voice_set_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
                    NV_PAVS_VOICE_PAR_OFFSET_CBO, cbo);
+    DIAG_ADD(returned_samples, sample_count);
     return sample_count;
 
 adpcm_invalid:
@@ -1234,8 +1258,11 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
 
     float mono_samples[NUM_SAMPLES_PER_FRAME];
     float *output = stereo ? (float *)samples : mono_samples;
+    DIAG_COUNT(resample_calls);
+    int64_t resample_start = diag_start();
     long count = src_callback_read(filter->resampler, rate, requested_num,
                                    output);
+    diag_stop(DIAG_resample, resample_start);
     if (count != requested_num) {
         int err = src_error(filter->resampler);
 
@@ -1355,6 +1382,9 @@ static void voice_process(MCPXAPUState *d,
                           float sample_buf[NUM_SAMPLES_PER_FRAME][2],
                           uint16_t v, int voice_list)
 {
+    DIAG_COUNT(voice_processes);
+    g_auto(MCPXDiagScope) diag_voice_scope = diag_scope_begin(
+        DIAG_voice_process, diag_should_sample());
     assert(v < MCPX_HW_MAX_VOICES);
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
                                  NV_PAVS_VOICE_CFG_FMT_STEREO);
@@ -1526,7 +1556,9 @@ static void voice_process(MCPXAPUState *d,
             voice_get_mask(d, v, NV_PAVS_VOICE_CFG_HRTF_TARGET,
                            NV_PAVS_VOICE_CFG_HRTF_TARGET_HANDLE);
         if (hrtf_handle != HRTF_NULL_HANDLE) {
+            int64_t hrtf_start = diag_start();
             hrtf_filter_process(&d->vp.filters[v].hrtf, samples, samples);
+            diag_stop(DIAG_hrtf, hrtf_start);
         }
     }
 
@@ -1657,6 +1689,9 @@ static void *voice_worker_thread(void *arg)
     qemu_mutex_lock(&vwd->lock);
 
     int worker_id = ctz64(vwd->workers_pending);
+    assert(worker_id < 16);
+    diag_current = &diag_workers[worker_id];
+    diag_current->rng = UINT32_C(0x9e3779b9) ^ (worker_id + 1);
     VoiceWorker *self = &d->vp.voice_work_dispatch.workers[worker_id];
     self->queue_len = 0;
 
@@ -1664,9 +1699,13 @@ static void *voice_worker_thread(void *arg)
         int64_t start_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
         g_dbg.vp.workers[worker_id].num_voices = self->queue_len;
 
+        DIAG_COUNT(worker_batches);
+        DIAG_ADD(worker_voices, self->queue_len);
+        bool timed = diag_should_sample();
         if (self->queue_len) {
             qemu_mutex_unlock(&vwd->lock);
 
+            int64_t work_start = timed ? get_clock() : 0;
             // Process queued voices
             memset(self->mixbins, 0, sizeof(self->mixbins));
             if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
@@ -1677,7 +1716,10 @@ static void *voice_worker_thread(void *arg)
                               self->queue[i].voice, self->queue[i].list);
             }
 
+            diag_stop(DIAG_worker_process, work_start);
+            int64_t lock_start = timed ? get_clock() : 0;
             qemu_mutex_lock(&vwd->lock);
+            diag_stop(DIAG_worker_lock, lock_start);
 
             // Add voice contributions
             for (int b = 0; b < NUM_MIXBINS; b++) {
@@ -1812,8 +1854,11 @@ voice_work_dispatch(MCPXAPUState *d,
 
         // Signal workers and wait for completion
         voice_work_schedule(d);
+        DIAG_COUNT(dispatches);
+        int64_t wait_start = diag_should_sample() ? get_clock() : 0;
         qemu_cond_broadcast(&vwd->work_pending);
         qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+        diag_stop(DIAG_dispatch_wait, wait_start);
         assert(!vwd->workers_pending);
         vwd->queue_len = 0;
 
@@ -1827,6 +1872,7 @@ voice_work_dispatch(MCPXAPUState *d,
 
     int64_t end_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     g_dbg.vp.total_worker_time_us = end_time - start_time;
+    diag_report(false);
 
     qemu_mutex_unlock(&vwd->lock);
 }
@@ -1835,6 +1881,7 @@ static void voice_work_init(MCPXAPUState *d)
 {
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
+    diag_init();
     int num_workers = g_config.audio.vp.num_workers ?: SDL_GetNumLogicalCPUCores();
     vwd->num_workers = MAX(1, MIN(num_workers, MAX_VOICE_WORKERS));
     vwd->workers = g_malloc0_n(vwd->num_workers, sizeof(VoiceWorker));
@@ -1869,12 +1916,16 @@ static void voice_work_finalize(MCPXAPUState *d)
     for (int i = 0; i < vwd->num_workers; i++) {
         qemu_thread_join(&vwd->workers[i].thread);
     }
+    diag_report(true);
     g_free(vwd->workers);
     vwd->workers = NULL;
 }
 
 void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME])
 {
+    DIAG_COUNT(vp_frames);
+    g_auto(MCPXDiagScope) diag_frame_scope = diag_scope_begin(
+        DIAG_vp_frame, diag_should_sample());
     memset(d->vp.sample_buf, 0, sizeof(d->vp.sample_buf));
 
     /* Process all voices, mixing each into the affected MIXBINs */

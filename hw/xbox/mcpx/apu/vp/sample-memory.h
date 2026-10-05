@@ -18,10 +18,13 @@ typedef struct MCPXAPUSampleReadCache {
 
 static inline void mcpx_apu_sample_cache_clear(MCPXAPUSampleReadCache *cache)
 {
+    int64_t start = diag_start();
     if (cache->payload.mrs.mr) {
+        DIAG_COUNT(payload_destroy);
         address_space_cache_destroy(&cache->payload);
     }
     mcpx_apu_sge_cache_clear(&cache->sge);
+    diag_stop(DIAG_cleanup, start);
 }
 
 G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(MCPXAPUSampleReadCache,
@@ -48,7 +51,8 @@ static inline bool mcpx_apu_payload_contains(MCPXAPUSampleReadCache *cache,
            physical >= cache->payload_physical &&
            physical - cache->payload_physical <= mapping->len &&
            size <= mapping->len - (physical - cache->payload_physical) &&
-           mapping->fv == address_space_to_flatview(&address_space_memory);
+           (DIAG_COUNT(payload_flatview),
+            mapping->fv == address_space_to_flatview(&address_space_memory));
 }
 
 #ifndef MCPX_APU_CACHE_MIN_WORDS
@@ -61,24 +65,51 @@ static inline uint32_t mcpx_apu_sample_read_word(MCPXAPUSampleReadCache *cache,
                                                  uint32_t linear,
                                                  unsigned remaining_words)
 {
+    DIAG_COUNT(payload_reads);
+    int64_t start = diag_start();
+    if (diag_reader_mode < 2) {
+        DIAG_COUNT(payload_phys);
+        uint32_t value = ldl_le_phys(&address_space_memory, physical);
+        diag_stop(DIAG_payload, start);
+        return value;
+    }
     size_t page_remaining = TARGET_PAGE_SIZE - linear % TARGET_PAGE_SIZE;
 
     if (!mcpx_apu_payload_contains(cache, physical, sizeof(uint32_t))) {
+        DIAG_COUNT(payload_misses);
+        int64_t refill_start = diag_start();
+        if (cache->payload.mrs.mr) {
+            DIAG_COUNT(payload_destroy);
+            if (!cache->payload.ptr) { DIAG_COUNT(payload_non_direct); }
+            if (cache->payload.fv != address_space_to_flatview(&address_space_memory)) {
+                DIAG_COUNT(payload_remap);
+            } else { DIAG_COUNT(payload_range_miss); }
+        }
         address_space_cache_destroy(&cache->payload);
         if (remaining_words >= MCPX_APU_CACHE_MIN_WORDS &&
             page_remaining >= sizeof(uint32_t)) {
             RCU_READ_LOCK_GUARD();
 
+            DIAG_COUNT(payload_init);
             address_space_cache_init(&cache->payload, &address_space_memory,
                                      physical, page_remaining, false);
+            if (cache->payload.ptr) {
+                DIAG_ADD(payload_mapped_bytes, cache->payload.len);
+            }
             cache->payload_physical = physical;
         }
+        diag_stop(DIAG_payload_refill, refill_start);
         if (!mcpx_apu_payload_contains(cache, physical, sizeof(uint32_t))) {
-            return ldl_le_phys(&address_space_memory, physical);
+            DIAG_COUNT(payload_phys);
+            uint32_t value = ldl_le_phys(&address_space_memory, physical);
+            diag_stop(DIAG_payload, start);
+            return value;
         }
-    }
-    return ldl_le_phys_cached(&cache->payload,
+    } else { DIAG_COUNT(payload_hits); }
+    uint32_t value = ldl_le_phys_cached(&cache->payload,
                               physical - cache->payload_physical);
+    diag_stop(DIAG_payload, start);
+    return value;
 }
 
 static inline void mcpx_apu_read_adpcm_block(MCPXAPUSampleReadCache *cache,
