@@ -13,6 +13,10 @@ G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_PREWARM ==
                 CONFIG_TWEAKS_VK_UBERSHADER_MODE_PREWARM);
 G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_ALWAYS ==
                 CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS);
+G_STATIC_ASSERT((int)XEMU_TWEAK_POLICY_AUTO ==
+                CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_AUTO);
+G_STATIC_ASSERT((int)XEMU_TWEAK_POLICY_DISABLED ==
+                CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_DISABLED);
 
 XemuTweakBits xemu_tweaks_active;
 static int xemu_vulkan_ubershader_latched_policy = XEMU_VK_UBERSHADER_OFF;
@@ -354,6 +358,8 @@ static XemuTweakRequestedState requested_from_config(void)
         requested.policy[i] = selected[i] ? XEMU_TWEAK_POLICY_ENABLED :
                                             XEMU_TWEAK_POLICY_DISABLED;
     }
+    requested.policy[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES] =
+        (XemuTweakPolicy)g_config.tweaks.vk_skip_clean_texture_stages;
     return requested;
 }
 

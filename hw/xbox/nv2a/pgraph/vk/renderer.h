@@ -52,6 +52,7 @@
 #include "hybrid-trace.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
+#include "texture-stage-counters.h"
 #include "ubershader-controls.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
@@ -704,7 +705,11 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t host_copy_uploaded_bytes_total QEMU_ALIGNED(8);
 } PGRAPHVkPerfTelemetry;
 
+struct XemuShortcutWindow;
+
 typedef struct PGRAPHVkState {
+    PGRAPHVkTextureStageCounters texture_stage_counters;
+    struct XemuShortcutWindow *texture_stage_evidence;
     uint32_t vk_api_version;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debug_messenger;

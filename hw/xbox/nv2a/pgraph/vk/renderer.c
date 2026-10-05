@@ -25,6 +25,7 @@
 #include "failpoint.h"
 #include "renderer.h"
 #include "ui/xemu-shortcut-evidence.h"
+#include "ui/xemu-vk-texture-stage-evidence.h"
 #include "hybrid-ready.h"
 
 #include "gloffscreen.h"
@@ -166,6 +167,12 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
 
     pgraph_vk_determine_gpu_properties(d);
+    pg->vk_renderer_state->texture_stage_evidence =
+        xemu_vk_texture_stage_evidence_create(
+            pg->vk_renderer_state->perf.enabled, errp);
+    if (*errp) {
+        return;
+    }
     xemu_vulkan_ubershader_publish_runtime(
         true,
         !pg->vk_renderer_state->ubershader_runtime_enabled ||
@@ -177,6 +184,9 @@ static void pgraph_vk_finalize(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    xemu_vk_texture_stage_evidence_destroy(
+        pg->vk_renderer_state->texture_stage_evidence);
+    pg->vk_renderer_state->texture_stage_evidence = NULL;
     timer_del(pg->vk_renderer_state->hybrid_service_timer);
 
     /* Finish recorded draws before destroying their cached pipelines. */
@@ -206,6 +216,9 @@ static void pgraph_vk_flush(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    xemu_vk_texture_stage_evidence_invalidate(
+        pg->vk_renderer_state->texture_stage_evidence,
+        &pg->vk_renderer_state->texture_stage_counters);
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
     pgraph_vk_invalidate_blend_constants(pg);
     pgraph_vk_surface_flush(d);
@@ -257,6 +270,8 @@ static void pgraph_vk_process_pending(NV2AState *d)
             pgraph_vk_process_pending_downloads(d);
         }
         if (qatomic_read(&r->download_dirty_surfaces_pending)) {
+            xemu_vk_texture_stage_evidence_invalidate(
+                r->texture_stage_evidence, &r->texture_stage_counters);
             pgraph_vk_download_dirty_surfaces(d);
         }
         if (qatomic_read(&d->pgraph.sync_pending)) {
