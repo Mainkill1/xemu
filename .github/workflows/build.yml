@@ -49,7 +49,7 @@ jobs:
         tar_prefix="./${pkg_name}/"
         ./scripts/archive-source.sh ${tar_filename} ${tar_prefix}
 
-        echo -n ${{ github.sha }} > XEMU_COMMIT
+        git rev-parse HEAD | tr -d '\n' > XEMU_COMMIT
         echo -n ${{ steps.version.outputs.pkg_version }} > XEMU_VERSION
         tar -r --file "${tar_filename}" --transform "s,^./,${tar_prefix}," ./XEMU_COMMIT ./XEMU_VERSION
 
@@ -70,6 +70,7 @@ jobs:
       pkg_version: ${{ needs.source.outputs.pkg_version }}
 
   macos:
+    if: false # Diagnostic build of exact main for the two authorized x86 rigs.
     name: macOS
     needs: source
     uses: ./.github/workflows/build-macos.yml

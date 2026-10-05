@@ -17,4 +17,4 @@ jobs:
     name: Build
     uses: ./.github/workflows/build.yml
     with:
-      ref: ${{ github.sha }}
+      ref: b4d69b2440a33ad93987b269c2ecac97c45367bc
