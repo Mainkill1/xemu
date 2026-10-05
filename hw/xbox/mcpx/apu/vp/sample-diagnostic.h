@@ -37,7 +37,7 @@ typedef struct MCPXDiag {
     MCPXDiagTiming timing[DIAG_TIMER_COUNT];
     bool sampling;
     uint32_t rng;
-} MCPXDiag;
+} QEMU_ALIGNED(64) MCPXDiag;
 static MCPXDiag diag_workers[17];
 static __thread MCPXDiag *diag_current = &diag_workers[16];
 static int diag_reader_mode = 2;
@@ -124,6 +124,16 @@ static void G_GNUC_UNUSED diag_init(void)
     diag_current = &diag_workers[16];
     diag_last_report = get_clock();
     diag_reports = diag_report_ns = 0;
+    if (diag_enabled) {
+        int64_t sum = 0;
+        for (int i = 0; i < 4096; i++) {
+            int64_t start = get_clock();
+            sum += get_clock() - start;
+        }
+        fprintf(stderr, "APU_DIAG_META {\"clock_pairs\":4096,"
+                "\"clock_pair_ns\":%" PRId64 ",\"worker_stride\":%zu}\n",
+                sum, sizeof(MCPXDiag));
+    }
 }
 /* All worker updates precede pending-bit clear under the dispatch lock. */
 static void G_GNUC_UNUSED diag_report(bool force)
