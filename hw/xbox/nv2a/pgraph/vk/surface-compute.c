@@ -185,7 +185,7 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
     const int num_buffers = 3;
 
     VkDescriptorSetLayoutBinding bindings[num_buffers];
-    for (int i = 0; i < num_buffers; i++) {
+    for (int i = 0; i < ARRAY_SIZE(bindings); i++) {
         bindings[i] = (VkDescriptorSetLayoutBinding){
             .binding = i,
             .descriptorCount = 1,
@@ -347,6 +347,9 @@ static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
 {
     uint32_t workgroup_size =
         get_workgroup_size_for_output_units(r, output_units);
+    if (!workgroup_size) {
+        return NULL;
+    }
 
     ComputePipelineKey key;
     memset(&key, 0, sizeof(key));
@@ -411,11 +414,14 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         },
     };
 
-    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
-
     size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
         r, surface->host_fmt.vk_format, true, output_size_in_units);
+    if (!pipeline) {
+        return;
+    }
+
+    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -484,11 +490,15 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
             .range = input_size,
         },
     };
-    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
         r, surface->host_fmt.vk_format, false, output_size_in_units);
+    if (!pipeline) {
+        return;
+    }
+
+    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
