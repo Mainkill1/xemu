@@ -1,0 +1,802 @@
+[
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 46551489,
+    "checksum": 20480000000,
+    "nsPerCall": 2.327574
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 17437670,
+    "checksum": 20480000000,
+    "nsPerCall": 0.871884
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 16477451,
+    "checksum": 20480000000,
+    "nsPerCall": 0.823873
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 56104558,
+    "checksum": 20480000000,
+    "nsPerCall": 2.805228
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 16993329,
+    "checksum": 20480000000,
+    "nsPerCall": 0.849666
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 54474898,
+    "checksum": 20480000000,
+    "nsPerCall": 2.723745
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 46941353,
+    "checksum": 20480000000,
+    "nsPerCall": 2.347068
+  },
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 18662418,
+    "checksum": 20480000000,
+    "nsPerCall": 0.933121
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 48914847,
+    "checksum": 5120000000,
+    "nsPerCall": 2.445742
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 21160960,
+    "checksum": 5120000000,
+    "nsPerCall": 1.058048
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 24276317,
+    "checksum": 5120000000,
+    "nsPerCall": 1.213816
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 47460050,
+    "checksum": 5120000000,
+    "nsPerCall": 2.373003
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 24861652,
+    "checksum": 5120000000,
+    "nsPerCall": 1.243083
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 48249926,
+    "checksum": 5120000000,
+    "nsPerCall": 2.412496
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 55413717,
+    "checksum": 5120000000,
+    "nsPerCall": 2.770686
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 23586436,
+    "checksum": 5120000000,
+    "nsPerCall": 1.179322
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 46859906,
+    "checksum": 2560000000,
+    "nsPerCall": 2.342995
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 27349024,
+    "checksum": 2560000000,
+    "nsPerCall": 1.367451
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 27799525,
+    "checksum": 2560000000,
+    "nsPerCall": 1.389976
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 45998552,
+    "checksum": 2560000000,
+    "nsPerCall": 2.299928
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 29265972,
+    "checksum": 2560000000,
+    "nsPerCall": 1.463299
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 36605356,
+    "checksum": 2560000000,
+    "nsPerCall": 1.830268
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 48116932,
+    "checksum": 2560000000,
+    "nsPerCall": 2.405847
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 27183892,
+    "checksum": 2560000000,
+    "nsPerCall": 1.359195
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 281466520,
+    "checksum": 20000000,
+    "nsPerCall": 14.073326
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 67130984,
+    "checksum": 20000000,
+    "nsPerCall": 3.356549
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 64129533,
+    "checksum": 20000000,
+    "nsPerCall": 3.206477
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 274645394,
+    "checksum": 20000000,
+    "nsPerCall": 13.73227
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 60000401,
+    "checksum": 20000000,
+    "nsPerCall": 3.00002
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 271385454,
+    "checksum": 20000000,
+    "nsPerCall": 13.569273
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 271477229,
+    "checksum": 20000000,
+    "nsPerCall": 13.573861
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 66268492,
+    "checksum": 20000000,
+    "nsPerCall": 3.313425
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 84127774,
+    "checksum": 5120000000,
+    "nsPerCall": 4.206389
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 24460578,
+    "checksum": 5120000000,
+    "nsPerCall": 1.223029
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 24285847,
+    "checksum": 5120000000,
+    "nsPerCall": 1.214292
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 84176322,
+    "checksum": 5120000000,
+    "nsPerCall": 4.208816
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 24993615,
+    "checksum": 5120000000,
+    "nsPerCall": 1.249681
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 83350447,
+    "checksum": 5120000000,
+    "nsPerCall": 4.167522
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 93285831,
+    "checksum": 5120000000,
+    "nsPerCall": 4.664292
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 26221513,
+    "checksum": 5120000000,
+    "nsPerCall": 1.311076
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 54344134,
+    "checksum": 20480000000,
+    "nsPerCall": 2.717207
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 21009596,
+    "checksum": 20480000000,
+    "nsPerCall": 1.05048
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 22025463,
+    "checksum": 20480000000,
+    "nsPerCall": 1.101273
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 58066244,
+    "checksum": 20480000000,
+    "nsPerCall": 2.903312
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 23655373,
+    "checksum": 20480000000,
+    "nsPerCall": 1.182769
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 54360053,
+    "checksum": 20480000000,
+    "nsPerCall": 2.718003
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 64681070,
+    "checksum": 20480000000,
+    "nsPerCall": 3.234053
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 22493693,
+    "checksum": 20480000000,
+    "nsPerCall": 1.124685
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 48542053,
+    "checksum": 5120000000,
+    "nsPerCall": 2.427103
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 27817434,
+    "checksum": 5120000000,
+    "nsPerCall": 1.390872
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 24915138,
+    "checksum": 5120000000,
+    "nsPerCall": 1.245757
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 48767124,
+    "checksum": 5120000000,
+    "nsPerCall": 2.438356
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 26585216,
+    "checksum": 5120000000,
+    "nsPerCall": 1.329261
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 39319331,
+    "checksum": 5120000000,
+    "nsPerCall": 1.965967
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 47229810,
+    "checksum": 5120000000,
+    "nsPerCall": 2.36149
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 24585593,
+    "checksum": 5120000000,
+    "nsPerCall": 1.22928
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 44673969,
+    "checksum": 2560000000,
+    "nsPerCall": 2.233698
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 27777096,
+    "checksum": 2560000000,
+    "nsPerCall": 1.388855
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 31901278,
+    "checksum": 2560000000,
+    "nsPerCall": 1.595064
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 45763753,
+    "checksum": 2560000000,
+    "nsPerCall": 2.288188
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 32925154,
+    "checksum": 2560000000,
+    "nsPerCall": 1.646258
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 40010440,
+    "checksum": 2560000000,
+    "nsPerCall": 2.000522
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 50255679,
+    "checksum": 2560000000,
+    "nsPerCall": 2.512784
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 28810791,
+    "checksum": 2560000000,
+    "nsPerCall": 1.44054
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 95175118,
+    "checksum": 20000000,
+    "nsPerCall": 4.758756
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 60789098,
+    "checksum": 20000000,
+    "nsPerCall": 3.039455
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 62149518,
+    "checksum": 20000000,
+    "nsPerCall": 3.107476
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 99042083,
+    "checksum": 20000000,
+    "nsPerCall": 4.952104
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 61458818,
+    "checksum": 20000000,
+    "nsPerCall": 3.072941
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 93841816,
+    "checksum": 20000000,
+    "nsPerCall": 4.692091
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 92047853,
+    "checksum": 20000000,
+    "nsPerCall": 4.602393
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 59759731,
+    "checksum": 20000000,
+    "nsPerCall": 2.987987
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 0,
+    "mode": 0,
+    "elapsedNs": 51598422,
+    "checksum": 5120000000,
+    "nsPerCall": 2.579921
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 1,
+    "mode": 1,
+    "elapsedNs": 27294967,
+    "checksum": 5120000000,
+    "nsPerCall": 1.364748
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 2,
+    "mode": 1,
+    "elapsedNs": 28374270,
+    "checksum": 5120000000,
+    "nsPerCall": 1.418713
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "ABBA",
+    "position": 3,
+    "mode": 0,
+    "elapsedNs": 62564042,
+    "checksum": 5120000000,
+    "nsPerCall": 3.128202
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 0,
+    "mode": 1,
+    "elapsedNs": 28043414,
+    "checksum": 5120000000,
+    "nsPerCall": 1.402171
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 1,
+    "mode": 0,
+    "elapsedNs": 54664790,
+    "checksum": 5120000000,
+    "nsPerCall": 2.733239
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 2,
+    "mode": 0,
+    "elapsedNs": 56700573,
+    "checksum": 5120000000,
+    "nsPerCall": 2.835029
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "order": "BAAB",
+    "position": 3,
+    "mode": 1,
+    "elapsedNs": 27030297,
+    "checksum": 5120000000,
+    "nsPerCall": 1.351515
+  }
+]

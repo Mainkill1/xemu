@@ -1,0 +1,11 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) actualX=1024 actualInv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+
+TIMEOUT: killed after 3 seconds at first restricted-X case.

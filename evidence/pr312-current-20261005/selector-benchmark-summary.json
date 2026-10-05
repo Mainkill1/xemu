@@ -1,0 +1,72 @@
+[
+  {
+    "compiler": "gcc",
+    "case": "1024",
+    "baselineNs": 2.5354065,
+    "candidateNs": 0.8607750000000001,
+    "improvementPercent": 66.04982277989743
+  },
+  {
+    "compiler": "gcc",
+    "case": "256",
+    "baselineNs": 2.429119,
+    "candidateNs": 1.196569,
+    "improvementPercent": 50.740618306472435
+  },
+  {
+    "compiler": "gcc",
+    "case": "192",
+    "baselineNs": 2.3214615,
+    "candidateNs": 1.3787135,
+    "improvementPercent": 40.610107038174014
+  },
+  {
+    "compiler": "gcc",
+    "case": "odd",
+    "baselineNs": 13.6530655,
+    "candidateNs": 3.259951,
+    "improvementPercent": 76.12293737256296
+  },
+  {
+    "compiler": "gcc",
+    "case": "partial",
+    "baselineNs": 4.2076025,
+    "candidateNs": 1.236355,
+    "improvementPercent": 70.61616443093186
+  },
+  {
+    "compiler": "clang-19",
+    "case": "1024",
+    "baselineNs": 2.8106575,
+    "candidateNs": 1.112979,
+    "improvementPercent": 60.4014718975898
+  },
+  {
+    "compiler": "clang-19",
+    "case": "256",
+    "baselineNs": 2.3942965,
+    "candidateNs": 1.287509,
+    "improvementPercent": 46.225999996241065
+  },
+  {
+    "compiler": "clang-19",
+    "case": "192",
+    "baselineNs": 2.260943,
+    "candidateNs": 1.517802,
+    "improvementPercent": 32.868630478521574
+  },
+  {
+    "compiler": "clang-19",
+    "case": "odd",
+    "baselineNs": 4.7254235,
+    "candidateNs": 3.056198,
+    "improvementPercent": 35.324357700426205
+  },
+  {
+    "compiler": "clang-19",
+    "case": "partial",
+    "baselineNs": 2.784134,
+    "candidateNs": 1.3834595,
+    "improvementPercent": 50.309162561859445
+  }
+]
