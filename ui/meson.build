@@ -33,6 +33,7 @@ xemu_ss.add(files(
   'xemu-shortcut-cli.c',
   'xemu-shortcut-evidence.c',
   'xemu-shortcut-window.c',
+  'xemu-vk-texture-stage-evidence.c',
   'xemu-shortcut-config.cc',
   'xemu-controllers.cc',
   'xemu-gpu-launch.c',

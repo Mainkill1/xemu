@@ -14,6 +14,7 @@ static const char *const tweak_names[] = {
     [XEMU_TWEAK_VK_HYBRID_UBERSHADERS] = "vk_hybrid_ubershaders",
     [XEMU_TWEAK_VK_SHADER_FASTPATH] = "vk_shader_fastpath",
     [XEMU_TWEAK_NV20_VERTEX_ARITHMETIC] = "nv20_vertex_arithmetic",
+    [XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES] = "vk_skip_clean_texture_stages",
 };
 G_STATIC_ASSERT(G_N_ELEMENTS(tweak_names) == XEMU_TWEAK_COUNT);
 

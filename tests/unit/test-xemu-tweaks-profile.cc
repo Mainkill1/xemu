@@ -93,6 +93,7 @@ static void test_profile_unavailable_and_complete(void)
         "vk_hybrid_ubershaders",
         "vk_shader_fastpath",
         "nv20_vertex_arithmetic",
+        "vk_skip_clean_texture_stages",
         "vk_ubershader_mode",
     };
     for (const char *key : keys) {
@@ -280,6 +281,35 @@ static void test_snapshot_concurrent_publication(void)
     assert_snapshot(snapshot);
 }
 
+static void test_profile_clean_stage_policy(void)
+{
+    reset_profile();
+    auto text = profile();
+    g_assert_nonnull(strstr(
+        text.c_str(),
+        "tweak.vk_skip_clean_texture_stages=requested:auto,effective:enabled,"
+        "available:yes,restart:no,availability:available,reason:"));
+    g_config.tweaks.vk_skip_clean_texture_stages =
+        CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_DISABLED;
+    xemu_tweaks_apply(false);
+    text = profile();
+    g_assert_nonnull(
+        strstr(text.c_str(),
+               "tweak.vk_skip_clean_texture_stages=requested:disabled,"
+               "effective:disabled,"
+               "available:yes,restart:no,availability:available,reason:"));
+    g_config.tweaks.vk_skip_clean_texture_stages =
+        CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_AUTO;
+    xemu_tweaks_apply(false);
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_OPENGL);
+    xemu_vulkan_ubershader_publish_runtime(false, false);
+    text = profile();
+    g_assert_nonnull(strstr(
+        text.c_str(),
+        "tweak.vk_skip_clean_texture_stages=requested:auto,effective:disabled,"
+        "available:no,restart:no,availability:backend,reason:"));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
@@ -299,6 +329,8 @@ int main(int argc, char **argv)
                     test_snapshot_owned_value);
     g_test_add_func("/xemu/tweaks/profile/snapshot-concurrent-publication",
                     test_snapshot_concurrent_publication);
+    g_test_add_func("/xemu/tweaks/profile/clean-stage-policy",
+                    test_profile_clean_stage_policy);
     int result = g_test_run();
     config_tree.free_allocations(&g_config);
     return result;

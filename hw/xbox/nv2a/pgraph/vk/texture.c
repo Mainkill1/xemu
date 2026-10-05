@@ -30,6 +30,7 @@
 #include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "ui/xemu-tweaks.h"
 #include "bc-layout.h"
 #include "failpoint.h"
 #include "failure-state.h"
@@ -37,6 +38,25 @@
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
+
+/* Preserve the original guard call and short-circuit order. Cost counters
+ * are owner-local and active only during a sampled texture-bind operation. */
+static hwaddr texture_phys_addr(PGRAPHState *pg, int stage)
+{
+    pgraph_vk_texture_stage_counter_add(
+        &pg->vk_renderer_state->texture_stage_counters, VK_TEXTURE_DMA_RESOLVES);
+    return pgraph_get_texture_phys_addr(pg, stage);
+}
+
+static hwaddr texture_palette_phys_addr_length(PGRAPHState *pg,
+                                               int stage,
+                                               size_t *length)
+{
+    pgraph_vk_texture_stage_counter_add(
+        &pg->vk_renderer_state->texture_stage_counters,
+        VK_TEXTURE_PALETTE_DMA_RESOLVES);
+    return pgraph_get_texture_palette_phys_addr_length(pg, stage, length);
+}
 
 static const VkImageType dimensionality_to_vk_image_type[] = {
     0,
@@ -290,12 +310,12 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx,
     }
     assert(s.dimensionality > 1);
 
-    const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
+    const hwaddr texture_vram_offset = texture_phys_addr(pg, texture_idx);
     void *texture_data_ptr = (char *)d->vram_ptr + texture_vram_offset;
 
     size_t texture_palette_data_size;
     const hwaddr texture_palette_vram_offset =
-        pgraph_get_texture_palette_phys_addr_length(pg, texture_idx,
+        texture_palette_phys_addr_length(pg, texture_idx,
                                                     &texture_palette_data_size);
     void *palette_data_ptr = (char *)d->vram_ptr + texture_palette_vram_offset;
 
@@ -566,6 +586,9 @@ void pgraph_vk_mark_textures_possibly_dirty(NV2AState *d,
         .end = end,
     };
 
+    pgraph_vk_texture_stage_counter_add(
+        &d->pgraph.vk_renderer_state->texture_stage_counters,
+        VK_TEXTURE_CACHE_WALKS);
     lru_visit_active(&d->pgraph.vk_renderer_state->texture_cache,
                      mark_textures_possibly_dirty_visitor,
                      &test);
@@ -576,6 +599,9 @@ static bool check_texture_dirty(NV2AState *d, hwaddr addr, hwaddr size)
     hwaddr end = TARGET_PAGE_ALIGN(addr + size);
     addr &= TARGET_PAGE_MASK;
     assert(end < memory_region_size(d->vram));
+    pgraph_vk_texture_stage_counter_add(
+        &d->pgraph.vk_renderer_state->texture_stage_counters,
+        VK_TEXTURE_DIRTY_RANGE_CHECKS);
     return memory_region_test_and_clear_dirty(d->vram, addr, end - addr,
                                               DIRTY_MEMORY_NV2A_TEX);
 }
@@ -1257,7 +1283,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     TextureShape state = pgraph_get_texture_shape(pg, texture_idx); // FIXME: Check for pad issues
     BasicColorFormatInfo f_basic = kelvin_color_format_info_map[state.color_format];
 
-    const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
+    const hwaddr texture_vram_offset = texture_phys_addr(pg, texture_idx);
     size_t texture_length = pgraph_get_texture_length(pg, &state);
     if (!texture_length) {
         error_report("Invalid texture source layout");
@@ -1286,7 +1312,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     key.texture_length = texture_length;
     if (is_indexed) {
         texture_palette_vram_offset =
-            pgraph_get_texture_palette_phys_addr_length(
+            texture_palette_phys_addr_length(
                 pg, texture_idx, &texture_palette_data_size);
         key.palette_vram_offset = texture_palette_vram_offset;
         key.palette_length = texture_palette_data_size;
@@ -1667,11 +1693,11 @@ static bool bound_texture_sources_match(PGRAPHState *pg)
             continue;
         }
 
-        hwaddr current_texture = pgraph_get_texture_phys_addr(pg, i);
+        hwaddr current_texture = texture_phys_addr(pg, i);
         hwaddr current_palette = 0;
         if (binding->key.palette_length) {
             current_palette =
-                pgraph_get_texture_palette_phys_addr_length(pg, i, NULL);
+                texture_palette_phys_addr_length(pg, i, NULL);
         }
 
         if (!pgraph_vk_texture_source_identity_matches(
@@ -1720,21 +1746,33 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
-    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    const bool perf_enabled = r->perf.enabled;
+    const bool skip_clean_texture_stages =
+        xemu_tweak_enabled(XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    pgraph_vk_texture_stage_counter_begin(&r->texture_stage_counters,
+                                          perf_enabled,
+                                          skip_clean_texture_stages);
+    int64_t start_us = perf_enabled ? g_get_monotonic_time() : 0;
 
     // FIXME: Mark textures that are sourced from surfaces so we can track them
 
     if (!check_textures_dirty(pg) &&
         !check_bound_texture_memory_dirty(d) &&
         bound_texture_sources_match(pg)) {
+        pgraph_vk_texture_stage_counter_add(&r->texture_stage_counters,
+                                            VK_TEXTURE_WHOLE_CLEAN_RETURNS);
+        pgraph_vk_texture_stage_counter_end(&r->texture_stage_counters);
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
         update_timestamps(r);
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_BIND_TEXTURES,
-            r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+            perf_enabled ? g_get_monotonic_time() - start_us : 0);
         return true;
     }
+
+    pgraph_vk_texture_stage_counter_add(&r->texture_stage_counters,
+                                        VK_TEXTURE_SLOW_BIND_CALLS);
 
     bool succeeded = true;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
@@ -1746,6 +1784,8 @@ bool pgraph_vk_bind_textures(NV2AState *d)
                 continue;
             }
         } else {
+            pgraph_vk_texture_stage_counter_add(&r->texture_stage_counters,
+                                                VK_TEXTURE_STAGE_CHECKS);
             bool stage_clean =
                 !pg->texture_dirty[i] && binding &&
                 binding != &r->dummy_texture && !binding->possibly_dirty &&
@@ -1762,14 +1802,20 @@ bool pgraph_vk_bind_textures(NV2AState *d)
                  !pgraph_vk_surface_overlaps_range(
                      pg, binding->key.palette_vram_offset,
                      binding->key.palette_length)) &&
-                pgraph_get_texture_phys_addr(pg, i) ==
+                texture_phys_addr(pg, i) ==
                     binding->key.texture_vram_offset &&
                 (!binding->key.palette_length ||
-                 pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
+                 texture_palette_phys_addr_length(pg, i, NULL) ==
                      binding->key.palette_vram_offset);
 
             if (stage_clean) {
-                continue;
+                bool skipped = pgraph_vk_should_skip_clean_texture_stage(
+                    skip_clean_texture_stages, stage_clean);
+                pgraph_vk_texture_stage_counter_eligible(
+                    &r->texture_stage_counters, skipped);
+                if (skipped) {
+                    continue;
+                }
             }
         }
 
@@ -1798,7 +1844,8 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     update_timestamps(r);
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_BIND_TEXTURES,
-        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+        perf_enabled ? g_get_monotonic_time() - start_us : 0);
+    pgraph_vk_texture_stage_counter_end(&r->texture_stage_counters);
     NV2A_VK_DGROUP_END();
     return succeeded;
 }

@@ -242,6 +242,8 @@ bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
     PGRAPHVkState *r = pg->vk_renderer_state;
     SurfaceBinding *surface;
 
+    pgraph_vk_texture_stage_counter_add(&r->texture_stage_counters,
+                                       VK_TEXTURE_SURFACE_OVERLAP_QUERIES);
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
             return true;

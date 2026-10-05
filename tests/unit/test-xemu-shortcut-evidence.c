@@ -5,6 +5,7 @@
 #include "qobject/qlist.h"
 #include "ui/xemu-shortcut-evidence.h"
 #include "ui/xemu-shortcut-window.h"
+#include "ui/xemu-vk-texture-stage-evidence.h"
 
 typedef struct Fixture {
     XemuShortcutCounterSnapshot published;
@@ -542,6 +543,15 @@ static void test_disarmed_shutdown(void)
     g_assert_false(xemu_shortcut_evidence_window(&start, &count));
     g_assert_cmpuint(start, ==, 17);
     g_assert_cmpuint(count, ==, 19);
+    XemuShortcutWindow *window =
+        xemu_vk_texture_stage_evidence_create(false, &error_abort);
+    g_assert_null(window);
+    PGRAPHVkTextureStageCounters counters = {.frame = 17};
+    counters.values[VK_TEXTURE_DMA_RESOLVES] = 23;
+    XemuTweakResolution profile = {0};
+    xemu_vk_texture_stage_evidence_boundary(window, &counters, 0, &profile);
+    g_assert_cmpuint(counters.frame, ==, 17);
+    g_assert_cmpuint(counters.values[VK_TEXTURE_DMA_RESOLVES], ==, 23);
     g_assert_true(xemu_shortcut_evidence_shutdown(&error_abort));
     g_assert_false(xemu_shortcut_evidence_enabled());
 }
@@ -759,6 +769,142 @@ static void test_actual_dsp_transition(void)
     cleanup();
 }
 
+static void test_vk_texture_stage_owner(void)
+{
+    if (!child()) {
+        return;
+    }
+    init_service(true);
+    XemuTweakResolution profile = fixture(0).published.start_profile;
+    XemuShortcutWindow *window =
+        xemu_vk_texture_stage_evidence_create(false, &error_abort);
+    g_assert_nonnull(window);
+    PGRAPHVkTextureStageCounters counters = {.frame = 100};
+    xemu_vk_texture_stage_evidence_boundary(window, &counters, 1000,
+                                           &profile);
+    counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] = 5;
+    counters.values[VK_TEXTURE_CLEAN_STAGE_SKIPS] = 5;
+    counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] = 7;
+    counters.values[VK_TEXTURE_CACHE_WALKS] = 2;
+    counters.values[VK_TEXTURE_SURFACE_OVERLAP_QUERIES] = 11;
+    counters.values[VK_TEXTURE_DMA_RESOLVES] = 13;
+    counters.values[VK_TEXTURE_PALETTE_DMA_RESOLVES] = 3;
+    counters.frame = 120;
+    xemu_vk_texture_stage_evidence_boundary(window, &counters, 3000,
+                                           &profile);
+    xemu_vk_texture_stage_evidence_destroy(window);
+    QDict *document = snapshot();
+    g_assert_true(qdict_get_bool(document, "complete"));
+    QDict *execution = qdict_get_qdict(document, "execution");
+    QDict *texture = qdict_get_qdict(execution, "vulkan_texture_stage");
+    g_assert_cmpstr(qdict_get_str(texture, "policy_key"), ==,
+                    "vk_skip_clean_texture_stages");
+    g_assert_cmpstr(qdict_get_str(texture, "progress_boundary"), ==,
+                    "nv097_set_flip_stall_method");
+    g_assert_false(qdict_get_bool(texture, "perf_log_enabled"));
+    QDict *values = qdict_get_qdict(document, "counters");
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.clean_stage_eligible"),
+                     ==, 5);
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.clean_stage_skips"),
+                     ==, 5);
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.dirty_range_checks"),
+                     ==, 7);
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.cache_walks"), ==, 2);
+    g_assert_cmpuint(qdict_get_uint(values,
+                                   "vk.texture.surface_overlap_queries"),
+                     ==, 11);
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.dma_resolves"), ==, 13);
+    g_assert_cmpuint(qdict_get_uint(values, "vk.texture.palette_dma_resolves"),
+                     ==, 3);
+    QDict *record = qobject_to(QDict,
+        qlist_first(qdict_get_qlist(document, "sources"))->value);
+    g_assert_cmpstr(qdict_get_str(record, "id"), ==,
+                    "vk.texture_stage.flip_stall_method");
+    g_assert_true(qdict_get_bool(record, "retired"));
+    qobject_unref(document);
+    g_assert_true(xemu_shortcut_evidence_shutdown(&error_abort));
+    cleanup();
+}
+
+typedef enum InvalidTextureInterval {
+    TEXTURE_INVALID_ACCOUNTING,
+    TEXTURE_INVALID_PERF,
+    TEXTURE_INVALID_POLICY,
+    TEXTURE_INVALID_POLICY_IDENTITY,
+    TEXTURE_INVALID_COUNTER_OVERFLOW,
+    TEXTURE_INVALID_FRAME_OVERFLOW,
+    TEXTURE_INVALID_RESET_ACTIVE,
+    TEXTURE_INVALID_RESET_FINAL,
+} InvalidTextureInterval;
+
+static void test_vk_texture_stage_invalid(gconstpointer opaque)
+{
+    if (!child()) {
+        return;
+    }
+    init_service(true);
+    InvalidTextureInterval kind = GPOINTER_TO_INT(opaque);
+    XemuTweakResolution profile = fixture(0).published.start_profile;
+    XemuShortcutWindow *window =
+        xemu_vk_texture_stage_evidence_create(false, &error_abort);
+    g_assert_nonnull(window);
+    PGRAPHVkTextureStageCounters counters = {.frame = 100};
+    xemu_vk_texture_stage_evidence_boundary(window, &counters, 1000, &profile);
+    counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] = 5;
+    counters.values[VK_TEXTURE_CLEAN_STAGE_SKIPS] = 5;
+    counters.frame = 120;
+    switch (kind) {
+    case TEXTURE_INVALID_ACCOUNTING:
+        counters.values[VK_TEXTURE_CLEAN_STAGE_FORCED_REFERENCE] = 1;
+        break;
+    case TEXTURE_INVALID_PERF:
+        counters.observed_perf = 3;
+        counters.values[VK_TEXTURE_MIXED_PERF_INTERVALS] = 1;
+        break;
+    case TEXTURE_INVALID_POLICY:
+        counters.observed_policy = 3;
+        break;
+    case TEXTURE_INVALID_POLICY_IDENTITY:
+        /* The published Auto policy permits skips on this Vulkan fixture. */
+        counters.observed_policy = 1;
+        break;
+    case TEXTURE_INVALID_COUNTER_OVERFLOW:
+        counters.overflowed = true;
+        break;
+    case TEXTURE_INVALID_FRAME_OVERFLOW:
+        counters.frame = UINT64_MAX;
+        counters.frame_overflowed = true;
+        break;
+    case TEXTURE_INVALID_RESET_ACTIVE:
+        xemu_vk_texture_stage_evidence_invalidate(window, &counters);
+        break;
+    case TEXTURE_INVALID_RESET_FINAL:
+        break;
+    }
+    xemu_vk_texture_stage_evidence_boundary(window, &counters, 3000, &profile);
+    if (kind == TEXTURE_INVALID_RESET_FINAL) {
+        QDict *document = snapshot();
+        g_assert_true(qdict_get_bool(document, "complete"));
+        qobject_unref(document);
+        xemu_vk_texture_stage_evidence_invalidate(window, &counters);
+    }
+    g_assert_false(counters.collect_evidence);
+    xemu_vk_texture_stage_evidence_destroy(window);
+    QDict *document = snapshot();
+    g_assert_false(qdict_get_bool(document, "complete"));
+    g_assert_cmpint(qdict_get_bool(document, "overflowed"), ==,
+                    kind == TEXTURE_INVALID_COUNTER_OVERFLOW ||
+                    kind == TEXTURE_INVALID_FRAME_OVERFLOW);
+    if (kind == TEXTURE_INVALID_PERF) {
+        g_assert_cmpuint(qdict_get_uint(qdict_get_qdict(document, "counters"),
+                                       "vk.texture.mixed_perf_intervals"),
+                         ==, 1);
+    }
+    qobject_unref(document);
+    g_assert_true(xemu_shortcut_evidence_shutdown(&error_abort));
+    cleanup();
+}
+
 typedef struct PublicationRace {
     GMutex lock;
     GCond condition;
@@ -854,6 +1000,24 @@ int main(int argc, char **argv)
                     test_owner_window_reset);
     g_test_add_func("/xemu/shortcut-evidence/owner-overflow",
                     test_owner_window_overflow);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-accounting",
+                         GINT_TO_POINTER(0), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-mixed-perf",
+                         GINT_TO_POINTER(1), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-mixed-policy",
+                         GINT_TO_POINTER(2), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-policy-identity",
+                         GINT_TO_POINTER(3), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-counter-overflow",
+                         GINT_TO_POINTER(4), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-frame-overflow",
+                         GINT_TO_POINTER(5), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-reset-active",
+                         GINT_TO_POINTER(6), test_vk_texture_stage_invalid);
+    g_test_add_data_func("/xemu/shortcut-evidence/vk-texture-reset-final",
+                         GINT_TO_POINTER(7), test_vk_texture_stage_invalid);
+    g_test_add_func("/xemu/shortcut-evidence/vk-texture-stage-owner",
+                    test_vk_texture_stage_owner);
     g_test_add_func("/xemu/shortcut-evidence/execution-publication",
                     test_execution_publication);
     g_test_add_func("/xemu/shortcut-evidence/actual-dsp-transition",

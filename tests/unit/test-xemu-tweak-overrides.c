@@ -46,6 +46,8 @@ static void test_registry_application(void)
         {"gl_native_s3tc", XEMU_TWEAK_GL_NATIVE_S3TC},
         {"vk_shader_fastpath", XEMU_TWEAK_VK_SHADER_FASTPATH},
         {"nv20_vertex_arithmetic", XEMU_TWEAK_NV20_VERTEX_ARITHMETIC},
+        {"vk_skip_clean_texture_stages",
+         XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES},
     };
     g_assert_cmpuint(G_N_ELEMENTS(cases) + 1, ==, XEMU_TWEAK_COUNT);
     for (size_t i = 0; i < G_N_ELEMENTS(cases); i++) {
@@ -231,6 +233,17 @@ static void test_derived_permission(void)
     }
 }
 
+static void test_clean_stage_override(void)
+{
+    XemuTweakOverride override;
+    Error *err = NULL;
+    g_assert_true(xemu_tweak_parse_override(
+        "vk_skip_clean_texture_stages=disabled", &override, &err));
+    g_assert_null(err);
+    g_assert_cmpint(override.tweak, ==, XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    g_assert_cmpint(override.policy, ==, XEMU_TWEAK_POLICY_DISABLED);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -247,5 +260,7 @@ int main(int argc, char **argv)
                     test_forged_records_atomic);
     g_test_add_func("/xemu/tweaks/overrides/derived-permission",
                     test_derived_permission);
+    g_test_add_func("/xemu/tweaks/overrides/clean-stage",
+                    test_clean_stage_override);
     return g_test_run();
 }
