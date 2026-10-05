@@ -1,0 +1,89 @@
+[
+  {
+    "payload": "mono-pcm",
+    "workers": 8,
+    "parentMedianUs": 1022427.5,
+    "candidateMedianUs": 1022522.5,
+    "timeImprovementPercent": -0.00929161236371283,
+    "firstBalancedBlockImprovementPercent": 0.18635160093410205,
+    "secondBalancedBlockImprovementPercent": -1.4035224991503066,
+    "parentMinMaxUs": [
+      1013132,
+      1042509
+    ],
+    "candidateMinMaxUs": [
+      1014098,
+      1121589
+    ],
+    "coverage": "8 runs per variant; VP-only timer; every output frame and all cursors checked",
+    "cpuAffinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  {
+    "payload": "mono-adpcm",
+    "workers": 8,
+    "parentMedianUs": 950524.0,
+    "candidateMedianUs": 931198.5,
+    "timeImprovementPercent": 2.03314171972512,
+    "firstBalancedBlockImprovementPercent": 1.7581390748198245,
+    "secondBalancedBlockImprovementPercent": 2.303001642036125,
+    "parentMinMaxUs": [
+      947094,
+      958598
+    ],
+    "candidateMinMaxUs": [
+      924713,
+      973783
+    ],
+    "coverage": "8 runs per variant; VP-only timer; every output frame and all cursors checked",
+    "cpuAffinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  {
+    "payload": "stereo-adpcm",
+    "workers": 8,
+    "parentMedianUs": 1032930.5,
+    "candidateMedianUs": 983071.0,
+    "timeImprovementPercent": 4.826994652592793,
+    "firstBalancedBlockImprovementPercent": 5.866497648836692,
+    "secondBalancedBlockImprovementPercent": 4.80920853556688,
+    "parentMinMaxUs": [
+      1025962,
+      1090491
+    ],
+    "candidateMinMaxUs": [
+      977037,
+      1101527
+    ],
+    "coverage": "8 runs per variant; VP-only timer; every output frame and all cursors checked",
+    "cpuAffinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  }
+]

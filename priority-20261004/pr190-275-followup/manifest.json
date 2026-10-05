@@ -1,0 +1,16 @@
+{
+  "main": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+  "descriptorParent": "8e9966415808f51feae2c566015b89da689a67d2",
+  "candidate275": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+  "fixture303": "37c72b07783f810076fb6961756380c28942a4d2",
+  "host": "AMD RYZEN AI MAX+ 395; Linux;16 cores/32 threads; libsamplerate0.2.2",
+  "prototype320": "D predates owned-mapping/wrap/empty-cleanup repairs. Exploratory unpinned runs; occasional local compilation overlapped. Not current-head qualification.",
+  "current96": "B descriptor/C block/D current page/E discarded outlined prototype; CPU0-8 affinity, no deliberate concurrent builds,8 forward/reverse balanced rounds,20000 VP frames+256warmup+1probe. D runtime source same as275ccf; subsequent changes formatting/comments/extra tests/CI only.",
+  "reader240": "MCPX_APU_CACHE_MIN_WORDS default2;CPU0;500000blocks;8balancedrounds/wordcount. Generic lane shares190descriptor cache; coldmapsdestroyedaftereveryblock; reusedmapsretained. Small checksum included identically; encodedreader only.",
+  "reader24": "Same one-word contract with compile-time minimum1 to actually measure cold single-wordmapping; genericmedian9385.5us,cold14175.5us,reused1584us. Single-wordcold cost51.03%higher.",
+  "fixture": "v3 full frame validation outside measured VP interval; historical v1/v2 scopes preserved. Per-frame monotonicmicrosecond clock overhead included; numbers notgameFPS. Changing validsign nibbles force90045decodes/11565hits over2257warmup/probe/measuredframes (90kdecodesduring2000measuredframes), nota varyingPCM waveform.",
+  "diagnostics": "Private source overlays compile counters only for diagnostics; normal275VP object has no MCPX profile symbols. Counter runs notgainproof. Payloadmappedbytes are cumulative virtualmapping spans, notbytescopied.",
+  "correctness": "18real-QEMU memory cases normal+ASan/UBSanPASS;24productionVPfixturechecksPASS onmain andcandidate; stale-FV and destroy-every-block mutantsrejected; silence/stereopage negativesrejected; mono page negative wasmis-targeted andpassed because mono64blocksfit oneSGEpage.",
+  "nativeGates": "275 exact-headCI andnative PCM/save-load/audio/fullXISO currenthead missing;190native performance mixed. No merge/release.",
+  "pgr2Scope": "Profile finalization timedout, trace26558/zerolost valid diagnostic; counter-only originalPlan completed separatewholeprocessrun. Rawscreens/gamebytes/trace remainprivate. Counters andinclusiveprofilescope mustnotbe pooled."
+}

@@ -1,0 +1,78 @@
+{
+  "profileRun": "20261005-002933756-905c4c4a032942eeb431e9db27f989f4",
+  "counterRun": "20261005-003601505-64eb8dc5a31d4e9f88286f7ee67ddf3d",
+  "sampleCount": 26558,
+  "weightedCycles": 250372454715,
+  "groups": [
+    {
+      "group": "VP worker (inclusive)",
+      "samples": 10700,
+      "weightedCycles": 100998813304,
+      "shareOfRecordedCyclesPercent": 40.33942688262867
+    },
+    {
+      "group": "sample callback (inclusive)",
+      "samples": 1775,
+      "weightedCycles": 16903906222,
+      "shareOfRecordedCyclesPercent": 6.7515039708508615
+    },
+    {
+      "group": "descriptor cache setup",
+      "samples": 48,
+      "weightedCycles": 461072404,
+      "shareOfRecordedCyclesPercent": 0.18415460459691568
+    },
+    {
+      "group": "descriptor cache teardown",
+      "samples": 19,
+      "weightedCycles": 179065634,
+      "shareOfRecordedCyclesPercent": 0.07151970219880265
+    },
+    {
+      "group": "sample payload physical reads",
+      "samples": 546,
+      "weightedCycles": 5199317403,
+      "shareOfRecordedCyclesPercent": 2.076633153961926
+    },
+    {
+      "group": "voice state physical reads",
+      "samples": 2307,
+      "weightedCycles": 20662499467,
+      "shareOfRecordedCyclesPercent": 8.252704751615033
+    },
+    {
+      "group": "resampler",
+      "samples": 7348,
+      "weightedCycles": 70327807123,
+      "shareOfRecordedCyclesPercent": 28.089274917663936
+    },
+    {
+      "group": "ADPCM decode",
+      "samples": 160,
+      "weightedCycles": 1536654378,
+      "shareOfRecordedCyclesPercent": 0.6137473787798182
+    }
+  ],
+  "counters": {
+    "version": 1,
+    "callbacks": 3745495,
+    "descriptor_reads": 55613478,
+    "descriptor_hits": 52308092,
+    "descriptor_misses": 3305386,
+    "flatview_checks": 52308092,
+    "cache_init": 3305386,
+    "cache_destroy_calls": 7050881,
+    "cache_destroy_owned": 3305386,
+    "descriptor_cached_reads": 55613478,
+    "descriptor_phys_reads": 0,
+    "adpcm_phys": 19385226,
+    "pcm_u8_phys": 0,
+    "pcm_s16_phys": 40374982,
+    "pcm_s24_phys": 10863808,
+    "pcm_s32_phys": 0,
+    "stream_adpcm_copies": 101236,
+    "completed_worker_batches": 1395160
+  },
+  "counterDescriptorHitPercent": 94.05650191487754,
+  "scope": "Recorded userspace/kernel cycles for the selected process, inclusive call-path groups overlap and must not be added. Counters are a separate complete whole-process scripted run, not the 30-second CPU sample window. Profile finalization timed out; actual trace has zero lost samples. Instrumented diagnostic builds are not native performance qualification."
+}
