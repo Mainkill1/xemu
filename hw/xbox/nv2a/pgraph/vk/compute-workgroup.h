@@ -19,19 +19,17 @@ static inline uint32_t pgraph_vk_compute_workgroup_size(
     uint32_t limit = max_size_x < max_invocations ?
                          max_size_x : max_invocations;
 
-    if (limit > 1024u) {
-        limit = 1024u;
-    }
     if (!output_units || !limit) {
         return 0;
     }
 
-    uint32_t group_size = 1;
-    while (group_size <= limit / 2) {
-        group_size *= 2;
+    uint32_t group_size = 1024;
+    while (group_size > limit) {
+        group_size >>= 1;
     }
-    while (group_size > 1 && output_units % group_size != 0) {
-        group_size /= 2;
+    /* A power-of-two divisor only needs the low bits to be zero. */
+    while (group_size > 1 && (output_units & (group_size - 1)) != 0) {
+        group_size >>= 1;
     }
     return group_size;
 }
