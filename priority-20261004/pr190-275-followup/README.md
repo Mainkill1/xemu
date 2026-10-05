@@ -16,3 +16,7 @@ Cold one-word mapping costs more than a generic read; two-word and larger cold m
 The separate DeckPGR2 diagnostic sees94.06% descriptorhits and70.624millionphysicalpayloadreads (72.55%PCM). Inclusivecycle groups attribute0.256% to descriptor setup/teardown and2.077% to samplephysicalreads. Groups overlap; wholeprocesscounters and30secondtrace aredifferent runs. Profile finalization timeout remainsfailed/incomplete.
 
 Every numeric run is retained in the CSV files. See manifest.json for source/timing scope, control lanes, failed negatives, limits and unchanged native gates. No gamepayloads,binaries,firmware,PCM,screenshots or rawtraces are published.
+
+## Current cumulative stack versus main
+
+72 additional balanced runs use the same v3 fixture and CPU0-8 affinity. Parent main `b4d69b24`, descriptor `8e996641`, stack `ccf5c441`. Eight-worker median VP-time reductions versus main: PCM8.65%, monoADPCM4.81%, changingstereoADPCM9.14%. Both balanced blocks have the same positive direction. The stack also passes all600 production resampler-state cases (8groups). These component measurements are not native FPS qualification. The unchanged three-title Windows/Deck game campaign has started; no merge has occurred.

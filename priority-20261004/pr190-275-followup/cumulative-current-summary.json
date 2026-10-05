@@ -1,0 +1,47 @@
+[
+  {
+    "payload": "mono-pcm",
+    "workers": 8,
+    "medianTimesUs": {
+      "a-main": 1110946.0,
+      "b-descriptor": 1022882.0,
+      "d-page": 1014891.5
+    },
+    "stackVersusMainTimeImprovementPercent": 8.646189823807818,
+    "firstSecondBalancedBlockImprovementPercent": [
+      10.638002755603347,
+      8.561172190187461
+    ],
+    "timingScope": "Production VP only; full frame/state validation outside timer. Same currentv3 fixture,20000frames+256warmup+1probe,CPU0-8,8balancedroundsperlane. Components, notgameFPS."
+  },
+  {
+    "payload": "mono-adpcm",
+    "workers": 8,
+    "medianTimesUs": {
+      "a-main": 976610.0,
+      "b-descriptor": 952336.5,
+      "d-page": 929636.0
+    },
+    "stackVersusMainTimeImprovementPercent": 4.809903646286645,
+    "firstSecondBalancedBlockImprovementPercent": [
+      4.35835425636889,
+      5.182014030541151
+    ],
+    "timingScope": "Production VP only; full frame/state validation outside timer. Same currentv3 fixture,20000frames+256warmup+1probe,CPU0-8,8balancedroundsperlane. Components, notgameFPS."
+  },
+  {
+    "payload": "stereo-adpcm",
+    "workers": 8,
+    "medianTimesUs": {
+      "a-main": 1079932.5,
+      "b-descriptor": 1032682.5,
+      "d-page": 981241.0
+    },
+    "stackVersusMainTimeImprovementPercent": 9.138673018915535,
+    "firstSecondBalancedBlockImprovementPercent": [
+      12.18807540924569,
+      9.248911390295227
+    ],
+    "timingScope": "Production VP only; full frame/state validation outside timer. Same currentv3 fixture,20000frames+256warmup+1probe,CPU0-8,8balancedroundsperlane. Components, notgameFPS."
+  }
+]
