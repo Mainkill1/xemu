@@ -1,0 +1,42 @@
+{
+  "purpose": "Isolate forced voice_get_samples inlining on current PR275 stack",
+  "currentCommit": "ccf5c441af26e49be4ddf9f3d7d2b1e7dbc78531",
+  "sourceChange": "static int -> static inline __attribute__((always_inline)) int voice_get_samples; no other changes",
+  "fixtureObjectSha256": "7e98dc411aff9214136c84aecced21ed336b0829f975e29ae4e4cdb0370cf866",
+  "fixtureCommit": "37c72b07783f810076fb6961756380c28942a4d2",
+  "order": [
+    "current",
+    "inline",
+    "inline",
+    "current",
+    "inline",
+    "current",
+    "current",
+    "inline"
+  ],
+  "cpuAffinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "frames": 20000,
+  "warmupFrames": 256,
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "executables": {
+    "current": {
+      "path": ".scratch/pr190-followup/compiler-current-v3",
+      "sha256": "9dc30009d7b33c9d9d97075144a9198e148747c6bd0c17543a917b73a7fde5fe"
+    },
+    "inline": {
+      "path": ".scratch/pr190-followup/compiler-inline-v3",
+      "sha256": "a1a72aa3772e82239bbe2f83acf3656700ade1d157e2e6c435bc4676a1105c01"
+    }
+  },
+  "measurement": "Production VP-only; full output/state checks outside timing; fixed work, not game FPS"
+}

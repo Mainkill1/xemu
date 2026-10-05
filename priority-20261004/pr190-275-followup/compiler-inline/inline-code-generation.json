@@ -1,0 +1,21 @@
+{
+  "current": {
+    "symbols": [
+      "0000000000000340 00000000000014be t voice_get_samples",
+      "00000000000000bb 0000000000000155 t voice_get_samples.cold",
+      "0000000000001800 00000000000001a5 t voice_resample_callback",
+      "0000000000000210 000000000000001f t voice_resample_callback.cold"
+    ],
+    "size": "  28325\t     80\t      0\t  28405\t   6ef5\t.scratch/pr190-followup/page-vp.o",
+    "disassemblyFile": "inline-current-assembly.txt"
+  },
+  "inline": {
+    "symbols": [
+      "0000000000000340 000000000000181a t voice_resample_callback",
+      "00000000000000bb 0000000000000174 t voice_resample_callback.cold"
+    ],
+    "size": "  28669\t     80\t      0\t  28749\t   704d\t.scratch/pr190-followup/inline-vp.o",
+    "disassemblyFile": "inline-inline-assembly.txt"
+  },
+  "sourceDiff": "--- xemu-pr275-shared/hw/xbox/mcpx/apu/vp/vp.c\t2026-10-04 17:11:49.135481263 -0700\n+++ .scratch/pr190-followup/inline-experiment/vp.c\t2026-10-04 19:15:55.739837610 -0700\n@@ -844,7 +844,7 @@\n     }\n }\n \n-static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],\n+static inline __attribute__((always_inline)) int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],\n                        int num_samples_requested)\n {\n     assert(v < MCPX_HW_MAX_VOICES);\n"
+}

@@ -1,0 +1,12 @@
+{
+  "current": {
+    "returnCode": 0,
+    "passedCases": 24,
+    "log": "compiler-current-correctness.log"
+  },
+  "inline": {
+    "returnCode": 0,
+    "passedCases": 24,
+    "log": "compiler-inline-correctness.log"
+  }
+}

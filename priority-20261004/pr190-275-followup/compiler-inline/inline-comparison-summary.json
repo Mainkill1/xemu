@@ -1,0 +1,206 @@
+[
+  {
+    "workers": 1,
+    "payload": "mono-pcm",
+    "currentMedianUs": 3158204.0,
+    "inlineMedianUs": 3174632.0,
+    "timeReductionPercent": -0.5201690581102314,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 3133627.0,
+          "inline": 3154354.5
+        },
+        "time_reduction_percent": -0.6614539637295636
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 3170261.5,
+          "inline": 3193065.5
+        },
+        "time_reduction_percent": -0.7193097477921073
+      }
+    },
+    "ranges": {
+      "current": [
+        3113839,
+        3177530
+      ],
+      "inline": [
+        3148109,
+        3197467
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 1,
+    "payload": "mono-adpcm",
+    "currentMedianUs": 2735766.5,
+    "inlineMedianUs": 2737185.5,
+    "timeReductionPercent": -0.05186846172726689,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 2767039.5,
+          "inline": 2739105.5
+        },
+        "time_reduction_percent": 1.009526607769784
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 2709477.0,
+          "inline": 2721453.5
+        },
+        "time_reduction_percent": -0.4420225748364093
+      }
+    },
+    "ranges": {
+      "current": [
+        2702516,
+        2778984
+      ],
+      "inline": [
+        2694813,
+        2751934
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 1,
+    "payload": "stereo-adpcm",
+    "currentMedianUs": 2954954.5,
+    "inlineMedianUs": 2941408.0,
+    "timeReductionPercent": 0.4584334547283242,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 2970528.0,
+          "inline": 2941408.0
+        },
+        "time_reduction_percent": 0.9802971054304166
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 2923205.5,
+          "inline": 2935945.5
+        },
+        "time_reduction_percent": -0.4358229347885434
+      }
+    },
+    "ranges": {
+      "current": [
+        2903420,
+        2974138
+      ],
+      "inline": [
+        2896210,
+        2975681
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 8,
+    "payload": "mono-pcm",
+    "currentMedianUs": 1013964.0,
+    "inlineMedianUs": 1027874.5,
+    "timeReductionPercent": -1.3718928877159309,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 1011213.0,
+          "inline": 1027874.5
+        },
+        "time_reduction_percent": -1.6476746244362017
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 1036108.0,
+          "inline": 1045489.5
+        },
+        "time_reduction_percent": -0.9054558019048198
+      }
+    },
+    "ranges": {
+      "current": [
+        1008343,
+        1058371
+      ],
+      "inline": [
+        1016557,
+        1074422
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 8,
+    "payload": "mono-adpcm",
+    "currentMedianUs": 930978.5,
+    "inlineMedianUs": 932740.0,
+    "timeReductionPercent": -0.189209525246814,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 930720.5,
+          "inline": 930639.5
+        },
+        "time_reduction_percent": 0.008702934984239352
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 930978.5,
+          "inline": 933637.5
+        },
+        "time_reduction_percent": -0.28561347012847627
+      }
+    },
+    "ranges": {
+      "current": [
+        924475,
+        936966
+      ],
+      "inline": [
+        928443,
+        934631
+      ]
+    },
+    "checks": "8/8 PASS"
+  },
+  {
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "currentMedianUs": 987926.5,
+    "inlineMedianUs": 977222.5,
+    "timeReductionPercent": 1.0834814128378945,
+    "orderBlocks": {
+      "ABBA": {
+        "median_us": {
+          "current": 992772.5,
+          "inline": 1018435.5
+        },
+        "time_reduction_percent": -2.5849829643750155
+      },
+      "BAAB": {
+        "median_us": {
+          "current": 986727.0,
+          "inline": 976926.0
+        },
+        "time_reduction_percent": 0.9932838566290347
+      }
+    },
+    "ranges": {
+      "current": [
+        986021,
+        997125
+      ],
+      "inline": [
+        975721,
+        1060557
+      ]
+    },
+    "checks": "8/8 PASS"
+  }
+]
