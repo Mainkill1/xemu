@@ -141,9 +141,15 @@ QDict *xemu_shortcut_input_paths(int argc, char **argv, Error **errp)
         if (!*path) {
             continue;
         }
+        FILE *file = g_fopen(path, "rb");
+        bool readable = file != nullptr;
+        if (file) {
+            fclose(file);
+        }
         GStatBuf info;
-        if (g_stat(path, &info) || !S_ISREG(info.st_mode) ||
-            (!strcmp(entry->key, "bootrom") && info.st_size != 512)) {
+        if (!readable || g_stat(path, &info) || !S_ISREG(info.st_mode) ||
+            (!strcmp(entry->key, "bootrom") && info.st_size != 512) ||
+            (!strcmp(entry->key, "eeprom") && info.st_size != 256)) {
             error_setg(errp, "Unresolved shortcut evidence input %s: %s",
                        entry->key, path);
             return nullptr;

@@ -169,6 +169,13 @@ static void test_launch_routes()
     rejected = xemu_shortcut_input_paths(0, nullptr, &error);
     g_assert_null(rejected);
     g_assert_nonnull(error);
+    error_free(error);
+    error = nullptr;
+    g_config.sys.files.bootrom_path = "";
+    g_config.sys.files.eeprom_path = hdd;
+    rejected = xemu_shortcut_input_paths(0, nullptr, &error);
+    g_assert_null(rejected);
+    g_assert_nonnull(error);
     g_unlink(eeprom);
     g_unlink(hdd);
 }
