@@ -899,7 +899,14 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     uint32_t adpcm_block[MCPX_ADPCM_MAX_BLOCK_BYTES / sizeof(uint32_t)];
     const int16_t *adpcm_decoded = NULL;
     int adpcm_decoded_samples = 0;
-    g_auto(MCPXAPUSampleReadCache) sample_cache = { 0 };
+    g_auto(MCPXAPUSampleReadCache) sample_cache QEMU_UNINITIALIZED;
+
+    /*
+     * Empty mappings are guarded by mrs.mr; cache_init fills all other fields.
+     * Avoid explicit/implicit payload clearing for PCM/streaming callbacks.
+     */
+    sample_cache.sge.mapping.mrs.mr = NULL;
+    sample_cache.payload.mrs.mr = NULL;
 
     // FIXME: Only update if necessary
     struct McpxApuDebugVoice *dbg = &g_dbg.vp.v[v];

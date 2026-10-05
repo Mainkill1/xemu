@@ -122,7 +122,12 @@ static void read_block(uint32_t linear, uint32_t *words, unsigned word_count)
     if (original_reader) {
         read_original_block(linear, words, word_count);
     } else {
-        g_auto(MCPXAPUSampleReadCache) cache = { 0 };
+        g_auto(MCPXAPUSampleReadCache) cache QEMU_UNINITIALIZED;
+
+        /* Catch reads of unused fields before QEMU initializes a mapping. */
+        memset(&cache, 0xa5, sizeof(cache));
+        cache.sge.mapping.mrs.mr = NULL;
+        cache.payload.mrs.mr = NULL;
         mcpx_apu_read_adpcm_block(&cache, &table_base, linear, words,
                                   word_count);
     }
