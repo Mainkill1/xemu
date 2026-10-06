@@ -22,7 +22,7 @@
       "bytes": 2873600
     }
   },
-  "nativeTests": "One current-algorithm Deck OpenGL diagnostic completed at667; counter artifact empty and start scene still intro. Ineligible; no speedup claim. Repaired-head follow-up pending.",
+  "nativeTests": "One667 Deck diagnostic failed with zero-byte counter and intro start; repaired0e Deck attribution has103 snapshots,2,499/3,165 hits but is unpaired/ineligible. No native speedup proven.",
   "currentCandidate": "0e3332f710a326a829bb60fff81d50134ba49c17",
   "currentHeadApplicability": "Original component table is 84299f pool implementation. osdep-first repair667 changes include order only. Snapshot logging0e333 changes optional runtime code; new logger-off observations retained separately, including unresolved unique-layout regression.",
   "standaloneProductionCompile": "Reproduced failure before include repair; warning-free -Werror success after repair.",

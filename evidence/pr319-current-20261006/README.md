@@ -63,3 +63,7 @@ A dedicated logger-disabled comparison uses eight fresh processes in ABBA/BAAB p
 | 8192 / 8192 | 11.153 | 11.804 | -5.83% | -5.71% | -6.43% |
 
 The unique-layout slowdown remains unresolved. Both branches skip clock/file operations with logging disabled; this result is not evidence assigning the difference to timer overhead. Original reuse/churn comparisons and all short attempts remain available, including the earlier release-only diagnostic. CI on667 completed44/44; exact current-head CI is tracked in the PR body.
+
+### Repaired-head native attribution
+
+The second isolated Deck OpenGL diagnostic completed with exit0 and 103 flushed counter rows. Its last row was a snapshot, so it describes the interval through that timestamp rather than complete shutdown totals: 3,165 lookups, 2,499 hits (78.96%), 666 misses, 2,654 puts, 0 evictions, 147 maximum pooled entries and 28,553,088 maximum estimated pooled bytes. It observed 666 GL name generations, 8 deletions and 13 outgoing compatible misses. Source/build/request identities and the assessment are in `native-deck-counter-success.json`. The runner marked execution complete and evidence complete but comparison ineligible due to recorded intervention. This was a single attribution run, not a paired speed comparison. The counter scopes include boot/menu/game, and native speedup remains unqualified.
