@@ -144,6 +144,17 @@ typedef struct TextureLruNode {
     bool possibly_dirty;
 } TextureLruNode;
 
+/*
+ * Recycle recently evicted GL texture objects by storage layout. Streaming
+ * titles can otherwise churn glGenTextures/glDeleteTextures and force the
+ * driver to repeatedly allocate equivalent backing storage.
+ */
+#define NV2A_GL_TEX_POOL_SIZE 256
+typedef struct TexPoolEntry {
+    uint64_t sig;
+    GLuint gl_texture;
+} TexPoolEntry;
+
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
     bool clear;
@@ -179,6 +190,8 @@ typedef struct PGRAPHGLState {
     TextureBinding *texture_binding[NV2A_MAX_TEXTURES];
     Lru texture_cache;
     TextureLruNode *texture_cache_entries;
+    TexPoolEntry tex_pool[NV2A_GL_TEX_POOL_SIZE];
+    unsigned int tex_pool_count;
 
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
