@@ -1,0 +1,11 @@
+{
+  "pr": 257,
+  "merged": true,
+  "mergeCommit": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "candidate": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "mergedTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "testedTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "treeMatches": true,
+  "issue93State": "closed",
+  "evidenceExcludedFromMain": true
+}
