@@ -16,7 +16,6 @@ NV2AStats g_nv2a_stats;
 __typeof__(xemu_tweaks_active) xemu_tweaks_active;
 static NV2AState test_device;
 static PGRAPHGLState test_renderer;
-NV2AState *g_nv2a = &test_device;
 
 static EGLDisplay display = EGL_NO_DISPLAY;
 static EGLContext context = EGL_NO_CONTEXT;
@@ -243,7 +242,8 @@ static void run_format(const FormatCase *f, bool bordered,
         glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
         uploads = 0;
         TextureBinding *binding =
-            generate_texture(shape, input, (const uint8_t *)palette);
+            generate_texture(&test_renderer, shape, input,
+                             (const uint8_t *)palette);
         g_assert_nonnull(binding);
         g_assert_cmpuint(uploads, ==, 6 * shape.levels);
         g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
@@ -374,7 +374,8 @@ static void run_compressed(bool native)
     }
     xemu_tweaks_active = native ? 1u << XEMU_TWEAK_GL_NATIVE_S3TC : 0;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-    TextureBinding *binding = generate_texture(shape, input, NULL);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
     g_assert_nonnull(binding);
     g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -424,7 +425,8 @@ static void test_recycled_texture_contents(void)
 
     pgraph_gl_init_textures(&test_device);
     memset(input, 0x3c, sizeof(input));
-    TextureBinding *binding = generate_texture(shape, input, NULL);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
     GLuint texture = binding->gl_texture;
 
     binding->refcnt++;
@@ -437,7 +439,7 @@ static void test_recycled_texture_contents(void)
     /* Same storage, different alpha interpretation and fresh contents. */
     shape.color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_AY8;
     memset(input, 0x74, sizeof(input));
-    binding = generate_texture(shape, input, NULL);
+    binding = generate_texture(&test_renderer, shape, input, NULL);
     g_assert_cmpuint(binding->gl_texture, ==, texture);
     g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, output);
@@ -465,14 +467,58 @@ static void test_recycled_texture_limit(void)
     glGenTextures(ARRAY_SIZE(textures), textures);
     for (unsigned i = 0; i < ARRAY_SIZE(textures); i++) {
         glBindTexture(GL_TEXTURE_2D, textures[i]);
-        tex_pool_put(&test_renderer, i, textures[i]);
+        TexStorageKey key = {
+            .target = GL_TEXTURE_2D, .internal_format = GL_R8,
+            .width = i + 1, .height = 1, .depth = 1, .levels = 1,
+        };
+        tex_pool_put(&test_renderer, &key, textures[i]);
     }
     g_assert_cmpuint(test_renderer.tex_pool_count, ==, NV2A_GL_TEX_POOL_SIZE);
-    g_assert_false(glIsTexture(textures[NV2A_GL_TEX_POOL_SIZE]));
+    g_assert_false(glIsTexture(textures[0]));
+    g_assert_true(glIsTexture(textures[NV2A_GL_TEX_POOL_SIZE]));
     pgraph_gl_finalize_textures(&test_device.pgraph);
     for (unsigned i = 0; i < ARRAY_SIZE(textures); i++) {
         g_assert_false(glIsTexture(textures[i]));
     }
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
+static void test_recycled_texture_upload_format(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8,
+    };
+    uint8_t input[8 * 8 * 4], output[sizeof(input)];
+    const GLint unusual_swizzle[] = { GL_RED, GL_RED, GL_RED, GL_RED };
+    const GLint identity[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+    GLint swizzle[4];
+
+    for (unsigned int i = 0; i < sizeof(input); i++) {
+        input[i] = 0x12 + (i % 4) * 0x22;
+    }
+    pgraph_gl_init_textures(&test_device);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
+    GLuint texture = binding->gl_texture;
+
+    glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, unusual_swizzle);
+    pgraph_gl_texture_binding_destroy(binding);
+    shape.color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8;
+    binding = generate_texture(&test_renderer, shape, input, NULL);
+    g_assert_cmpuint(binding->gl_texture, ==, texture);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, output);
+    g_assert_cmpmem(input, sizeof(input), output, sizeof(output));
+    glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+    g_assert_cmpmem(identity, sizeof(identity), swizzle, sizeof(swizzle));
+    pgraph_gl_texture_binding_destroy(binding);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_false(glIsTexture(texture));
     g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
 }
 
@@ -490,7 +536,8 @@ static void test_recycled_texture_active_finalize(void)
     uint8_t input[64] = { 0 };
 
     pgraph_gl_init_textures(&test_device);
-    TextureBinding *binding = generate_texture(shape, input, NULL);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
     GLuint texture = binding->gl_texture;
     LruNode *node = lru_lookup(&test_renderer.texture_cache, 1, &key);
     TextureLruNode *entry = container_of(node, TextureLruNode, node);
@@ -509,6 +556,162 @@ static void test_recycled_texture_active_finalize(void)
     g_assert_null(test_renderer.texture_cache_entries);
     g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
     g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
+static void test_recycled_texture_exact_key(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TexStorageKey key = {
+        .target = GL_TEXTURE_2D, .internal_format = GL_R8,
+        .width = 8, .height = 8, .depth = 1, .levels = 1,
+    };
+    TexStorageKey collision = key;
+    GLuint texture;
+
+    collision.target = GL_TEXTURE_3D;
+    do {
+        collision.width++;
+    } while (tex_pool_bucket(&collision) != tex_pool_bucket(&key));
+    pgraph_gl_init_textures(&test_device);
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    tex_pool_put(&test_renderer, &key, texture);
+    g_assert_cmpuint(tex_pool_get(&test_renderer, &collision), ==, 0);
+    g_assert_cmpuint(tex_pool_get(&test_renderer, &key), ==, texture);
+    tex_pool_delete(&test_renderer, texture);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_false(glIsTexture(texture));
+}
+
+static void test_recycled_texture_byte_limit(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TexStorageKey key = {
+        .target = GL_TEXTURE_2D, .internal_format = GL_RGBA8,
+        .width = 2048, .height = 2048, .depth = 1, .levels = 1,
+    };
+    GLuint textures[4];
+
+    /*
+     * Exercise estimated-byte admission without allocating the corresponding
+     * large driver images in a unit fixture.
+     */
+    pgraph_gl_init_textures(&test_device);
+    glGenTextures(ARRAY_SIZE(textures), textures);
+    for (unsigned int i = 0; i < 3; i++) {
+        glBindTexture(GL_TEXTURE_2D, textures[i]);
+        tex_pool_put(&test_renderer, &key, textures[i]);
+    }
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 2);
+    g_assert_cmpuint(test_renderer.tex_pool_bytes, ==, NV2A_GL_TEX_POOL_BYTES);
+    g_assert_false(glIsTexture(textures[0]));
+    g_assert_true(glIsTexture(textures[2]));
+    glBindTexture(GL_TEXTURE_2D, textures[3]);
+    key.width = 4096;
+    key.height = 4096;
+    tex_pool_put(&test_renderer, &key, textures[3]);
+    g_assert_false(glIsTexture(textures[3]));
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 2);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_cmpuint(test_renderer.tex_pool_bytes, ==, 0);
+    for (unsigned int i = 0; i < ARRAY_SIZE(textures); i++) {
+        g_assert_false(glIsTexture(textures[i]));
+    }
+}
+
+static void test_recycled_texture_scaled_storage(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1, .pitch = 8,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_Y8,
+    };
+    uint8_t input[64] = { 0 };
+    GLint width;
+
+    pgraph_gl_init_textures(&test_device);
+    test_renderer.tex_pool_log = tmpfile();
+    g_assert_nonnull(test_renderer.tex_pool_log);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
+    GLuint texture = binding->gl_texture;
+
+    /*
+     * Real GL storage is redefined at 2x scale. Exercise the production
+     * invalidation operation used by both surface-to-texture routes.
+     */
+    pgraph_gl_texture_binding_invalidate_storage(binding);
+    real_tex_image(GL_TEXTURE_2D, 0, GL_R8, 16, 16, 0, GL_RED,
+                   GL_UNSIGNED_BYTE, NULL);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    g_assert_cmpint(width, ==, 16);
+    pgraph_gl_texture_binding_destroy(binding);
+    g_assert_false(glIsTexture(texture));
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
+    binding = generate_texture(&test_renderer, shape, input, NULL);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    g_assert_cmpint(width, ==, 8);
+    g_assert_cmpuint(test_renderer.tex_pool_stats.hits, ==, 0);
+    g_assert_cmpuint(test_renderer.tex_pool_stats.misses, ==, 2);
+    pgraph_gl_texture_binding_destroy(binding);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_cmpuint(test_renderer.tex_pool_stats.generations, ==, 2);
+    g_assert_cmpuint(test_renderer.tex_pool_stats.deletions, ==, 2);
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
+static void test_recycled_texture_bordered_compressed(void)
+{
+    if (context == EGL_NO_CONTEXT || !real_compressed_tex_image) {
+        g_test_skip("No desktop GL context with S3TC");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1, .border = true,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+    };
+    uint8_t input[16 * 8] = { 0 };
+
+    for (unsigned int block = 0; block < 16; block++) {
+        const uint16_t red = 0xf800;
+        memcpy(input + block * 8, &red, sizeof(red));
+        memcpy(input + block * 8 + 2, &red, sizeof(red));
+    }
+    for (unsigned int native = 0; native < 2; native++) {
+        GLint width, height, internal, compressed;
+        pgraph_gl_init_textures(&test_device);
+        xemu_tweaks_active = native ? 1u << XEMU_TWEAK_GL_NATIVE_S3TC : 0;
+        TextureBinding *binding =
+            generate_texture(&test_renderer, shape, input, NULL);
+
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT,
+                                 &internal);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED,
+                                 &compressed);
+        g_assert_cmpint(width, ==, 16);
+        g_assert_cmpint(height, ==, 16);
+        g_assert_cmpuint(binding->storage_key.width, ==, width);
+        g_assert_cmpuint(binding->storage_key.height, ==, height);
+        g_assert_cmpuint(binding->storage_key.internal_format, ==, internal);
+        g_assert_cmpint(compressed, ==, native);
+        pgraph_gl_texture_binding_destroy(binding);
+        pgraph_gl_finalize_textures(&test_device.pgraph);
+        g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+    }
+    xemu_tweaks_active = 0;
 }
 
 int main(int argc, char **argv)
@@ -579,8 +782,18 @@ int main(int argc, char **argv)
                     test_recycled_texture_contents);
     g_test_add_func("/xbox/gl/texture-upload/recycled/limit",
                     test_recycled_texture_limit);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/upload-format",
+                    test_recycled_texture_upload_format);
     g_test_add_func("/xbox/gl/texture-upload/recycled/active-finalize",
                     test_recycled_texture_active_finalize);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/exact-key",
+                    test_recycled_texture_exact_key);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/byte-limit",
+                    test_recycled_texture_byte_limit);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/scaled-storage",
+                    test_recycled_texture_scaled_storage);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/bordered-compressed",
+                    test_recycled_texture_bordered_compressed);
     int result = g_test_run();
     if (context != EGL_NO_CONTEXT) {
         g_test_message("Validated %u face/mip uploads and %u texels",

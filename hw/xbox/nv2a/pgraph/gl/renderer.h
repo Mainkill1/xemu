@@ -150,10 +150,22 @@ typedef struct TextureLruNode {
  * driver to repeatedly allocate equivalent backing storage.
  */
 #define NV2A_GL_TEX_POOL_SIZE 256
+#define NV2A_GL_TEX_POOL_BUCKETS 512
+#define NV2A_GL_TEX_POOL_BYTES (64ULL * 1024 * 1024)
 typedef struct TexPoolEntry {
-    uint64_t sig;
+    TexStorageKey key;
     GLuint gl_texture;
+    size_t bytes;
+    QTAILQ_ENTRY(TexPoolEntry) fifo;
+    QLIST_ENTRY(TexPoolEntry) bucket;
+    QSLIST_ENTRY(TexPoolEntry) free;
 } TexPoolEntry;
+
+typedef struct TexPoolStats {
+    uint64_t get_calls, hits, misses, entries_scanned;
+    uint64_t puts, evictions, high_water_entries, high_water_bytes;
+    uint64_t generations, deletions, outgoing_matches;
+} TexPoolStats;
 
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
@@ -192,6 +204,12 @@ typedef struct PGRAPHGLState {
     TextureLruNode *texture_cache_entries;
     TexPoolEntry tex_pool[NV2A_GL_TEX_POOL_SIZE];
     unsigned int tex_pool_count;
+    size_t tex_pool_bytes;
+    QTAILQ_HEAD(, TexPoolEntry) tex_pool_fifo;
+    QSLIST_HEAD(, TexPoolEntry) tex_pool_free;
+    QLIST_HEAD(, TexPoolEntry) tex_pool_buckets[NV2A_GL_TEX_POOL_BUCKETS];
+    FILE *tex_pool_log;
+    TexPoolStats tex_pool_stats;
 
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
