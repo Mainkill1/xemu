@@ -1,0 +1,52 @@
+FOLDED_READBACK_STACK 1
+#0  pgraph_vk_finish (pg=..., finish_reason=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2664
+#1  download_surface_to_buffer (d=..., surface=..., pixels=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:638
+#2  download_surface (d=..., surface=..., force=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:703
+#3  pgraph_vk_download_surfaces_in_range_if_dirty (pg=..., start=..., size=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:270
+#4  create_texture (pg=..., texture_idx=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1330
+#5  pgraph_vk_bind_textures (d=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1781
+#6  create_pipeline (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2063
+#7  begin_pre_draw (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2878
+#8  pgraph_vk_flush_draw_internal (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3991
+#9  pgraph_vk_draw_end (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3118
+#10 pgraph_NV097_SET_BEGIN_END_handler (d=..., pg=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., num_words_consumed=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:2785
+#11 pgraph_method (d=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., max_lookahead_words=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:1032
+FOLDED_READBACK_STACK 2
+#0  pgraph_vk_finish (pg=..., finish_reason=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2664
+#1  download_surface_to_buffer (d=..., surface=..., pixels=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:638
+#2  download_surface (d=..., surface=..., force=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:703
+#3  pgraph_vk_download_surfaces_in_range_if_dirty (pg=..., start=..., size=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:270
+#4  create_texture (pg=..., texture_idx=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1330
+#5  pgraph_vk_bind_textures (d=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1781
+#6  create_pipeline (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2063
+#7  begin_pre_draw (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2878
+#8  pgraph_vk_flush_draw_internal (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3991
+#9  pgraph_vk_draw_end (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3118
+#10 pgraph_NV097_SET_BEGIN_END_handler (d=..., pg=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., num_words_consumed=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:2785
+#11 pgraph_method (d=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., max_lookahead_words=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:1032
+FOLDED_READBACK_STACK 3
+#0  pgraph_vk_finish (pg=..., finish_reason=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2664
+#1  download_surface_to_buffer (d=..., surface=..., pixels=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:638
+#2  download_surface (d=..., surface=..., force=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:703
+#3  pgraph_vk_download_surfaces_in_range_if_dirty (pg=..., start=..., size=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:270
+#4  create_texture (pg=..., texture_idx=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1330
+#5  pgraph_vk_bind_textures (d=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1781
+#6  create_pipeline (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2063
+#7  begin_pre_draw (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2878
+#8  pgraph_vk_flush_draw_internal (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3991
+#9  pgraph_vk_draw_end (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3118
+#10 pgraph_NV097_SET_BEGIN_END_handler (d=..., pg=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., num_words_consumed=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:2785
+#11 pgraph_method (d=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., max_lookahead_words=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:1032
+FOLDED_READBACK_STACK 4
+#0  pgraph_vk_finish (pg=..., finish_reason=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2664
+#1  download_surface_to_buffer (d=..., surface=..., pixels=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:638
+#2  download_surface (d=..., surface=..., force=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:703
+#3  pgraph_vk_download_surfaces_in_range_if_dirty (pg=..., start=..., size=...) at ../hw/xbox/nv2a/pgraph/vk/surface.c:270
+#4  create_texture (pg=..., texture_idx=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1330
+#5  pgraph_vk_bind_textures (d=...) at ../hw/xbox/nv2a/pgraph/vk/texture.c:1781
+#6  create_pipeline (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2063
+#7  begin_pre_draw (pg=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:2878
+#8  pgraph_vk_flush_draw_internal (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3991
+#9  pgraph_vk_draw_end (d=...) at ../hw/xbox/nv2a/pgraph/vk/draw.c:3118
+#10 pgraph_NV097_SET_BEGIN_END_handler (d=..., pg=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., num_words_consumed=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:2785
+#11 pgraph_method (d=..., subchannel=..., method=..., parameter=..., parameters=..., num_words_available=..., max_lookahead_words=..., inc=...) at ../hw/xbox/nv2a/pgraph/pgraph.c:1032

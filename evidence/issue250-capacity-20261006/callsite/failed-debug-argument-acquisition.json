@@ -1,8 +1,9 @@
 {
   "outcome": "FAILED stack acquisition; no further rerun this checkpoint",
-  "reason": "Release symbols omit named reason argument; function-entry x86-64 ESI condition replaces it",
+  "reason": "Debugger condition used wrong argument name reason; actual source argument is finish_reason.",
   "sameProcessRecovery": "Original process exited between HTTP check and retry attachment; no replacement PID attached",
   "callStacksCaptured": 0,
   "offlineRepair": "Exact release breakpoint address/ESI condition accepted offline",
-  "performanceUse": "Excluded; debugger diagnostic and mixed scene"
+  "performanceUse": "Excluded; debugger diagnostic and mixed scene",
+  "correction": "Earlier record incorrectly inferred missing argument debug information. Successful stacks name finish_reason. Entry-register filter remains valid for this x86-64 ABI."
 }

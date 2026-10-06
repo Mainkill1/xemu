@@ -1,0 +1,18 @@
+{
+  "outcome": "Four actual folded-readback caller stacks captured; debugger detached",
+  "runId": "20261006-122003613-8017ea295b864c20af067bc61dbe9a25",
+  "source": "81f566efea9bccab85af026ddcbf048b4d473457",
+  "callChain": [
+    "pgraph_vk_finish(READBACK_FOLDED)",
+    "download_surface_to_buffer",
+    "download_surface",
+    "pgraph_vk_download_surfaces_in_range_if_dirty",
+    "create_texture",
+    "pgraph_vk_bind_textures",
+    "create_pipeline",
+    "begin_pre_draw",
+    "pgraph_vk_flush_draw_internal"
+  ],
+  "scope": "Four sampled calls, not exhaustive attribution; no performance claim",
+  "next": "Identify why existing surface-to-texture GPU route rejects these texture shapes"
+}
