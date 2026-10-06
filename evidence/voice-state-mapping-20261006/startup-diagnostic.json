@@ -1,0 +1,118 @@
+{
+  "run": "20261006-151903602-bcdc6d899dab4fab9745779c65829bd1",
+  "source": "257ee477ba7aa9fcb6aa6f911b94ba23799be012",
+  "buildId": "45b26419d59edad3c023056c0c0f366b1bd84a1e",
+  "test": {
+    "id": "pr332-pgr2-startup-profile-deck-v1",
+    "revision": "d9f64d29e580174a13d34002170fffee592414edbc7fd5474ade0bd5494788c1",
+    "description": "Separate PGR2 startup failure diagnostic with external CPU sampling; original plan/controller/settings/boundary unchanged. Not performance acceptance.",
+    "sourceJobId": "pr267-embedded-pgr2-source-v3",
+    "stepCount": 30,
+    "fileCount": 41,
+    "buildFileCount": 2,
+    "self": "/api/v1/tests/pr332-pgr2-startup-profile-deck-v1/d9f64d29e580174a13d34002170fffee592414edbc7fd5474ade0bd5494788c1"
+  },
+  "scene": "Manually reviewed both images: Hong Kong flyover then parked 000MPH. Earlier intro stall did not reproduce. Cause unresolved; failure retained.",
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+    "profile": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": {
+      "segment": "stationary-start",
+      "rows": 63,
+      "missingCpuSamples": 0,
+      "missingDutySamples": 0,
+      "cpu": {
+        "count": 63,
+        "mean": 376.9963968253969,
+        "median": 387.918,
+        "min": 265.922,
+        "max": 404.362,
+        "p95": 402.5908,
+        "p99": 404.10594000000003
+      },
+      "collectorDuty": {
+        "count": 63,
+        "mean": 0.45731746031746034,
+        "median": 0.417,
+        "min": 0.299,
+        "max": 0.958,
+        "p95": 0.7953999999999999,
+        "p99": 0.9232800000000001
+      },
+      "overruns": 0
+    },
+    "flips": {
+      "samples": 5,
+      "frames": 181,
+      "elapsedUs": 25558020,
+      "cadenceFps": 7.08192575168186
+    },
+    "frames": {
+      "windowStartUs": 1303905050153,
+      "windowEndUs": 1303930050153,
+      "firstSampleUs": 1303905280367,
+      "lastSampleUs": 1303930050153,
+      "zeroIntervals": 0,
+      "intervalsMs": {
+        "count": 212,
+        "mean": 118.07504245283016,
+        "median": 93.751,
+        "min": 48.998,
+        "max": 425.665,
+        "p95": 252.21935,
+        "p99": 353.4562099999994
+      }
+    },
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 48516,
+        "sha256": "f6f3058d82afcb058c6caff25e35bcf82b29b80a1d3f2f6dc26c709df4e6bd54",
+        "records": 253,
+        "ignoredRecords": 189
+      },
+      {
+        "path": "guest-flips.log",
+        "bytes": 930,
+        "sha256": "ddf446fca0c4c252f8d211c7e52f2cade913e91be9dc28027dbc765d05aa1452",
+        "records": 23,
+        "ignoredRecords": 0
+      },
+      {
+        "path": "guest-frames.log",
+        "bytes": 171169,
+        "sha256": "5953b1ad895806bf064bda36d172d19fee394c3cd5df79684bd6a74c79d264b5",
+        "records": 3248,
+        "ignoredRecords": 0
+      }
+    ],
+    "errors": [],
+    "complete": true
+  },
+  "profile": {
+    "samples": 10866,
+    "lost": 0,
+    "scope": "99Hz cycles:u, DWARF stacks, 25sec after recording-start; operator diagnostic, not benchmark acceptance",
+    "selfSharesPercent": {
+      "address_space_ldl_internal": 1.28,
+      "address_space_translate_internal": 0.69,
+      "get_ptr_rcu_reader": 0.96,
+      "voice_get_mask_cached": 0.85,
+      "voice_resample_callback": 2.51,
+      "voice_worker_thread": 2.5
+    },
+    "comparisonLimit": "Earlier 4.99% physical-load share was on cumulative 20d (330+328+331), while this is standalone332. Different trees/scene samples/denominators. Supports path attribution only, not an isolated quantitative speedup."
+  },
+  "decision": "Keep332HOLD. Do not discard failed D1 or call CPU reduction between different scenes a gain.",
+  "privacy": "Raw perf recording, address-bearing stacks and commercial screenshots retained privately. Temporary remote profiler files removed after retrieval."
+}
