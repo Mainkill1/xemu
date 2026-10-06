@@ -1,0 +1,87 @@
+{
+  "source": "abfd6a5811f121982f9936886b31a16818d2331b",
+  "buildId": "9234a84d845d4d897d36b4634c0a84143e74061c",
+  "run": "20261006-134925628-bec5fe2edb264c7faa4d2414461f118d",
+  "procedure": "1c38a34130ede0ce1e46a9ec5738da53453f338099fc910dc28da6911165d6e5",
+  "method": "Four conditional debugger snapshots after authored recording-start; then detached. Input plan/settings unchanged; diagnostic excluded from performance comparison.",
+  "snapshots": [
+    {
+      "sample": 1,
+      "functions": [
+        "pgraph_vk_finish",
+        "pgraph_vk_update_descriptor_sets",
+        "begin_pre_draw",
+        "pgraph_vk_flush_draw_internal",
+        "pgraph_vk_draw_end",
+        "pgraph_NV097_SET_BEGIN_END_handler",
+        "pgraph_method",
+        "pfifo_run_puller",
+        "pfifo_run_pusher",
+        "pfifo_thread",
+        "qemu_thread_start",
+        "??"
+      ],
+      "bufferIndex": null,
+      "requestedBytes": null
+    },
+    {
+      "sample": 2,
+      "functions": [
+        "pgraph_vk_finish",
+        "ensure_buffer_space",
+        "reserve_remapped_attributes",
+        "prepare_vertex_data",
+        "pgraph_vk_flush_draw_internal",
+        "pgraph_vk_draw_end",
+        "pgraph_NV097_SET_BEGIN_END_handler",
+        "pgraph_method",
+        "pfifo_run_puller",
+        "pfifo_run_pusher",
+        "pfifo_thread",
+        "qemu_thread_start"
+      ],
+      "bufferIndex": 10,
+      "requestedBytes": 42952
+    },
+    {
+      "sample": 3,
+      "functions": [
+        "pgraph_vk_finish",
+        "ensure_buffer_space",
+        "reserve_remapped_attributes",
+        "prepare_vertex_data",
+        "pgraph_vk_flush_draw_internal",
+        "pgraph_vk_draw_end",
+        "pgraph_NV097_SET_BEGIN_END_handler",
+        "pgraph_method",
+        "pfifo_run_puller",
+        "pfifo_run_pusher",
+        "pfifo_thread",
+        "qemu_thread_start"
+      ],
+      "bufferIndex": 10,
+      "requestedBytes": 42952
+    },
+    {
+      "sample": 4,
+      "functions": [
+        "pgraph_vk_finish",
+        "ensure_buffer_space",
+        "reserve_remapped_attributes",
+        "prepare_vertex_data",
+        "pgraph_vk_flush_draw_internal",
+        "pgraph_vk_draw_end",
+        "pgraph_NV097_SET_BEGIN_END_handler",
+        "pgraph_method",
+        "pfifo_run_puller",
+        "pfifo_run_pusher",
+        "pfifo_thread",
+        "qemu_thread_start"
+      ],
+      "bufferIndex": 10,
+      "requestedBytes": 42952
+    }
+  ],
+  "interpretation": "Three samples identify remapped vertex reservation into BUFFER_VERTEX_INLINE_STAGING. One descriptor publication sample may be outside the later runner analysis window; it does not contradict zero descriptor drains in the c1 analysis window. Four samples are not exhaustive attribution of all NEED_BUFFER_SPACE waits.",
+  "scope": "Function names and buffer metadata only. No game resource bytes, pointers, raw process dump, or game images."
+}

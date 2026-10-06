@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S0ba19479fc73dd553d87ffa13282a270
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of inline-buffer tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-inline-buffer-growth.c:69:test_inline_growth: assertion failed (allocated_sizes[0] == 16 * MiB): (8431560 == 16777216)
+not ok /xbox/vk/inline-buffer/growth - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-inline-buffer-growth.c:69:test_inline_growth: assertion failed (allocated_sizes[0] == 16 * MiB): (8431560 == 16777216)
+Bail out!

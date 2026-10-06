@@ -1,0 +1,13 @@
+{
+  "parent": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "candidate": "2c37487c78",
+  "runtimeChanges": "One bounded headroom step for inline pair:8->16MiB, exact-size requests above16MiB. No wait/lifetime changes.",
+  "tests": "Actual buffer.c included; VMA allocation/mapping calls intercepted. Two grouped tests plus unchanged production reservation regression.",
+  "negativeControl": "Old production allocation returns8431560 bytes for8MiB+42952 request;16MiB headroom expectation fails.",
+  "limits": [
+    "No native candidate game or GPU allocation performance measured yet.",
+    "The allocation fixture does not establish submitted GPU consumer correctness or memory pressure behavior.",
+    "Original reservation script first blocked by sandbox LeakSanitizer ptrace restriction; unchanged elevated rerun passed.",
+    "No speedup claim."
+  ]
+}

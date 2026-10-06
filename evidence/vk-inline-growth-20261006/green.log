@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S0407c008d834e85434171dbe02550e4b
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of inline-buffer tests
+ok 1 /xbox/vk/inline-buffer/growth
+ok 2 /xbox/vk/inline-buffer/other-pairs
+# End of inline-buffer tests
+# End of vk tests
+# End of xbox tests
