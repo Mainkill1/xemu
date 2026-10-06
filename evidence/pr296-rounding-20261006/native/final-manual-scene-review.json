@@ -1,0 +1,22 @@
+[
+  {
+    "runId": "20261006-092644784-2ff6f40665234a6e936bf339d903fa32",
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 1,
+    "variant": "parent",
+    "finding": "recording-start is Hong Kong flyover; recording-end is parked 000 MPH",
+    "impact": "Baseline scene begins at different phases between rigs; no qualified stationary A/B or cross-host comparison",
+    "decision": "Stop this cohort before candidate/repeats; preserve original inputs and immediate final-input boundary"
+  },
+  {
+    "runId": "20261006-092603604-16d322f163ba4a86a1bf162b2667e426",
+    "host": "win",
+    "title": "pgr2",
+    "cell": 1,
+    "variant": "parent",
+    "finding": "recording-start is countdown 3; recording-end is parked 000 MPH",
+    "impact": "Baseline scene begins at different phases between rigs; no qualified stationary A/B or cross-host comparison",
+    "decision": "Stop this cohort before candidate/repeats; preserve original inputs and immediate final-input boundary"
+  }
+]

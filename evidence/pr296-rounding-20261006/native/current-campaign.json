@@ -1,0 +1,21 @@
+{
+  "candidate": "35546a31f0fd470075030f709455e0deb85f879d",
+  "parent": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "referenceExecutableTreeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "completeTitles": [
+    "morrowind",
+    "conker"
+  ],
+  "completedRuns": 32,
+  "baselineOnlyPgr2Runs": 2,
+  "limits": [
+    "Windows Morrowind driver-cache ineligible",
+    "Windows Conker existing cache waiver does not establish controlled driver-cache state",
+    "PGR2 original phase mismatch reobserved; remaining 14 cells not launched",
+    "Conker animated phase not identical between runs",
+    "READ_3D cadence is not SDL presentation",
+    "Small/order-sensitive effects; no broad speedup claim"
+  ],
+  "testModification": "None: all saved inputs, waits, controller settings, application configs and measurement boundaries preserved",
+  "evidenceStorage": "Public numeric records only; game screenshots/assets stay private"
+}

@@ -1,0 +1,290 @@
+[
+  {
+    "runId": "20261006-085655981-cda6fa2b99364f7885b10f2a375d3b92",
+    "cell": 1,
+    "variant": "main",
+    "title": "morrowind",
+    "host": "win",
+    "scene": "Measurement-ready and scene-end images both show the approved stationary town/bridge view; game visible, no menu or black screen",
+    "comparison": "Windows driver cache remains ineligible; no paired result yet"
+  },
+  {
+    "runId": "20261006-090134153-221a3c3f78b8406db53ab6482e5eab29",
+    "cell": 2,
+    "variant": "candidate",
+    "title": "morrowind",
+    "host": "win",
+    "scene": "Both images show approved stationary bridge/town camera; no black screen/menu, NPC motion expected",
+    "comparison": "Driver-cache ineligible retained"
+  },
+  {
+    "runId": "20261006-090232385-391b5c6be4314d7ea60b79a54cc14508",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 1,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090332752-5571d460d22f4c4991eae1d1e2c35c6b",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 2,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090423074-8a36b4f1ae834f298d8f2e094ee24800",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090513332-57a5c3fd0a284f0792e6ee5e4cc85bce",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090603497-a9c76c0c3a9d4b7a89ab0f003f32cc9d",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090653281-af7a577dbf0143228d96366b0f894749",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090743315-ccf960068fd24dbfb98b7c80fc408a53",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090832716-8daac697744a44e88fa4c34b15d4cc72",
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090222283-6335de2353904eab9970d93ac6888ec7",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 3,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090309871-ece04e6a54954bd6957bc31193e5e7eb",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 4,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090357964-c6adbe3adf5f42fd989341159b9bab85",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 5,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090445641-174c3098ceee4cdaacf7bd650e80ad01",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 6,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090533709-9087b9c049654c8fbc6622f1352062e3",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 7,
+    "variant": "parent",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-090622310-f7f8a769753c4f8091f8b47dcb0a8d5e",
+    "host": "win",
+    "title": "morrowind",
+    "cell": 8,
+    "variant": "candidate",
+    "scene": "Measurement start/end visually checked: stationary bridge/town camera, no menu or black screen; NPC motion expected",
+    "comparison": "See numeric report for cache admission and order differences"
+  },
+  {
+    "runId": "20261006-091026462-1eecf63f44ef4a2a85a28f1e0addd957",
+    "host": "deck",
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091226971-151b7ce311424801a709db5b0b27fc34",
+    "host": "deck",
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091424691-bfaa6f28abbf40c5abe84a2e77eb8ae3",
+    "host": "deck",
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091621063-dbc95595b86243588dea416e4195378f",
+    "host": "deck",
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091818899-ca88552351b845579338fdeb328c38da",
+    "host": "deck",
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091027541-82b90bd71bc54602a52ac1ece3c5feaa",
+    "host": "win",
+    "title": "conker",
+    "cell": 1,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091219835-9b3465dc06984b9e9502428dd1ab166e",
+    "host": "win",
+    "title": "conker",
+    "cell": 2,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091411365-d4743c9f00c1408d844fd901151e0f34",
+    "host": "win",
+    "title": "conker",
+    "cell": 3,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091602975-b0aff51a0567414c8ecd2b669182324c",
+    "host": "win",
+    "title": "conker",
+    "cell": 4,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091754641-04a64a925a464825bf71a0db819ce555",
+    "host": "win",
+    "title": "conker",
+    "cell": 5,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-091946769-b152b60283864bf9ac4c9d2cca37df4c",
+    "host": "win",
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu, no intro movie or black screen; animation phases differ",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-092016956-d7b1e234541a4020a63c2c65e5d142e8",
+    "host": "deck",
+    "title": "conker",
+    "cell": 6,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu; no movie or black screen; animation phase differs",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-092215122-825244f1a9cc487d8cf7dc61e8500b0a",
+    "host": "deck",
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu; no movie or black screen; animation phase differs",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-092138413-398bf83fd8d643a5868c6fa72686cff7",
+    "host": "win",
+    "title": "conker",
+    "cell": 7,
+    "variant": "parent",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu; no movie or black screen; animation phase differs",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-092330588-1d3dfd3f5f754943b8cb87ceccb98faa",
+    "host": "win",
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "scene": "Both recorded images inspected: Xbox Live & Co menu; no movie or black screen; animation phase differs",
+    "comparison": "Same menu, not identical animation phase"
+  },
+  {
+    "runId": "20261006-092410810-5e7635b8e2b346d3bbd3c5b4e9429940",
+    "host": "deck",
+    "title": "conker",
+    "cell": 8,
+    "variant": "candidate",
+    "scene": "Both images directly inspected: Xbox Live & Co menu; no movie or black screen; animation phase differs",
+    "comparison": "Same menu, not identical animation phase"
+  }
+]
