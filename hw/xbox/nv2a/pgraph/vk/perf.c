@@ -516,6 +516,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"uniform_capacity_requests_per_guest_frame\":%" PRIu64
             ",\"uniform_vsh_writes_per_guest_frame\":%" PRIu64
             ",\"uniform_psh_writes_per_guest_frame\":%" PRIu64
+            ",\"cubemap_face_copies_per_guest_frame\":%" PRIu64
+            ",\"cubemap_face_reuses_per_guest_frame\":%" PRIu64
             ",\"surface_upload_attempts_per_guest_frame\":%" PRIu64
             ",\"surface_upload_color_attempts_per_guest_frame\":%" PRIu64
             ",\"surface_upload_depth_attempts_per_guest_frame\":%" PRIu64
@@ -537,6 +539,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->uniform_capacity_requests,
             perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_VSH],
             perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_PSH],
+            perf->cubemap_face_copies,
+            perf->cubemap_face_reuses,
             perf->surface_upload_attempts,
             perf->surface_upload_color_attempts,
             perf->surface_upload_depth_attempts,
@@ -592,6 +596,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->uniform_capacity_requests = 0;
     memset(perf->uniform_stage_writes, 0,
            sizeof(perf->uniform_stage_writes));
+    perf->cubemap_face_copies = 0;
+    perf->cubemap_face_reuses = 0;
     perf->surface_upload_attempts = 0;
     perf->surface_upload_color_attempts = 0;
     perf->surface_upload_depth_attempts = 0;

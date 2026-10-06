@@ -754,6 +754,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t descriptor_capacity_requests;
     uint64_t uniform_capacity_requests;
     uint64_t uniform_stage_writes[PGRAPH_UNIFORM_STAGE_COUNT];
+    uint64_t cubemap_face_copies;
+    uint64_t cubemap_face_reuses;
     uint64_t surface_upload_attempts;
     uint64_t surface_upload_color_attempts;
     uint64_t surface_upload_depth_attempts;
