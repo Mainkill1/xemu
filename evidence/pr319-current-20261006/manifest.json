@@ -22,9 +22,10 @@
       "bytes": 2873600
     }
   },
-  "nativeTests": "Not run for this revised head. Procedures/settings unchanged.",
-  "currentCandidate": "66705284be61018732db9884ee21119574b7073e",
-  "currentHeadApplicability": "One osdep-first include fixes production compilation. Prior source with forced osdep and current source produce identical 12,769-byte executable text sections at the maintained production GCC -O2 configuration.",
+  "nativeTests": "One current-algorithm Deck OpenGL diagnostic completed at667; counter artifact empty and start scene still intro. Ineligible; no speedup claim. Repaired-head follow-up pending.",
+  "currentCandidate": "0e3332f710a326a829bb60fff81d50134ba49c17",
+  "currentHeadApplicability": "Original component table is 84299f pool implementation. osdep-first repair667 changes include order only. Snapshot logging0e333 changes optional runtime code; new logger-off observations retained separately, including unresolved unique-layout regression.",
   "standaloneProductionCompile": "Reproduced failure before include repair; warning-free -Werror success after repair.",
-  "diagnosticIsolation": "Three workloads, four arms/four fresh processes each (ABCDDCBA then DACBBCAD); not native game qualification. C disables pool release, D additionally holds 256 textures fixed. Direct pool operations stub GL deletion. Separate call profiling has timer overhead."
+  "diagnosticIsolation": "Three workloads, four arms/four fresh processes each (ABCDDCBA then DACBBCAD); not native game qualification. C disables pool release, D additionally holds 256 textures fixed. Direct pool operations stub GL deletion. Separate call profiling has timer overhead.",
+  "loggingRegression": "Pre-finalization flush test reproduced zero bytes, now17/17 real GL checks with574 uploads and7386 texel checks. Stream-error handling and generation-before-first-release logging independently reviewed."
 }

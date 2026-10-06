@@ -1,0 +1,40 @@
+{
+  "reference": "84299f793bf5bcd4a889a2c55d54cb9395e4c2de",
+  "candidate": "0e3332f710a326a829bb60fff81d50134ba49c17",
+  "rows": [
+    {
+      "layouts": 1,
+      "operations": 65536,
+      "CPU_A_ms": 41.3940325,
+      "CPU_B_ms": 41.613253,
+      "improvementPct": -0.529594453016869,
+      "ordersPct": [
+        -1.6724137614951187,
+        -0.4809065255823443
+      ]
+    },
+    {
+      "layouts": 257,
+      "operations": 65536,
+      "CPU_A_ms": 74.794755,
+      "CPU_B_ms": 75.1739705,
+      "improvementPct": -0.5070081451567024,
+      "ordersPct": [
+        0.14666858096920207,
+        -0.5070081451567024
+      ]
+    },
+    {
+      "layouts": 8192,
+      "operations": 8192,
+      "CPU_A_ms": 11.153412,
+      "CPU_B_ms": 11.803698,
+      "improvementPct": -5.8303772872373045,
+      "ordersPct": [
+        -5.709333610199282,
+        -6.427666105621609
+      ]
+    }
+  ],
+  "qualification": "Local software-GL diagnostic; unique-layout cost is unresolved, not native game performance."
+}

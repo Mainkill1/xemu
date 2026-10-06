@@ -47,3 +47,19 @@ A separate ABBA/BAAB diagnostic surrounds generation, deletion, bind, upload and
 The first call-profiler launch failed because unresolved epoxy entry points recursively dispatched into the diagnostic wrapper. Resolving each wrapped entry point before interposition fixes the harness. This is a diagnostic failure, not an xemu product crash; the failed attempt is not a successful timing sample.
 
 Remaining work: native reuse/churn attribution, retained backing versus image redefinition, and matched affected XISO/game checks. No native procedure or settings were changed.
+
+## Live logging repair and native diagnostic
+
+Current head `0e3332f710` flushes optional owner-thread snapshots at most once per second, including a first generation before any release. A normal QMP quit need not run GL finalization; the first Deck diagnostic completed with exit0 but its counter artifact was empty. The test reproducing this flaw fails before the change and passes with it:17/17 real-GL checks,574 uploads,7386 existing texel checks. Logging errors close/disable the stream. Disabled logging performs no clock or file work. A snapshot is cumulative only through its timestamp; absence of a final row means later activity may be missing.
+
+The native failure is retained in `native-deck-counter-failure.json`. Original saved inputs, waits, controller configuration, timeout and measurement boundaries were unchanged. It was a separate single OpenGL attribution diagnostic, not a paired qualification. Start/end image review found a course-camera intro at recording start and a stationary car at the end; it also fails the intended parked-scene boundary. No native performance uplift is established. Private images and guest/process data are excluded.
+
+A dedicated logger-disabled comparison uses eight fresh processes in ABBA/BAAB per workload (same synthetic fixture):
+
+| Layouts / operations | Before logger repair CPU ms | After CPU ms | Improvement | ABBA | BAAB |
+|---|---:|---:|---:|---:|---:|
+| 1 / 65536 | 41.394 | 41.613 | -0.53% | -1.67% | -0.48% |
+| 257 / 65536 | 74.795 | 75.174 | -0.51% | +0.15% | -0.51% |
+| 8192 / 8192 | 11.153 | 11.804 | -5.83% | -5.71% | -6.43% |
+
+The unique-layout slowdown remains unresolved. Both branches skip clock/file operations with logging disabled; this result is not evidence assigning the difference to timer overhead. Original reuse/churn comparisons and all short attempts remain available, including the earlier release-only diagnostic. CI on667 completed44/44; exact current-head CI is tracked in the PR body.

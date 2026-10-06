@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "requestId": "pr319-deck-pgr2-pooldiag-667052-v1-t001",
+  "runId": "20261006-073651910-091428d6234041649236c78c107e1c11",
+  "candidate": "66705284be61018732db9884ee21119574b7073e",
+  "artifactCommit": "4c1c16645e3bf5d82218ceb62722ef8dcf4a75c9",
+  "executableSha256": "44211231658575e0ce7b3ca249f0b766cdacd826baac4e3cb4da08f0d50de9b6",
+  "testId": "pr319-deck-pgr2-gl-attribution-v1",
+  "testRevision": "32454ec5d809699f053f1b252526401bd6adc36f6f78f454e46b03c2f129b390",
+  "sourceProcedure": "pr267-deck-pgr2-stationary-base-v6",
+  "sourceRevision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee",
+  "originalPlanControllerTimeoutEqual": true,
+  "renderer": "OpenGL",
+  "startedUtc": "2026-10-06T07:36:51.9107305+00:00",
+  "endedUtc": "2026-10-06T07:39:20.4006748+00:00",
+  "durationMs": 148489.9444,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261006-073651910-091428d6234041649236c78c107e1c11",
+    "ExecutableSha256": "44211231658575e0ce7b3ca249f0b766cdacd826baac4e3cb4da08f0d50de9b6",
+    "Platform": "linux",
+    "ProcessId": 735691,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "counterBytes": 0,
+  "visualReview": {
+    "start": "Hong Kong course camera/intro, not stationary start-line scene",
+    "end": "stationary car, 000 MPH, Hong Kong course"
+  },
+  "diagnosticOnly": {
+    "processCpuMeanCorePct": 313.7376031746033,
+    "guestRead3dCadenceFps": 10.266183915553462,
+    "frameIntervalsMs": {
+      "count": 255,
+      "mean": 98.11540784313719,
+      "median": 96.158,
+      "min": 57.582,
+      "max": 218.917,
+      "p95": 129.85819999999998,
+      "p99": 159.3093400000002
+    }
+  },
+  "conclusion": "Counter evidence failed. No native A/B result or qualified parked-scene performance. Normal QMP exit need not finalize renderer; repaired with flushed owner-thread snapshots.",
+  "privateArtifacts": "Screenshots, job paths, guest resource bytes and raw process artifacts excluded."
+}
