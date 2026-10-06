@@ -326,7 +326,7 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
 
     if (legacy_finish_required &&
         !fold_into_active_command_buffer) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
+        pgraph_vk_finish(pg, VK_FINISH_REASON_READBACK_LEGACY);
     } else if (!fold_into_active_command_buffer && compute_needs_finish) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
@@ -635,7 +635,7 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     if (fold_into_active_command_buffer) {
         pgraph_vk_end_nondraw_commands(pg, cmd);
         assert(r->in_command_buffer);
-        pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
+        pgraph_vk_finish(pg, VK_FINISH_REASON_READBACK_FOLDED);
     } else {
         assert(cmd == r->aux_command_buffer);
         pgraph_vk_end_single_time_commands(
@@ -953,7 +953,7 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     // FIXME: We may be reading from the surface in the current command buffer!
     // Add a detection to handle it. For now, finish to be safe.
-    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_INVALIDATE_SURFACE);
 
     assert((!r->in_command_buffer ||
             surface->draw_time < r->command_buffer_start_time) &&

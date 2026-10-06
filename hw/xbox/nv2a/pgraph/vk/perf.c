@@ -17,6 +17,9 @@
 #define VK_PERF_HOT_SAMPLE_STRIDE 16
 
 static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
+    [VK_FINISH_REASON_READBACK_LEGACY] = "readback_legacy",
+    [VK_FINISH_REASON_READBACK_FOLDED] = "readback_folded",
+    [VK_FINISH_REASON_INVALIDATE_SURFACE] = "invalidate_surface",
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
     [VK_FINISH_REASON_SURFACE_CREATE] = "surface_create",
     [VK_FINISH_REASON_SURFACE_DOWN] = "surface_down",
