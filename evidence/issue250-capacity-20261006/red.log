@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S426b9a841656287f3c9b55a91abdcfd1
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of descriptor tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/.scratch/issue250-capacity-20261006/descriptor-capacity.c:107:test_publication: assertion failed (finishes == 0): (1 == 0)
+not ok /xbox/vk/descriptor/specialized - ERROR:/home/codex/xemu-shader-workbench-handoff/.scratch/issue250-capacity-20261006/descriptor-capacity.c:107:test_publication: assertion failed (finishes == 0): (1 == 0)
+Bail out!
