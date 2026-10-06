@@ -472,6 +472,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"depth_alias_views_retired_per_guest_frame\":%" PRIu64
             ",\"depth_alias_producer_pixels_per_guest_frame\":%" PRIu64
             ",\"depth_alias_view_pixels_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_copied_pixels_per_guest_frame\":%" PRIu64
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
@@ -498,7 +499,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->depth_alias_conversion_failures,
             perf->depth_alias_views_retired,
             perf->depth_alias_producer_pixels,
-            perf->depth_alias_view_pixels);
+            perf->depth_alias_view_pixels,
+            perf->depth_alias_copied_pixels);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -554,6 +556,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->depth_alias_views_retired = 0;
     perf->depth_alias_producer_pixels = 0;
     perf->depth_alias_view_pixels = 0;
+    perf->depth_alias_copied_pixels = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;
