@@ -22,5 +22,9 @@
       "bytes": 2873600
     }
   },
-  "nativeTests": "Not run for this revised head. Procedures/settings unchanged."
+  "nativeTests": "Not run for this revised head. Procedures/settings unchanged.",
+  "currentCandidate": "66705284be61018732db9884ee21119574b7073e",
+  "currentHeadApplicability": "One osdep-first include fixes production compilation. Prior source with forced osdep and current source produce identical 12,769-byte executable text sections at the maintained production GCC -O2 configuration.",
+  "standaloneProductionCompile": "Reproduced failure before include repair; warning-free -Werror success after repair.",
+  "diagnosticIsolation": "Three workloads, four arms/four fresh processes each (ABCDDCBA then DACBBCAD); not native game qualification. C disables pool release, D additionally holds 256 textures fixed. Direct pool operations stub GL deletion. Separate call profiling has timer overhead."
 }

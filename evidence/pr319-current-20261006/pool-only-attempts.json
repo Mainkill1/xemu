@@ -1,0 +1,130 @@
+[
+  {
+    "layouts": 1,
+    "operations": 2000000,
+    "cpu_ns": 44381990,
+    "misses": 1,
+    "no_driver_deletes": 0,
+    "cell": 1
+  },
+  {
+    "layouts": 1,
+    "operations": 2000000,
+    "cpu_ns": 51483464,
+    "misses": 1,
+    "no_driver_deletes": 0,
+    "cell": 2
+  },
+  {
+    "layouts": 1,
+    "operations": 2000000,
+    "cpu_ns": 46948372,
+    "misses": 1,
+    "no_driver_deletes": 0,
+    "cell": 3
+  },
+  {
+    "layouts": 1,
+    "operations": 2000000,
+    "cpu_ns": 47779273,
+    "misses": 1,
+    "no_driver_deletes": 0,
+    "cell": 4
+  },
+  {
+    "layouts": 8,
+    "operations": 2000000,
+    "cpu_ns": 53855196,
+    "misses": 8,
+    "no_driver_deletes": 0,
+    "cell": 1
+  },
+  {
+    "layouts": 8,
+    "operations": 2000000,
+    "cpu_ns": 46499691,
+    "misses": 8,
+    "no_driver_deletes": 0,
+    "cell": 2
+  },
+  {
+    "layouts": 8,
+    "operations": 2000000,
+    "cpu_ns": 49252343,
+    "misses": 8,
+    "no_driver_deletes": 0,
+    "cell": 3
+  },
+  {
+    "layouts": 8,
+    "operations": 2000000,
+    "cpu_ns": 46838671,
+    "misses": 8,
+    "no_driver_deletes": 0,
+    "cell": 4
+  },
+  {
+    "layouts": 256,
+    "operations": 2000000,
+    "cpu_ns": 61143031,
+    "misses": 256,
+    "no_driver_deletes": 0,
+    "cell": 1
+  },
+  {
+    "layouts": 256,
+    "operations": 2000000,
+    "cpu_ns": 68178315,
+    "misses": 256,
+    "no_driver_deletes": 0,
+    "cell": 2
+  },
+  {
+    "layouts": 256,
+    "operations": 2000000,
+    "cpu_ns": 62722662,
+    "misses": 256,
+    "no_driver_deletes": 0,
+    "cell": 3
+  },
+  {
+    "layouts": 256,
+    "operations": 2000000,
+    "cpu_ns": 67707525,
+    "misses": 256,
+    "no_driver_deletes": 0,
+    "cell": 4
+  },
+  {
+    "layouts": 257,
+    "operations": 2000000,
+    "cpu_ns": 64214502,
+    "misses": 2000000,
+    "no_driver_deletes": 1999744,
+    "cell": 1
+  },
+  {
+    "layouts": 257,
+    "operations": 2000000,
+    "cpu_ns": 61903002,
+    "misses": 2000000,
+    "no_driver_deletes": 1999744,
+    "cell": 2
+  },
+  {
+    "layouts": 257,
+    "operations": 2000000,
+    "cpu_ns": 68440285,
+    "misses": 2000000,
+    "no_driver_deletes": 1999744,
+    "cell": 3
+  },
+  {
+    "layouts": 257,
+    "operations": 2000000,
+    "cpu_ns": 64059003,
+    "misses": 2000000,
+    "no_driver_deletes": 1999744,
+    "cell": 4
+  }
+]

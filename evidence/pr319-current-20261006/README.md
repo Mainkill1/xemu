@@ -20,6 +20,30 @@ Lookup scanning is bounded and sparse in this trace, while name churn mostly rem
 
 Original repaired head `ded3ad6` records and the first uncommitted adaptive probe are retained separately. They are superseded diagnostic phases, not current-head qualification. They showed the same repeated-layout benefit/unique-layout cost tradeoff; no attempts were selected out.
 
-16/16 real GL fixture checks pass (573 face/mip uploads, 7,386 existing texel checks), including exact bucket collisions, FIFO replacement, estimated-byte admission, upload-format readback/swizzle reset, native/fallback bordered DXT key-versus-allocation and active-stage/LRU teardown. The 2x storage test exercises real GL redefinition and the production invalidation seam; it does not replay a surface draw. SDL offscreen shared-context/reset checks pass; actual surface.c compiles with Werror. Checkpatch has zero errors/warnings. Native surface rendering, renderer switch, PGR2 streaming, current XISO before/after times, PCM and GPU memory high-water remain unqualified.
+16/16 real GL fixture checks pass (573 face/mip uploads, 7,386 existing texel checks), including exact bucket collisions, FIFO replacement, estimated-byte admission, upload-format readback/swizzle reset, native/fallback bordered DXT key-versus-allocation and active-stage/LRU teardown. The 2x storage test exercises real GL redefinition and the production invalidation seam; it does not replay a surface draw. SDL offscreen shared-context/reset checks pass; actual surface.c compiles with Werror. Checkpatch has zero errors/warnings. Native surface rendering, renderer switch, PGR2 streaming, current XISO before/after times and GPU memory high-water remain unqualified.
 
 Raw game/process assets are absent. Benchmark source is repository-native diagnostic code and synthetic inputs only.
+
+## Include repair and current-head applicability
+
+Current head `66705284be` adds `qemu/osdep.h` first. The previous head failed real production compilation: the xxhash header was parsed before the QEMU base types/macros. The fixture included osdep first and masked this failure. Standalone `texture.c` now compiles warning-free with `-Werror`; checkpatch reports zero errors/warnings. Prior code with fixture-equivalent forced osdep and the repaired code produce identical 12,769-byte executable text sections in the maintained GCC production configuration. The timed algorithm has not changed.
+
+## Churn isolation
+
+These local diagnostics narrow the remaining question; they do not qualify native performance. Four arms run in balanced order, four processes per arm/workload. C uses the current generator but deletes on release; D does the same while retaining 256 other textures throughout the timed interval. Neither variant is production code.
+
+| Layouts / operations | Main A CPU ms | Pool B CPU ms | Direct-delete C CPU ms | Fixed-retention D CPU ms |
+|---|---:|---:|---:|---:|
+| 257 / 65536 | 67.601 | 75.441 | 68.685 | 67.477 |
+| 8192 / 8192 | 9.825 | 11.009 | 10.231 | 9.538 |
+| 1 / 65536 | 61.718 | 42.263 | 62.501 | 62.544 |
+
+Holding 256 textures fixed did not reproduce the pool's churn loss. Recycling changes both CPU bookkeeping and deletion order; these experiments do not uniquely assign the full difference to either one.
+
+Direct production get/put operations with driver deletion replaced by a no-op take about 24 ns per operation at 1/8 layouts and 32 ns at 256/257 layouts (median of four 2-million-operation processes). This characterizes bookkeeping separately from driver work; it is not a complete texture-path cost.
+
+A separate ABBA/BAAB diagnostic surrounds generation, deletion, bind, upload and swizzle calls with monotonic timers. For 257 layouts / 65,536 operations, median aggregate upload intervals are 48.626 ms on A and 49.073 ms on B; generation/deletion are 3.777/15.396 ms on A and 4.074/14.557 ms on B. Upload remains the largest instrumented interval. At one repeated layout, B eliminates generation/deletion and improves total measured CPU from 72.107 to 50.711 ms. These are perturbed runs: clock calls change execution cost and the churn loss magnitude, so they cannot replace the uninstrumented comparison or establish a precise causal accounting by summing medians.
+
+The first call-profiler launch failed because unresolved epoxy entry points recursively dispatched into the diagnostic wrapper. Resolving each wrapped entry point before interposition fixes the harness. This is a diagnostic failure, not an xemu product crash; the failed attempt is not a successful timing sample.
+
+Remaining work: native reuse/churn attribution, retained backing versus image redefinition, and matched affected XISO/game checks. No native procedure or settings were changed.
