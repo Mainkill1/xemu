@@ -1,0 +1,7 @@
+# Cumulative Conker diagnostic
+
+Branch perf/conker-upload-integration-20261006, head 65db50718535cb7821f68b47769e2d3bd434ea40 merges PR 290 head 064628d2ea into PR 291 f58e6139d4 on current main e15b180. This is a build branch, not an omnibus PR. Current main Advanced/APU behavior preserved. Integration source review found no blocker; focused uploader 5 and display 4 tests pass. Linux release CI artifact is the exact branch head.
+
+Same frozen Conker diagnostic, settings and analysis boundary as standalone samples. Recorded 26.195 guest flips/s, process CPU 202.81%, mean frame 38.439 ms, median 33.367, p95 50.119, p99 66.740, max 93.573. 650 telemetry frames: 3,146 submissions (4.84/frame), 2,156 ordered color uploads, 2,914 alias conversions, 2,090 alias reuse hits, zero alias failures, zero upload flush failures and zero upload capacity/ring drains. Maximum staging offset 53,248 bytes. SURFACE_DOWN waits 2.480 ms/frame; sampled SURFACE_CREATE 0.134; auxiliary surface-upload 0.017. Partial timing coverage is retained in the JSON.
+
+This is one cumulative instrumented sample with uncontrolled driver cache. It cannot isolate PR 291 or PR 290, prove a stable gain or 30 FPS, or qualify the prerequisite stack. Both private start/end images show the intended menu. All three samples remain in all-three-samples.json; no game images/resources are public. Full native ownership, readback, CPU writes, texture/blit consumers, save/load/reset/teardown, physical D24 and required XISO/performance acceptance remain outstanding.

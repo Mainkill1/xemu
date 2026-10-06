@@ -1,0 +1,1 @@
+xemu: GLib: g_source_destroy: assertion 'g_atomic_int_get (&source->ref_count) > 0' failed
