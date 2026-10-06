@@ -1,0 +1,50 @@
+{
+  "compiler": "Clang19",
+  "scope": "Local VP-object compiler substitution with same GCC-built fixture/common runtime. Not native CI Clang21 ThinLTO equivalence or a game speedup.",
+  "rows": [
+    {
+      "payload": "mono-adpcm",
+      "workers": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 198726.0,
+          "candidateUs": 157369.0,
+          "improvementPercent": 20.811066493564002
+        },
+        "ABBA": {
+          "baselineUs": 198726.0,
+          "candidateUs": 157560.0,
+          "improvementPercent": 20.714954258627458
+        },
+        "BAAB": {
+          "baselineUs": 199223.5,
+          "candidateUs": 157369.0,
+          "improvementPercent": 21.008816730957943
+        }
+      }
+    },
+    {
+      "payload": "mono-pcm",
+      "workers": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 232671.0,
+          "candidateUs": 179544.0,
+          "improvementPercent": 22.833528888430443
+        },
+        "ABBA": {
+          "baselineUs": 222773.0,
+          "candidateUs": 175937.0,
+          "improvementPercent": 21.024091788502197
+        },
+        "BAAB": {
+          "baselineUs": 240498.5,
+          "candidateUs": 185763.5,
+          "improvementPercent": 22.758977706721662
+        }
+      }
+    }
+  ]
+}

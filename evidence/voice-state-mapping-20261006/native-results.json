@@ -1,0 +1,164 @@
+[
+  {
+    "variant": "a1",
+    "runId": "20261006-145959186-149e4828f4d645d98afab352620a9b6e",
+    "app": {
+      "id": "pr329-890fa7-deck-conker-d1-v1",
+      "sha256": "8057aa833fe4e0562ba188faf5851dea0bfcd7feebb19773d5111e78c0eb34e4",
+      "source": "890fa7954db91993056bb7236269b49af2e20c4b",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "procedure": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+      "description": "Original qualified Conker inputs, waits and measurement boundary unchanged; executable/config are the two replaceable build slots. Shared libraries remain frozen test files.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/conker-original-build-slots-deck-v1/255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "guestFlipCadence": 27.81039675171383,
+    "cpuMean": 199.53945312500002,
+    "frameIntervalsMs": {
+      "count": 690,
+      "mean": 36.25462463768115,
+      "median": 33.3445,
+      "min": 23.073,
+      "max": 67.78,
+      "p95": 50.072,
+      "p99": 66.6411
+    },
+    "analysisErrors": [],
+    "manualSceneReview": "Conker menu, start/end verified",
+    "acceptance": false,
+    "limits": "One development sample; uncontrolled driver cache. Scene failures/profile interventions remain explicit; no stable gain claim."
+  },
+  {
+    "variant": "b1",
+    "runId": "20261006-152550487-a08d6fafb19c4bb9899354b2a4ed004a",
+    "app": {
+      "id": "pr332-aef2d6-deck-conker-b1-v1",
+      "sha256": "1bbab8750c1b005176d4a6a7df5765b4a625bf1aa1012443db0017e1f6a54bfc",
+      "source": "aef2d6b83e6f8c970a4499cf82aebc0dc6ddab8e",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "procedure": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+      "description": "Original qualified Conker inputs, waits and measurement boundary unchanged; executable/config are the two replaceable build slots. Shared libraries remain frozen test files.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/conker-original-build-slots-deck-v1/255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "guestFlipCadence": 27.233078603185138,
+    "cpuMean": 200.78103125,
+    "frameIntervalsMs": {
+      "count": 675,
+      "mean": 37.04451555555554,
+      "median": 33.351,
+      "min": 19.278,
+      "max": 100.029,
+      "p95": 50.1159,
+      "p99": 66.67688
+    },
+    "analysisErrors": [],
+    "manualSceneReview": "Conker menu, start/end verified",
+    "acceptance": false,
+    "limits": "One development sample; uncontrolled driver cache. Scene failures/profile interventions remain explicit; no stable gain claim."
+  },
+  {
+    "variant": "c1",
+    "runId": "20261006-150433446-dd7917fa82814662b1ea1b9ecaf23cf2",
+    "app": {
+      "id": "pr200-auto197654-deck-candidate-pgr2-v1",
+      "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-pgr2",
+      "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+      "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+      "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+      "version": "0.8.136-0-g197654b3c09d",
+      "scope": "Current-main PGR2 Vulkan hot-path attribution only; not matched game performance qualification.",
+      "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+    },
+    "procedure": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "guestFlipCadence": 6.795827253333218,
+    "cpuMean": 379.56287301587304,
+    "frameIntervalsMs": {
+      "count": 201,
+      "mean": 125.1517810945274,
+      "median": 77.5,
+      "min": 50.916,
+      "max": 725.139,
+      "p95": 320.033,
+      "p99": 459.611
+    },
+    "analysisErrors": [],
+    "manualSceneReview": "PGR2 flyover to parked, not stationary acceptance",
+    "acceptance": false,
+    "limits": "One development sample; uncontrolled driver cache. Scene failures/profile interventions remain explicit; no stable gain claim."
+  },
+  {
+    "variant": "d1",
+    "runId": "20261006-151049816-d4d22fa3c1f04ffd8cd8229f643e6838",
+    "app": {
+      "id": "pr332-257ee4-deck-pgr2-d1-v1",
+      "sha256": "11058d6e35ec4c5604729fe35ed974366609483b1d3a65db380f7531f4bf6237",
+      "source": "257ee477ba7aa9fcb6aa6f911b94ba23799be012",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+    },
+    "procedure": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "guestFlipCadence": 0.5454541122230496,
+    "cpuMean": 143.02662500000002,
+    "frameIntervalsMs": null,
+    "analysisErrors": [
+      "frames: Insufficient positive frame intervals."
+    ],
+    "manualSceneReview": "PGR2 intro at both boundaries; insufficient frame samples",
+    "acceptance": false,
+    "limits": "One development sample; uncontrolled driver cache. Scene failures/profile interventions remain explicit; no stable gain claim."
+  },
+  {
+    "variant": "e1",
+    "runId": "20261006-151903602-bcdc6d899dab4fab9745779c65829bd1",
+    "app": {
+      "id": "pr332-257ee4-deck-pgr2-d1-v1",
+      "sha256": "11058d6e35ec4c5604729fe35ed974366609483b1d3a65db380f7531f4bf6237",
+      "source": "257ee477ba7aa9fcb6aa6f911b94ba23799be012",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+    },
+    "procedure": {
+      "id": "pr332-pgr2-startup-profile-deck-v1",
+      "revision": "d9f64d29e580174a13d34002170fffee592414edbc7fd5474ade0bd5494788c1",
+      "description": "Separate PGR2 startup failure diagnostic with external CPU sampling; original plan/controller/settings/boundary unchanged. Not performance acceptance.",
+      "sourceJobId": "pr267-embedded-pgr2-source-v3",
+      "stepCount": 30,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/pr332-pgr2-startup-profile-deck-v1/d9f64d29e580174a13d34002170fffee592414edbc7fd5474ade0bd5494788c1"
+    },
+    "guestFlipCadence": 7.08192575168186,
+    "cpuMean": 376.9963968253969,
+    "frameIntervalsMs": {
+      "count": 212,
+      "mean": 118.07504245283016,
+      "median": 93.751,
+      "min": 48.998,
+      "max": 425.665,
+      "p95": 252.21935,
+      "p99": 353.4562099999994
+    },
+    "analysisErrors": [],
+    "manualSceneReview": "PGR2 flyover to parked; external profile, not acceptance",
+    "acceptance": false,
+    "limits": "One development sample; uncontrolled driver cache. Scene failures/profile interventions remain explicit; no stable gain claim."
+  }
+]
