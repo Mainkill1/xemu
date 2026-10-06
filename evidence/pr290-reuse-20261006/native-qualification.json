@@ -1,0 +1,236 @@
+{
+  "candidate": "0b2d1c35e107cd18e89b1d9ff265a719d066fef6",
+  "sourceHashes": {
+    "hw/xbox/nv2a/pgraph/vk/surface.c": "0fc047bc6d6056920a84a5da4a70104c9f60afd3a7155ae2fc15aeed5d1da23d",
+    "hw/xbox/nv2a/pgraph/vk/surface-coherence.h": "4a866469204ac7524431c8ed26ff528ebea557fe3fbe78b09594603e33aa5a19",
+    "hw/xbox/nv2a/pgraph/vk/surface-alias-convert.c": "d957111a48f37c44945008f5e07430a4da5cb8b980790d20486becdc96f9fac6",
+    "hw/xbox/nv2a/pgraph/vk/surface-alias-map.c": "30e5ae82fdd6ccea59b5770956ba025bef14cb6dcea2804084cabee53294bd9b",
+    "hw/xbox/nv2a/pgraph/vk/surface-alias-map.h": "a1258fca03554c3ece7fb7ec760790db7124647d3458e442cf468e933c10b966",
+    "hw/xbox/nv2a/pgraph/vk/surface-compute.c": "715c5abf28d7c871b0bcef62894b4dd85fe121fa49384060224a0d91d5cb56b4",
+    "hw/xbox/nv2a/pgraph/vk/image.c": "a882001ed9a8eb28494d697d99c29767bf2243d3c9c4901e3160b758851889f4",
+    "hw/xbox/nv2a/pgraph/vk/renderer.h": "feccf8c9580fffa63ae671bc8fe4a931f07cc16b6c4096ddc8e6df5d3f34c9ff"
+  },
+  "fixtureHashes": {
+    "native-compute.c": "eb46c089ed851ce013a225b0b9c627b7f86ebd9fc8e3fa05491f3d1223bd148b",
+    "native-alias.inc": "b449592633e10747e14d14ff8fa68e3bbcade7dec6dd92a4d69a67b33f0df0cd",
+    "native-compute": "d1695c961bc994b0e5d8ea2e870d64bd2e1f52f5152ebc486afc6182378171ef",
+    "run-deck-native.py": "3aeeea475c773238c20a4075e8bae871507351fc79623ca3914758403a6326c4",
+    "rebuild-native.py": "d7e3a97e3b392738b848afa49470e7473bfae00f6af9443c266bdaa944b5c148"
+  },
+  "privateDependency": {
+    "name": "libshaderc.so.1",
+    "sha256": "31400b359d2f4b4a43168978412a72913474725befb87966068cfac1922ac6c9"
+  },
+  "productionExecution": "Actual surface.c update_depth_alias_view, surface-alias-convert.c converter, surface-compute.c descriptor/pipeline/shaders and image.c transitions. Shader compiler wrapper uses shaderc; fast_hash/markers are fixture substitutes. Queue submit/wait and preallocated scratch capacities are fixture adapters. No native command mocked.",
+  "local": {
+    "device": "llvmpipe LLVM19.1.7 CPU software Vulkan",
+    "driver": "Mesa26.1.2-1~bpo13+1",
+    "packUnpackCases": 32,
+    "aliasConversions": 8,
+    "noDispatchReuseChecks": 8,
+    "sourceRoundtripPixels": 1232896,
+    "aliasOutputPixels": 8320,
+    "formats": [
+      "D24_UNORM_S8_UINT",
+      "D32_SFLOAT_S8_UINT"
+    ],
+    "result": "PASS",
+    "log": "native-reference-image-local-final.log"
+  },
+  "deck": {
+    "device": "AMD Custom GPU0405 RADV VANGOGH",
+    "vendorId": "1002",
+    "deviceId": "163f",
+    "driver": "Mesa26.0.0-devel git-9cc9241790",
+    "apiVersion": "1.4.330",
+    "driverVersion": "25.99.99",
+    "packUnpackCases": 32,
+    "aliasConversions": 4,
+    "noDispatchReuseChecks": 4,
+    "sourceRoundtripPixels": 616448,
+    "aliasOutputPixels": 4160,
+    "formats": [
+      "D32_SFLOAT_S8_UINT"
+    ],
+    "unsupportedImageFormat": "D24_UNORM_S8_UINT: vkGetPhysicalDeviceImageFormatProperties returns -11; two cases skipped",
+    "result": "PASS for supported format",
+    "log": "deck-native.log",
+    "cleanup": "deck-native-cleanup.json exit0, final HTTP no PID/Pending0/Testing0"
+  },
+  "failedRuns": [
+    {
+      "record": "deck-native-initial-failure.json",
+      "classification": "Fixture admission error: attempted unsupported D24S8 image; cannot assess production correctness."
+    },
+    {
+      "record": "deck-native-roundtrip-failure.json",
+      "classification": "Overstrict host float image oracle for zero: compute bits1 maps to imagebits0 on RADV. Final fixture independently uploads CPU-expected image, confirms same zero-only transformation, keeps all nonzero bits/stencil strict and checks guest Z24 requantization."
+    }
+  ],
+  "oracle": "CPU quadrant mapping independent from production alias-map code. Source image roundtrip exact. Compute output bit-exact vs CPU conversion. Reference image transfer must be identical except only expected floatbits1 may become0; actual alias image matches that reference exactly and must quantize to original guest24 depth. Every stencil exact. Reuse requires descriptor count unchanged; changed generation requires3 descriptor sets.",
+  "limitations": [
+    "No Khronos validation layer was available/used.",
+    "Physical D24 image output still needs a supporting GPU; Deck buffer-only D24 compute passes do not establish D24 image conversion.",
+    "Native harness calls changed helper directly; it does not exercise actual surface rebind/list ownership, CPU callbacks, producer draw/clear invalidation, RAM blits, texture sampling, fallback readback, save/load/reset or teardown ordering.",
+    "Source generations are advanced by the fixture after real image uploads; actual uploader generation wiring remains source-reviewed.",
+    "Queue orchestration is synchronous fixture submit/wait, so in-flight renderer lifetime and descriptor exhaustion remain separate native gates.",
+    "No timing/FPS/game performance claim."
+  ],
+  "commands": {
+    "build": "python3 .scratch/pr290-current-20261006/rebuild-native.py",
+    "local": "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json timeout 60s .scratch/pr290-current-20261006/native-compute",
+    "deck": "python3 .scratch/pr290-current-20261006/run-deck-native.py (requires authorized operator ControlPath authenticated; script HTTP-idle guards and exact temporary-file cleanup)",
+    "compiler": "native-alias-commands.json retains every compile/link argument and cwd"
+  },
+  "catalog": {
+    "testsPerHost": 171,
+    "suiteDeck": "pr256-deck-opengl-v5",
+    "suiteWindows": "pr256-windows-opengl-v5",
+    "isoSha256": "0a98e667d56b16dd91f028ef09f9e535199c006ca3800b5b54238799a4436373",
+    "catalogSha256": "0aef89008a3689bfbb2160c07346d65a4a32c88cc82f04ca8ce81416037801ce",
+    "localSource": "xemu-perf-tests-issue66 1d1ce822466081d7e1c4aba0c67a1fa7e1f98722; local resource and packaged catalog bytes match registered catalog hash",
+    "oracles": 149,
+    "missingOracles": 22,
+    "settings": {
+      "warmup_iterations": 3,
+      "measurement_iterations_multiplier": 4,
+      "gpu_completion_mode": "per_iteration"
+    },
+    "depthAliasLeaves": 0,
+    "controls": [
+      {
+        "test_id": 133,
+        "id": "surface.full_clear_elision_guard",
+        "revision": 1,
+        "name": "XemuFullClearElisionGuard",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuFullClearElisionGuard",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 136,
+        "id": "surface.partial_channel_clear_guard",
+        "revision": 1,
+        "name": "XemuPartialChannelClearGuard",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuPartialChannelClearGuard",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 127,
+        "id": "surface.cpu_read_after_gpu_write",
+        "revision": 1,
+        "name": "XemuCpuReadAfterGpuWrite",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuCpuReadAfterGpuWrite",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 128,
+        "id": "surface.cpu_read_clean_surface",
+        "revision": 1,
+        "name": "XemuCpuReadCleanSurface",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuCpuReadCleanSurface",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 137,
+        "id": "surface.surface_download_path",
+        "revision": 1,
+        "name": "XemuSurfaceDownloadPath",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuSurfaceDownloadPath",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 134,
+        "id": "surface.overlapping_surface_churn_representative",
+        "revision": 1,
+        "name": "XemuOverlappingSurfaceChurnRepresentative",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuOverlappingSurfaceChurnRepresentative",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 144,
+        "id": "surface.vulkan_memory_pressure.representative.alias_resize",
+        "revision": 1,
+        "name": "XemuVulkanMemoryPressureRepresentative-alias_resize",
+        "category": "surfaces",
+        "route": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      },
+      {
+        "test_id": 9,
+        "id": "cpu_floating_point.sse_scalar",
+        "revision": 1,
+        "name": "SSEScalar",
+        "category": "cpu",
+        "route": "CpuFloatingPoint::SSEScalar",
+        "freshProcess": false,
+        "timeoutMs": 30000
+      }
+    ]
+  },
+  "coverageMatrix": [
+    {
+      "case": "D24/D32 packed shader conversion",
+      "native": "32 real compute dispatches pass both local and physical Deck",
+      "xiso": "No dedicated leaf"
+    },
+    {
+      "case": "Full640x480->32x32 image conversion",
+      "native": "Both formats local;D32physical pass. D24unsupportedphysical",
+      "xiso": "No dedicated leaf"
+    },
+    {
+      "case": "Unchanged producer reuse + replacement generation",
+      "native": "Actual reuse helper converts once and skips next; real image outputs pass. Generation changes fixture-controlled",
+      "xiso": "No depth alias leaf"
+    },
+    {
+      "case": "Producer draw/clear retirement and reconversion",
+      "native": "Only existing production-linked nonnative unit coverage",
+      "xiso": "full_clear_elision_guard/partial_channel_clear_guard are color controls"
+    },
+    {
+      "case": "CPU reads/writes; guest dirty pages",
+      "native": "Existing coherence source fixtures only",
+      "xiso": "cpu_read_after_gpu_write/cpu_read_clean_surface/surface_download_path cover color only"
+    },
+    {
+      "case": "Overlapping third owner; texture consumer",
+      "native": "Existing source lookup rejection only",
+      "xiso": "overlapping_surface_churn_representative and memory-pressure alias_resize use color targets"
+    },
+    {
+      "case": "RAM partial/full blits",
+      "native": "Existing production blit source fixture with readback double",
+      "xiso": "No depth alias blit leaf"
+    },
+    {
+      "case": "Read-only->writable and failed conversion fallback",
+      "native": "Reuse helper failure/retry source fixture; fallback ownership/native queue absent",
+      "xiso": "No dedicated leaf"
+    },
+    {
+      "case": "Save/load/reset and in-flight teardown",
+      "native": "Not covered by this harness",
+      "xiso": "No dedicated depth alias lifecycle leaf"
+    },
+    {
+      "case": "Unrelated timed control",
+      "native": "Not measured",
+      "xiso": "cpu_floating_point.sse_scalar"
+    }
+  ],
+  "nextAction": "Root can use existing native harness on a D24-capable physical GPU; actual renderer ownership matrix still needs concrete existing emulator diagnostic workload or narrowly added cases to current native harness. Registered color XISO tests provide regressions/controls only. No remote campaign launched or saved definition changed."
+}

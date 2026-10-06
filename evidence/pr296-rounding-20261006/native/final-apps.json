@@ -1,0 +1,128 @@
+{
+  "deck-parent-morrowind": {
+    "id": "pr200-auto197654-deck-candidate-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-morrowind",
+    "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "deck-parent-pgr2": {
+    "id": "pr200-auto197654-deck-candidate-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-pgr2",
+    "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "deck-parent-conker": {
+    "id": "pr200-auto197654-deck-candidate-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-conker",
+    "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "deck-candidate-morrowind": {
+    "id": "pr296-35546-deck-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/deck-morrowind",
+    "sha256": "c3337f58546b96be42dacc90914430dc7e66f43e75a5034e57a92bba35c481e5",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  },
+  "deck-candidate-conker": {
+    "id": "pr296-35546-deck-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/deck-conker",
+    "sha256": "c3337f58546b96be42dacc90914430dc7e66f43e75a5034e57a92bba35c481e5",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  },
+  "deck-candidate-pgr2": {
+    "id": "pr296-35546-deck-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/deck-pgr2",
+    "sha256": "c3337f58546b96be42dacc90914430dc7e66f43e75a5034e57a92bba35c481e5",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  },
+  "win-parent-morrowind": {
+    "id": "pr200-auto197654-win-candidate-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/win-candidate-morrowind",
+    "sha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "win-parent-pgr2": {
+    "id": "pr200-auto197654-win-candidate-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/win-candidate-pgr2",
+    "sha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "win-parent-conker": {
+    "id": "pr200-auto197654-win-candidate-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/win-candidate-conker",
+    "sha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "version": "0.8.136-0-g197654b3c09d",
+    "scope": "Common current-main parent includes Auto-four workers; compare only FNSTSW changes.",
+    "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "win-candidate-morrowind": {
+    "id": "pr296-35546-win-morrowind-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/win-morrowind",
+    "sha256": "9dadda82e94664a3ff1d2c741754fe9229450cf9fe9ae765502c888ac14f1b64",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  },
+  "win-candidate-conker": {
+    "id": "pr296-35546-win-conker-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/win-conker",
+    "sha256": "9dadda82e94664a3ff1d2c741754fe9229450cf9fe9ae765502c888ac14f1b64",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  },
+  "win-candidate-pgr2": {
+    "id": "pr296-35546-win-pgr2-v1",
+    "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr296-current-20261006/native/packages/win-pgr2",
+    "sha256": "9dadda82e94664a3ff1d2c741754fe9229450cf9fe9ae765502c888ac14f1b64",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "productSource": "35546a31f0fd470075030f709455e0deb85f879d",
+    "buildCommit": "35546a31f0fd470075030f709455e0deb85f879d",
+    "version": "0.8.136-0-g35546a31f0fd",
+    "scope": "Only #296 vs current main e15b180; both include Auto-four."
+  }
+}

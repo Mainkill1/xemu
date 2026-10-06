@@ -1,0 +1,53 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS format=129 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=129 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 pack scale=2 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=130 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 pack scale=2 pixels=1000 deviceX=192 inv=1024
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=0 reuse=0 pixels=16 zeroCanonicalized=4
+PASS native alias format=130 64x16->4x4 generation=0 reuse=1 pixels=16 zeroCanonicalized=4
+PASS producer roundtrip format=130 generation=1 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=1 reuse=0 pixels=16 zeroCanonicalized=3
+PASS native alias format=130 64x16->4x4 generation=1 reuse=1 pixels=16 zeroCanonicalized=3
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=0 reuse=0 pixels=1024 zeroCanonicalized=205
+PASS native alias format=130 640x480->32x32 generation=0 reuse=1 pixels=1024 zeroCanonicalized=205
+PASS producer roundtrip format=130 generation=1 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=1 reuse=0 pixels=1024 zeroCanonicalized=204
+PASS native alias format=130 640x480->32x32 generation=1 reuse=1 pixels=1024 zeroCanonicalized=204
+PASS 32 actual adapter dispatches

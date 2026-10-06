@@ -1,0 +1,34 @@
+{
+  "base": "0b2d1c35e107cd18e89b1d9ff265a719d066fef6",
+  "candidate": "f5dfba687fca62cbfc29b2ce5a96632fe9f53e8a",
+  "files": [
+    "hw/xbox/nv2a/pgraph/vk/perf.c",
+    "hw/xbox/nv2a/pgraph/vk/renderer.h",
+    "hw/xbox/nv2a/pgraph/vk/surface.c",
+    "tests/unit/test-xbox-vk-alias-producer-lookup.c"
+  ],
+  "opt_in": "XEMU_VK_PERF_LOG; existing schema 8 features adds depth_alias; no runner protocol changes",
+  "fields": {
+    "depth_alias_conversions_per_guest_frame": "Successful converter returns; records GPU commands, not a GPU completion count",
+    "depth_alias_reuse_hits_per_guest_frame": "Clean matching producer lifetime/generation reuses; skips conversion",
+    "depth_alias_conversion_failures_per_guest_frame": "Converter returns false, before existing fallback",
+    "depth_alias_views_retired_per_guest_frame": "Actual matching view removals after producer writes; zero for writes without a view",
+    "depth_alias_producer_pixels_per_guest_frame": "Sum uint64 producer width * height on successful conversions",
+    "depth_alias_view_pixels_per_guest_frame": "Sum uint64 view width * height on successful conversions"
+  },
+  "validation": {
+    "red": "counters-red.log: expected conversions 5, observed 0 before implementation",
+    "focused": "35 subtests across seven programs passed; counters-focused.log",
+    "compile": "surface.c and perf.c original configured flags plus -Werror; counters-production-commands.json and counters-production-compile.log",
+    "style": "git diff --check; scripts/checkpatch.pl --no-tree --no-signoff counters-change.patch: 0 errors, 0 warnings",
+    "review": "Independent review: no blocking findings; fixture independently 6/6; no ownership delta",
+    "fixture": "Both D24/D32 cases assert success5/reuse3/failure1/retirement1; full producer pixel1536000/view pixel5120; real JSON fields and next-frame zeros; disabled branches do not count",
+    "broader_suite": "Not rerun: earlier unchanged APU resampler sinf/cosf compile failure retained in unit-suite.log; no fix"
+  },
+  "commands": [
+    "ninja -C build tests/unit/test-xbox-vk-alias-producer-lookup tests/unit/test-xbox-vk-alias-blit tests/unit/test-xbox-vk-surface-coherence tests/unit/test-xbox-vk-surface-alias-map tests/unit/test-xbox-vk-alias-convert-sequence tests/unit/test-xbox-vk-surface-retained-lookup tests/unit/test-xbox-vk-alias-dispatch-limits",
+    "build/pyvenv/bin/meson test -C build --no-rebuild --print-errorlogs test-xbox-vk-alias-producer-lookup test-xbox-vk-alias-blit test-xbox-vk-surface-coherence test-xbox-vk-surface-alias-map test-xbox-vk-alias-convert-sequence test-xbox-vk-surface-retained-lookup test-xbox-vk-alias-dispatch-limits"
+  ],
+  "native_evidence": "native-qualification.json unchanged and tied to prior tested 0b2d commit. Current delta only opt-in counters and fields; native evidence is not an exact current-executable run. No new remote jobs.",
+  "remaining": "HOLD: actual emulator consumers, draw/clear/guest writes/CPU read and RAM blit/texture/save-load/reset/teardown ownership matrix, matched game/XISO correctness and timings with telemetry frequency/work ratio, physical D24 on supporting GPU. Parent owns qualification/push/body."
+}
