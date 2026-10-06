@@ -262,6 +262,9 @@ typedef struct SurfaceBinding {
     uint64_t depth_write_generation;
     uint64_t derived_from_lifetime_id;
     uint64_t derived_from_generation;
+
+    /* Retired image is still referenced by the open main command buffer. */
+    bool retirement_pending;
 } SurfaceBinding;
 
 typedef struct ShaderModuleInfo {
@@ -869,6 +872,7 @@ typedef struct PGRAPHVkState {
 
     QTAILQ_HEAD(, SurfaceBinding) surfaces;
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
+    unsigned int pending_alias_retirements;
     unsigned long *surface_dirty_page_bits;
     size_t surface_dirty_page_words;
     SurfaceBinding *color_binding, *zeta_binding;
@@ -1121,6 +1125,7 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
 // surface.c
 void pgraph_vk_init_surfaces(PGRAPHState *pg);
 void pgraph_vk_finalize_surfaces(PGRAPHState *pg);
+void pgraph_vk_surface_retirements_complete(PGRAPHVkState *r);
 void pgraph_vk_surface_flush(NV2AState *d);
 void pgraph_vk_process_pending_downloads(NV2AState *d);
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
