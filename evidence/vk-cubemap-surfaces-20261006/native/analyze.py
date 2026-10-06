@@ -4,7 +4,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parent / 'native'
 results = []
-for variant in ['b1']:
+for variant in ['b1', 'c1']:
     paths = list((root / variant / 'deck-evidence').glob('*/performance.json'))
     if not paths:
         continue

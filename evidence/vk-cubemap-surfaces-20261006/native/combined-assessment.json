@@ -1,0 +1,17 @@
+{
+  "source": "abfd6a5811f121982f9936886b31a16818d2331b",
+  "run": "20261006-134352788-1f1d4c4aac0442f296fbc72a2f9cf52a",
+  "comparisonEligible": false,
+  "reason": "Single instrumented changing flyover-to-parked scene; no balanced or fixed-work performance claim.",
+  "sceneReview": "Both images inspected: Hong Kong flyover at recording-start; parked 000 MPH at recording-end. No observed black screen.",
+  "parent": "545f6176635519b37464a084c06121efddcbd4be",
+  "delta": "Only PR328 graphics descriptor capacity (1024->2048).",
+  "focusedTests": "Two cubemap groups and three actual descriptor publication routes pass.",
+  "findings": [
+    "Descriptor capacity drains disappear; six cubemap copies/frame remain, no surface downloads.",
+    "NEED_BUFFER_SPACE wait falls from14.709 to8.022ms/frame; STALLED wait rises from3.155 to6.298ms/frame.",
+    "No overall cadence uplift demonstrated:6.830 vs6.837 flips/s. Median and tails worse in this nonstationary window.",
+    "Renderer descriptor-update elapsed falls9.552->1.470ms/frame, but nested timers include wait; not exclusive CPU."
+  ],
+  "decision": "Both product PRs HOLD. Identify remaining capacity caller with separate bounded debugger diagnostic rather than repeat unchanged game benchmarks."
+}

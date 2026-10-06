@@ -1,0 +1,118 @@
+[
+  {
+    "variant": "main",
+    "run": "20261006-104710678-a0e0fb8ffc4c47aa9d07f2c0e7b2705e",
+    "windowStartUs": 1287594712739,
+    "rows": [
+      {
+        "seconds": [
+          0,
+          5
+        ],
+        "samples": 19,
+        "meanMs": 252.33163157894737,
+        "medianMs": 218.929,
+        "maxMs": 417.305
+      },
+      {
+        "seconds": [
+          5,
+          10
+        ],
+        "samples": 26,
+        "meanMs": 203.1523076923077,
+        "medianMs": 205.314,
+        "maxMs": 373.239
+      },
+      {
+        "seconds": [
+          10,
+          15
+        ],
+        "samples": 43,
+        "meanMs": 115.6209534883721,
+        "medianMs": 95.945,
+        "maxMs": 271.546
+      },
+      {
+        "seconds": [
+          15,
+          20
+        ],
+        "samples": 71,
+        "meanMs": 71.1693661971831,
+        "medianMs": 64.212,
+        "maxMs": 160.105
+      },
+      {
+        "seconds": [
+          20,
+          25
+        ],
+        "samples": 77,
+        "meanMs": 64.17251948051948,
+        "medianMs": 63.122,
+        "maxMs": 82.041
+      }
+    ],
+    "scope": "Trend within original analysis window only; different evolving scene, not fixed-work A/B"
+  },
+  {
+    "variant": "cubemap",
+    "run": "20261006-132214619-c357f18d31864690a6fa2aa743af4b63",
+    "windowStartUs": 1296895832125,
+    "rows": [
+      {
+        "seconds": [
+          0,
+          5
+        ],
+        "samples": 24,
+        "meanMs": 203.10220833333332,
+        "medianMs": 185.115,
+        "maxMs": 314.652
+      },
+      {
+        "seconds": [
+          5,
+          10
+        ],
+        "samples": 21,
+        "meanMs": 238.662,
+        "medianMs": 231.309,
+        "maxMs": 409.712
+      },
+      {
+        "seconds": [
+          10,
+          15
+        ],
+        "samples": 25,
+        "meanMs": 201.29844,
+        "medianMs": 194.778,
+        "maxMs": 326.055
+      },
+      {
+        "seconds": [
+          15,
+          20
+        ],
+        "samples": 58,
+        "meanMs": 87.81468965517242,
+        "medianMs": 74.1075,
+        "maxMs": 220.611
+      },
+      {
+        "seconds": [
+          20,
+          25
+        ],
+        "samples": 83,
+        "meanMs": 59.68195180722891,
+        "medianMs": 57.92,
+        "maxMs": 84.815
+      }
+    ],
+    "scope": "Trend within original analysis window only; different evolving scene, not fixed-work A/B"
+  }
+]
