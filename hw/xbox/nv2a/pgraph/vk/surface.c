@@ -1026,6 +1026,7 @@ void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
     if (producer->color || producer->swizzle) {
         return;
     }
+    producer->depth_write_generation++;
 
     /*
      * Only a read-only swizzled view may coexist with its linear owner.
@@ -1463,6 +1464,30 @@ static SurfaceBinding *pgraph_vk_find_depth_alias_producer(
     return producer;
 }
 
+static bool update_depth_alias_view(PGRAPHState *pg, SurfaceBinding *producer,
+                                    SurfaceBinding *view)
+{
+    if (view->initialized && !view->draw_dirty && !view->upload_pending &&
+        !view->download_pending && !view->readback_superseded_by_guest &&
+        producer->lifetime_id != 0 &&
+        view->derived_from_lifetime_id == producer->lifetime_id &&
+        view->derived_from_generation == producer->depth_write_generation) {
+        return true;
+    }
+
+    view->derived_from_lifetime_id = 0;
+    if (!pgraph_vk_convert_depth_alias(pg, producer, view)) {
+        return false;
+    }
+    pgraph_vk_surface_upload_complete(
+        true, &view->upload_pending, &view->readback_superseded_by_guest);
+    view->initialized = true;
+    view->draw_time = pg->draw_time;
+    view->derived_from_lifetime_id = producer->lifetime_id;
+    view->derived_from_generation = producer->depth_write_generation;
+    return true;
+}
+
 static void retire_depth_alias_for_write(NV2AState *d, hwaddr address)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
@@ -1558,6 +1583,12 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     if (!(surface->upload_pending || force)) {
         return true;
+    }
+
+    /* An upload replaces image contents even when the binding is unchanged. */
+    surface->derived_from_lifetime_id = 0;
+    if (!surface->color && !surface->swizzle) {
+        surface->depth_write_generation++;
     }
 
     if (r->perf.enabled) {
@@ -2276,13 +2307,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
         }
 
         if (alias_source) {
-            if (pgraph_vk_convert_depth_alias(pg, alias_source, surface)) {
-                pgraph_vk_surface_upload_complete(
-                    true, &surface->upload_pending,
-                    &surface->readback_superseded_by_guest);
-                surface->initialized = true;
-                surface->draw_time = pg->draw_time;
-            } else {
+            if (!update_depth_alias_view(pg, alias_source, surface)) {
                 if (!pgraph_vk_surface_download_if_dirty(d, alias_source)) {
                     error_report("Vulkan depth alias fallback readback failed");
                     abort();

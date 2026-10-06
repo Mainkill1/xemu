@@ -257,6 +257,11 @@ typedef struct SurfaceBinding {
 
     /* Identifies this logical binding even when its allocation is recycled. */
     uint64_t lifetime_id;
+
+    /* Contents change independently of draw_time, which tracks read use too. */
+    uint64_t depth_write_generation;
+    uint64_t derived_from_lifetime_id;
+    uint64_t derived_from_generation;
 } SurfaceBinding;
 
 typedef struct ShaderModuleInfo {
