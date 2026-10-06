@@ -233,6 +233,25 @@ if vulkan.found()
         link_args: nv2a_vk_runtime_gc_link_args,
         include_directories: include_directories('../../target/i386'),
       )
+      if host_os == 'linux'
+        surface_ownership_runtime = declare_dependency(
+          compile_args: ['-DXBOX=1'],
+          dependencies: [nv2a_vk_runtime_prod],
+          link_args: [
+            '-Wl,--wrap=pgraph_vk_finish',
+            '-Wl,--wrap=pgraph_vk_ensure_not_in_render_pass',
+          ],
+        )
+        tests += {
+          'test-xbox-vk-surface-ownership': [
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+            surface_ownership_runtime,
+            xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+            spirv_reflect,
+          ],
+        }
+      endif
       tests += {
         'test-xbox-vk-stencil-write': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',

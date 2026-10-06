@@ -474,7 +474,7 @@ static inline bool pgraph_zeta_draw_write_enabled(PGRAPHState *pg)
 }
 
 static inline bool pgraph_zeta_surface_dirty_required(PGRAPHState *pg,
-                                                       bool zeta_accessed)
+                                                     bool zeta_accessed)
 {
     return zeta_accessed &&
            (pg->clearing || pgraph_zeta_draw_write_enabled(pg));

@@ -3557,15 +3557,16 @@ static void bind_inline_vertex_buffer(PGRAPHState *pg, VkDeviceSize offset)
     bind_vertex_buffer(pg, 0xffff, offset);
 }
 
-void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
+void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta_accessed)
 {
-    NV2A_DPRINTF("pgraph_set_surface_dirty(%d, %d) -- %d %d\n", color, zeta,
+    NV2A_DPRINTF("pgraph_set_surface_dirty(%d, %d) -- %d %d\n",
+                 color, zeta_accessed,
                  pgraph_color_write_enabled(pg), pgraph_zeta_write_enabled(pg));
 
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     color = color && (pg->clearing || pgraph_color_write_enabled(pg));
-    zeta = pgraph_zeta_surface_dirty_required(pg, zeta);
+    bool zeta = pgraph_zeta_surface_dirty_required(pg, zeta_accessed);
     pg->surface_color.draw_dirty |= color;
     pg->surface_zeta.draw_dirty |= zeta;
 
