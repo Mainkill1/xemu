@@ -1,0 +1,11 @@
+{
+  "runId": "20261006-122348817-6b8a9cac2dd24ffdbf84f416c9de5955",
+  "source": "81f566efea9bccab85af026ddcbf048b4d473457",
+  "outcome": "Black recording-start and recording-end images; correctness FAILED, comparison INELIGIBLE",
+  "debugger": "Attached after recording-start file existed; no matching folded finish in20s; timed out and detached",
+  "debuggerStartMonotonicUs": 1293378063830,
+  "lastGuestFrameUs": 1293358660402,
+  "frames": 855,
+  "guestFlipCadence": 38.87301672382322,
+  "note": "Guest cadence38.873 is not visible FPS or a performance gain. Black image precedes attachment. Do not blame debugger or candidate without isolated reproduction."
+}
