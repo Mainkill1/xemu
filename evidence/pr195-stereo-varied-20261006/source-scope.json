@@ -1,0 +1,11 @@
+{
+  "reference": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "referenceTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "sourceTree": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "candidate": "current-main APU + staged original PR195 table only",
+  "probe": "mono-guard is the existing scalar-mono/table-stereo local probe",
+  "fixture": "separate varied-adpcm-v1 diagnostic; original procedures unchanged",
+  "inputs": "all 89 indices and all 16 nibbles, varied predictors, 64 blocks changed before each VP frame",
+  "timing": "actual VP call only; validation/payload updates/PCM dumps excluded",
+  "scope": "linked production APU TUs with reused emulator support, no native game/FPS claim"
+}

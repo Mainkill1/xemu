@@ -1,0 +1,102 @@
+[
+  {
+    "compiler": "gcc",
+    "sanitizers": [],
+    "reference": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "referenceScalarEqualsHistorical": true,
+    "cases": 11392,
+    "returnCode": 0,
+    "output": "PASS: 11392 production decoder differential cases; PCM exact; table immutable\n",
+    "command": [
+      "gcc",
+      "-O2",
+      "-march=x86-64-v3",
+      "-fno-lto",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<WORKSPACE>/xemu-pr195-repair",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/differential.c",
+      "-o",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/gcc-differential"
+    ]
+  },
+  {
+    "compiler": "gcc",
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "reference": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "referenceScalarEqualsHistorical": true,
+    "cases": 11392,
+    "returnCode": 0,
+    "output": "PASS: 11392 production decoder differential cases; PCM exact; table immutable\n",
+    "command": [
+      "gcc",
+      "-O2",
+      "-march=x86-64-v3",
+      "-fno-lto",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<WORKSPACE>/xemu-pr195-repair",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/differential.c",
+      "-o",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/gcc-differential-asan-ubsan"
+    ]
+  },
+  {
+    "compiler": "clang-19",
+    "sanitizers": [],
+    "reference": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "referenceScalarEqualsHistorical": true,
+    "cases": 11392,
+    "returnCode": 0,
+    "output": "PASS: 11392 production decoder differential cases; PCM exact; table immutable\n",
+    "command": [
+      "clang-19",
+      "-O2",
+      "-march=x86-64-v3",
+      "-fno-lto",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<WORKSPACE>/xemu-pr195-repair",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/differential.c",
+      "-o",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/clang-19-differential"
+    ]
+  },
+  {
+    "compiler": "clang-19",
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "reference": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "referenceScalarEqualsHistorical": true,
+    "cases": 11392,
+    "returnCode": 0,
+    "output": "PASS: 11392 production decoder differential cases; PCM exact; table immutable\n",
+    "command": [
+      "clang-19",
+      "-O2",
+      "-march=x86-64-v3",
+      "-fno-lto",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<WORKSPACE>/xemu-pr195-repair",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/differential.c",
+      "-o",
+      "<WORKSPACE>/.scratch/pr195-varied-20261006/clang-19-differential-asan-ubsan"
+    ]
+  }
+]

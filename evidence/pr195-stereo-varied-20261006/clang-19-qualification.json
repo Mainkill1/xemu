@@ -1,0 +1,295 @@
+{
+  "rows": [
+    {
+      "workers": 1,
+      "payload": "mono-adpcm",
+      "variant": "parent",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 20008,
+        "process_cpu_ns": 19671471,
+        "output_checksum": 14723697930164233664,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 1,
+      "payload": "mono-adpcm",
+      "variant": "table",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 21322,
+        "process_cpu_ns": 21141155,
+        "output_checksum": 14723697930164233664,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 1,
+      "payload": "mono-adpcm",
+      "variant": "mono-guard",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 19565,
+        "process_cpu_ns": 19383885,
+        "output_checksum": 14723697930164233664,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 1,
+      "payload": "stereo-adpcm",
+      "variant": "parent",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 22239,
+        "process_cpu_ns": 21995895,
+        "output_checksum": 3536731140125570229,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    },
+    {
+      "workers": 1,
+      "payload": "stereo-adpcm",
+      "variant": "table",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 23754,
+        "process_cpu_ns": 23530675,
+        "output_checksum": 3536731140125570229,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    },
+    {
+      "workers": 1,
+      "payload": "stereo-adpcm",
+      "variant": "mono-guard",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 1,
+        "busy_workers": 1,
+        "elapsed_us": 23320,
+        "process_cpu_ns": 23214795,
+        "output_checksum": 3536731140125570229,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    },
+    {
+      "workers": 8,
+      "payload": "mono-adpcm",
+      "variant": "parent",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 9153,
+        "process_cpu_ns": 39030698,
+        "output_checksum": 17920286547321519020,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 8,
+      "payload": "mono-adpcm",
+      "variant": "table",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 8690,
+        "process_cpu_ns": 38888734,
+        "output_checksum": 4273197279808867744,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 8,
+      "payload": "mono-adpcm",
+      "variant": "mono-guard",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 8631,
+        "process_cpu_ns": 39970125,
+        "output_checksum": 4939900640437798052,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 9067590
+    },
+    {
+      "workers": 8,
+      "payload": "stereo-adpcm",
+      "variant": "parent",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 7424,
+        "process_cpu_ns": 38226775,
+        "output_checksum": 7521743370339466755,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    },
+    {
+      "workers": 8,
+      "payload": "stereo-adpcm",
+      "variant": "table",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 8981,
+        "process_cpu_ns": 41690974,
+        "output_checksum": 8531537475771111900,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    },
+    {
+      "workers": 8,
+      "payload": "stereo-adpcm",
+      "variant": "mono-guard",
+      "result": {
+        "diagnostic": "varied-adpcm-v1",
+        "frames": 132,
+        "workers": 8,
+        "busy_workers": 8,
+        "elapsed_us": 7625,
+        "process_cpu_ns": 36934521,
+        "output_checksum": 18236820152292212790,
+        "final_cbo": 192,
+        "expected_cbo": 192
+      },
+      "pcmBytes": 1593344,
+      "perVoiceBytes": 11343240
+    }
+  ],
+  "comparisons": [
+    {
+      "workers": 1,
+      "payload": "mono-adpcm",
+      "variant": "table",
+      "perVoiceBitExact": true,
+      "mixedBitExact": true,
+      "maximumMixedDifference": 0.0,
+      "maximumMixedDifference24BitUnits": 0.0
+    },
+    {
+      "workers": 1,
+      "payload": "mono-adpcm",
+      "variant": "mono-guard",
+      "perVoiceBitExact": true,
+      "mixedBitExact": true,
+      "maximumMixedDifference": 0.0,
+      "maximumMixedDifference24BitUnits": 0.0
+    },
+    {
+      "workers": 1,
+      "payload": "stereo-adpcm",
+      "variant": "table",
+      "perVoiceBitExact": true,
+      "mixedBitExact": true,
+      "maximumMixedDifference": 0.0,
+      "maximumMixedDifference24BitUnits": 0.0
+    },
+    {
+      "workers": 1,
+      "payload": "stereo-adpcm",
+      "variant": "mono-guard",
+      "perVoiceBitExact": true,
+      "mixedBitExact": true,
+      "maximumMixedDifference": 0.0,
+      "maximumMixedDifference24BitUnits": 0.0
+    },
+    {
+      "workers": 8,
+      "payload": "mono-adpcm",
+      "variant": "table",
+      "perVoiceBitExact": true,
+      "mixedBitExact": false,
+      "maximumMixedDifference": 1.1920928955078125e-07,
+      "maximumMixedDifference24BitUnits": 1.0
+    },
+    {
+      "workers": 8,
+      "payload": "mono-adpcm",
+      "variant": "mono-guard",
+      "perVoiceBitExact": true,
+      "mixedBitExact": false,
+      "maximumMixedDifference": 1.1920928955078125e-07,
+      "maximumMixedDifference24BitUnits": 1.0
+    },
+    {
+      "workers": 8,
+      "payload": "stereo-adpcm",
+      "variant": "table",
+      "perVoiceBitExact": true,
+      "mixedBitExact": false,
+      "maximumMixedDifference": 1.1920928955078125e-07,
+      "maximumMixedDifference24BitUnits": 1.0
+    },
+    {
+      "workers": 8,
+      "payload": "stereo-adpcm",
+      "variant": "mono-guard",
+      "perVoiceBitExact": true,
+      "mixedBitExact": false,
+      "maximumMixedDifference": 1.1920928955078125e-07,
+      "maximumMixedDifference24BitUnits": 1.0
+    }
+  ],
+  "mixedOutputContract": "Exact for 1 worker. Multi-worker reduction order is nondeterministic even on identical main; <=32 units at 24-bit resolution. All per-voice decoded prefixes and input buffers bit exact."
+}

@@ -1,0 +1,56 @@
+{
+  "recommendation": "HOLD",
+  "candidate": "a8f174dbc695184b696db2ad035f1eb80e521035",
+  "candidateTree": "cf541f283d0c1edfdf2c220edff3c1d4487215c3",
+  "parent": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "candidateSourceHashes": {
+    "hw/xbox/mcpx/apu/vp/adpcm.h": "5dd215455a83d10d104c3977add5330887403a50e6670c48146494e319485ea7",
+    "hw/xbox/mcpx/apu/vp/vp.c": "ecbc2e3195e5f1fdfd669ecd60325b65b03e809d3d5f4867586e44acff6efdcf",
+    "hw/xbox/mcpx/apu/vp/vp.h": "9fc3680d1f992d4a9d545730ef3005b5bac0c3ddf5f78773352886a5cc83048b",
+    "tests/unit/meson.build": "669ffa5c900bc6430ec11bca8cbca25afb28579fb1efeed5342117e2cfce452b",
+    "tests/unit/test-xbox-mcpx-apu-adpcm-table.c": "cff02c80cbceb6a4a0d48f6a912080f8fed1119722b7c24210f40898c3239d1f",
+    "tests/xbox/mcpx-apu/test-sample-memory.c": "23fcde1d3214efb30a0fd4b9646a11d3adf5a83e6124ce34a3dc45ceb0d85913"
+  },
+  "scope": "Authoring-host component diagnostics. Production APU translation units linked with reused emulator support objects; not native gameplay, XISO, GPU, or FPS qualification.",
+  "fixtures": "Original saved game procedures and maintained VP throughput source unchanged. Separate varied-adpcm-v1 diagnostic updates all 64 encoded blocks before each VP call; all 89 indices/all 16 nibbles and varied predictors. Payload updates/full validation outside the VP stopwatch.",
+  "campaign": {
+    "order": "ABBA then BAAB",
+    "attempts": 96,
+    "measuredFramesPerAttempt": 5000,
+    "workers": [
+      1,
+      8
+    ],
+    "voices": 45,
+    "converter": "SRC_SINC_FASTEST",
+    "affinity": "host CPUs 0-8",
+    "hostControl": "Shared authoring host, not thermally/power isolated; unrelated PCM movement retained.",
+    "costMetrics": [
+      "sum of monotonic time around each VP call (us)",
+      "sum of process CPU time around each VP call (ns)"
+    ]
+  },
+  "correctness": {
+    "unitGroups": 4,
+    "unitBuilds": 4,
+    "malformedInputsWithRecovery": 28,
+    "differentialCasesPerBuild": 11392,
+    "differentialBuilds": 4,
+    "maintainedSampleMemoryChecksPerCompiler": 18,
+    "perVoiceComparisonsBitExact": 16,
+    "singleWorkerMixedPcm": "bit exact",
+    "eightWorkerMixedPcm": "Not byte exact in unchanged main either: completion order changes float summation. Maximum observed difference 1 unit at 24-bit resolution. Per-voice decode/resample inputs remain bit exact.",
+    "sanitizerLimitation": "Initial LeakSanitizer run failed under ptrace sandbox. Stack/static-only unit and decoder tests rerun with leak checking disabled; address/undefined sanitizers enabled."
+  },
+  "sourceApplicability": {
+    "finalVsMeasuredVpInstructions": "All .text sections byte-identical under GCC and Clang19 after source style cleanup.",
+    "rebase": "Source-only commit on current main; no evidence/archive commits in its merge ancestry.",
+    "tableLifecycle": "Source checked: init precedes worker creation; reset/load retain immutable derived table. Active native reset/save-load remains unqualified."
+  },
+  "remaining": [
+    "Exact-head CI",
+    "Native Windows/Deck representative affected audio and state qualification",
+    "Required applicable XISO per-leaf before/after timings; suite lacks an affected APU audio timing leaf"
+  ],
+  "historicalEvidence": "Previous branch bd101a722028cc96650b394fe01e10ac79e9bc6b remains archived. Original constant index0/nibble0-or8 changing fixture did not exercise varied decoding. Historical native results are not current-head qualification."
+}
