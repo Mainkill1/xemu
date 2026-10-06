@@ -1,0 +1,11 @@
+{
+  "id": "pr200-auto197654-deck-candidate-conker-v1",
+  "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-conker",
+  "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+  "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+  "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "version": "0.8.136-0-g197654b3c09d",
+  "scope": "Clean current-main source reference for standalone ordered small-color upload comparison",
+  "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+}

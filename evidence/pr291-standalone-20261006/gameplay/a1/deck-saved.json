@@ -1,0 +1,10 @@
+{
+  "id": "pr290-deck-conker-attribution-v1",
+  "revision": "61ef1d68d0050d668cc656ea2f875bb354f49ce1b33d7e92a70c8fb0054eecf1",
+  "description": "Depth-alias conversion/reuse attribution only; original Conker inputs, waits, controller, timeout and measurement boundary unchanged. No paired speedup claim.",
+  "sourceJobId": "fresh-deck-conker-b-final-v6",
+  "stepCount": 13,
+  "fileCount": 41,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/pr290-deck-conker-attribution-v1/61ef1d68d0050d668cc656ea2f875bb354f49ce1b33d7e92a70c8fb0054eecf1"
+}
