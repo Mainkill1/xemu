@@ -29,3 +29,24 @@ retained, then removed before the strict final run. Production unchanged.
 
 Build script uses configured xemu-pr296/build headers as the original linked
 fixture does; it is development evidence, not a portable standalone test suite.
+
+## Cumulative renderer-tree check
+
+Reference65db507 (main+290+291), candidate890fa7954d (same tree plus329).
+Same original uninstrumented Conker definition/configuration as the main pair.
+Both images per arm show intended menu. One pair, uncontrolled driver cache;
+no stable performance or 30FPS claim. Not an isolated renderer PR comparison.
+
+|Metric|Before lookup inlining|After|
+|---|---:|---:|
+|Guest flip cadence/s|26.339|27.233|
+|CPU (one core100%)|201.04%|200.73%|
+|Mean interval ms|38.019|36.898|
+|Median ms|33.368|33.355|
+|p95 ms|50.112|50.065|
+|p99 ms|66.633|66.575|
+|Maximum ms|66.856|100.075|
+
+Directionally +3.39% cadence; maximum worsens. Both retain the same GLib
+shutdown assertion. The merged renderer prerequisites and full acceptance
+remain unresolved; this diagnostic branch is not an omnibus merge proposal.

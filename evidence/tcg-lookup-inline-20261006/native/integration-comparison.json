@@ -1,0 +1,77 @@
+[
+  {
+    "variant": "c1",
+    "runId": "20261006-120444534-41fab6c69f334471869c2c057a6e268e",
+    "app": {
+      "id": "pr291-65db50-deck-conker-c1-v1",
+      "sha256": "ba27609a5b8c660f0b39aa9553fa1273e74e77b2ef189a8a358c5de95705263b",
+      "source": "65db50718535cb7821f68b47769e2d3bd434ea40",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "scope": "Cumulative renderer reference65db507, before PR329 lookup inlining; not clean-main baseline."
+    },
+    "test": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+      "description": "Original qualified Conker inputs, waits and measurement boundary unchanged; executable/config are the two replaceable build slots. Shared libraries remain frozen test files.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/conker-original-build-slots-deck-v1/255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "cadence": 26.33911104147471,
+    "cpu": 201.03654687500003,
+    "intervalsMs": {
+      "count": 658,
+      "mean": 38.01913677811548,
+      "median": 33.368,
+      "min": 18.076,
+      "max": 66.856,
+      "p95": 50.1123,
+      "p99": 66.63261
+    },
+    "scene": "Both images verified: Xbox Live & Co menu",
+    "limits": [
+      "Single development pair, uncontrolled driver cache; not balanced acceptance.",
+      "Cumulative main+depth aliases+ordered uploads, differing only by PR329 helper inlining.",
+      "Original frozen gameplay/settings/boundaries; same shared GLib shutdown assertion."
+    ]
+  },
+  {
+    "variant": "d1",
+    "runId": "20261006-120710382-bb8b971164ae4011b3742159239ba945",
+    "app": {
+      "id": "pr329-890fa7-deck-conker-d1-v1",
+      "sha256": "8057aa833fe4e0562ba188faf5851dea0bfcd7feebb19773d5111e78c0eb34e4",
+      "source": "890fa7954db91993056bb7236269b49af2e20c4b",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "test": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+      "description": "Original qualified Conker inputs, waits and measurement boundary unchanged; executable/config are the two replaceable build slots. Shared libraries remain frozen test files.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/conker-original-build-slots-deck-v1/255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "cadence": 27.233016799944547,
+    "cpu": 200.72707936507928,
+    "intervalsMs": {
+      "count": 678,
+      "mean": 36.89751327433627,
+      "median": 33.355,
+      "min": 19.945,
+      "max": 100.075,
+      "p95": 50.0646,
+      "p99": 66.57529
+    },
+    "scene": "Both images verified: Xbox Live & Co menu",
+    "limits": [
+      "Single development pair, uncontrolled driver cache; not balanced acceptance.",
+      "Cumulative main+depth aliases+ordered uploads, differing only by PR329 helper inlining.",
+      "Original frozen gameplay/settings/boundaries; same shared GLib shutdown assertion."
+    ]
+  }
+]

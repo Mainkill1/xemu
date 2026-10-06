@@ -1,0 +1,9 @@
+{
+  "outcome": "FAILED debugger acquisition",
+  "runId": "20261006-120134800-f6ef84e28ac040a08abd34f76a3f2856",
+  "firstFailure": "ptrace: Operation not permitted",
+  "secondFailure": "sudo: a password is required",
+  "callStacksCaptured": 0,
+  "performanceUse": "Excluded; diagnostic intent, flyover/parked scene, no consumer evidence acquired",
+  "nextAction": "Use explicitly authorized per-command elevation or source-level origin counters; do not change global ptrace policy"
+}
