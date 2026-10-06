@@ -293,8 +293,10 @@ static void test_decoded_ramp(gconstpointer opaque)
     read_block(linear, words, bytes / 4);
     g_assert_cmpmem(words, bytes, encoded, bytes);
     g_assert_cmpuint(descriptor_reads, ==, bytes / 4);
-    g_assert_cmpint(
-        adpcm_decode_block(decoded, (uint8_t *)words, bytes, channels), ==, 65);
+    MCPXAPUADPCMDecodeTable table;
+    mcpx_apu_adpcm_decode_table_init(&table);
+    g_assert_cmpint(adpcm_decode_block(&table, decoded, (uint8_t *)words,
+                                      bytes, channels), ==, 65);
     for (unsigned sample = 0; sample < 65; sample++) {
         for (unsigned channel = 0; channel < channels; channel++) {
             int expected = channel ? -1000 - (int)sample : 1000 + sample;

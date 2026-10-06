@@ -20,7 +20,6 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
-#include "adpcm.h"
 #include "sge.h"
 #include "sample-memory.h"
 #include "resample.h"
@@ -1054,8 +1053,9 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                         linear_addr, adpcm_block, 9 * samples_per_block);
                 }
                 adpcm_decoded = mcpx_apu_adpcm_decode_cached(
-                    &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
-                    block_size, channels, &adpcm_decoded_samples, NULL);
+                    &d->vp.adpcm_decode_table, &d->vp.filters[v].adpcm_cache,
+                    (uint8_t *)adpcm_block, block_size, channels,
+                    &adpcm_decoded_samples, NULL);
                 adpcm_block_index = block_index;
             }
             if (adpcm_decoded == NULL || adpcm_decoded_samples <= 0 ||
@@ -1930,6 +1930,7 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+    mcpx_apu_adpcm_decode_table_init(&d->vp.adpcm_decode_table);
     voice_work_init(d);
 }
 
