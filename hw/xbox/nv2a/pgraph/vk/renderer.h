@@ -765,7 +765,8 @@ typedef struct PGRAPHVkState {
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
-    VkDescriptorSet descriptor_sets[1024];
+    /* Keep typical ~1,800-publication PGR2 frames in one descriptor batch. */
+    VkDescriptorSet descriptor_sets[2048];
     int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
