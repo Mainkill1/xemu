@@ -1,0 +1,14 @@
+{
+  "prefixCommit": "e82a7098b8366e5351a4c70066075c6c45e5c768",
+  "retirementCommit": "0776e5c96b",
+  "referenceCommit": "f5dfba687fca62cbfc29b2ce5a96632fe9f53e8a",
+  "prefixNative": "Local D24/D32 16 conversions and 16 reuse checks; Deck D32 eight conversions/eight reuse plus32 controls, D24 unsupported.",
+  "retirementChecks": "Production-linked 15 subtests pass; full emulator target builds; checkpatch clean; independent source review no blocker.",
+  "limitations": [
+    "Single unchanged development Conker A/B pair; no stable speedup claim.",
+    "Retirement wait correlation uses older f5 instrumented traces; SURFACE_DOWN includes other callers.",
+    "Deferred-retirement runtime not yet tested on hardware.",
+    "No full ownership/CPU/texture/blit/save-load matrix, physical D24 or merged prerequisites.",
+    "Raw game screenshots remain private."
+  ]
+}

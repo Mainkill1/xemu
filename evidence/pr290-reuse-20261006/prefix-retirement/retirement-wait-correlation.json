@@ -1,0 +1,102 @@
+[
+  {
+    "host": "deck",
+    "runId": "20261006-093044373-9bd85e15fe044fe18f2dcdbf74664aab",
+    "scope": "whole-process",
+    "frames": 2586,
+    "totals": {
+      "retired": 3568,
+      "finishCalls": 4165,
+      "submits": 3892,
+      "timedSubmits": 3889,
+      "fenceWaits": 3892,
+      "sampledWaitUs": 7713136
+    },
+    "perFrame": {
+      "retired": 1.379737045630317,
+      "finishCalls": 1.6105955143078112,
+      "submits": 1.5050270688321732,
+      "timedSubmits": 1.5038669760247487,
+      "fenceWaits": 1.5050270688321732,
+      "sampledWaitUs": 2982.6511987625677
+    },
+    "framesWithRetirement": 795,
+    "retirementFramesWithSurfaceDown": 795,
+    "limits": "SURFACE_DOWN includes other callers; correlation is not exclusive attribution; wait values sampled per existing logger policy"
+  },
+  {
+    "host": "deck",
+    "runId": "20261006-093044373-9bd85e15fe044fe18f2dcdbf74664aab",
+    "scope": "last120-recorded-frames",
+    "frames": 120,
+    "totals": {
+      "retired": 543,
+      "finishCalls": 594,
+      "submits": 574,
+      "timedSubmits": 574,
+      "fenceWaits": 574,
+      "sampledWaitUs": 998026
+    },
+    "perFrame": {
+      "retired": 4.525,
+      "finishCalls": 4.95,
+      "submits": 4.783333333333333,
+      "timedSubmits": 4.783333333333333,
+      "fenceWaits": 4.783333333333333,
+      "sampledWaitUs": 8316.883333333333
+    },
+    "framesWithRetirement": 120,
+    "retirementFramesWithSurfaceDown": 120,
+    "limits": "SURFACE_DOWN includes other callers; correlation is not exclusive attribution; wait values sampled per existing logger policy"
+  },
+  {
+    "host": "win",
+    "runId": "20261006-092931238-e9f70e7473a942ecbafde28212fe6dc9",
+    "scope": "whole-process",
+    "frames": 4036,
+    "totals": {
+      "retired": 6232,
+      "finishCalls": 7595,
+      "submits": 6984,
+      "timedSubmits": 6981,
+      "fenceWaits": 6984,
+      "sampledWaitUs": 3272223
+    },
+    "perFrame": {
+      "retired": 1.5441030723488602,
+      "finishCalls": 1.8818136769078295,
+      "submits": 1.730426164519326,
+      "timedSubmits": 1.7296828543111993,
+      "fenceWaits": 1.730426164519326,
+      "sampledWaitUs": 810.7589197224975
+    },
+    "framesWithRetirement": 1380,
+    "retirementFramesWithSurfaceDown": 1380,
+    "limits": "SURFACE_DOWN includes other callers; correlation is not exclusive attribution; wait values sampled per existing logger policy"
+  },
+  {
+    "host": "win",
+    "runId": "20261006-092931238-e9f70e7473a942ecbafde28212fe6dc9",
+    "scope": "last120-recorded-frames",
+    "frames": 120,
+    "totals": {
+      "retired": 541,
+      "finishCalls": 587,
+      "submits": 570,
+      "timedSubmits": 570,
+      "fenceWaits": 570,
+      "sampledWaitUs": 269541
+    },
+    "perFrame": {
+      "retired": 4.508333333333334,
+      "finishCalls": 4.891666666666667,
+      "submits": 4.75,
+      "timedSubmits": 4.75,
+      "fenceWaits": 4.75,
+      "sampledWaitUs": 2246.175
+    },
+    "framesWithRetirement": 120,
+    "retirementFramesWithSurfaceDown": 120,
+    "limits": "SURFACE_DOWN includes other callers; correlation is not exclusive attribution; wait values sampled per existing logger policy"
+  }
+]

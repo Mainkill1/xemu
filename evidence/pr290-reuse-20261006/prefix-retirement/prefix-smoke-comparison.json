@@ -1,0 +1,46 @@
+[
+  {
+    "variant": "a1",
+    "runId": "20261006-095701263-8b90f8b63bc14f7996e78f92a100e05d",
+    "executableSha256": "f2ff67f37edec993d75a3f08a7e2a3f0e3ec809bf544307a0b2c0ea5748f9c5c",
+    "cpuMean": 198.09032812499998,
+    "guestCadenceFps": 22.564693494519133,
+    "frameIntervalsMs": {
+      "count": 564,
+      "mean": 44.38525177304963,
+      "median": 49.905,
+      "min": 29.59,
+      "max": 133.307,
+      "p95": 66.68,
+      "p99": 66.86869999999999
+    },
+    "scene": "Conker Xbox Live & Co menu at start and end, visually inspected",
+    "test": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "limits": "Single development A/B pair, not balanced qualification; driver caches uncontrolled; same frozen inputs/config/measurement profile"
+  },
+  {
+    "variant": "b1",
+    "runId": "20261006-100130024-4ddc57ca4cb14e3a9b50d952df486971",
+    "executableSha256": "3aa8ee08ab42911a7648930d4405344c5264bd583f53f54ebc9f8db21188af0f",
+    "cpuMean": 198.68336507936507,
+    "guestCadenceFps": 22.892963491336985,
+    "frameIntervalsMs": {
+      "count": 571,
+      "mean": 43.84112609457092,
+      "median": 49.495,
+      "min": 29.12,
+      "max": 99.972,
+      "p95": 66.688,
+      "p99": 67.71809999999992
+    },
+    "scene": "Conker Xbox Live & Co menu at start and end, visually inspected",
+    "test": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "limits": "Single development A/B pair, not balanced qualification; driver caches uncontrolled; same frozen inputs/config/measurement profile"
+  }
+]

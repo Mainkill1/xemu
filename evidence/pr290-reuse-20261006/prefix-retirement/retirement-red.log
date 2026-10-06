@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S94aec1994153f68bf91fd281775f6046
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+**
+ERROR:../tests/unit/test-xbox-vk-alias-producer-lookup.c:185:test_producer_rewrite: 'r->in_command_buffer' should be TRUE
+not ok /xbox/vk/alias/producer-rewrite - ERROR:../tests/unit/test-xbox-vk-alias-producer-lookup.c:185:test_producer_rewrite: 'r->in_command_buffer' should be TRUE
+Bail out!

@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S624725a673824ffa4d97a6aec980cdab
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+**
+ERROR:../tests/unit/test-xbox-vk-alias-convert-sequence.c:123:record_barrier: 'src & VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT' should be TRUE
+not ok /xbox/vk/alias/three-descriptors - ERROR:../tests/unit/test-xbox-vk-alias-convert-sequence.c:123:record_barrier: 'src & VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT' should be TRUE
+Bail out!
