@@ -1,0 +1,23 @@
+{
+  "source": "b1fbab567f297b862232d9fd605b66bfffb521a4",
+  "run": "20261006-124832086-ca4833f553924f88aa9dbc8174ba21f5",
+  "application": {
+    "id": "pr328-diag-b1fbab-deck-pgr2-i1-v1",
+    "sha256": "b354750e9c13d26bb4727bf9582f1b6aaa119e6d10d914188c616d5534408f87",
+    "source": "b1fbab567f297b862232d9fd605b66bfffb521a4",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+  },
+  "procedure": {
+    "id": "main-deck-pgr2-vk-attribution-20261006-v1",
+    "revision": "a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495",
+    "description": "Main Vulkan attribution only. Original PGR2 controller/inputs/waits/timeout/runtime state/measurement boundary unchanged. Known initial flyover prevents stationary comparison; this is no A/B performance claim.",
+    "sourceJobId": "pr267-embedded-pgr2-source-v3",
+    "stepCount": 30,
+    "fileCount": 41,
+    "buildFileCount": 2,
+    "self": "/api/v1/tests/main-deck-pgr2-vk-attribution-20261006-v1/a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495"
+  },
+  "sceneReview": "Start is Hong Kong flyover; end parked 000 MPH. Diagnostic only, manually reject stationary A/B despite runner eligible.",
+  "finding": "Eight distinct preflight dirty overlap layouts: two same-base four-mip 128x32/128x64 A8R8G8B8; six128x128 single-mip R5G6B5 cubemap faces at32768-byte strides. No per-layout frequency claim, nor claim every candidate completed readback.",
+  "next": "Exact GPU cubemap copy can reuse existing active ownership and synchronous lifecycle; no broad lazy-coherence system needed for this subset."
+}
