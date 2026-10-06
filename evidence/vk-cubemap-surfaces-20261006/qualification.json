@@ -1,0 +1,15 @@
+{
+  "base": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "source": "545f6176635519b37464a084c06121efddcbd4be",
+  "pr": 330,
+  "test": "tests/unit/test-xbox-vk-cubemap-surface.c",
+  "checks": "Two production-linked grouped checks pass; actual texture.c copy and admission helpers, real texture format table and face-stride helper; Vulkan commands and external guest-write observer are stand-ins.",
+  "red": "Old copy routine sends second source to destination layer0; fixture expects1.",
+  "build": "Full surface.c, texture.c and perf.c compile -Werror against configured Xbox target.",
+  "review": "Independent source review found no concrete blocker in address/lifetime/fallback/generation logic. No reviewer edits or native runs.",
+  "limits": [
+    "Full create_texture fallback integration not exercised by this fixture.",
+    "No native clear/upload, save/load, GPU byte validation or candidate performance qualification yet.",
+    "Initial fixture stack allocation and missing storage_levels corrected; those were harness errors, not product failures."
+  ]
+}

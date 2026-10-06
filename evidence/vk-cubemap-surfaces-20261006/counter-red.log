@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S8257560827afc8b35a45111df2a7a503
+1..2
+# Start of nv2a tests
+# Start of vulkan tests
+# Start of cubemap tests
+ok 1 /nv2a/vulkan/cubemap/face-destinations
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-cubemap-surface.c:189:test_admission_and_generations: assertion failed (r.perf.cubemap_face_copies == 8): (0 == 8)
+not ok /nv2a/vulkan/cubemap/admission-and-generations - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-cubemap-surface.c:189:test_admission_and_generations: assertion failed (r.perf.cubemap_face_copies == 8): (0 == 8)
+Bail out!

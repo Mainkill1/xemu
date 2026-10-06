@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02Sd91626df2a856856e5bb1d43bede5b2c
+1..2
+# Start of nv2a tests
+# Start of vulkan tests
+# Start of cubemap tests
+ok 1 /nv2a/vulkan/cubemap/face-destinations
+ok 2 /nv2a/vulkan/cubemap/admission-and-generations
+# End of cubemap tests
+# End of vulkan tests
+# End of nv2a tests

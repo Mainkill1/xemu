@@ -1,0 +1,3 @@
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-cubemap-surface.c:30:record_copy: assertion failed (region->dstSubresource.baseArrayLayer == copies): (0 == 1)
+Bail out! ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/unit/test-xbox-vk-cubemap-surface.c:30:record_copy: assertion failed (region->dstSubresource.baseArrayLayer == copies): (0 == 1)
