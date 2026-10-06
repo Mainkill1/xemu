@@ -1,0 +1,277 @@
+{
+  "variant": "c1",
+  "runId": "20261006-114127832-e00f07bbebb340eabaa178c9b4eeee9f",
+  "app": {
+    "id": "pr328-diag-81f566-deck-pgr2-c1-v1",
+    "sha256": "142117823092446ce73fe4bbaadcfe55f5c551ecdb545100147c2f44bf5fd3b6",
+    "source": "81f566efea9bccab85af026ddcbf048b4d473457",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+  },
+  "test": {
+    "id": "pgr2-deck-finish-cpu-attribution-20261006-v1",
+    "revision": "2b49447dc59aca6f27c6961661fb06eeaf16cd59a8a279d2170ef3d96aa7d339",
+    "description": "PGR2 finish-callsite and CPU diagnostic on81f566. Original inputs/waits/controller/settings/measurement boundary unchanged. Authorized external perf attachment after recording-start. NOT a performance acceptance run.",
+    "sourceJobId": "pr267-embedded-pgr2-source-v3",
+    "stepCount": 30,
+    "fileCount": 41,
+    "buildFileCount": 2,
+    "self": "/api/v1/tests/pgr2-deck-finish-cpu-attribution-20261006-v1/2b49447dc59aca6f27c6961661fb06eeaf16cd59a8a279d2170ef3d96aa7d339"
+  },
+  "windowStartUs": 1290849920073,
+  "windowEndUs": 1290874920073,
+  "frames": 216,
+  "guestCadenceFps": 7.327081178064568,
+  "cpuMean": 380.8416769230769,
+  "frameIntervalsMs": {
+    "count": 217,
+    "mean": 116.26250230414743,
+    "median": 71.544,
+    "min": 48.385,
+    "max": 503.299,
+    "p95": 274.0168,
+    "p99": 339.2511600000001
+  },
+  "finish": {
+    "vertex_buffer_dirty": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "surface_create": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "surface_down": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "need_buffer_space": {
+      "submits": 123,
+      "timedSubmits": 123,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 977564,
+      "sampledWaitUsPerFrame": 4525.759259259259
+    },
+    "framebuffer_dirty": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "presenting": {
+      "submits": 216,
+      "timedSubmits": 216,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 551547,
+      "sampledWaitUsPerFrame": 2553.4583333333335
+    },
+    "flip_stall": {
+      "submits": 215,
+      "timedSubmits": 215,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 813032,
+      "sampledWaitUsPerFrame": 3764.037037037037
+    },
+    "flush": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "stalled": {
+      "submits": 102,
+      "timedSubmits": 102,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 507182,
+      "sampledWaitUsPerFrame": 2348.064814814815
+    },
+    "texture_dirty": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "readback_legacy": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "readback_folded": {
+      "submits": 212,
+      "timedSubmits": 212,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 1993426,
+      "sampledWaitUsPerFrame": 9228.824074074075
+    },
+    "invalidate_surface": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    }
+  },
+  "aux": {
+    "pvideo_upload": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "display_render": {
+      "submits": 216,
+      "timedSubmits": 216,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 140833,
+      "sampledWaitUsPerFrame": 652.0046296296297
+    },
+    "surface_download": {
+      "submits": 1084,
+      "timedSubmits": 1084,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 613620,
+      "sampledWaitUsPerFrame": 2840.8333333333335
+    },
+    "surface_create": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "surface_upload": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "texture_upload": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    },
+    "dummy_texture_create": {
+      "submits": 0,
+      "timedSubmits": 0,
+      "allSubmitsTimed": true,
+      "sampledWaitUs": 0,
+      "sampledWaitUsPerFrame": 0.0
+    }
+  },
+  "totals": {
+    "vk_queue_submit_calls_per_guest_frame": 2168,
+    "vk_submit_infos_per_guest_frame": 3036,
+    "command_buffers_per_guest_frame": 3036,
+    "staged_bytes_per_guest_frame": 3781077215,
+    "vertex_staged_bytes_per_guest_frame": 0,
+    "vertex_staging_copies_per_guest_frame": 0,
+    "vertex_direct_bytes_per_guest_frame": 884736,
+    "vertex_direct_copies_per_guest_frame": 216,
+    "vertex_version_draws_per_guest_frame": 648,
+    "vertex_version_bytes_per_guest_frame": 2710368,
+    "vertex_version_selected_ranges_per_guest_frame": 648,
+    "vertex_staging_capacity_growths_per_guest_frame": 0,
+    "vertex_staging_fallback_finishes_per_guest_frame": 0,
+    "native_bc_uploads_per_guest_frame": 6,
+    "native_bc_source_bytes_per_guest_frame": 53512,
+    "native_bc_staged_bytes_per_guest_frame": 53512,
+    "native_bc_prepare_cpu_us_per_guest_frame": 24,
+    "decoded_bc_uploads_per_guest_frame": 0,
+    "decoded_bc_source_bytes_per_guest_frame": 0,
+    "decoded_bc_staged_bytes_per_guest_frame": 0,
+    "decoded_bc_prepare_cpu_us_per_guest_frame": 0,
+    "report_entries_enqueued_per_guest_frame": 4712,
+    "report_clears_enqueued_per_guest_frame": 2356,
+    "report_max_queue_depth_per_guest_frame": 4026,
+    "report_stalled_finish_calls_per_guest_frame": 102,
+    "report_retirements_per_guest_frame": 4712,
+    "report_write_attempts_per_guest_frame": 2356,
+    "report_query_result_calls_per_guest_frame": 387,
+    "report_query_results_waited_per_guest_frame": 2356,
+    "report_query_result_wait_us_per_guest_frame": 1248,
+    "report_cpu_only_retirements_per_guest_frame": 0,
+    "report_enqueue_to_retire_frames_total_per_guest_frame": 0,
+    "report_enqueue_to_retire_frames_max_per_guest_frame": 0,
+    "descriptor_update_calls_per_guest_frame": 430005,
+    "descriptor_reuse_returns_per_guest_frame": 49318,
+    "descriptor_set_writes_per_guest_frame": 380687,
+    "descriptor_control_only_reuses_per_guest_frame": 0,
+    "descriptor_texture_change_requests_per_guest_frame": 339395,
+    "descriptor_force_reupload_requests_per_guest_frame": 868,
+    "descriptor_uniform_write_requests_per_guest_frame": 161432,
+    "descriptor_capacity_requests_per_guest_frame": 0,
+    "uniform_capacity_requests_per_guest_frame": 0,
+    "uniform_vsh_writes_per_guest_frame": 145818,
+    "uniform_psh_writes_per_guest_frame": 96487,
+    "surface_upload_attempts_per_guest_frame": 0,
+    "surface_upload_color_attempts_per_guest_frame": 0,
+    "surface_upload_depth_attempts_per_guest_frame": 0,
+    "surface_upload_force_attempts_per_guest_frame": 0,
+    "surface_upload_requested_bytes_per_guest_frame": 0,
+    "surface_upload_new_causes_per_guest_frame": 0,
+    "surface_upload_guest_write_causes_per_guest_frame": 0,
+    "surface_upload_dirty_memory_causes_per_guest_frame": 0,
+    "surface_upload_overlap_guest_write_causes_per_guest_frame": 0
+  },
+  "cpuRegions": {
+    "draw_begin_surface_update": {
+      "calls": 430114,
+      "measuredUs": 250731,
+      "measuredUsPerFrame": 1160.7916666666667
+    },
+    "draw_flush": {
+      "calls": 430114,
+      "measuredUs": 8999434,
+      "measuredUsPerFrame": 41664.0462962963
+    },
+    "pipeline_prepare": {
+      "calls": 430005,
+      "measuredUs": 5936189,
+      "measuredUsPerFrame": 27482.35648148148
+    },
+    "bind_textures": {
+      "calls": 430005,
+      "measuredUs": 3309962,
+      "measuredUsPerFrame": 15323.898148148148
+    },
+    "texture_upload": {
+      "calls": 225,
+      "measuredUs": 45414,
+      "measuredUsPerFrame": 210.25
+    },
+    "update_descriptor_sets": {
+      "calls": 430005,
+      "measuredUs": 291665,
+      "measuredUsPerFrame": 1350.3009259259259
+    }
+  },
+  "comparisonScope": "PR328 finish-callsite/CPU diagnostic against prior reference context; profiling and separate reason buckets prevent performance acceptance.",
+  "peaks": {},
+  "limits": [
+    "Instrumented development sample, uncontrolled driver cache; not balanced acceptance evidence.",
+    "Wait durations remain sampled when timedSubmits < submits; no extrapolation.",
+    "SURFACE_DOWN includes callers other than alias retirement.",
+    "Renderer CPU-region labels measure elapsed intervals, can overlap and include waits; do not add them as exclusive process CPU.",
+    "Window follows the unchanged runner guest-frame analysis; CPU covers its stationary segment.",
+    "External CPU sampling; separate profiling diagnostic, not performance acceptance."
+  ],
+  "manualSceneReview": "Hong Kong flyover at start, parked000MPH at end; not stationary A/B",
+  "comparisonEligible": false
+}
