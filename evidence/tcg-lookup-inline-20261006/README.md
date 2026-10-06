@@ -1,0 +1,13 @@
+# Shared TB lookup-core inlining experiment
+
+Parent main e15b180aa1; candidate9debac1aeb056524937bdf202e36b8f521a2324c. One production declaration becomes static inline QEMU_ALWAYS_INLINE. This is not #166 emitted inline-cache implementation. Generated guest code still calls helper_lookup_tb_ptr_i32 and every original runtime lookup guard, current cflags, breakpoint/logging and can_do_io operation remains.
+
+Conker profile on the separately identified cumulative build showed common lookup3.98% and i32helper3.00% all-process self cycles. It motivated examining the existing internal C boundary; it does not establish a current-main speedup.
+
+Actual system-mode cpu-exec.c compiles Werror with GCC14.2 and Clang19.1.7. The internal common call exists in both parent objects and is absent in candidates; codegen assertion fails parent and passes candidate. O0 compilation also passes both compilers. Object text grows399bytes GCC and376bytes Clang. The generic helper retains register clearing; the existing skip-annotated i32 helper no longer executes the out-of-line common function's zero-call-used-regs epilogue. The benefit therefore includes that removal, not just a struct copy.
+
+Local AMD RYZEN AI MAX+395, x86-64, -O2, existing generated headers from the configured system build, no LTO. Same flags per compiler/arm (GCC-only warning flags omitted for Clang). Eight fresh processes per compiler in ABBA/BAAB order;20M calls/process. Median ns per valid hot hit: GCC9.037->2.6815 (70.33% lower), Clang10.574->2.840 (73.14% lower). These are microbenchmark cost reductions, not game FPS gains. Full raw samples retained.
+
+The fixture links the actual production object and calls its public i32helper. It prepopulates ONE constant cache entry; slow/unmodelled helpers explicitly abort. It validates returned entry and can_do_io after the loop. No misses, MMU remaps, SMC, lifecycle/debug behavior, multiple keys, real guest execution, host diversity or native performance is qualified. Early exploratory linking ignored unresolved symbols; those numbers are not the reported qualification. Published fixture explicitly provides aborting stubs and final executables have only ordinary libc imports. An unsigned qemu_loglevel declaration and include order were corrected before the retained final build.
+
+Independent scoped source review found no semantic blocker, verified O0 builds and that the 20M external calls remain in the loop. HOLD for misses/debug/lifecycle, exact release builds, fixed-work XISO timings and native Conker/PGR2/Morrowind impact including code-size/cache regressions. No source/evidence merge yet; raw evidence stays outside main.

@@ -1,0 +1,82 @@
+[
+  {
+    "compiler": "cc",
+    "samples": [
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 9.225
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.755
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.546
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 9.047
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.608
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 9.027
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 8.948
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.855
+      }
+    ],
+    "beforeMedianNs": 9.036999999999999,
+    "afterMedianNs": 2.6814999999999998,
+    "costReductionPercent": 70.32754232599314
+  },
+  {
+    "compiler": "clang",
+    "samples": [
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 10.576
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 3.087
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.7
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 10.879
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.851
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 10.572
+      },
+      {
+        "mode": "before",
+        "nanosecondsPerCall": 10.543
+      },
+      {
+        "mode": "after",
+        "nanosecondsPerCall": 2.829
+      }
+    ],
+    "beforeMedianNs": 10.574,
+    "afterMedianNs": 2.84,
+    "costReductionPercent": 73.14166824285985
+  }
+]
