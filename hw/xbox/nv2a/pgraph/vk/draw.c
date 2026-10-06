@@ -1228,8 +1228,10 @@ static bool prepare_graphics_pipeline_recipe(PGRAPHState *pg,
                                         NV_PGRAPH_CONTROL_1_STENCIL_REF);
         uint32_t mask_read = GET_MASK(control_1_reg,
                                       NV_PGRAPH_CONTROL_1_STENCIL_MASK_READ);
-        uint32_t mask_write = GET_MASK(control_1_reg,
-                                       NV_PGRAPH_CONTROL_1_STENCIL_MASK_WRITE);
+        uint32_t mask_write =
+            (control_0_reg & NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE) ?
+                GET_MASK(control_1_reg,
+                         NV_PGRAPH_CONTROL_1_STENCIL_MASK_WRITE) : 0;
         uint32_t op_fail = GET_MASK(control_2_reg,
                                     NV_PGRAPH_CONTROL_2_STENCIL_OP_FAIL);
         uint32_t op_zfail = GET_MASK(control_2_reg,
@@ -3124,7 +3126,7 @@ void pgraph_vk_draw_end(NV2AState *d)
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
         r->color_binding->draw_time = pg->draw_time;
     }
-    if (r->zeta_binding && pgraph_zeta_write_enabled(pg)) {
+    if (r->zeta_binding && pgraph_zeta_draw_write_enabled(pg)) {
         r->zeta_binding->draw_time = pg->draw_time;
     }
 
@@ -3489,9 +3491,9 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
     end_draw(pg);
     pgraph_vk_end_debug_marker(r, r->command_buffer);
 
-    pg->clearing = false;
-
     pgraph_vk_set_surface_dirty(pg, write_color, write_zeta);
+
+    pg->clearing = false;
 
     NV2A_VK_DGROUP_END();
 }
@@ -3555,16 +3557,16 @@ static void bind_inline_vertex_buffer(PGRAPHState *pg, VkDeviceSize offset)
     bind_vertex_buffer(pg, 0xffff, offset);
 }
 
-void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
+void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta_accessed)
 {
-    NV2A_DPRINTF("pgraph_set_surface_dirty(%d, %d) -- %d %d\n", color, zeta,
+    NV2A_DPRINTF("pgraph_set_surface_dirty(%d, %d) -- %d %d\n",
+                 color, zeta_accessed,
                  pgraph_color_write_enabled(pg), pgraph_zeta_write_enabled(pg));
 
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    /* FIXME: Does this apply to CLEARs too? */
-    color = color && pgraph_color_write_enabled(pg);
-    zeta = zeta && pgraph_zeta_write_enabled(pg);
+    color = color && (pg->clearing || pgraph_color_write_enabled(pg));
+    bool zeta = pgraph_zeta_surface_dirty_required(pg, zeta_accessed);
     pg->surface_color.draw_dirty |= color;
     pg->surface_zeta.draw_dirty |= zeta;
 

@@ -1979,7 +1979,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
 // FIXME: Move to common?
 void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
-                              bool zeta_write)
+                              bool zeta_access)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1990,7 +1990,8 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
 
     color_write = color_write &&
             (pg->clearing || pgraph_color_write_enabled(pg));
-    zeta_write = zeta_write && (pg->clearing || pgraph_zeta_write_enabled(pg));
+    /* The caller passes whether depth or stencil is accessed. A read-only
+     * depth test still needs the matching zeta surface bound. */
 
     if (upload) {
         bool fb_dirty = framebuffer_dirty(pg);
@@ -2013,7 +2014,7 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
             unbind_surface(d, false);
         }
 
-        if (zeta_write) {
+        if (zeta_access) {
             update_surface_part(d, true, false);
         }
     } else {
@@ -2021,7 +2022,7 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
             && pg->surface_color.draw_dirty) {
             update_surface_part(d, false, true);
         }
-        if ((zeta_write || pg->surface_zeta.write_enabled_cache)
+        if ((zeta_access || pg->surface_zeta.write_enabled_cache)
             && pg->surface_zeta.draw_dirty) {
             update_surface_part(d, false, false);
         }
