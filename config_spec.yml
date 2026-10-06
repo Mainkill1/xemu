@@ -366,7 +366,7 @@ audio:
   vp:
     num_workers:
       type: integer
-      default: 0  # 0 = auto
+      default: 0  # 0 = Auto, up to four workers
   use_dsp: bool
   use_dsp_jit:
     type: bool

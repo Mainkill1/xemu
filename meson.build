@@ -4681,6 +4681,7 @@ foreach target : target_dirs
       link_depends: [block_syms, qemu_syms],
       link_args: link_args + ['-Wl,--wrap=main',
                              '-Wl,--wrap=src_callback_new',
+                             '-Wl,--wrap=SDL_GetNumLogicalCPUCores',
                              '-Wl,--wrap=qemu_cond_broadcast'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-resampler-throughput',
