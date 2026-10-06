@@ -1,0 +1,44 @@
+TAP version 14
+# random seed: R02S3d9514c71a2d6e0b852a2a8a81dd4fd6
+1..25
+# Start of mcpx-apu tests
+# Start of voice-frame tests
+ok 1 /mcpx-apu/voice-frame/mono-adpcm-worker1
+ok 2 /mcpx-apu/voice-frame/stereo-adpcm-worker1
+ok 3 /mcpx-apu/voice-frame/mono-pcm-worker1
+ok 4 /mcpx-apu/voice-frame/mono-adpcm-worker8
+ok 5 /mcpx-apu/voice-frame/stereo-adpcm-worker8
+ok 6 /mcpx-apu/voice-frame/mono-pcm-worker8
+ok 7 /mcpx-apu/voice-frame/default-auto-four
+# Start of linear tests
+ok 8 /mcpx-apu/voice-frame/linear/mono-adpcm-worker1
+ok 9 /mcpx-apu/voice-frame/linear/stereo-adpcm-worker1
+ok 10 /mcpx-apu/voice-frame/linear/mono-pcm-worker1
+ok 11 /mcpx-apu/voice-frame/linear/mono-adpcm-worker8
+ok 12 /mcpx-apu/voice-frame/linear/stereo-adpcm-worker8
+ok 13 /mcpx-apu/voice-frame/linear/mono-pcm-worker8
+# End of linear tests
+# Start of independent-v2 tests
+ok 14 /mcpx-apu/voice-frame/independent-v2/sinc
+ok 15 /mcpx-apu/voice-frame/independent-v2/linear
+# End of independent-v2 tests
+# Start of signed-reduction tests
+ok 16 /mcpx-apu/voice-frame/signed-reduction/sinc
+ok 17 /mcpx-apu/voice-frame/signed-reduction/linear
+# End of signed-reduction tests
+# Start of v3 tests
+# Start of sinc tests
+ok 18 /mcpx-apu/voice-frame/v3/sinc/mono-constant
+ok 19 /mcpx-apu/voice-frame/v3/sinc/stereo-constant
+ok 20 /mcpx-apu/voice-frame/v3/sinc/mono-changing
+ok 21 /mcpx-apu/voice-frame/v3/sinc/stereo-changing
+# End of sinc tests
+# Start of linear tests
+ok 22 /mcpx-apu/voice-frame/v3/linear/mono-constant
+ok 23 /mcpx-apu/voice-frame/v3/linear/stereo-constant
+ok 24 /mcpx-apu/voice-frame/v3/linear/mono-changing
+ok 25 /mcpx-apu/voice-frame/v3/linear/stereo-changing
+# End of linear tests
+# End of v3 tests
+# End of voice-frame tests
+# End of mcpx-apu tests

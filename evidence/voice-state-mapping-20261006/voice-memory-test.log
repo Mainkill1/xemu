@@ -1,0 +1,13 @@
+TAP version 14
+# random seed: R02S539eec5acfb71ca67d69e246ee30866a
+1..6
+# Start of mcpx-apu tests
+# Start of voice-memory tests
+ok 1 /mcpx-apu/voice-memory/fresh-words
+ok 2 /mcpx-apu/voice-memory/base-change
+ok 3 /mcpx-apu/voice-memory/remap
+ok 4 /mcpx-apu/voice-memory/partial-overlay
+ok 5 /mcpx-apu/voice-memory/mmio
+ok 6 /mcpx-apu/voice-memory/guest-writer
+# End of voice-memory tests
+# End of mcpx-apu tests

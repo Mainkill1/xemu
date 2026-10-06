@@ -1,0 +1,24 @@
+{
+  "source": "20dbeef6701c (cumulative diagnostic 330+328+331)",
+  "executableBuildId": "1a0f194948830f7070b1dc18cfd3f5fa3fa79b74",
+  "run": "20261006-143029101-838b6331b5f744a69c985958ef599938",
+  "samples": 10361,
+  "lost": 0,
+  "scope": "perf cycles:u 99Hz 25 seconds, DWARF stacks; original gameplay procedure unchanged, flyover to parked: NOT stationary acceptance",
+  "selfCycleSharePercent": {
+    "xemu": 33.1,
+    "RADV": 28.43,
+    "libsamplerate": 20.74,
+    "address_space_ldl_internal": 4.99,
+    "address_space_translate_internal": 1.76,
+    "get_ptr_rcu_reader": 1.55
+  },
+  "ldlSubsetsNotAdditive": {
+    "voice_process_voice_get_mask": 2.29,
+    "voice_get_samples_voice_get_mask": 0.83,
+    "scheduler_voice_get_mask": 0.56,
+    "envelope": 0.59
+  },
+  "decision": "Retain call-local voice RAM mappings while rereading every value. Leave voice_set_mask physical stores unchanged. Distinct from optional prepared-value snapshot issue 306.",
+  "privacy": "Raw recordings and commercial game captures remain private; only aggregate/function-name findings published."
+}

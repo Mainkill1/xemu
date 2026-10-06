@@ -1,0 +1,22 @@
+{
+  "candidate": "257ee477ba7aa9fcb6aa6f911b94ba23799be012",
+  "reference": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "scope": "Local production VP component. Only baseline/candidate vp.c and common maintained fixture freshly compiled, common existing QEMU libraries; not matched full emulator binaries or native game performance.",
+  "compiler": "GCC 14.2 Debian",
+  "workload": "45 voices, 4000 frames, 256 warmup, 32 samples per frame, default sinc, independently routed 1/4 workers",
+  "orders": [
+    "ABBA",
+    "BAAB"
+  ],
+  "correctness": "48 timed invocations validate matching output/checksum/CBO; 6 AddressSpace checks, 25 throughput groups, 8 resampler-state groups pass",
+  "checkpatchExceptions": [
+    "LGPL-2.0-or-later matches owning vp.c and adjacent inline headers; QEMU checkpatch allow-list omits existing xemu license.",
+    "__wrap_main prototype is required by -Wmissing-prototypes and matches existing full-runtime test entry points.",
+    "New-file MAINTAINERS warning; existing Xbox ownership applies."
+  ],
+  "limitations": [
+    "Joined guest writer test checks ordered fresh visibility, not racing simultaneous stores.",
+    "No dedicated resizable RAM case.",
+    "No native/PCM listening/save-state or XISO timing qualification yet."
+  ]
+}

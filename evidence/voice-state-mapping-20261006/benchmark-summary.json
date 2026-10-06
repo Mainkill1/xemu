@@ -1,0 +1,158 @@
+{
+  "baselineSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "host": "Linux-6.12.101+deb13-amd64-x86_64-with-glibc2.41",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "scope": "Local production VP component; freshly compiled baseline/candidate VP and same fixture/common libraries; not native game FPS or a full matched main executable",
+  "rows": [
+    {
+      "payload": "mono-adpcm",
+      "workers": 1,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 575200.5,
+          "candidateUs": 431225.5,
+          "improvementPercent": 25.030402442278824
+        },
+        "ABBA": {
+          "baselineUs": 575200.5,
+          "candidateUs": 428520.0,
+          "improvementPercent": 25.500760169714734
+        },
+        "BAAB": {
+          "baselineUs": 582927.0,
+          "candidateUs": 458898.5,
+          "improvementPercent": 21.276849416822348
+        }
+      }
+    },
+    {
+      "payload": "mono-adpcm",
+      "workers": 4,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 218879.0,
+          "candidateUs": 152892.5,
+          "improvementPercent": 30.14747874396356
+        },
+        "ABBA": {
+          "baselineUs": 202185.0,
+          "candidateUs": 148844.0,
+          "improvementPercent": 26.382273660261642
+        },
+        "BAAB": {
+          "baselineUs": 234400.0,
+          "candidateUs": 177682.5,
+          "improvementPercent": 24.19688566552901
+        }
+      }
+    },
+    {
+      "payload": "stereo-adpcm",
+      "workers": 1,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 572961.0,
+          "candidateUs": 462231.0,
+          "improvementPercent": 19.32592270678109
+        },
+        "ABBA": {
+          "baselineUs": 566932.0,
+          "candidateUs": 453301.5,
+          "improvementPercent": 20.04305631010421
+        },
+        "BAAB": {
+          "baselineUs": 592423.0,
+          "candidateUs": 466610.5,
+          "improvementPercent": 21.2369371209423
+        }
+      }
+    },
+    {
+      "payload": "stereo-adpcm",
+      "workers": 4,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 208709.5,
+          "candidateUs": 163471.5,
+          "improvementPercent": 21.675103433240942
+        },
+        "ABBA": {
+          "baselineUs": 228400.5,
+          "candidateUs": 156186.5,
+          "improvementPercent": 31.617268788816137
+        },
+        "BAAB": {
+          "baselineUs": 208709.5,
+          "candidateUs": 180213.0,
+          "improvementPercent": 13.653666938974986
+        }
+      }
+    },
+    {
+      "payload": "mono-pcm",
+      "workers": 1,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 652821.5,
+          "candidateUs": 508189.5,
+          "improvementPercent": 22.154907581934726
+        },
+        "ABBA": {
+          "baselineUs": 666576.0,
+          "candidateUs": 506178.0,
+          "improvementPercent": 24.06297256426874
+        },
+        "BAAB": {
+          "baselineUs": 652821.5,
+          "candidateUs": 508189.5,
+          "improvementPercent": 22.154907581934726
+        }
+      }
+    },
+    {
+      "payload": "mono-pcm",
+      "workers": 4,
+      "frames": 4000,
+      "converter": "sinc",
+      "samplesPerVariant": 4,
+      "correctness": "PASS",
+      "orders": {
+        "all": {
+          "baselineUs": 241407.0,
+          "candidateUs": 183334.0,
+          "improvementPercent": 24.056054712580828
+        },
+        "ABBA": {
+          "baselineUs": 250265.0,
+          "candidateUs": 183334.0,
+          "improvementPercent": 26.744051305616047
+        },
+        "BAAB": {
+          "baselineUs": 226411.0,
+          "candidateUs": 183262.5,
+          "improvementPercent": 19.057598791578148
+        }
+      }
+    }
+  ]
+}

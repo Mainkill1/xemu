@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S6f6cb4beedbabc0f15a5c4fd39f653da
+1..6
+# Start of mcpx-apu tests
+# Start of voice-memory tests
+not ok /mcpx-apu/voice-memory/fresh-words - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/xbox/mcpx-apu/test-voice-memory.c:75:test_fresh_words: assertion failed (fallbacks == 0): (96 == 0)
+Bail out!
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/tests/xbox/mcpx-apu/test-voice-memory.c:75:test_fresh_words: assertion failed (fallbacks == 0): (96 == 0)
