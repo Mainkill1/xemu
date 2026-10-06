@@ -7,8 +7,10 @@
   "limitations": [
     "Single unchanged development Conker A/B pair; no stable speedup claim.",
     "Retirement wait correlation uses older f5 instrumented traces; SURFACE_DOWN includes other callers.",
-    "Deferred-retirement runtime not yet tested on hardware.",
     "No full ownership/CPU/texture/blit/save-load matrix, physical D24 or merged prerequisites.",
-    "Raw game screenshots remain private."
-  ]
+    "Raw game screenshots remain private.",
+    "077 CI unit link failed due report fixture missing completion hook;064 test-only correction passes local report integration. Exact064 CI pending."
+  ],
+  "head": "064628d2ea",
+  "retirementNative": "One instrumented Deck A/B complete, exact e82 prefix reference vs077 runtime candidate. Source after064 differs only in report test fixture."
 }

@@ -1,0 +1,10 @@
+TAP version 13
+1..8
+ok 1 - idle no-CB queue publishes accumulated count
+ok 2 - clear then report publishes zero
+ok 3 - rejection retires before DMA switch and valid report
+ok 4 - nonidle FIFO defers pending report queue
+ok 5 - descriptor words decode at retirement
+ok 6 - active CB completion precedes publication
+ok 7 - report lifecycle telemetry tracks queue and retirement
+ok 8 - disabled telemetry preserves report behavior
