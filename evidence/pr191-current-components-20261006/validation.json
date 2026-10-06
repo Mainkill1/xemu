@@ -1,0 +1,42 @@
+{
+  "reference": "afdde9eb62accd07686be104ebf4a9381785aaab",
+  "candidate": "30f7e6b627d391b945ffb35234454aba2dcdfa83",
+  "scope": "authoring-host components; not native game builds",
+  "decoder_checks": {
+    "gcc": 5,
+    "gcc_ubsan": 5,
+    "clang": 5,
+    "clang_ubsan": 5,
+    "format_words_per_binary": 720896
+  },
+  "production_checks_per_side": {
+    "vp": 24,
+    "format_boundaries": 3,
+    "sample_memory": 18,
+    "finite_source_cases": 600
+  },
+  "finite_source_records_identical": true,
+  "timed_attempts": 64,
+  "orders": "ABBA then BAAB",
+  "fixtures": "unchanged main v3 independently routed VP fixture",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "library": "libsamplerate-0.2.2 (c) 2002-2008 Erik de Castro Lopo",
+  "settings": {
+    "converter": "sinc",
+    "warmup_frames": 256,
+    "timed_frames": 5000,
+    "voice_count": 45,
+    "worker_counts": [
+      1,
+      8
+    ],
+    "cpu_affinity": "0-8"
+  },
+  "limits": [
+    "Shared host scheduler/power/cache conditions are uncontrolled.",
+    "Generated configuration and unrelated emulator support objects were reused; actual current APU sources and unchanged main fixture were recompiled on both sides.",
+    "The eight-worker changing-mono BAAB reference is noisier than ABBA; retain both order estimates.",
+    "No current-head native game or XISO result is claimed.",
+    "Inherited finite-source issues in main are characterized, not repaired by this format-only change."
+  ]
+}
