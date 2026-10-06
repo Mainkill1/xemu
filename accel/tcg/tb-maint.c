@@ -1181,11 +1181,16 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
     if (likely(whole_page)) {
         /*
          * current_tb cannot be linked on this page: that is exactly the
-         * condition used above to select whole_page. Keep this loop identical
-         * in spirit to the old Xbox fast path with no overlap/current-TB test.
+         * condition used above to select whole_page. Keep this loop minimal,
+         * and batch the JIT write-protection transition because every listed
+         * TB is going to be invalidated.
          */
-        PAGE_FOR_EACH_TB(start, last, p, tb, n) {
-            tb_phys_invalidate__locked(tb);
+        if (p->first_tb) {
+            qemu_thread_jit_write();
+            PAGE_FOR_EACH_TB(start, last, p, tb, n) {
+                do_tb_phys_invalidate(tb, true);
+            }
+            qemu_thread_jit_execute();
         }
     } else
 #endif
