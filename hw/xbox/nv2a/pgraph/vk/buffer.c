@@ -32,10 +32,11 @@ static const VkDeviceSize BUFFER_LINEAR_SCRATCH_INITIAL_SIZE =
 /*
  * Sustained mixed inline-vertex tests found 8 MiB to be the smallest initial
  * pair with lower final allocation and no measurable loss versus 4, 16, or
- * 32 MiB. Later growth uses the exact required size; Vulkan does not require
- * whole-MiB buffer sizes.
+ * 32 MiB. Allow one bounded growth step for sustained remapped-vertex demand;
+ * larger requests still use their exact required size.
  */
 static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE = 8 * MiB;
+static const size_t BUFFER_VERTEX_INLINE_GROWTH_SIZE = 16 * MiB;
 
 /*
  * Texture uploads are commonly interleaved with draws. Keep their source data
@@ -216,6 +217,16 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
     size_t new_size = MAX(buffer->buffer_size, paired->buffer_size);
     new_size = MAX(new_size, BUFFER_VERTEX_INLINE_INITIAL_SIZE);
     new_size = MAX(new_size, required_size);
+
+    /*
+     * Repeated small overflows otherwise replace both allocations each time.
+     * Only the inline pair receives headroom, after its batch has completed.
+     */
+    if (index == BUFFER_VERTEX_INLINE_STAGING &&
+        new_size > BUFFER_VERTEX_INLINE_INITIAL_SIZE &&
+        new_size < BUFFER_VERTEX_INLINE_GROWTH_SIZE) {
+        new_size = BUFFER_VERTEX_INLINE_GROWTH_SIZE;
+    }
 
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < new_size) {
         resize_buffer(pg, index, new_size);
