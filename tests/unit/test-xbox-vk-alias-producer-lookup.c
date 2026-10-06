@@ -19,10 +19,18 @@ static void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
 }
 
 #include "hw/xbox/nv2a/pgraph/vk/surface.c"
+#include "hw/xbox/nv2a/pgraph/vk/perf.c"
+#include "qobject/qdict.h"
+#include "qobject/qjson.h"
 
 bool tcg_allowed;
 static unsigned int conversions;
 static bool conversion_succeeds;
+
+int64_t qemu_clock_get_ns(QEMUClockType type)
+{
+    return 0;
+}
 
 bool pgraph_vk_convert_depth_alias(PGRAPHState *pg, SurfaceBinding *producer,
                                    SurfaceBinding *view)
@@ -200,6 +208,38 @@ static void bind_existing_depth_surface(NV2AState *d, SurfaceBinding *target)
     pgraph_vk_set_surface_dirty(pg, false, true);
 }
 
+static void assert_alias_perf_frame(PGRAPHVkState *r, uint64_t converted,
+                                    uint64_t reused, uint64_t failed,
+                                    uint64_t retired, uint64_t producer_pixels,
+                                    uint64_t view_pixels)
+{
+    long start = ftell(r->perf.file);
+    pgraph_vk_perf_frame(r);
+    long end = ftell(r->perf.file);
+    g_assert_cmpint(end, >, start);
+    size_t length = end - start;
+    g_autofree char *json = g_malloc(length + 1);
+    g_assert_cmpint(fseek(r->perf.file, start, SEEK_SET), ==, 0);
+    g_assert_cmpuint(fread(json, 1, length, r->perf.file), ==, length);
+    json[length] = 0;
+    QDict *record = qobject_to(QDict, qobject_from_json(json, NULL));
+    g_assert_nonnull(record);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_conversions_per_guest_frame"), ==, converted);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_reuse_hits_per_guest_frame"), ==, reused);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_conversion_failures_per_guest_frame"), ==, failed);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_views_retired_per_guest_frame"), ==, retired);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_producer_pixels_per_guest_frame"), ==, producer_pixels);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_view_pixels_per_guest_frame"), ==, view_pixels);
+    qobject_unref(record);
+    g_assert_cmpint(fseek(r->perf.file, 0, SEEK_END), ==, 0);
+}
+
 static void test_view_rebind(gconstpointer data)
 {
     g_autofree NV2AState *d = g_new0(NV2AState, 1);
@@ -236,6 +276,9 @@ static void test_view_rebind(gconstpointer data)
     QTAILQ_INSERT_TAIL(&r->surfaces, &producer, entry);
     conversions = 0;
     conversion_succeeds = true;
+    r->perf.enabled = true;
+    r->perf.file = tmpfile();
+    g_assert_nonnull(r->perf.file);
 
     bind_existing_depth_surface(d, &producer);
     bind_existing_depth_surface(d, &view);
@@ -250,6 +293,8 @@ static void test_view_rebind(gconstpointer data)
     pgraph_vk_set_surface_dirty(&d->pgraph, false, true);
     g_assert_false(surface_is_tracked(r, &view));
     g_assert_true(QTAILQ_FIRST(&r->invalid_surfaces) == &view);
+    /* A write with no remaining derived view does not count a retirement. */
+    pgraph_vk_set_surface_dirty(&d->pgraph, false, true);
     d->pgraph.regs_[NV_PGRAPH_CONTROL_0] = 0;
 
     /* Replace the retired binding, as update_surface_part does. */
@@ -295,6 +340,29 @@ static void test_view_rebind(gconstpointer data)
     g_assert_cmpuint(conversions, ==, 6);
     bind_existing_depth_surface(d, &view);
     g_assert_cmpuint(conversions, ==, 6);
+    g_assert_cmpuint(r->perf.depth_alias_conversions, ==, 5);
+    g_assert_cmpuint(r->perf.depth_alias_reuse_hits, ==, 3);
+    g_assert_cmpuint(r->perf.depth_alias_conversion_failures, ==, 1);
+    g_assert_cmpuint(r->perf.depth_alias_views_retired, ==, 1);
+    assert_alias_perf_frame(r, 5, 3, 1, 1, 5 * 640 * 480, 5 * 32 * 32);
+    assert_alias_perf_frame(r, 0, 0, 0, 0, 0, 0);
+
+    r->perf.enabled = false;
+    bind_existing_depth_surface(d, &view);
+    producer.depth_write_generation++;
+    bind_existing_depth_surface(d, &view);
+    producer.depth_write_generation++;
+    conversion_succeeds = false;
+    g_assert_false(update_depth_alias_view(&d->pgraph, &producer, &view));
+    r->zeta_binding = &producer;
+    pgraph_vk_surface_invalidate_depth_views(&d->pgraph, &producer);
+    g_assert_cmpuint(r->perf.depth_alias_conversions, ==, 0);
+    g_assert_cmpuint(r->perf.depth_alias_reuse_hits, ==, 0);
+    g_assert_cmpuint(r->perf.depth_alias_conversion_failures, ==, 0);
+    g_assert_cmpuint(r->perf.depth_alias_views_retired, ==, 0);
+    g_assert_cmpuint(r->perf.depth_alias_producer_pixels, ==, 0);
+    g_assert_cmpuint(r->perf.depth_alias_view_pixels, ==, 0);
+    fclose(r->perf.file);
 }
 
 int main(int argc, char **argv)

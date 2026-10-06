@@ -744,6 +744,12 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t surface_upload_guest_write_causes;
     uint64_t surface_upload_dirty_memory_causes;
     uint64_t surface_upload_overlap_guest_write_causes;
+    uint64_t depth_alias_conversions;
+    uint64_t depth_alias_reuse_hits;
+    uint64_t depth_alias_conversion_failures;
+    uint64_t depth_alias_views_retired;
+    uint64_t depth_alias_producer_pixels;
+    uint64_t depth_alias_view_pixels;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
