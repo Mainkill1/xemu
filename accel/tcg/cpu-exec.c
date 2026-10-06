@@ -246,11 +246,74 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
  *
  * Returns: an existing translation block or NULL.
  */
-static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+typedef struct LookupCensusRoute {
+    uint64_t probes, hit, empty, pc, cs, flags, cflags;
+    uint64_t pc_same_page;
+    uint64_t htable_hit, translate_miss, helper_calls, io_was_false;
+    uint64_t policy_blocked;
+} LookupCensusRoute;
+
+/* Diagnostic branch only: one owning vCPU, no guest addresses in the log. */
+static __thread struct {
+    bool initialized;
+    FILE *file;
+    uint64_t probes;
+    uint64_t io_recompile;
+    LookupCensusRoute route[3];
+} lookup_census;
+
+static LookupCensusRoute *lookup_census_get(unsigned route)
+{
+    if (!lookup_census.initialized) {
+        const char *path = getenv("XEMU_TB_LOOKUP_LOG");
+        lookup_census.initialized = true;
+        if (path && *path) {
+            lookup_census.file = fopen(path, "w");
+        }
+    }
+    return lookup_census.file ? &lookup_census.route[route] : NULL;
+}
+
+static void lookup_census_emit(void)
+{
+    static const char *names[] = { "dispatcher", "generic", "i32" };
+    if ((++lookup_census.probes & ((1 << 20) - 1)) != 0) {
+        return;
+    }
+    for (unsigned i = 0; i < ARRAY_SIZE(names); i++) {
+        LookupCensusRoute *c = &lookup_census.route[i];
+        fprintf(lookup_census.file,
+                "{\"timestamp_us\":%" PRId64 ",\"route\":\"%s\","
+                "\"probes\":%" PRIu64 ",\"hit\":%" PRIu64 ","
+                "\"empty\":%" PRIu64 ",\"pc\":%" PRIu64 ","
+                "\"cs\":%" PRIu64 ",\"flags\":%" PRIu64 ","
+                "\"cflags\":%" PRIu64 ",\"htable_hit\":%" PRIu64 ","
+                "\"translate_miss\":%" PRIu64 ",\"helper_calls\":%" PRIu64 ","
+                "\"io_was_false\":%" PRIu64 ",\"policy_blocked\":%" PRIu64 ","
+                "\"io_recompile_total\":%" PRIu64 ",\"pc_same_page\":%" PRIu64 "}\n",
+                qemu_clock_get_us(QEMU_CLOCK_REALTIME), names[i], c->probes,
+                c->hit, c->empty, c->pc, c->cs, c->flags, c->cflags,
+                c->htable_hit, c->translate_miss, c->helper_calls,
+                c->io_was_false, c->policy_blocked, lookup_census.io_recompile,
+                c->pc_same_page);
+    }
+    fflush(lookup_census.file);
+}
+
+void xemu_lookup_census_io_recompile(void)
+{
+    if (lookup_census_get(0)) {
+        lookup_census.io_recompile++;
+    }
+}
+
+static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s,
+                                          unsigned route)
 {
     TranslationBlock *tb;
     CPUJumpCache *jc;
     uint32_t hash;
+    LookupCensusRoute *c = lookup_census_get(route);
 
     /* we should never be trying to look up an INVALID tb */
     tcg_debug_assert(!(s.cflags & CF_INVALID));
@@ -259,17 +322,59 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
     jc = cpu->tb_jmp_cache;
 
     tb = qatomic_read(&jc->array[hash].tb);
-    if (likely(tb &&
-               jc->array[hash].pc == s.pc &&
-               tb->cs_base == s.cs_base &&
-               tb->flags == s.flags &&
-               tb_cflags(tb) == s.cflags)) {
+    unsigned outcome;
+    if (!tb) {
+        outcome = 0;
+    } else if (jc->array[hash].pc != s.pc) {
+        outcome = 1;
+    } else if (tb->cs_base != s.cs_base) {
+        outcome = 2;
+    } else if (tb->flags != s.flags) {
+        outcome = 3;
+    } else if (tb_cflags(tb) != s.cflags) {
+        outcome = 4;
+    } else {
+        outcome = 5;
+    }
+    if (c) {
+        c->probes++;
+        switch (outcome) {
+        case 0:
+            c->empty++;
+            break;
+        case 1:
+            c->pc++;
+            c->pc_same_page +=
+                ((jc->array[hash].pc ^ s.pc) & TARGET_PAGE_MASK) == 0;
+            break;
+        case 2:
+            c->cs++;
+            break;
+        case 3:
+            c->flags++;
+            break;
+        case 4:
+            c->cflags++;
+            break;
+        case 5:
+            c->hit++;
+            break;
+        }
+        lookup_census_emit();
+    }
+    if (likely(outcome == 5)) {
         goto hit;
     }
 
     tb = tb_htable_lookup(cpu, s);
     if (tb == NULL) {
+        if (c) {
+            c->translate_miss++;
+        }
         return NULL;
+    }
+    if (c) {
+        c->htable_hit++;
     }
 
     jc->array[hash].pc = s.pc;
@@ -385,10 +490,21 @@ static inline bool check_for_breakpoints(CPUState *cpu, vaddr pc,
         check_for_breakpoints_slow(cpu, pc, cflags);
 }
 
-static inline QEMU_ALWAYS_INLINE
-const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
+static inline QEMU_ALWAYS_INLINE const void *
+lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s, unsigned route)
 {
     TranslationBlock *tb;
+    LookupCensusRoute *c = lookup_census_get(route);
+    if (c) {
+        c->helper_calls++;
+        c->io_was_false += !cpu->neg.can_do_io;
+        c->policy_blocked +=
+            cpu->singlestep_enabled || !QTAILQ_EMPTY(&cpu->breakpoints) ||
+            qatomic_read(&one_insn_per_tb) ||
+            qemu_loglevel_mask(CPU_LOG_TB_NOCHAIN | CPU_LOG_TB_CPU |
+                               CPU_LOG_EXEC) ||
+            (s.cflags & (CF_NO_GOTO_PTR | CF_USE_ICOUNT | CF_BP_PAGE));
+    }
 
     /*
      * By definition we've just finished a TB, so I/O is OK.
@@ -403,7 +519,7 @@ const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
         cpu_loop_exit(cpu);
     }
 
-    tb = tb_lookup(cpu, s);
+    tb = tb_lookup(cpu, s, route);
     if (tb == NULL) {
         return tcg_code_gen_epilogue;
     }
@@ -429,7 +545,7 @@ const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
     TCGTBCPUState s = cpu->cc->tcg_ops->get_tb_cpu_state(cpu);
 
     s.cflags = curr_cflags(cpu);
-    return lookup_tb_ptr_common(cpu, s);
+    return lookup_tb_ptr_common(cpu, s, 1);
 }
 
 /*
@@ -449,7 +565,7 @@ HELPER(lookup_tb_ptr_i32)(CPUArchState *env, uint32_t eip,
         .cs_base = cs_base,
     };
 
-    return lookup_tb_ptr_common(cpu, s);
+    return lookup_tb_ptr_common(cpu, s, 2);
 }
 
 /* Return the current PC from CPU, which may be cached in TB. */
@@ -619,7 +735,7 @@ void cpu_exec_step_atomic(CPUState *cpu)
          * Any breakpoint for this insn will have been recognized earlier.
          */
 
-        tb = tb_lookup(cpu, s);
+        tb = tb_lookup(cpu, s, 0);
         if (tb == NULL) {
             mmap_lock();
             tb = tb_gen_code(cpu, s);
@@ -1011,7 +1127,7 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
                 break;
             }
 
-            tb = tb_lookup(cpu, s);
+            tb = tb_lookup(cpu, s, 0);
             if (tb == NULL) {
                 CPUJumpCache *jc;
                 uint32_t h;

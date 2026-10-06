@@ -619,6 +619,7 @@ void tb_check_watchpoint(CPUState *cpu, uintptr_t retaddr)
  */
 void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
 {
+    xemu_lookup_census_io_recompile();
     TranslationBlock *tb;
     CPUClass *cc;
     uint32_t n;
