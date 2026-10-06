@@ -857,6 +857,40 @@ static GLuint tex_pool_get(PGRAPHGLState *r, const TexStorageKey *key)
     return 0;
 }
 
+static void tex_pool_write_stats(PGRAPHGLState *r, bool final)
+{
+    int64_t now = g_get_monotonic_time();
+    const TexPoolStats *stats = &r->tex_pool_stats;
+
+    if (!final && r->tex_pool_log_last_us &&
+        now - r->tex_pool_log_last_us < G_USEC_PER_SEC) {
+        return;
+    }
+    r->tex_pool_log_last_us = now;
+    int written = fprintf(r->tex_pool_log,
+            "{\"schema\":1,\"event\":\"%s\",\"monotonic_us\":%" PRId64
+            ",\"pool_get_calls\":%" PRIu64
+            ",\"pool_hits\":%" PRIu64 ",\"pool_misses\":%" PRIu64
+            ",\"pool_entries_scanned\":%" PRIu64
+            ",\"pool_puts\":%" PRIu64 ",\"pool_evictions\":%" PRIu64
+            ",\"pool_high_water_entries\":%" PRIu64
+            ",\"pool_high_water_estimated_bytes\":%" PRIu64
+            ",\"gl_texture_generations\":%" PRIu64
+            ",\"gl_texture_deletions\":%" PRIu64
+            ",\"outgoing_matches_after_miss\":%" PRIu64 "}\n",
+            final ? "final" : "snapshot", now,
+            stats->get_calls, stats->hits, stats->misses,
+            stats->entries_scanned, stats->puts, stats->evictions,
+            stats->high_water_entries, stats->high_water_bytes,
+            stats->generations, stats->deletions, stats->outgoing_matches);
+    /* Normal QMP shutdown need not finalize the renderer. Retain snapshots. */
+    if (written < 0 || fflush(r->tex_pool_log)) {
+        error_report("Cannot write GL texture pool log: %s", strerror(errno));
+        fclose(r->tex_pool_log);
+        r->tex_pool_log = NULL;
+    }
+}
+
 static void tex_pool_put(PGRAPHGLState *r, const TexStorageKey *key,
                           GLuint texture)
 {
@@ -867,6 +901,9 @@ static void tex_pool_put(PGRAPHGLState *r, const TexStorageKey *key,
     }
     if (!key->levels || bytes > NV2A_GL_TEX_POOL_BYTES) {
         tex_pool_delete(r, texture);
+        if (r->tex_pool_log) {
+            tex_pool_write_stats(r, false);
+        }
         return;
     }
     while (r->tex_pool_count == NV2A_GL_TEX_POOL_SIZE ||
@@ -893,6 +930,7 @@ static void tex_pool_put(PGRAPHGLState *r, const TexStorageKey *key,
             MAX(r->tex_pool_stats.high_water_entries, r->tex_pool_count);
         r->tex_pool_stats.high_water_bytes =
             MAX(r->tex_pool_stats.high_water_bytes, r->tex_pool_bytes);
+        tex_pool_write_stats(r, false);
     }
 }
 
@@ -1001,6 +1039,9 @@ static TextureBinding *generate_texture(PGRAPHGLState *r, TextureShape s,
     ret->storage_key = storage_key;
     ret->release_texture = recycle_texture_binding;
     ret->release_opaque = r;
+    if (r->tex_pool_log) {
+        tex_pool_write_stats(r, false);
+    }
     return ret;
 }
 
@@ -1048,6 +1089,7 @@ void pgraph_gl_init_textures(NV2AState *d)
         QLIST_INIT(&r->tex_pool_buckets[i]);
     }
     memset(&r->tex_pool_stats, 0, sizeof(r->tex_pool_stats));
+    r->tex_pool_log_last_us = 0;
     const char *log_path = getenv("XEMU_GL_TEXTURE_POOL_LOG");
     r->tex_pool_log = log_path && *log_path ? fopen(log_path, "a") : NULL;
     if (log_path && *log_path && !r->tex_pool_log) {
@@ -1088,21 +1130,9 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
         tex_pool_remove(r, entry);
     }
     if (r->tex_pool_log) {
-        const TexPoolStats *stats = &r->tex_pool_stats;
-        fprintf(r->tex_pool_log,
-                "{\"schema\":1,\"pool_get_calls\":%" PRIu64
-                ",\"pool_hits\":%" PRIu64 ",\"pool_misses\":%" PRIu64
-                ",\"pool_entries_scanned\":%" PRIu64
-                ",\"pool_puts\":%" PRIu64 ",\"pool_evictions\":%" PRIu64
-                ",\"pool_high_water_entries\":%" PRIu64
-                ",\"pool_high_water_estimated_bytes\":%" PRIu64
-                ",\"gl_texture_generations\":%" PRIu64
-                ",\"gl_texture_deletions\":%" PRIu64
-                ",\"outgoing_matches_after_miss\":%" PRIu64 "}\n",
-                stats->get_calls, stats->hits, stats->misses,
-                stats->entries_scanned, stats->puts, stats->evictions,
-                stats->high_water_entries, stats->high_water_bytes,
-                stats->generations, stats->deletions, stats->outgoing_matches);
+        tex_pool_write_stats(r, true);
+    }
+    if (r->tex_pool_log) {
         fclose(r->tex_pool_log);
         r->tex_pool_log = NULL;
     }

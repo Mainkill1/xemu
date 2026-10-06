@@ -256,6 +256,7 @@ typedef struct PGRAPHGLState {
     struct supported_extensions {
         GLboolean texture_filter_anisotropic;
     } supported_extensions;
+    int64_t tex_pool_log_last_us;
 } PGRAPHGLState;
 
 extern GloContext *g_nv2a_context_render;

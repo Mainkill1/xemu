@@ -670,6 +670,42 @@ static void test_recycled_texture_scaled_storage(void)
     g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
 }
 
+static void test_texture_pool_live_log(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1, .pitch = 8,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_Y8,
+    };
+    uint8_t input[64] = { 0 };
+    struct stat status;
+    char line[1024];
+
+    pgraph_gl_init_textures(&test_device);
+    test_renderer.tex_pool_log = tmpfile();
+    g_assert_nonnull(test_renderer.tex_pool_log);
+    TextureBinding *binding =
+        generate_texture(&test_renderer, shape, input, NULL);
+
+    /* QMP quit need not finalize the renderer. Evidence must already exist. */
+    g_assert_cmpint(fstat(fileno(test_renderer.tex_pool_log), &status), ==, 0);
+    g_assert_cmpint(status.st_size, >, 0);
+    rewind(test_renderer.tex_pool_log);
+    g_assert_nonnull(fgets(line, sizeof(line), test_renderer.tex_pool_log));
+    g_assert_nonnull(strstr(line, "\"event\":\"snapshot\""));
+    g_assert_nonnull(strstr(line, "\"pool_get_calls\":1,"));
+    g_assert_nonnull(strstr(line, "\"pool_puts\":0,"));
+    g_assert_nonnull(strstr(line, "\"gl_texture_generations\":1,"));
+    fseek(test_renderer.tex_pool_log, 0, SEEK_END);
+    pgraph_gl_texture_binding_destroy(binding);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
 static void test_recycled_texture_bordered_compressed(void)
 {
     if (context == EGL_NO_CONTEXT || !real_compressed_tex_image) {
@@ -792,6 +828,8 @@ int main(int argc, char **argv)
                     test_recycled_texture_byte_limit);
     g_test_add_func("/xbox/gl/texture-upload/recycled/scaled-storage",
                     test_recycled_texture_scaled_storage);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/live-log",
+                    test_texture_pool_live_log);
     g_test_add_func("/xbox/gl/texture-upload/recycled/bordered-compressed",
                     test_recycled_texture_bordered_compressed);
     int result = g_test_run();
