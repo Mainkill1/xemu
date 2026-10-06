@@ -1144,12 +1144,19 @@ static bool find_cubemap_surfaces(PGRAPHState *pg, const TextureShape *shape,
 static void copy_cubemap_surfaces(PGRAPHState *pg, SurfaceBinding *faces[6],
                                  TextureBinding *texture)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
     for (unsigned i = 0; i < 6; i++) {
         if (texture->cubemap_lifetime[i] != faces[i]->lifetime_id ||
             texture->cubemap_draw_time[i] != faces[i]->draw_time) {
             copy_surface_to_texture(pg, faces[i], texture);
             texture->cubemap_lifetime[i] = faces[i]->lifetime_id;
             texture->cubemap_draw_time[i] = faces[i]->draw_time;
+            if (r->perf.enabled) {
+                r->perf.cubemap_face_copies++;
+            }
+        } else if (r->perf.enabled) {
+            r->perf.cubemap_face_reuses++;
         }
     }
     /* Recheck GPU generations even when guest texture RAM has not changed. */

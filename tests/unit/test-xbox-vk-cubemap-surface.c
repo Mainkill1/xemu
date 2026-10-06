@@ -148,6 +148,7 @@ static void test_admission_and_generations(void)
     TextureShape *shape = &texture.key.state;
     SurfaceBinding *faces[6];
     pg->vk_renderer_state = &r;
+    r.perf.enabled = true;
     pg->surface_scale_factor = 1;
     QTAILQ_INIT(&r.surfaces);
     for (unsigned i = 0; i < 6; i++) {
@@ -185,6 +186,8 @@ static void test_admission_and_generations(void)
     expected_layer = 2;
     copy_cubemap_surfaces(pg, faces, &texture);
     g_assert_cmpuint(copies, ==, 8);
+    g_assert_cmpuint(r.perf.cubemap_face_copies, ==, 8);
+    g_assert_cmpuint(r.perf.cubemap_face_reuses, ==, 16);
     g_assert_true(texture.possibly_dirty);
 
     QTAILQ_REMOVE(&r.surfaces, &sources[5], entry);
