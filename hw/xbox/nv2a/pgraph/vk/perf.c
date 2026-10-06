@@ -101,7 +101,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\"]"
+            "\"descriptor_publication\",\"surface_upload\",\"depth_alias\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -466,6 +466,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_conversions_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_reuse_hits_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_conversion_failures_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_views_retired_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_producer_pixels_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_view_pixels_per_guest_frame\":%" PRIu64
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
@@ -486,7 +492,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->surface_upload_new_causes,
             perf->surface_upload_guest_write_causes,
             perf->surface_upload_dirty_memory_causes,
-            perf->surface_upload_overlap_guest_write_causes);
+            perf->surface_upload_overlap_guest_write_causes,
+            perf->depth_alias_conversions,
+            perf->depth_alias_reuse_hits,
+            perf->depth_alias_conversion_failures,
+            perf->depth_alias_views_retired,
+            perf->depth_alias_producer_pixels,
+            perf->depth_alias_view_pixels);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -536,6 +548,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->surface_upload_guest_write_causes = 0;
     perf->surface_upload_dirty_memory_causes = 0;
     perf->surface_upload_overlap_guest_write_causes = 0;
+    perf->depth_alias_conversions = 0;
+    perf->depth_alias_reuse_hits = 0;
+    perf->depth_alias_conversion_failures = 0;
+    perf->depth_alias_views_retired = 0;
+    perf->depth_alias_producer_pixels = 0;
+    perf->depth_alias_view_pixels = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

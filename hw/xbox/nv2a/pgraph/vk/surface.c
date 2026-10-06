@@ -1039,6 +1039,9 @@ void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
             view->vram_addr == producer->vram_addr) {
             assert(!view->draw_dirty);
             invalidate_surface(d, view);
+            if (r->perf.enabled) {
+                r->perf.depth_alias_views_retired++;
+            }
         }
     }
 }
@@ -1467,16 +1470,24 @@ static SurfaceBinding *pgraph_vk_find_depth_alias_producer(
 static bool update_depth_alias_view(PGRAPHState *pg, SurfaceBinding *producer,
                                     SurfaceBinding *view)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
     if (view->initialized && !view->draw_dirty && !view->upload_pending &&
         !view->download_pending && !view->readback_superseded_by_guest &&
         producer->lifetime_id != 0 &&
         view->derived_from_lifetime_id == producer->lifetime_id &&
         view->derived_from_generation == producer->depth_write_generation) {
+        if (r->perf.enabled) {
+            r->perf.depth_alias_reuse_hits++;
+        }
         return true;
     }
 
     view->derived_from_lifetime_id = 0;
     if (!pgraph_vk_convert_depth_alias(pg, producer, view)) {
+        if (r->perf.enabled) {
+            r->perf.depth_alias_conversion_failures++;
+        }
         return false;
     }
     pgraph_vk_surface_upload_complete(
@@ -1485,6 +1496,13 @@ static bool update_depth_alias_view(PGRAPHState *pg, SurfaceBinding *producer,
     view->draw_time = pg->draw_time;
     view->derived_from_lifetime_id = producer->lifetime_id;
     view->derived_from_generation = producer->depth_write_generation;
+    if (r->perf.enabled) {
+        r->perf.depth_alias_conversions++;
+        r->perf.depth_alias_producer_pixels +=
+            (uint64_t)producer->width * producer->height;
+        r->perf.depth_alias_view_pixels +=
+            (uint64_t)view->width * view->height;
+    }
     return true;
 }
 
