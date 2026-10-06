@@ -448,6 +448,8 @@ typedef struct TextureBinding {
     bool possibly_dirty;
     uint64_t hash;
     unsigned int draw_time;
+    uint64_t cubemap_lifetime[6];
+    int cubemap_draw_time[6];
     uint32_t submit_time;
 } TextureBinding;
 
@@ -1055,6 +1057,8 @@ bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
 bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg, hwaddr start,
                                                     hwaddr size);
+void pgraph_vk_surface_update_guest_writes(NV2AState *d, hwaddr start,
+                                           hwaddr size);
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size);
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
