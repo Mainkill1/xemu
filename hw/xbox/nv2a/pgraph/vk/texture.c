@@ -1073,6 +1073,54 @@ static bool check_surface_to_texture_compatiblity(const SurfaceBinding *surface,
            surface->host_fmt.host_bytes_per_pixel == vk_format_texel_size(tex_vkf.vk_format);
 }
 
+/* Diagnostic branch only: retain distinct rejected layouts, not guest bytes. */
+static void trace_texture_readback_shape(PGRAPHState *pg,
+                                         const TextureShape *shape,
+                                         hwaddr address, size_t length)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    static uint64_t seen[128][18];
+    static unsigned count;
+    SurfaceBinding *surface;
+
+    if (!r->perf.enabled || !length || count == ARRAY_SIZE(seen)) {
+        return;
+    }
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        bool overlaps = address >= surface->vram_addr ?
+            address - surface->vram_addr < surface->size :
+            surface->vram_addr - address < length;
+        if (!surface->draw_dirty || !surface->size || !overlaps) {
+            continue;
+        }
+        uint64_t key[18] = {
+            shape->width, shape->height, shape->depth, shape->pitch,
+            shape->levels, shape->cubemap, shape->dimensionality,
+            shape->color_format, surface->width, surface->height,
+            surface->pitch, surface->swizzle, surface->color,
+            surface->shape.color_format, surface->host_fmt.vk_format,
+            surface->host_fmt.host_bytes_per_pixel,
+            address - surface->vram_addr, length,
+        };
+        bool duplicate = false;
+        for (unsigned i = 0; i < count; i++) {
+            duplicate |= memcmp(seen[i], key, sizeof(key)) == 0;
+        }
+        if (duplicate) {
+            continue;
+        }
+        memcpy(seen[count++], key, sizeof(key));
+        fprintf(stderr, "TEXTURE_READBACK_SHAPE");
+        for (unsigned i = 0; i < ARRAY_SIZE(key); i++) {
+            fprintf(stderr, " %" PRIu64, key[i]);
+        }
+        fprintf(stderr, "\n");
+        if (count == ARRAY_SIZE(seen)) {
+            break;
+        }
+    }
+}
+
 static void create_dummy_texture(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1325,6 +1373,9 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
     if (!surface_to_texture) {
         // FIXME: Restructure to support rendering surfaces to cubemap faces
+
+        trace_texture_readback_shape(pg, &state, texture_vram_offset,
+                                      texture_length);
 
         // Writeback any surfaces which this texture may index
         if (!pgraph_vk_download_surfaces_in_range_if_dirty(
