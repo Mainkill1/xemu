@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "parent": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "parentEquivalentSource": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "parentTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "candidate": "84299f793bf5bcd4a889a2c55d54cb9395e4c2de",
+  "compiler": "maintained GCC -O2 fixture compile configuration; four actual source units per side, current selected headers; unchanged generated configuration/common libraries borrowed",
+  "driver": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "renderer": "software EGL/surfaceless, LIBGL_ALWAYS_SOFTWARE=1",
+  "schedule": "ABBA then BAAB, eight attempts for each of five workloads",
+  "attempts": 40,
+  "validation": "fresh upload readback outside timed loop, GL error checks and orderly teardown each attempt",
+  "timing": "process CPU clock and monotonic wall around generation/release loops plus glFinish; diagnostics, not native GPU/frame performance",
+  "observer": "GL generation/deletion call counters in both arms; optional production pool log disabled for timing",
+  "binaries": {
+    "A": {
+      "sha256": "9cace7064cbcc5922df6a41e88cfe7d8eebffa8db57793e7e2ad2ab6468e5dd4",
+      "bytes": 2845904
+    },
+    "B": {
+      "sha256": "0eb3b9d3d404b5686bdde4b78d572dcf5e34027a4627ab42fdbea854ea6c130d",
+      "bytes": 2873600
+    }
+  },
+  "nativeTests": "Not run for this revised head. Procedures/settings unchanged."
+}

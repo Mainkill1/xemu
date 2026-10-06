@@ -1,0 +1,92 @@
+[
+  {
+    "layouts": 1,
+    "operationsPerAttempt": 8192,
+    "beforeCpuNs": 8782791.0,
+    "afterCpuNs": 5585553.5,
+    "cpuImprovementPct": 36.40343371486353,
+    "beforeWallNs": 8829246.0,
+    "afterWallNs": 5587675.5,
+    "wallImprovementPct": 36.714012725435445,
+    "cpuOrderImprovementsPct": [
+      33.23393618138154,
+      39.01355474549024
+    ],
+    "beforeGenerations": 8192.0,
+    "afterGenerations": 0.0,
+    "beforeDeletions": 8192.0,
+    "afterDeletions": 0.0
+  },
+  {
+    "layouts": 8,
+    "operationsPerAttempt": 8192,
+    "beforeCpuNs": 8215556.0,
+    "afterCpuNs": 5754704.0,
+    "cpuImprovementPct": 29.953566137215788,
+    "beforeWallNs": 8217608.0,
+    "afterWallNs": 5772043.0,
+    "wallImprovementPct": 29.76005913156237,
+    "cpuOrderImprovementsPct": [
+      31.956835963375926,
+      24.781831455737766
+    ],
+    "beforeGenerations": 8192.0,
+    "afterGenerations": 0.0,
+    "beforeDeletions": 8192.0,
+    "afterDeletions": 0.0
+  },
+  {
+    "layouts": 256,
+    "operationsPerAttempt": 8192,
+    "beforeCpuNs": 9407281.0,
+    "afterCpuNs": 6437434.5,
+    "cpuImprovementPct": 31.569658650570766,
+    "beforeWallNs": 9416721.0,
+    "afterWallNs": 6446048.5,
+    "wallImprovementPct": 31.54678257962618,
+    "cpuOrderImprovementsPct": [
+      32.633384913998505,
+      31.79008169485703
+    ],
+    "beforeGenerations": 8192.0,
+    "afterGenerations": 0.0,
+    "beforeDeletions": 8192.0,
+    "afterDeletions": 0.0
+  },
+  {
+    "layouts": 257,
+    "operationsPerAttempt": 8192,
+    "beforeCpuNs": 8704561.0,
+    "afterCpuNs": 9790586.0,
+    "cpuImprovementPct": -12.476505133343313,
+    "beforeWallNs": 8711721.0,
+    "afterWallNs": 9793379.0,
+    "wallImprovementPct": -12.416123059955662,
+    "cpuOrderImprovementsPct": [
+      -10.34856360414048,
+      -13.136960859401992
+    ],
+    "beforeGenerations": 8192.0,
+    "afterGenerations": 7936.0,
+    "beforeDeletions": 8192.0,
+    "afterDeletions": 7936.0
+  },
+  {
+    "layouts": 8192,
+    "operationsPerAttempt": 8192,
+    "beforeCpuNs": 9754677.0,
+    "afterCpuNs": 11412153.0,
+    "cpuImprovementPct": -16.99160310484909,
+    "beforeWallNs": 9772085.5,
+    "afterWallNs": 11415825.0,
+    "wallImprovementPct": -16.820764615700508,
+    "cpuOrderImprovementsPct": [
+      -22.95564423160692,
+      -14.287942698002736
+    ],
+    "beforeGenerations": 8192.0,
+    "afterGenerations": 7936.0,
+    "beforeDeletions": 8192.0,
+    "afterDeletions": 7936.0
+  }
+]

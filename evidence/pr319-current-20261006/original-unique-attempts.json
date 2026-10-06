@@ -1,0 +1,90 @@
+[
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 9766496,
+    "wall_ns": 9768696,
+    "gen": 8192,
+    "delete": 8192,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "A",
+    "cell": 1
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 9630477,
+    "wall_ns": 9632802,
+    "gen": 7936,
+    "delete": 7936,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "B",
+    "cell": 2
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 11713658,
+    "wall_ns": 11751590,
+    "gen": 7936,
+    "delete": 7936,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "B",
+    "cell": 3
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 9706666,
+    "wall_ns": 9717948,
+    "gen": 8192,
+    "delete": 8192,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "A",
+    "cell": 4
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 10377147,
+    "wall_ns": 10380019,
+    "gen": 7936,
+    "delete": 7936,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "B",
+    "cell": 5
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 10049667,
+    "wall_ns": 10083562,
+    "gen": 8192,
+    "delete": 8192,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "A",
+    "cell": 6
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 9116276,
+    "wall_ns": 9150843,
+    "gen": 8192,
+    "delete": 8192,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "A",
+    "cell": 7
+  },
+  {
+    "shapes": 8192,
+    "operations": 8192,
+    "cpu_ns": 11539567,
+    "wall_ns": 11631966,
+    "gen": 7936,
+    "delete": 7936,
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "arm": "B",
+    "cell": 8
+  }
+]

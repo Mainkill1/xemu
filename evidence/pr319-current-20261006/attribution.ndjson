@@ -1,0 +1,1 @@
+{"schema":1,"pool_get_calls":65793,"pool_hits":257,"pool_misses":65536,"pool_entries_scanned":38580,"pool_puts":65793,"pool_evictions":65280,"pool_high_water_entries":256,"pool_high_water_estimated_bytes":17104896,"gl_texture_generations":65536,"gl_texture_deletions":65536,"outgoing_matches_after_miss":0}
