@@ -715,15 +715,78 @@ static void upload_gl_texture(GLenum gl_target,
     }
 }
 
+static uint64_t tex_storage_sig(GLenum gl_target, const TextureShape *s,
+                                const ColorFormatInfo *f)
+{
+    uint64_t sig = 1469598103934665603ULL;
+
+#define TEX_SIG_MIX(v) \
+    do { \
+        sig = (sig ^ (uint64_t)(v)) * 1099511628211ULL; \
+    } while (0)
+
+    TEX_SIG_MIX(gl_target);
+    TEX_SIG_MIX(f->gl_internal_format);
+    TEX_SIG_MIX(f->gl_format);
+    TEX_SIG_MIX(f->gl_type);
+    TEX_SIG_MIX(s->width);
+    TEX_SIG_MIX(s->height);
+    TEX_SIG_MIX(s->depth);
+    TEX_SIG_MIX(s->levels);
+    TEX_SIG_MIX(s->cubemap);
+    TEX_SIG_MIX(s->border);
+    TEX_SIG_MIX(s->dimensionality);
+
+#undef TEX_SIG_MIX
+    return sig;
+}
+
+static GLuint tex_pool_get(PGRAPHGLState *r, uint64_t sig)
+{
+    for (unsigned int i = 0; i < r->tex_pool_count; i++) {
+        if (r->tex_pool[i].sig == sig) {
+            GLuint texture = r->tex_pool[i].gl_texture;
+            r->tex_pool[i] = r->tex_pool[--r->tex_pool_count];
+            return texture;
+        }
+    }
+    return 0;
+}
+
+static void tex_pool_put(PGRAPHGLState *r, uint64_t sig, GLuint texture)
+{
+    if (r->tex_pool_count < NV2A_GL_TEX_POOL_SIZE) {
+        r->tex_pool[r->tex_pool_count++] = (TexPoolEntry) {
+            .sig = sig,
+            .gl_texture = texture,
+        };
+        return;
+    }
+
+    glDeleteTextures(1, &texture);
+}
+
+void pgraph_gl_texture_binding_destroy(TextureBinding *binding)
+{
+    assert(binding->refcnt > 0);
+    binding->refcnt--;
+    if (binding->refcnt == 0) {
+        PGRAPHGLState *r = g_nv2a->pgraph.gl_renderer_state;
+        if (r) {
+            tex_pool_put(r, binding->storage_sig, binding->gl_texture);
+        } else {
+            glDeleteTextures(1, &binding->gl_texture);
+        }
+        g_free(binding);
+    }
+}
+
 static TextureBinding* generate_texture(const TextureShape s,
                                         const uint8_t *texture_data,
                                         const uint8_t *palette_data)
 {
     ColorFormatInfo f = kelvin_color_format_gl_map[s.color_format];
-
-    /* Create a new opengl texture */
-    GLuint gl_texture;
-    glGenTextures(1, &gl_texture);
+    PGRAPHGLState *r = g_nv2a->pgraph.gl_renderer_state;
 
     GLenum gl_target;
     if (s.cubemap) {
@@ -745,6 +808,12 @@ static TextureBinding* generate_texture(const TextureShape s,
                 break;
             }
         }
+    }
+
+    uint64_t storage_sig = tex_storage_sig(gl_target, &s, &f);
+    GLuint gl_texture = tex_pool_get(r, storage_sig);
+    if (!gl_texture) {
+        glGenTextures(1, &gl_texture);
     }
 
     glBindTexture(gl_target, gl_texture);
@@ -812,6 +881,7 @@ static TextureBinding* generate_texture(const TextureShape s,
     ret->addrv = 0xFFFFFFFF;
     ret->addrp = 0xFFFFFFFF;
     ret->border_color_set = false;
+    ret->storage_sig = storage_sig;
     return ret;
 }
 
@@ -848,6 +918,7 @@ void pgraph_gl_init_textures(NV2AState *d)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     const size_t texture_cache_size = 512;
+    r->tex_pool_count = 0;
     lru_init(&r->texture_cache);
     r->texture_cache_entries = malloc(texture_cache_size * sizeof(TextureLruNode));
     assert(r->texture_cache_entries != NULL);
@@ -869,6 +940,16 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
     }
 
     lru_flush(&r->texture_cache);
+
+    /*
+     * Eviction recycles unreferenced texture objects while the renderer is
+     * alive. Drain that pool before the GL context is torn down.
+     */
+    for (unsigned int i = 0; i < r->tex_pool_count; i++) {
+        glDeleteTextures(1, &r->tex_pool[i].gl_texture);
+    }
+    r->tex_pool_count = 0;
+
     free(r->texture_cache_entries);
 
     r->texture_cache_entries = NULL;
