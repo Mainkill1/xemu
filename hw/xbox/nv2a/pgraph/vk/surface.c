@@ -1279,9 +1279,18 @@ static bool upload_small_swizzled_color(PGRAPHState *pg,
         (VkDeviceSize)4,
         r->device_props.limits.optimalBufferCopyOffsetAlignment);
 
+    if (r->perf.enabled) {
+        r->perf.small_color_upload_attempts++;
+        if (staging->buffer_size < size && r->in_command_buffer) {
+            r->perf.small_color_upload_capacity_finishes++;
+        }
+    }
     pgraph_vk_ensure_buffer_capacity(pg, BUFFER_TEXTURE_STAGING, size);
     if (!pgraph_vk_buffer_has_space_for(pg, BUFFER_TEXTURE_STAGING,
                                         size, alignment)) {
+        if (r->perf.enabled) {
+            r->perf.small_color_upload_ring_finishes++;
+        }
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
     assert(pgraph_vk_buffer_has_space_for(pg, BUFFER_TEXTURE_STAGING,
@@ -1296,6 +1305,9 @@ static bool upload_small_swizzled_color(PGRAPHState *pg,
     VkResult result = vmaFlushAllocation(r->allocator, staging->allocation,
                                           offset, size);
     if (result != VK_SUCCESS) {
+        if (r->perf.enabled) {
+            r->perf.small_color_upload_flush_failures++;
+        }
         error_report("Vulkan small color upload flush failed: %d", result);
         return false;
     }
@@ -1338,6 +1350,12 @@ static bool upload_small_swizzled_color(PGRAPHState *pg,
         &surface->readback_superseded_by_guest);
     surface->draw_time = pg->draw_time;
     surface->initialized = true;
+    if (r->perf.enabled) {
+        r->perf.small_color_uploads_recorded++;
+        r->perf.small_color_upload_bytes += size;
+        r->perf.small_color_upload_peak_offset = MAX(
+            r->perf.small_color_upload_peak_offset, offset + size);
+    }
     return true;
 }
 #endif
@@ -1386,7 +1404,7 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     }
 #endif
 
-    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_CREATE); // FIXME: SURFACE_UP
+    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_CREATE); /* FIXME: SURFACE_UP */
 
     if (!surface->width || !surface->height) {
         pgraph_vk_surface_upload_complete(

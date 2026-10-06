@@ -26,6 +26,14 @@ static VkResult test_flush_allocation(VmaAllocator allocator,
 #define vmaFlushAllocation test_flush_allocation
 #include "hw/xbox/nv2a/pgraph/vk/surface.c"
 #undef vmaFlushAllocation
+#include "hw/xbox/nv2a/pgraph/vk/perf.c"
+#include "qobject/qdict.h"
+#include "qobject/qjson.h"
+
+int64_t qemu_clock_get_ns(QEMUClockType type)
+{
+    return 0;
+}
 
 NV2AStats g_nv2a_stats;
 
@@ -175,9 +183,57 @@ static void set_pixels(uint8_t *guest, uint8_t value)
     }
 }
 
+static void check_telemetry(PGRAPHVkState *r, int mode)
+{
+    const char *fields[] = {
+        "small_color_upload_attempts_per_guest_frame",
+        "small_color_uploads_recorded_per_guest_frame",
+        "small_color_upload_bytes_per_guest_frame",
+        "small_color_upload_ring_finishes_per_guest_frame",
+        "small_color_upload_capacity_finishes_per_guest_frame",
+        "small_color_upload_flush_failures_per_guest_frame",
+        "small_color_upload_peak_offset_per_guest_frame",
+    };
+    uint64_t values[] = {
+        mode == 0 ? 2 : 1,
+        mode == 3 ? 0 : mode == 0 ? 2 : 1,
+        mode == 3 ? 0 : mode == 0 ? 8192 : 4096,
+        mode == 1, mode == 2, mode == 3,
+        mode == 3 ? 0 : mode == 0 ? 8448 : 4096,
+    };
+
+    r->perf.file = tmpfile();
+    g_assert_nonnull(r->perf.file);
+    for (unsigned int frame = 0; frame < 2; frame++) {
+        long start = ftell(r->perf.file);
+        pgraph_vk_perf_frame(r);
+        long end = ftell(r->perf.file);
+        g_assert_cmpint(end, >, start);
+        size_t length = end - start;
+        g_autofree char *line = g_malloc(length + 1);
+        g_assert_cmpint(fseek(r->perf.file, start, SEEK_SET), ==, 0);
+        g_assert_cmpuint(fread(line, 1, length, r->perf.file), ==, length);
+        line[length] = 0;
+        QDict *record = qobject_to(QDict, qobject_from_json(line, NULL));
+        g_assert_nonnull(record);
+        for (unsigned int i = 0; i < G_N_ELEMENTS(fields); i++) {
+            g_assert_true(qdict_haskey(record, fields[i]));
+            g_assert_cmpuint(qdict_get_int(record, fields[i]), ==,
+                             frame ? 0 : values[i]);
+        }
+        qobject_unref(record);
+        g_assert_cmpint(fseek(r->perf.file, 0, SEEK_END), ==, 0);
+    }
+    fclose(r->perf.file);
+}
+
 static void test_upload(gconstpointer data)
 {
     int mode = GPOINTER_TO_INT(data);
+    bool telemetry = mode != 4;
+    if (!telemetry) {
+        mode = 0;
+    }
     g_autofree NV2AState *d = g_new0(NV2AState, 1);
     g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
     g_autofree uint8_t *guest = g_malloc0(4096);
@@ -197,6 +253,7 @@ static void test_upload(gconstpointer data)
     d->vram_ptr = guest;
     d->pgraph.vk_renderer_state = r;
     d->pgraph.draw_time = 17;
+    r->perf.enabled = telemetry;
     r->device_props.limits.optimalBufferCopyOffsetAlignment = 256;
     buffer->mapped = staged;
     buffer->buffer_size = mode == 2 ? 1024 : 16384;
@@ -216,6 +273,7 @@ static void test_upload(gconstpointer data)
         g_assert_true(surface.upload_pending);
         g_assert_true(surface.readback_superseded_by_guest);
         g_assert_false(surface.initialized);
+        check_telemetry(r, mode);
         return;
     }
 
@@ -242,6 +300,14 @@ static void test_upload(gconstpointer data)
         g_assert_cmpuint(finishes, ==, 0);
         g_assert_cmpuint(surface.draw_time, ==, 18);
     }
+    if (telemetry) {
+        check_telemetry(r, mode);
+    } else {
+        g_assert_cmpuint(r->perf.small_color_upload_attempts, ==, 0);
+        g_assert_cmpuint(r->perf.small_color_uploads_recorded, ==, 0);
+        g_assert_cmpuint(r->perf.small_color_upload_bytes, ==, 0);
+        g_assert_cmpuint(r->perf.small_color_upload_peak_offset, ==, 0);
+    }
 }
 
 int main(int argc, char **argv)
@@ -255,5 +321,7 @@ int main(int argc, char **argv)
                          GINT_TO_POINTER(2), test_upload);
     g_test_add_data_func("/xbox/vk/small-upload/flush-failure",
                          GINT_TO_POINTER(3), test_upload);
+    g_test_add_data_func("/xbox/vk/small-upload/telemetry-disabled",
+                         GINT_TO_POINTER(4), test_upload);
     return g_test_run();
 }
