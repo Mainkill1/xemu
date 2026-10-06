@@ -1,0 +1,4 @@
+before-cc-boundary 22 production helper boundary cases passed
+after-cc-boundary 22 production helper boundary cases passed
+before-clang-boundary 22 production helper boundary cases passed
+after-clang-boundary 22 production helper boundary cases passed

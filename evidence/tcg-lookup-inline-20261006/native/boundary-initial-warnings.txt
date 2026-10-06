@@ -1,0 +1,18 @@
+/home/codex/xemu-shader-workbench-handoff/.scratch/tcg-lookup-inline-20261006/boundary-check.c:26:16: warning: redundant redeclaration of ‘get_page_addr_code_hostp’ [-Wredundant-decls]
+   26 | tb_page_addr_t get_page_addr_code_hostp(CPUArchState *, vaddr, void **);
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/codex/xemu-shader-workbench-handoff/.scratch/tcg-lookup-inline-20261006/boundary-check.c:9:
+/home/codex/xemu-shader-workbench-handoff/xemu-tcg-lookup-inline/accel/tcg/internal-common.h:113:16: note: previous declaration of ‘get_page_addr_code_hostp’ with type ‘tb_page_addr_t(CPUArchState *, vaddr,  void **)’ {aka ‘long unsigned int(CPUArchState *, long unsigned int,  void **)’}
+  113 | tb_page_addr_t get_page_addr_code_hostp(CPUArchState *env, vaddr addr,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/.scratch/tcg-lookup-inline-20261006/boundary-check.c:26:16: warning: redundant redeclaration of ‘get_page_addr_code_hostp’ [-Wredundant-decls]
+   26 | tb_page_addr_t get_page_addr_code_hostp(CPUArchState *, vaddr, void **);
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/codex/xemu-shader-workbench-handoff/.scratch/tcg-lookup-inline-20261006/boundary-check.c:9:
+/home/codex/xemu-shader-workbench-handoff/xemu-tcg-lookup-inline/accel/tcg/internal-common.h:113:16: note: previous declaration of ‘get_page_addr_code_hostp’ with type ‘tb_page_addr_t(CPUArchState *, vaddr,  void **)’ {aka ‘long unsigned int(CPUArchState *, long unsigned int,  void **)’}
+  113 | tb_page_addr_t get_page_addr_code_hostp(CPUArchState *env, vaddr addr,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~
+before-cc-boundary 22 production helper boundary cases passed
+after-cc-boundary 22 production helper boundary cases passed
+before-clang-boundary 22 production helper boundary cases passed
+after-clang-boundary 22 production helper boundary cases passed
