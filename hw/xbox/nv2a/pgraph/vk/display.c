@@ -973,19 +973,32 @@ static void update_uniforms(PGRAPHState *pg, SurfaceBinding *surface,
     }
 }
 
-static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
-                           uint32_t vga_line_offset)
+static bool prepare_display_surface(PGRAPHState *pg, SurfaceBinding *surface)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
-    PGRAPHVkDisplayState *disp = &r->display;
 
+    if (!pgraph_vk_upload_surface_data(d, surface, !tcg_enabled())) {
+        return false;
+    }
+    /*
+     * Upload may record new main-buffer work. Submit it before the display's
+     * independent auxiliary buffer samples this image.
+     */
     if (r->in_command_buffer &&
         surface->draw_time >= r->command_buffer_start_time) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_PRESENTING);
     }
+    return true;
+}
 
-    if (!pgraph_vk_upload_surface_data(d, surface, !tcg_enabled())) {
+static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
+                           uint32_t vga_line_offset)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkDisplayState *disp = &r->display;
+
+    if (!prepare_display_surface(pg, surface)) {
         error_report("Vulkan display surface upload failed");
         abort();
     }
