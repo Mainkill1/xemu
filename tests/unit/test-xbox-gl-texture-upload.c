@@ -10,9 +10,13 @@
 #define XEMU_GL_TEXTURE_UPLOAD_SOURCE "hw/xbox/nv2a/pgraph/gl/texture.c"
 #endif
 #include XEMU_GL_TEXTURE_UPLOAD_SOURCE
+#include "hw/xbox/nv2a/pgraph/gl/texture-stage.c"
 
 NV2AStats g_nv2a_stats;
 __typeof__(xemu_tweaks_active) xemu_tweaks_active;
+static NV2AState test_device;
+static PGRAPHGLState test_renderer;
+NV2AState *g_nv2a = &test_device;
 
 static EGLDisplay display = EGL_NO_DISPLAY;
 static EGLContext context = EGL_NO_CONTEXT;
@@ -405,8 +409,111 @@ static void test_dxt1_fallback(void)
     run_compressed(false);
 }
 
+static void test_recycled_texture_contents(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1, .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_Y8,
+    };
+    uint8_t input[64], output[64];
+    GLint swizzle[4];
+
+    pgraph_gl_init_textures(&test_device);
+    memset(input, 0x3c, sizeof(input));
+    TextureBinding *binding = generate_texture(shape, input, NULL);
+    GLuint texture = binding->gl_texture;
+
+    binding->refcnt++;
+    pgraph_gl_texture_binding_destroy(binding);
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
+    pgraph_gl_texture_binding_destroy(binding);
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 1);
+    g_assert_true(glIsTexture(texture));
+
+    /* Same storage, different alpha interpretation and fresh contents. */
+    shape.color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_AY8;
+    memset(input, 0x74, sizeof(input));
+    binding = generate_texture(shape, input, NULL);
+    g_assert_cmpuint(binding->gl_texture, ==, texture);
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, output);
+    g_assert_cmpmem(input, sizeof(input), output, sizeof(output));
+    glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+    for (unsigned i = 0; i < ARRAY_SIZE(swizzle); i++) {
+        g_assert_cmpint(swizzle[i], ==, GL_RED);
+    }
+    pgraph_gl_texture_binding_destroy(binding);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_false(glIsTexture(texture));
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
+static void test_recycled_texture_limit(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    GLuint textures[NV2A_GL_TEX_POOL_SIZE + 1];
+
+    pgraph_gl_init_textures(&test_device);
+    glGenTextures(ARRAY_SIZE(textures), textures);
+    for (unsigned i = 0; i < ARRAY_SIZE(textures); i++) {
+        glBindTexture(GL_TEXTURE_2D, textures[i]);
+        tex_pool_put(&test_renderer, i, textures[i]);
+    }
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, NV2A_GL_TEX_POOL_SIZE);
+    g_assert_false(glIsTexture(textures[NV2A_GL_TEX_POOL_SIZE]));
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    for (unsigned i = 0; i < ARRAY_SIZE(textures); i++) {
+        g_assert_false(glIsTexture(textures[i]));
+    }
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
+static void test_recycled_texture_active_finalize(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 8, .height = 8, .depth = 1,
+        .levels = 1, .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_Y8,
+    };
+    TextureKey key = { .state = shape };
+    uint8_t input[64] = { 0 };
+
+    pgraph_gl_init_textures(&test_device);
+    TextureBinding *binding = generate_texture(shape, input, NULL);
+    GLuint texture = binding->gl_texture;
+    LruNode *node = lru_lookup(&test_renderer.texture_cache, 1, &key);
+    TextureLruNode *entry = container_of(node, TextureLruNode, node);
+
+    /* Cache owns the initial reference; two stages retain their own. */
+    entry->binding = binding;
+    for (unsigned int i = 0; i < 2; i++) {
+        test_renderer.texture_binding[i] = binding;
+        binding->refcnt++;
+    }
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_false(glIsTexture(texture));
+    for (unsigned int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        g_assert_null(test_renderer.texture_binding[i]);
+    }
+    g_assert_null(test_renderer.texture_cache_entries);
+    g_assert_cmpuint(test_renderer.tex_pool_count, ==, 0);
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
 int main(int argc, char **argv)
 {
+    test_device.pgraph.gl_renderer_state = &test_renderer;
     g_test_init(&argc, &argv, NULL);
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display != EGL_NO_DISPLAY && eglInitialize(display, NULL, NULL) &&
@@ -468,6 +575,12 @@ int main(int argc, char **argv)
                     test_dxt1_native);
     g_test_add_func("/xbox/gl/texture-upload/unbordered/dxt1-fallback",
                     test_dxt1_fallback);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/contents",
+                    test_recycled_texture_contents);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/limit",
+                    test_recycled_texture_limit);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/active-finalize",
+                    test_recycled_texture_active_finalize);
     int result = g_test_run();
     if (context != EGL_NO_CONTEXT) {
         g_test_message("Validated %u face/mip uploads and %u texels",

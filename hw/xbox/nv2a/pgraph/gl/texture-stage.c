@@ -7,6 +7,20 @@
 #include "qemu/osdep.h"
 #include "texture-stage.h"
 
+void pgraph_gl_texture_binding_destroy(TextureBinding *binding)
+{
+    assert(binding->refcnt > 0);
+    binding->refcnt--;
+    if (binding->refcnt == 0) {
+        if (binding->release_texture) {
+            binding->release_texture(binding);
+        } else {
+            glDeleteTextures(1, &binding->gl_texture);
+        }
+        g_free(binding);
+    }
+}
+
 void pgraph_gl_reset_texture_stage(TextureBinding **active_binding)
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

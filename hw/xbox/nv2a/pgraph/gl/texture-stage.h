@@ -28,6 +28,8 @@ typedef struct TextureBinding {
     GLenum gl_target;
     GLuint gl_texture;
     uint64_t storage_sig;
+    void (*release_texture)(struct TextureBinding *binding);
+    void *release_opaque;
 } TextureBinding;
 
 void pgraph_gl_texture_binding_destroy(TextureBinding *binding);

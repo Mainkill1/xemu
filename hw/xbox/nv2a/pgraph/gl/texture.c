@@ -766,19 +766,11 @@ static void tex_pool_put(PGRAPHGLState *r, uint64_t sig, GLuint texture)
     glDeleteTextures(1, &texture);
 }
 
-void pgraph_gl_texture_binding_destroy(TextureBinding *binding)
+static void recycle_texture_binding(TextureBinding *binding)
 {
-    assert(binding->refcnt > 0);
-    binding->refcnt--;
-    if (binding->refcnt == 0) {
-        PGRAPHGLState *r = g_nv2a->pgraph.gl_renderer_state;
-        if (r) {
-            tex_pool_put(r, binding->storage_sig, binding->gl_texture);
-        } else {
-            glDeleteTextures(1, &binding->gl_texture);
-        }
-        g_free(binding);
-    }
+    PGRAPHGLState *r = binding->release_opaque;
+
+    tex_pool_put(r, binding->storage_sig, binding->gl_texture);
 }
 
 static TextureBinding* generate_texture(const TextureShape s,
@@ -882,6 +874,8 @@ static TextureBinding* generate_texture(const TextureShape s,
     ret->addrp = 0xFFFFFFFF;
     ret->border_color_set = false;
     ret->storage_sig = storage_sig;
+    ret->release_texture = recycle_texture_binding;
+    ret->release_opaque = r;
     return ret;
 }
 
@@ -936,6 +930,9 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        if (r->texture_binding[i]) {
+            pgraph_gl_texture_binding_destroy(r->texture_binding[i]);
+        }
         r->texture_binding[i] = NULL;
     }
 
