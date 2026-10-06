@@ -211,7 +211,8 @@ static void bind_existing_depth_surface(NV2AState *d, SurfaceBinding *target)
 static void assert_alias_perf_frame(PGRAPHVkState *r, uint64_t converted,
                                     uint64_t reused, uint64_t failed,
                                     uint64_t retired, uint64_t producer_pixels,
-                                    uint64_t view_pixels)
+                                    uint64_t view_pixels,
+                                    uint64_t copied_pixels)
 {
     long start = ftell(r->perf.file);
     pgraph_vk_perf_frame(r);
@@ -236,6 +237,8 @@ static void assert_alias_perf_frame(PGRAPHVkState *r, uint64_t converted,
         "depth_alias_producer_pixels_per_guest_frame"), ==, producer_pixels);
     g_assert_cmpuint(qdict_get_int(record,
         "depth_alias_view_pixels_per_guest_frame"), ==, view_pixels);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_copied_pixels_per_guest_frame"), ==, copied_pixels);
     qobject_unref(record);
     g_assert_cmpint(fseek(r->perf.file, 0, SEEK_END), ==, 0);
 }
@@ -344,8 +347,11 @@ static void test_view_rebind(gconstpointer data)
     g_assert_cmpuint(r->perf.depth_alias_reuse_hits, ==, 3);
     g_assert_cmpuint(r->perf.depth_alias_conversion_failures, ==, 1);
     g_assert_cmpuint(r->perf.depth_alias_views_retired, ==, 1);
-    assert_alias_perf_frame(r, 5, 3, 1, 1, 5 * 640 * 480, 5 * 32 * 32);
-    assert_alias_perf_frame(r, 0, 0, 0, 0, 0, 0);
+    /* Conversion is stubbed here; independently check emission and reset. */
+    r->perf.depth_alias_copied_pixels = 6400;
+    assert_alias_perf_frame(r, 5, 3, 1, 1, 5 * 640 * 480, 5 * 32 * 32,
+                            6400);
+    assert_alias_perf_frame(r, 0, 0, 0, 0, 0, 0, 0);
 
     r->perf.enabled = false;
     bind_existing_depth_surface(d, &view);

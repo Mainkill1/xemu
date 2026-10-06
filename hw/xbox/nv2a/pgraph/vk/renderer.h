@@ -750,6 +750,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t depth_alias_views_retired;
     uint64_t depth_alias_producer_pixels;
     uint64_t depth_alias_view_pixels;
+    uint64_t depth_alias_copied_pixels;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;

@@ -206,6 +206,7 @@ static void test_conversion_sequence(gconstpointer data)
         return;
     }
     g_assert_true(pgraph_vk_convert_depth_alias(pg, &producer, &view));
+    g_assert_cmpuint(r->perf.depth_alias_copied_pixels, ==, 1280);
     g_assert_cmpuint(producer.height, ==, 480);
     g_assert_cmpuint(finishes, ==, scenario == 0 ? 0 : 1);
     g_assert_cmpuint(descriptors, ==, 3);
