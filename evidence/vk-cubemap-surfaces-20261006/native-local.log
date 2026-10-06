@@ -1,0 +1,2 @@
+vk_result = -9
+native-copy: /home/codex/xemu-shader-workbench-handoff/.scratch/vk-cubemap-surfaces-20261006/native-copy.c:80: main: Assertion `vk_result == VK_SUCCESS && "vk check failed"' failed.

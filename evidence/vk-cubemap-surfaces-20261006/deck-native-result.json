@@ -1,0 +1,18 @@
+{
+  "exitCode": 0,
+  "command": "ulimit -c 0; env LD_LIBRARY_PATH=/home/deck/xemu-performance/pr330-cubemap-qualification timeout 60 /home/deck/xemu-performance/pr330-cubemap-qualification/native-copy",
+  "source": "545f617663 actual cubemap copy/reuse and image barriers; scoped native submission fixture",
+  "hashes": {
+    "native-copy": "69134b0cf2216f5b3c11cbf361c0ca0a40cda027619fe5f301f0c1264a1b9787"
+  },
+  "hashesVerifiedOnTarget": true,
+  "formats": 2,
+  "faceImages": 24,
+  "bytesChecked": 1179648,
+  "copies": 14,
+  "reuses": 34,
+  "realSubmissions": 2,
+  "output": "device=AMD Custom GPU 0405 (RADV VANGOGH) vendor=1002 deviceid=163f driver=105263203\nPASS 2 formats, 24 face images, 1179648 byte checks, 14 copies, 34 reuses, 2 submissions\n",
+  "stderr": "",
+  "method": "Previously used PR312 scoped SSH operator native qualification; no runner jobs or definition changes"
+}

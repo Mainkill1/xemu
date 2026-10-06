@@ -1,0 +1,18 @@
+{
+  "source": "545f6176635519b37464a084c06121efddcbd4be",
+  "result": "Production cubemap copy/reuse helpers and image barriers pass on llvmpipe and physical Deck RADV.",
+  "oracle": "Six distinct x/y/channel/face byte patterns, two formats, first snapshot and one-face update snapshot. Every readback byte equals its independent input pattern.",
+  "fixtures": "Source images uploaded through Vulkan; no emulated guest draws or CPU dirty callback concurrency. This does not establish full create_texture fallback/save-load behavior.",
+  "failures": [
+    "First local launch named a nonexistent ICD; corrected to lvp_icd.json.",
+    "Second local fixture requested unsupported ShaderRead->TransferSrc helper transition. Test readback now uses existing supported ShaderRead->TransferDst->TransferSrc and reverse pair. Production source unchanged."
+  ],
+  "counts": {
+    "formats": 2,
+    "images": 24,
+    "bytes": 1179648,
+    "copies": 14,
+    "reuses": 34,
+    "submissions": 2
+  }
+}

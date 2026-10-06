@@ -1,0 +1,2 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) vendor=10005 deviceid=0 driver=109056002
+native-copy: /home/codex/xemu-shader-workbench-handoff/xemu-vk-cubemap-surfaces/hw/xbox/nv2a/pgraph/vk/image.c:204: pgraph_vk_transition_image_layout: Assertion `!"unsupported layout transition!"' failed.
