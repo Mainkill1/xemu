@@ -19,6 +19,7 @@ extern int64_t max_delay;
 extern int64_t max_advance;
 
 extern bool one_insn_per_tb;
+extern uint64_t xemu_inline_lookup_hits;
 
 extern bool icount_align_option;
 

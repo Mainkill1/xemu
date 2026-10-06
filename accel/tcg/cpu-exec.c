@@ -262,6 +262,9 @@ static __thread struct {
     LookupCensusRoute route[3];
 } lookup_census;
 
+/* Diagnostic Xbox experiment: one vCPU owns both increments and reporting. */
+uint64_t xemu_inline_lookup_hits;
+
 static LookupCensusRoute *lookup_census_get(unsigned route)
 {
     if (!lookup_census.initialized) {
@@ -290,12 +293,14 @@ static void lookup_census_emit(void)
                 "\"cflags\":%" PRIu64 ",\"htable_hit\":%" PRIu64 ","
                 "\"translate_miss\":%" PRIu64 ",\"helper_calls\":%" PRIu64 ","
                 "\"io_was_false\":%" PRIu64 ",\"policy_blocked\":%" PRIu64 ","
-                "\"io_recompile_total\":%" PRIu64 ",\"pc_same_page\":%" PRIu64 "}\n",
+                "\"io_recompile_total\":%" PRIu64 ",\"pc_same_page\":%" PRIu64
+                ","
+                "\"emitted_hits_total\":%" PRIu64 "}\n",
                 qemu_clock_get_us(QEMU_CLOCK_REALTIME), names[i], c->probes,
                 c->hit, c->empty, c->pc, c->cs, c->flags, c->cflags,
                 c->htable_hit, c->translate_miss, c->helper_calls,
                 c->io_was_false, c->policy_blocked, lookup_census.io_recompile,
-                c->pc_same_page);
+                c->pc_same_page, xemu_inline_lookup_hits);
     }
     fflush(lookup_census.file);
 }
