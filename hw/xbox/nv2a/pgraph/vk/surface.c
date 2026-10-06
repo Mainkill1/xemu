@@ -33,6 +33,8 @@
 #include "failure-state.h"
 #include "renderer.h"
 #include "surface-coherence.h"
+#include "surface-retention.h"
+#include "surface-alias-map.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -234,7 +236,8 @@ static bool refresh_readback_guest_writes(void *opaque, uint64_t start,
     return consume_surface_guest_writes(opaque, start, size);
 }
 
-static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force);
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force,
+                             bool retain);
 
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size)
@@ -267,7 +270,7 @@ bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
             if (surface->draw_dirty) {
-                succeeded &= download_surface(d, surface, true);
+                succeeded &= download_surface(d, surface, true, false);
             }
         }
     }
@@ -685,7 +688,33 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     return true;
 }
 
-static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
+static void publish_retained_surface(const SurfaceBinding *surface,
+                                     uint8_t *guest, const uint8_t *owned)
+{
+    size_t row_bytes = MIN(surface->pitch,
+                           surface->width * surface->fmt.bytes_per_pixel);
+
+    for (unsigned int y = 0; y < surface->height; y++) {
+        size_t offset = (size_t)y * surface->pitch;
+        memcpy(guest + offset, owned + offset, row_bytes);
+    }
+}
+
+typedef struct SurfaceReadbackContext {
+    NV2AState *d;
+    SurfaceBinding *surface;
+} SurfaceReadbackContext;
+
+static bool read_surface_image(void *opaque, uint8_t *destination)
+{
+    SurfaceReadbackContext *context = opaque;
+
+    return download_surface_to_buffer(context->d, context->surface,
+                                      destination);
+}
+
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force,
+                             bool retain)
 {
     if (!surface->width || !surface->height ||
         !pgraph_vk_surface_readback_preflight(
@@ -700,8 +729,21 @@ static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 
     // FIXME: Respect write enable at last TOU?
 
-    bool succeeded = download_surface_to_buffer(
-        d, surface, d->vram_ptr + surface->vram_addr);
+    uint8_t *guest = d->vram_ptr + surface->vram_addr;
+    g_autofree uint8_t *owned = retain ? g_malloc(surface->size) : NULL;
+    SurfaceReadbackContext context = { d, surface };
+    bool succeeded = owned ? pgraph_vk_surface_readback_owned(
+        guest, owned, surface->size, read_surface_image, &context) :
+        download_surface_to_buffer(d, surface, guest);
+    if (succeeded && owned) {
+        /*
+         * Only linear eviction readbacks request retention. Publish the same
+         * rows as ordinary readback; leave guest pitch padding untouched.
+         */
+        assert(!surface->swizzle);
+        publish_retained_surface(surface, guest, owned);
+        surface->retained_guest_bytes = g_steal_pointer(&owned);
+    }
     if (!pgraph_vk_surface_download_complete(
             succeeded, &surface->download_pending, &surface->draw_dirty)) {
         return false;
@@ -773,7 +815,7 @@ void pgraph_vk_process_pending_downloads(NV2AState *d)
 
     bool succeeded = true;
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
-        succeeded &= download_surface(d, surface, false);
+        succeeded &= download_surface(d, surface, false, false);
     }
 
     qatomic_set(&r->downloads_succeeded, succeeded);
@@ -940,7 +982,8 @@ static void unbind_surface(NV2AState *d, bool color)
     }
 }
 
-static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
+static void retire_surface(NV2AState *d, SurfaceBinding *surface,
+                           bool defer)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
@@ -951,13 +994,24 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     trace_nv2a_pgraph_surface_invalidated(surface->vram_addr);
 
-    // FIXME: We may be reading from the surface in the current command buffer!
-    // Add a detection to handle it. For now, finish to be safe.
-    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    if (!defer ||
+        r->pending_alias_retirements >= num_invalid_surfaces_to_keep) {
+        pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    }
 
-    assert((!r->in_command_buffer ||
-            surface->draw_time < r->command_buffer_start_time) &&
-           "Surface evicted while in use!");
+    /*
+     * Only clean derived aliases defer physical retirement. Keep their image
+     * handles out of every reuse/free path until the main batch completes.
+     */
+    surface->retirement_pending = defer && r->in_command_buffer;
+    if (surface->retirement_pending) {
+        assert(!surface->color && surface->swizzle && !surface->draw_dirty);
+        r->pending_alias_retirements++;
+    } else {
+        assert((!r->in_command_buffer ||
+                surface->draw_time < r->command_buffer_start_time) &&
+               "Surface evicted while in use!");
+    }
 
     if (surface == r->color_binding) {
         assert(d->pgraph.surface_color.buffer_dirty);
@@ -974,6 +1028,55 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
     QTAILQ_INSERT_HEAD(&r->invalid_surfaces, surface, entry);
 }
 
+static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
+{
+    retire_surface(d, surface, false);
+}
+
+void pgraph_vk_surface_retirements_complete(PGRAPHVkState *r)
+{
+    SurfaceBinding *surface;
+
+    assert(!r->in_command_buffer);
+    if (!r->pending_alias_retirements) {
+        return;
+    }
+    QTAILQ_FOREACH(surface, &r->invalid_surfaces, entry) {
+        surface->retirement_pending = false;
+    }
+    r->pending_alias_retirements = 0;
+}
+
+void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
+                                              SurfaceBinding *producer)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    SurfaceBinding *view, *next;
+
+    if (producer->color || producer->swizzle) {
+        return;
+    }
+    producer->depth_write_generation++;
+
+    /*
+     * Only a read-only swizzled view may coexist with its linear owner.
+     * Recorded writes to that owner make the converted image stale. Retire
+     * it before any later texture or surface lookup can reuse the image;
+     * keep its allocation alive until the existing main submission completes.
+     */
+    QTAILQ_FOREACH_SAFE(view, &r->surfaces, entry, next) {
+        if (!view->color && view->swizzle &&
+            view->vram_addr == producer->vram_addr) {
+            assert(!view->draw_dirty);
+            retire_surface(d, view, true);
+            if (r->perf.enabled) {
+                r->perf.depth_alias_views_retired++;
+            }
+        }
+    }
+}
+
 static bool check_surfaces_overlap(const SurfaceBinding *surface,
                                    const SurfaceBinding *other_surface)
 {
@@ -981,13 +1084,45 @@ static bool check_surfaces_overlap(const SurfaceBinding *surface,
                                         other_surface->size);
 }
 
+static bool surface_is_tracked(PGRAPHVkState *r,
+                               const SurfaceBinding *candidate)
+{
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface == candidate) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool depth_alias_pair_is_exclusive(PGRAPHVkState *r,
+                                          const SurfaceBinding *producer,
+                                          const SurfaceBinding *view)
+{
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface != producer && surface != view &&
+            check_surfaces_overlap(surface, producer)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static void invalidate_overlapping_surfaces(NV2AState *d,
-                                            SurfaceBinding const *surface)
+                                            SurfaceBinding const *surface,
+                                            SurfaceBinding const *preserve)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
     SurfaceBinding *other_surface, *next_surface;
     QTAILQ_FOREACH_SAFE (other_surface, &r->surfaces, entry, next_surface) {
+        if (other_surface == preserve) {
+            continue;
+        }
         if (check_surfaces_overlap(surface, other_surface)) {
             trace_nv2a_pgraph_surface_evict_overlapping(
                 other_surface->vram_addr, other_surface->width,
@@ -1001,16 +1136,27 @@ static void invalidate_overlapping_surfaces(NV2AState *d,
     }
 }
 
-static void surface_put(NV2AState *d, SurfaceBinding *surface)
+static void surface_put(NV2AState *d, SurfaceBinding *surface,
+                        SurfaceBinding *preserve)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    uint64_t preserve_lifetime_id = preserve ? preserve->lifetime_id : 0;
 
-    assert(pgraph_vk_surface_get(d, surface->vram_addr) == NULL);
-
-    invalidate_overlapping_surfaces(d, surface);
+    invalidate_overlapping_surfaces(d, surface, preserve);
+    if (preserve) {
+        assert(preserve != surface);
+        assert(surface_is_tracked(r, preserve));
+        assert(preserve->draw_dirty);
+        assert(preserve->lifetime_id == preserve_lifetime_id);
+    }
     register_cpu_access_callback(d, surface);
 
     QTAILQ_INSERT_HEAD(&r->surfaces, surface, entry);
+    assert(surface_is_tracked(r, surface));
+    if (preserve) {
+        assert(surface->lifetime_id != 0);
+        assert(depth_alias_pair_is_exclusive(r, preserve, surface));
+    }
 }
 
 SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr)
@@ -1199,7 +1345,8 @@ get_any_compatible_invalid_surface(PGRAPHVkState *r, SurfaceBinding *target)
 {
     SurfaceBinding *surface, *next;
     QTAILQ_FOREACH_SAFE(surface, &r->invalid_surfaces, entry, next) {
-        if (check_invalid_surface_is_compatibile(surface, target)) {
+        if (!surface->retirement_pending && !surface->retained_guest_bytes &&
+            check_invalid_surface_is_compatibile(surface, target)) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
             return surface;
         }
@@ -1214,9 +1361,13 @@ static void prune_invalid_surfaces(PGRAPHVkState *r, int keep)
 
     SurfaceBinding *surface, *next;
     QTAILQ_FOREACH_SAFE(surface, &r->invalid_surfaces, entry, next) {
+        if (surface->retirement_pending) {
+            continue;
+        }
         num_surfaces += 1;
         if (num_surfaces > keep) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
+            g_free(surface->retained_guest_bytes);
             destroy_surface_image(r, surface);
             g_free(surface);
         }
@@ -1259,10 +1410,219 @@ static bool check_surface_compatibility(SurfaceBinding const *s1,
     }
 }
 
+static SurfaceBinding *find_exact_surface(PGRAPHVkState *r,
+                                          const SurfaceBinding *target)
+{
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface->vram_addr == target->vram_addr &&
+            surface->swizzle == target->swizzle &&
+            surface->dma_addr == target->dma_addr &&
+            surface->dma_len == target->dma_len &&
+            surface->color == target->color &&
+            check_surface_compatibility(surface, target, true)) {
+            return surface;
+        }
+    }
+    return NULL;
+}
+
+static PGRAPHVkDepthAliasView depth_alias_view(const SurfaceBinding *surface)
+{
+    VkFormat format = surface->host_fmt.vk_format;
+
+    return (PGRAPHVkDepthAliasView){
+        .address = surface->vram_addr,
+        .dma_address = surface->dma_addr,
+        .dma_length = surface->dma_len,
+        .extent = surface->size,
+        .width = surface->width,
+        .height = surface->height,
+        .pitch = surface->pitch,
+        .host_format = format,
+        .guest_z24s8 = surface->shape.zeta_format ==
+            NV097_SET_SURFACE_FORMAT_ZETA_Z24S8 &&
+            surface->fmt.bytes_per_pixel == 4,
+        .host_supported = format == VK_FORMAT_D24_UNORM_S8_UINT ||
+                          format == VK_FORMAT_D32_SFLOAT_S8_UINT,
+        .color = surface->color,
+        .swizzled = surface->swizzle,
+        .initialized = surface->initialized,
+        .draw_dirty = surface->draw_dirty,
+        .upload_pending = surface->upload_pending,
+        .download_pending = surface->download_pending,
+        .superseded_by_guest = surface->readback_superseded_by_guest,
+    };
+}
+
+static SurfaceBinding *pgraph_vk_find_depth_alias_producer(
+    NV2AState *d, const SurfaceBinding *target, const SurfaceBinding *view)
+{
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkDepthAliasView target_view = depth_alias_view(target);
+    SurfaceBinding *surface;
+    SurfaceBinding *producer = NULL;
+
+    if (view && (view->draw_dirty || view->upload_pending ||
+                 view->readback_superseded_by_guest)) {
+        return NULL;
+    }
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface == view || surface->vram_addr != target->vram_addr ||
+            surface->color || surface->swizzle || !surface->draw_dirty ||
+            surface->shape.zeta_format !=
+                NV097_SET_SURFACE_FORMAT_ZETA_Z24S8) {
+            continue;
+        }
+        PGRAPHVkDepthAliasView source_view = depth_alias_view(surface);
+        if (pgraph_vk_depth_alias_read_only_eligible(
+                &source_view, &target_view,
+                pgraph_zeta_draw_write_enabled(pg), pg->clearing,
+                pg->surface_scale_factor,
+                pg->surface_shape.anti_aliasing !=
+                    NV097_SET_SURFACE_FORMAT_ANTI_ALIASING_CENTER_1)) {
+            producer = surface;
+            break;
+        }
+    }
+    if (!producer) {
+        return NULL;
+    }
+
+    /* A third overlapping image could supply a newer guest version. */
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface != producer && surface != view &&
+            check_surfaces_overlap(surface, producer)) {
+            return NULL;
+        }
+    }
+    return producer;
+}
+
+static bool update_depth_alias_view(PGRAPHState *pg, SurfaceBinding *producer,
+                                    SurfaceBinding *view)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    if (view->initialized && !view->draw_dirty && !view->upload_pending &&
+        !view->download_pending && !view->readback_superseded_by_guest &&
+        producer->lifetime_id != 0 &&
+        view->derived_from_lifetime_id == producer->lifetime_id &&
+        view->derived_from_generation == producer->depth_write_generation) {
+        if (r->perf.enabled) {
+            r->perf.depth_alias_reuse_hits++;
+        }
+        return true;
+    }
+
+    view->derived_from_lifetime_id = 0;
+    if (!pgraph_vk_convert_depth_alias(pg, producer, view)) {
+        if (r->perf.enabled) {
+            r->perf.depth_alias_conversion_failures++;
+        }
+        return false;
+    }
+    pgraph_vk_surface_upload_complete(
+        true, &view->upload_pending, &view->readback_superseded_by_guest);
+    view->initialized = true;
+    view->draw_time = pg->draw_time;
+    view->derived_from_lifetime_id = producer->lifetime_id;
+    view->derived_from_generation = producer->depth_write_generation;
+    if (r->perf.enabled) {
+        r->perf.depth_alias_conversions++;
+        r->perf.depth_alias_producer_pixels +=
+            (uint64_t)producer->width * producer->height;
+        r->perf.depth_alias_view_pixels +=
+            (uint64_t)view->width * view->height;
+    }
+    return true;
+}
+
+static void retire_depth_alias_for_write(NV2AState *d, hwaddr address)
+{
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    SurfaceBinding *surface, *next;
+    bool retired = false;
+
+    QTAILQ_FOREACH_SAFE(surface, &r->surfaces, entry, next) {
+        if (!surface->color && !surface->swizzle &&
+            surface->vram_addr == address) {
+            if (!pgraph_vk_surface_download_if_dirty(d, surface)) {
+                error_report("Vulkan depth alias write readback failed");
+                abort();
+            }
+            invalidate_surface(d, surface);
+            retired = true;
+        }
+    }
+    if (retired) {
+        QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+            if (!surface->color && surface->swizzle &&
+                surface->vram_addr == address) {
+                mark_surface_upload_pending(
+                    r, surface, SURFACE_UPLOAD_PENDING_DIRTY_MEMORY);
+            }
+        }
+    }
+}
+
+static SurfaceBinding *get_retained_surface(NV2AState *d,
+                                            const SurfaceBinding *target)
+{
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    SurfaceBinding *surface;
+
+    if (target->color) {
+        return NULL;
+    }
+
+    /* A dirty overlapping image may be downloaded after this lookup. Its
+     * writes have not yet reached guest RAM, so comparison would be stale. */
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface->draw_dirty &&
+            check_surface_overlaps_range(surface, target->vram_addr,
+                                         target->size)) {
+            return NULL;
+        }
+    }
+
+    QTAILQ_FOREACH(surface, &r->invalid_surfaces, entry) {
+        if (surface->retirement_pending || !surface->retained_guest_bytes ||
+            surface->vram_addr != target->vram_addr ||
+            surface->size != target->size ||
+            surface->swizzle != target->swizzle ||
+            surface->fmt.bytes_per_pixel != target->fmt.bytes_per_pixel ||
+            surface->host_fmt.usage != target->host_fmt.usage ||
+            surface->dma_addr != target->dma_addr ||
+            surface->dma_len != target->dma_len ||
+            memcmp(&surface->shape, &target->shape,
+                   sizeof(target->shape)) != 0 ||
+            !check_surface_compatibility(surface, target, true)) {
+            continue;
+        }
+
+        if (memcmp(surface->retained_guest_bytes,
+                   d->vram_ptr + target->vram_addr, target->size) != 0) {
+            g_free(surface->retained_guest_bytes);
+            surface->retained_guest_bytes = NULL;
+            continue;
+        }
+
+        QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
+        g_free(surface->retained_guest_bytes);
+        surface->retained_guest_bytes = NULL;
+        return surface;
+    }
+
+    return NULL;
+}
+
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
 {
     if (surface->draw_dirty) {
-        return download_surface(d, surface, true);
+        return download_surface(d, surface, true, false);
     }
     return true;
 }
@@ -1368,6 +1728,12 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     if (!(surface->upload_pending || force)) {
         return true;
+    }
+
+    /* An upload replaces image contents even when the binding is unchanged. */
+    surface->derived_from_lifetime_id = 0;
+    if (!surface->color && !surface->swizzle) {
+        surface->depth_write_generation++;
     }
 
     if (r->perf.enabled) {
@@ -1630,23 +1996,38 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         copy_buffer = unpack_buffer;
     }
 
-    //
-    // Copy image data from buffer to staging image
-    //
+    bool upscale = pg->surface_scale_factor > 1 &&
+                   !use_compute_to_convert_depth_stencil_format;
+    /* Keep the staging image on platforms where direct uploads have not been
+     * qualified. AMD Windows drivers have exhibited a synchronization bug. */
+#ifdef __linux__
+    bool direct_upload = !upscale;
+#else
+    bool direct_upload = false;
+#endif
 
-    if (surface->image_scratch_current_layout !=
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-        pgraph_vk_transition_image_layout(pg, cmd, surface->image_scratch,
-                                          surface->host_fmt.vk_format,
-                                          surface->image_scratch_current_layout,
-                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        surface->image_scratch_current_layout =
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    if (!direct_upload) {
+        if (surface->image_scratch_current_layout !=
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            pgraph_vk_transition_image_layout(
+                pg, cmd, surface->image_scratch, surface->host_fmt.vk_format,
+                surface->image_scratch_current_layout,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            surface->image_scratch_current_layout =
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        }
     }
 
-    vkCmdCopyBufferToImage(cmd, copy_buffer->buffer, surface->image_scratch,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num_regions,
-                           regions);
+    pgraph_vk_transition_image_layout(
+        pg, cmd, surface->image, surface->host_fmt.vk_format,
+        surface->color ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    vkCmdCopyBufferToImage(
+        cmd, copy_buffer->buffer,
+        direct_upload ? surface->image : surface->image_scratch,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num_regions, regions);
 
     VkBufferMemoryBarrier post_copy_src_buffer_barrier = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1665,21 +2046,14 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     // Copy staging image to final image
     //
 
-    pgraph_vk_transition_image_layout(pg, cmd, surface->image_scratch,
-                                      surface->host_fmt.vk_format,
-                                      surface->image_scratch_current_layout,
-                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    surface->image_scratch_current_layout =
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-    pgraph_vk_transition_image_layout(
-        pg, cmd, surface->image, surface->host_fmt.vk_format,
-        surface->color ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-    bool upscale = pg->surface_scale_factor > 1 &&
-                   !use_compute_to_convert_depth_stencil_format;
+    if (!direct_upload) {
+        pgraph_vk_transition_image_layout(
+            pg, cmd, surface->image_scratch, surface->host_fmt.vk_format,
+            surface->image_scratch_current_layout,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+        surface->image_scratch_current_layout =
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    }
 
     if (upscale) {
         VkImageBlit blitRegion = {
@@ -1702,12 +2076,7 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                        surface->image_scratch_current_layout, surface->image,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blitRegion,
                        VK_FILTER_NEAREST);
-    } else {
-        // Note: We should be able to vkCmdCopyBufferToImage directly into
-        // surface->image, but there is an apparent AMD Windows driver
-        // synchronization bug we'll hit when doing this. For this reason,
-        // always use a staging image.
-
+    } else if (!direct_upload) {
         for (int i = 0; i < num_regions; i++) {
             VkImageAspectFlags aspect = regions[i].imageSubresource.aspectMask;
             VkImageCopy copy_region = {
@@ -1893,7 +2262,21 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
         unbind_surface(d, color);
 
+        if (!color && target.swizzle &&
+            (pg->clearing || pgraph_zeta_draw_write_enabled(pg))) {
+            retire_depth_alias_for_write(d, target.vram_addr);
+        }
+
         SurfaceBinding *surface = pgraph_vk_surface_get(d, target.vram_addr);
+        SurfaceBinding *exact = NULL;
+        if (!color) {
+            exact = find_exact_surface(r, &target);
+            if (exact) {
+                surface = exact;
+            }
+        }
+        SurfaceBinding *alias_source = !color ?
+            pgraph_vk_find_depth_alias_producer(d, &target, exact) : NULL;
         if (surface != NULL) {
             // FIXME: Support same color/zeta surface target? In the mean time,
             // if the surface we just found is currently bound, just unbind it.
@@ -1918,6 +2301,9 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
         if (surface != NULL) {
             bool is_compatible =
                 check_surface_compatibility(surface, &target, false);
+            if (surface == alias_source) {
+                is_compatible = false;
+            }
 
             void (*trace_fn)(uint32_t addr, uint32_t width, uint32_t height,
                              const char *layout, uint32_t anti_aliasing,
@@ -1993,12 +2379,29 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 }
                 pg->surface_zeta.buffer_dirty |= color;
                 should_create = false;
-            } else {
+            } else if (surface != alias_source) {
                 trace_nv2a_pgraph_surface_evict_reason(
                     "incompatible", surface->vram_addr);
                 compare_surfaces(surface, &target);
-                if (!pgraph_vk_surface_download_if_dirty(d, surface)) {
-                    error_report("Vulkan surface readback failed before replacement");
+                /*
+                 * The replacement may cover fewer pages than the old image.
+                 * Resolve writes over the entire evicted extent first.
+                 */
+                consume_surface_guest_writes(d, surface->vram_addr,
+                                              surface->size);
+                bool retain = !surface->color && !surface->swizzle &&
+                    surface->initialized && !surface->upload_pending &&
+                    !surface->readback_superseded_by_guest &&
+                    surface->vram_addr == target.vram_addr &&
+                    surface->size <= 2 * MiB;
+                /*
+                 * A clean image has no owned readback reference. Never pair
+                 * it with a later snapshot of mutable guest RAM.
+                 */
+                if (surface->draw_dirty &&
+                    !download_surface(d, surface, true, retain)) {
+                    error_report("Vulkan surface readback failed "
+                                 "before replacement");
                     abort();
                 }
                 invalidate_surface(d, surface);
@@ -2006,7 +2409,11 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
         }
 
         if (should_create) {
-            surface = get_any_compatible_invalid_surface(r, &target);
+            surface = get_retained_surface(d, &target);
+            bool retained = surface != NULL;
+            if (!retained) {
+                surface = get_any_compatible_invalid_surface(r, &target);
+            }
             if (surface) {
                 migrate_surface_image(&target, surface);
             } else {
@@ -2014,15 +2421,22 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 create_surface_image(pg, &target);
             }
 
+            if (retained) {
+                target.upload_pending = false;
+                target.initialized = true;
+            }
+
             *surface = target;
-            record_surface_upload_pending_cause(
-                r, SURFACE_UPLOAD_PENDING_NEW);
+            if (!retained) {
+                record_surface_upload_pending_cause(
+                    r, SURFACE_UPLOAD_PENDING_NEW);
+            }
             surface->lifetime_id = ++r->next_surface_lifetime_id;
             if (surface->lifetime_id == 0) {
                 surface->lifetime_id = ++r->next_surface_lifetime_id;
             }
             set_surface_label(pg, surface);
-            surface_put(d, surface);
+            surface_put(d, surface, alias_source);
 
             // FIXME: Refactor
             if (pg->surface_binding_dim.width != target.width ||
@@ -2048,6 +2462,17 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             }
         }
 
+        if (alias_source) {
+            if (!update_depth_alias_view(pg, alias_source, surface)) {
+                if (!pgraph_vk_surface_download_if_dirty(d, alias_source)) {
+                    error_report("Vulkan depth alias fallback readback failed");
+                    abort();
+                }
+                mark_surface_upload_pending(
+                    r, surface, SURFACE_UPLOAD_PENDING_DIRTY_MEMORY);
+            }
+        }
+
         void (*trace_fn)(uint32_t addr, uint32_t width, uint32_t height,
                          const char *layout, uint32_t anti_aliasing,
                          uint32_t clip_x, uint32_t clip_width, uint32_t clip_y,
@@ -2070,7 +2495,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             // FIXME: Cannot monitor for reads/writes; flush now
             if (!download_surface(d,
                                   color ? r->color_binding : r->zeta_binding,
-                                  true)) {
+                                  true, false)) {
                 error_report("Vulkan surface readback failed before direct use");
                 abort();
             }
@@ -2094,7 +2519,15 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
 
     color_write = color_write &&
             (pg->clearing || pgraph_color_write_enabled(pg));
-    zeta_write = zeta_write && (pg->clearing || pgraph_zeta_write_enabled(pg));
+    /* The caller passes whether depth or stencil is accessed. A read-only
+     * depth test still needs the matching zeta surface bound. */
+
+    if (upload && !pg->surface_zeta.buffer_dirty &&
+        pg->surface_type == NV097_SET_SURFACE_FORMAT_TYPE_SWIZZLE &&
+        r->zeta_binding && r->zeta_binding->swizzle &&
+        (pg->clearing || pgraph_zeta_draw_write_enabled(pg))) {
+        retire_depth_alias_for_write(d, r->zeta_binding->vram_addr);
+    }
 
     if (upload) {
         bool fb_dirty = framebuffer_dirty(pg);
@@ -2274,6 +2707,10 @@ void pgraph_vk_surface_flush(NV2AState *d)
             abort();
         }
         invalidate_surface(d, s);
+    }
+    /* A flush may contain only aliases already removed from the active list. */
+    if (r->pending_alias_retirements) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     }
     prune_invalid_surfaces(r, 0);
 
