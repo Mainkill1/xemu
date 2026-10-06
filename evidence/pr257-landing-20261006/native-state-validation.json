@@ -1,0 +1,137 @@
+{
+  "schema": "pr257-native-state/v1",
+  "candidate": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "artifactBuild": "42bd5e11e7909bec6cee703e12034a6fb9770681",
+  "artifactTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "treeMatchesCandidate": true,
+  "windowsBuild": "debug",
+  "deckBuild": "release",
+  "benchmark": false,
+  "runs": [
+    {
+      "host": "win",
+      "request": "pr257-win-ui-initial-t001",
+      "runId": "20261006-033243284-63a1ad28752c4fda81719e74612b093c",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90"
+    },
+    {
+      "host": "win",
+      "request": "pr257-win-ui-restart-t001",
+      "runId": "20261006-034154701-7e0ca82454a94a3abd84d34cb53ae6a2",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90"
+    },
+    {
+      "host": "win",
+      "request": "pr257-win-ui-bool-t001",
+      "runId": "20261006-034935209-a3faee5bf5dd4985af39f18a9a759068",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90"
+    },
+    {
+      "host": "win",
+      "request": "pr257-win-ui-final-restart-t001",
+      "runId": "20261006-035211064-8d71ab9fc6a34c3997a557100aaa2c82",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90"
+    },
+    {
+      "host": "deck",
+      "request": "pr257-deck-ui-initial-t001",
+      "runId": "20261006-033429598-a593c001ee59492eabe8d021651a022b",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c"
+    },
+    {
+      "host": "deck",
+      "request": "pr257-deck-ui-restart-t001",
+      "runId": "20261006-035209872-2fc5f9056e4447b4b06b730ebfa849a5",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c"
+    },
+    {
+      "host": "win",
+      "request": "pr257-win-ui-opengl-t001",
+      "runId": "20261006-040220963-84fb30058ea9430e92a23f6543ed3347",
+      "exitCode": 0,
+      "benchmark": false,
+      "executableSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90"
+    }
+  ],
+  "observations": [
+    {
+      "host": "windows",
+      "check": "Prewarm selected and active at startup",
+      "result": "pass",
+      "method": "visible UI"
+    },
+    {
+      "host": "windows",
+      "check": "UI chooses Off; active Prewarm preserved and restart notice appears",
+      "result": "pass",
+      "method": "visible UI and saved TOML"
+    },
+    {
+      "host": "windows",
+      "check": "Relaunch exact UI-saved Off config; Off active, no restart notice, dependent shader shortcut disabled",
+      "result": "pass",
+      "method": "visible UI"
+    },
+    {
+      "host": "windows",
+      "check": "Bulk packet boolean Disabled applies immediately; Enabled restore applies immediately",
+      "result": "pass",
+      "method": "visible UI"
+    },
+    {
+      "host": "windows",
+      "check": "Disable transient growth; active stays enabled and restart notice appears",
+      "result": "pass",
+      "method": "visible UI and saved TOML"
+    },
+    {
+      "host": "windows",
+      "check": "Relaunch exact UI-saved growth config; requested/effective Disabled, no restart notice",
+      "result": "pass",
+      "method": "visible UI"
+    },
+    {
+      "host": "steam-deck",
+      "check": "Vulkan native published mode Prewarm; available, active, no restart pending",
+      "result": "pass",
+      "method": "read-only GDB with build-ID-matched symbols"
+    },
+    {
+      "host": "steam-deck",
+      "check": "Configured Off and disabled growth on relaunch; effective Off/Disabled, available, no restart pending",
+      "result": "pass",
+      "method": "read-only GDB with build-ID-matched symbols"
+    },
+    {
+      "host": "steam-deck",
+      "check": "Injected mouse/keyboard UI navigation",
+      "result": "not qualified",
+      "method": "operator attempts",
+      "note": "No UI-save claim; GDB observed KeyCtrl=true. Input-state cause not diagnosed."
+    },
+    {
+      "host": "windows",
+      "check": "OpenGL with saved Prewarm and Vulkan shortcuts Enabled; active mode Off, all Vulkan shortcuts effective Disabled with unavailable reasons, no false restart warning",
+      "result": "pass",
+      "method": "visible UI on exact candidate artifact"
+    }
+  ],
+  "limitations": [
+    "No fresh gameplay performance campaign: original top-stack ABBA/BAAB and XISO records remain separately identified.",
+    "Injected Deck UI navigation unavailable; native configuration/publication readback qualified.",
+    "Shared GLib source-refcount teardown warning remains; all seven normal process exits0.",
+    "Raw desktop images, game state and process logs remain private."
+  ]
+}

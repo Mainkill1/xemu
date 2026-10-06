@@ -1,0 +1,60 @@
+{
+  "schema": "pr257-review-repair/v1",
+  "reference": "5339d7b2205bd820914f0730816d7e28e0b6b3c0",
+  "candidate": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "base": "afdde9eb62accd07686be104ebf4a9381785aaab",
+  "invalidValues": [
+    "COUNT",
+    63,
+    64,
+    -1,
+    "INT_MAX"
+  ],
+  "red": "Old production inline reader fails COUNT assertion with all bits set; observed before the guard was added. Initial local log was overwritten by subsequent green execution.",
+  "green": [
+    "configuration fixture",
+    "8 coherent-profile cases",
+    "5 resolver cases",
+    "6 policy/hot-reader functions",
+    "GCC UBSan",
+    "Clang UBSan"
+  ],
+  "checkpatch": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "machineCode": [
+    {
+      "compiler": "gcc",
+      "language": "c",
+      "validGates": 11,
+      "textBytes": 175,
+      "oldNewMachineCodeIdentical": true,
+      "dependencyChecked": true
+    },
+    {
+      "compiler": "clang",
+      "language": "c",
+      "validGates": 11,
+      "textBytes": 289,
+      "oldNewMachineCodeIdentical": true,
+      "dependencyChecked": true
+    },
+    {
+      "compiler": "g++",
+      "language": "c++",
+      "validGates": 11,
+      "textBytes": 341,
+      "oldNewMachineCodeIdentical": true,
+      "dependencyChecked": true
+    },
+    {
+      "compiler": "clang++",
+      "language": "c++",
+      "validGates": 11,
+      "textBytes": 176,
+      "oldNewMachineCodeIdentical": true,
+      "dependencyChecked": true
+    }
+  ]
+}

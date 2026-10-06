@@ -1,0 +1,20 @@
+{
+  "historicalCandidate": "e6a9dea3cb4ec43001a784b0d1cce5d1a5ab8f53",
+  "currentCandidate": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "exactSharedFunctions": [
+    {
+      "path": "ui/xui/main-menu.cc",
+      "function": "PerformanceToggle",
+      "exactSourceEqual": true
+    },
+    {
+      "path": "ui/xui/widgets.cc",
+      "function": "PerformancePolicyCombo",
+      "exactSourceEqual": true
+    }
+  ],
+  "statusDisplayDifference": "The child adds process-override messages and forwards the runtime state to a shared display helper. The parent reads its own state directly. Full status/mode functions are not byte-identical and their child-specific behavior is not claimed as current-head proof.",
+  "historicalAutoDisabledAuto": "Prior native child tests exercise the exact same typed selector and live-apply/save implementation. Auto-resolution remains covered by current parent resolver tests.",
+  "currentNativeReplacement": "Current parent Windows native live boolean, saved Off restart, saved transient growth restart and OpenGL checks replace historical status-display applicability assumptions.",
+  "performanceApplicability": "Historical disarmed A/B measurements test the combined parent/child tree, not this parent independently. They are retained as integration observations with all inherited limitations."
+}

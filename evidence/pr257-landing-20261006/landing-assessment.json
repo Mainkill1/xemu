@@ -1,0 +1,12 @@
+{
+  "candidate": "15aa4bddad7b35daf5b19b873596a1f705d0d8f9",
+  "parent": "afdde9eb62accd07686be104ebf4a9381785aaab",
+  "scope": "Typed Advanced policy foundation only; child evidence/texture consumers remain separate.",
+  "correctness": "Current configuration, resolver, publication, invalid-index and native Windows/Vulkan/OpenGL restart checks pass; Deck startup/relaunch state readback passes. No changed rendering algorithm or resource guard.",
+  "performance": "Retained combined-stack ABBA/BAAB and actual per-leaf XISO timing records, with eligibility limits. No separate current-parent speedup claim. Current review repair produces identical machine code for all 11 valid constant gates in 4 compiler/language configurations.",
+  "inheritedFailures": "Matching reference/candidate texture oracle mismatch, intrinsic cubemap failures and driver/device failures remain failures and are not promoted to passes. No candidate-only failure demonstrated in retained supported comparisons.",
+  "knownCosts": "Combined-stack PGR2 process CPU cost +1.52% Deck and +1.60% Windows. Deck cadence directions conflict. Windows Morrowind is cache-ineligible and Deck Morrowind incomplete; no inference of individual-parent regression/gain.",
+  "ownerDirection": "Finish validated small PRs; benchmark procedures unchanged; defer #191 and upstream worker draft #316.",
+  "separateRemaining": "#314/#258 full capture/reset, cache/oracle/evidence qualification not waived or completed by this foundation. Deck injected GUI navigation is not qualified; no Deck GUI-save claim.",
+  "evidencePlacement": "Numeric-only evidence branch outside main; native desktop/game logs remain private."
+}
