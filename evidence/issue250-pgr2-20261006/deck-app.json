@@ -1,0 +1,11 @@
+{
+  "id": "pr200-auto197654-deck-candidate-pgr2-v1",
+  "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-pgr2",
+  "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+  "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+  "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "version": "0.8.136-0-g197654b3c09d",
+  "scope": "Current-main PGR2 Vulkan hot-path attribution only; not matched game performance qualification.",
+  "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+}

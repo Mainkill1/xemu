@@ -1,0 +1,260 @@
+[
+  {
+    "variant": "a1",
+    "runId": "20261006-104710678-a0e0fb8ffc4c47aa9d07f2c0e7b2705e",
+    "app": {
+      "id": "pr200-auto197654-deck-candidate-pgr2-v1",
+      "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-pgr2",
+      "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+      "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+      "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+      "version": "0.8.136-0-g197654b3c09d",
+      "scope": "Current-main PGR2 Vulkan hot-path attribution only; not matched game performance qualification.",
+      "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+    },
+    "test": {
+      "id": "main-deck-pgr2-vk-attribution-20261006-v1",
+      "revision": "a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495",
+      "description": "Main Vulkan attribution only. Original PGR2 controller/inputs/waits/timeout/runtime state/measurement boundary unchanged. Known initial flyover prevents stationary comparison; this is no A/B performance claim.",
+      "sourceJobId": "pr267-embedded-pgr2-source-v3",
+      "stepCount": 30,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/main-deck-pgr2-vk-attribution-20261006-v1/a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495"
+    },
+    "windowStartUs": 1287594712739,
+    "windowEndUs": 1287619712739,
+    "frames": 236,
+    "guestCadenceFps": 9.138110864832402,
+    "cpuMean": 374.9826176470588,
+    "frameIntervalsMs": {
+      "count": 237,
+      "mean": 105.93492827004218,
+      "median": 68.37,
+      "min": 53.129,
+      "max": 417.305,
+      "p95": 255.65239999999991,
+      "p99": 385.85723999999993
+    },
+    "finish": {
+      "vertex_buffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_down": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "need_buffer_space": {
+        "submits": 441,
+        "timedSubmits": 441,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 3821612,
+        "sampledWaitUsPerFrame": 16193.271186440677
+      },
+      "framebuffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "presenting": {
+        "submits": 236,
+        "timedSubmits": 236,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 703052,
+        "sampledWaitUsPerFrame": 2979.0338983050847
+      },
+      "flip_stall": {
+        "submits": 235,
+        "timedSubmits": 235,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 890818,
+        "sampledWaitUsPerFrame": 3774.6525423728813
+      },
+      "flush": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "stalled": {
+        "submits": 78,
+        "timedSubmits": 78,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 416001,
+        "sampledWaitUsPerFrame": 1762.7161016949153
+      },
+      "texture_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "aux": {
+      "pvideo_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "display_render": {
+        "submits": 236,
+        "timedSubmits": 236,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 152000,
+        "sampledWaitUsPerFrame": 644.0677966101695
+      },
+      "surface_download": {
+        "submits": 1416,
+        "timedSubmits": 1416,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 1037470,
+        "sampledWaitUsPerFrame": 4396.059322033899
+      },
+      "surface_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "texture_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "dummy_texture_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "totals": {
+      "vk_queue_submit_calls_per_guest_frame": 2642,
+      "vk_submit_infos_per_guest_frame": 3632,
+      "command_buffers_per_guest_frame": 3632,
+      "staged_bytes_per_guest_frame": 4137658111,
+      "vertex_staged_bytes_per_guest_frame": 0,
+      "vertex_staging_copies_per_guest_frame": 0,
+      "vertex_direct_bytes_per_guest_frame": 966656,
+      "vertex_direct_copies_per_guest_frame": 236,
+      "vertex_version_draws_per_guest_frame": 708,
+      "vertex_version_bytes_per_guest_frame": 2961328,
+      "vertex_version_selected_ranges_per_guest_frame": 708,
+      "vertex_staging_capacity_growths_per_guest_frame": 0,
+      "vertex_staging_fallback_finishes_per_guest_frame": 0,
+      "native_bc_uploads_per_guest_frame": 6,
+      "native_bc_source_bytes_per_guest_frame": 53512,
+      "native_bc_staged_bytes_per_guest_frame": 53512,
+      "native_bc_prepare_cpu_us_per_guest_frame": 26,
+      "decoded_bc_uploads_per_guest_frame": 0,
+      "decoded_bc_source_bytes_per_guest_frame": 0,
+      "decoded_bc_staged_bytes_per_guest_frame": 0,
+      "decoded_bc_prepare_cpu_us_per_guest_frame": 0,
+      "report_entries_enqueued_per_guest_frame": 5516,
+      "report_clears_enqueued_per_guest_frame": 2758,
+      "report_max_queue_depth_per_guest_frame": 4109,
+      "report_stalled_finish_calls_per_guest_frame": 78,
+      "report_retirements_per_guest_frame": 5516,
+      "report_write_attempts_per_guest_frame": 2758,
+      "report_query_result_calls_per_guest_frame": 472,
+      "report_query_results_waited_per_guest_frame": 2758,
+      "report_query_result_wait_us_per_guest_frame": 1519,
+      "report_cpu_only_retirements_per_guest_frame": 0,
+      "report_enqueue_to_retire_frames_total_per_guest_frame": 0,
+      "report_enqueue_to_retire_frames_max_per_guest_frame": 0,
+      "descriptor_update_calls_per_guest_frame": 469937,
+      "descriptor_reuse_returns_per_guest_frame": 54056,
+      "descriptor_set_writes_per_guest_frame": 415881,
+      "descriptor_control_only_reuses_per_guest_frame": 0,
+      "descriptor_texture_change_requests_per_guest_frame": 370809,
+      "descriptor_force_reupload_requests_per_guest_frame": 754,
+      "descriptor_uniform_write_requests_per_guest_frame": 176347,
+      "descriptor_capacity_requests_per_guest_frame": 236,
+      "uniform_capacity_requests_per_guest_frame": 0,
+      "uniform_vsh_writes_per_guest_frame": 159245,
+      "uniform_psh_writes_per_guest_frame": 105696,
+      "surface_upload_attempts_per_guest_frame": 0,
+      "surface_upload_color_attempts_per_guest_frame": 0,
+      "surface_upload_depth_attempts_per_guest_frame": 0,
+      "surface_upload_force_attempts_per_guest_frame": 0,
+      "surface_upload_requested_bytes_per_guest_frame": 0,
+      "surface_upload_new_causes_per_guest_frame": 0,
+      "surface_upload_guest_write_causes_per_guest_frame": 0,
+      "surface_upload_dirty_memory_causes_per_guest_frame": 0,
+      "surface_upload_overlap_guest_write_causes_per_guest_frame": 0
+    },
+    "cpuRegions": {
+      "draw_begin_surface_update": {
+        "calls": 470083,
+        "measuredUs": 259622,
+        "measuredUsPerFrame": 1100.093220338983
+      },
+      "draw_flush": {
+        "calls": 470083,
+        "measuredUs": 11019294,
+        "measuredUsPerFrame": 46691.92372881356
+      },
+      "pipeline_prepare": {
+        "calls": 469937,
+        "measuredUs": 4560802,
+        "measuredUsPerFrame": 19325.43220338983
+      },
+      "bind_textures": {
+        "calls": 469937,
+        "measuredUs": 1778515,
+        "measuredUsPerFrame": 7536.080508474576
+      },
+      "texture_upload": {
+        "calls": 246,
+        "measuredUs": 48424,
+        "measuredUsPerFrame": 205.1864406779661
+      },
+      "update_descriptor_sets": {
+        "calls": 469937,
+        "measuredUs": 2274208,
+        "measuredUsPerFrame": 9636.474576271186
+      }
+    },
+    "comparisonScope": "Single current-main PGR2 diagnostic; known flyover start, no stationary or cross-host comparison.",
+    "peaks": {},
+    "limits": [
+      "Instrumented development sample, uncontrolled driver cache; not balanced acceptance evidence.",
+      "Wait durations remain sampled when timedSubmits < submits; no extrapolation.",
+      "SURFACE_DOWN includes callers other than alias retirement.",
+      "Renderer CPU-region labels measure elapsed intervals, can overlap and include waits; do not add them as exclusive process CPU.",
+      "Window follows the unchanged runner guest-frame analysis; CPU covers its stationary segment."
+    ]
+  }
+]

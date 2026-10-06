@@ -1,0 +1,10 @@
+{
+  "id": "main-deck-pgr2-vk-attribution-20261006-v1",
+  "revision": "a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495",
+  "description": "Main Vulkan attribution only. Original PGR2 controller/inputs/waits/timeout/runtime state/measurement boundary unchanged. Known initial flyover prevents stationary comparison; this is no A/B performance claim.",
+  "sourceJobId": "pr267-embedded-pgr2-source-v3",
+  "stepCount": 30,
+  "fileCount": 41,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/main-deck-pgr2-vk-attribution-20261006-v1/a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495"
+}
