@@ -1,0 +1,114 @@
+{
+  "source": "890fa7954db91993056bb7236269b49af2e20c4b",
+  "buildId": "055a264ead97a69a37c931db5b88dc25462f3908",
+  "run": "20261006-123943287-6320acc4901f4b6d9f98bfb075e35f4d",
+  "durationSeconds": 25,
+  "frequencyHz": 99,
+  "lostSamples": 0,
+  "scene": "Both authored images show Conker Xbox Live & Co menu",
+  "scope": "Cumulative main + PR290 + PR291 + PR329; user-mode cycle sampling with 4096-byte DWARF call chains; diagnostic, not performance acceptance",
+  "rows": [
+    {
+      "selfUserCyclePercent": 4.06,
+      "symbol": "qht_lookup_custom"
+    },
+    {
+      "selfUserCyclePercent": 3.95,
+      "symbol": "helper_lookup_tb_ptr_i32"
+    },
+    {
+      "selfUserCyclePercent": 2.35,
+      "symbol": "float32_mul"
+    },
+    {
+      "selfUserCyclePercent": 2.14,
+      "symbol": "tlb_reset_dirty"
+    },
+    {
+      "selfUserCyclePercent": 1.77,
+      "symbol": "voice_worker_thread.llvm.9564599792968722775"
+    },
+    {
+      "selfUserCyclePercent": 1.5,
+      "symbol": "soft_f32_mul.llvm.11702124999211424084"
+    },
+    {
+      "selfUserCyclePercent": 1.5,
+      "symbol": "pfifo_thread"
+    },
+    {
+      "selfUserCyclePercent": 1.46,
+      "symbol": "address_space_ldl_internal.llvm.9823001788323054012"
+    },
+    {
+      "selfUserCyclePercent": 1.43,
+      "symbol": "pgraph_method"
+    },
+    {
+      "selfUserCyclePercent": 1.39,
+      "symbol": "float32_add"
+    },
+    {
+      "selfUserCyclePercent": 1.34,
+      "symbol": "tlb_set_page_full"
+    },
+    {
+      "selfUserCyclePercent": 0.99,
+      "symbol": "prepare_vertex_data"
+    },
+    {
+      "selfUserCyclePercent": 0.86,
+      "symbol": "tb_lookup_cmp"
+    },
+    {
+      "selfUserCyclePercent": 0.81,
+      "symbol": "get_ptr_rcu_reader"
+    },
+    {
+      "selfUserCyclePercent": 0.76,
+      "symbol": "tb_htable_lookup_common.llvm.611752126541100412"
+    },
+    {
+      "selfUserCyclePercent": 0.71,
+      "symbol": "pgraph_vk_set_surface_dirty"
+    },
+    {
+      "selfUserCyclePercent": 0.65,
+      "symbol": "pgraph_vk_surface_update"
+    },
+    {
+      "selfUserCyclePercent": 0.65,
+      "symbol": "probe_access_internal.llvm.15400734734619096472"
+    },
+    {
+      "selfUserCyclePercent": 0.63,
+      "symbol": "qemu_mutex_lock_impl"
+    },
+    {
+      "selfUserCyclePercent": 0.58,
+      "symbol": "address_space_translate_internal.llvm.9823001788323054012"
+    },
+    {
+      "selfUserCyclePercent": 0.57,
+      "symbol": "pgraph_vk_bind_textures"
+    },
+    {
+      "selfUserCyclePercent": 0.57,
+      "symbol": "dsp56300_emu::core::DspState::write_memory"
+    },
+    {
+      "selfUserCyclePercent": 0.53,
+      "symbol": "pgraph_method_log"
+    }
+  ],
+  "callchainFindings": [
+    "3.18% of total sampled user cycles resolve to qht_lookup_custom through tb_htable_lookup/tb_lookup/lookup_tb_ptr_common/helper_lookup_tb_ptr_i32. This is a subset of the 4.06% qht self row, not an additional additive cost.",
+    "1.33% resolve to tlb_reset_dirty through physical_memory_test_and_clear_dirty/tlb_protect_code/tb_record/tb_gen_code. This is a subset of the 2.14% tlb_reset_dirty self row."
+  ],
+  "limits": [
+    "Only xemu has matching local debug symbols; unresolved library/JIT samples remain in the denominator.",
+    "Inlining changes symbol attribution; percentages cannot be subtracted from the earlier profile to infer a gain.",
+    "The remote postprocessing report was terminated after remaining idle for over six minutes. The recording exited successfully and exact-build local offline reporting succeeded.",
+    "No gameplay inputs, settings, audio mode, or original measurement boundaries changed."
+  ]
+}
