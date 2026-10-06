@@ -42,6 +42,9 @@ void pgraph_vk_init_reports(PGRAPHState *pg)
     r->max_queries_in_flight = 1024;
     r->new_query_needed = false;
     r->query_in_flight = false;
+    r->query_pool_reset = false;
+    r->query_pool_reset_pending = false;
+    r->query_results = g_new(uint64_t, r->max_queries_in_flight);
     r->zpass_pixel_count_result = 0;
 
     VkQueryPoolCreateInfo pool_create_info = (VkQueryPoolCreateInfo){
@@ -66,6 +69,7 @@ void pgraph_vk_finalize_reports(PGRAPHState *pg)
     }
     assert(r->report_queue_depth == 0);
 
+    g_clear_pointer(&r->query_results, g_free);
     vkDestroyQueryPool(r->device, r->query_pool, NULL);
 }
 
@@ -110,13 +114,11 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
 
     assert(!r->in_command_buffer);
 
-    // Fetch all query results
-    g_autofree uint64_t *query_results = NULL;
+    // Fetch all query results into storage allocated with the query pool.
+    uint64_t *query_results = r->query_results;
 
     if (r->num_queries_in_flight > 0) {
         size_t size_of_results = r->num_queries_in_flight * sizeof(uint64_t);
-        query_results = g_malloc_n(r->num_queries_in_flight,
-                                   sizeof(uint64_t)); // FIXME: Pre-allocate
         VkResult result;
         int64_t query_start_us = r->perf.enabled ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
