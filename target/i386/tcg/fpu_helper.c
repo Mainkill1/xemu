@@ -175,7 +175,12 @@ FloatRelation floatx80_compare__hard(floatx80 a, floatx80 b, float_status *statu
 static inline
 floatx80 float32_to_floatx80__hard(float32 val, float_status *status)
 {
-    return host_to_fx80(*(float *)&val);
+    union {
+        float32 f32;
+        float f;
+    } x = { .f32 = val };
+
+    return host_to_fx80(x.f);
 }
 
 static inline
@@ -193,7 +198,12 @@ float32 floatx80_to_float32__hard(floatx80 a, float_status *status)
 static inline
 floatx80 float64_to_floatx80__hard(float64 val, float_status *status)
 {
-    return host_to_fx80(*(double *)&val);
+    union {
+        float64 f64;
+        double d;
+    } x = { .f64 = val };
+
+    return host_to_fx80(x.d);
 }
 
 static inline
@@ -3587,7 +3597,6 @@ void update_mxcsr_status(CPUX86State *env)
 {
     uint32_t mxcsr = env->mxcsr;
     int rnd_type;
-
 
     /* set rounding mode */
     rnd_type = (mxcsr & SSE_RC_MASK) >> SSE_RC_SHIFT;
