@@ -1,0 +1,506 @@
+[
+  {
+    "host": "deck",
+    "backend": "gl",
+    "campaign": "p200-deck-gl-cpu-focused-v1",
+    "test": "cpu_floating_point.x87_scalar",
+    "correctness": true,
+    "eligibleAttempts": 8,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 1089281.7,
+        "B": 1089765.1,
+        "differenceUs": -483.4000000001397,
+        "improvementPercent": -0.044377868461403486,
+        "ABBA": -0.812227422205983,
+        "BAAB": 0.28201225943274844,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MedianUs": {
+        "A": 1085298.0,
+        "B": 1087771.25,
+        "differenceUs": -2473.25,
+        "improvementPercent": -0.22788671867081667,
+        "ABBA": -0.6252437493499057,
+        "BAAB": 0.28799323180271075,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MinUs": {
+        "A": 1076903.5,
+        "B": 1075050.0,
+        "differenceUs": 1853.5,
+        "improvementPercent": 0.17211384306950436,
+        "ABBA": 0.07955730121582494,
+        "BAAB": 0.3014197650950155,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "MaxUs": {
+        "A": 1112493.5,
+        "B": 1111999.5,
+        "differenceUs": 494.0,
+        "improvementPercent": 0.04440475382552797,
+        "ABBA": -1.5742322981456407,
+        "BAAB": 0.5093084678068734,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "P95Us": {
+        "A": 1112493.5,
+        "B": 1111999.5,
+        "differenceUs": 494.0,
+        "improvementPercent": 0.04440475382552797,
+        "ABBA": -1.5742322981456407,
+        "BAAB": 0.5093084678068734,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      }
+    }
+  },
+  {
+    "host": "deck",
+    "backend": "gl",
+    "campaign": "p200-deck-gl-cpu-focused-v1",
+    "test": "cpu_translation_blocks.direct_loop",
+    "correctness": true,
+    "eligibleAttempts": 8,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 23265.55,
+        "B": 23558.75,
+        "differenceUs": -293.2000000000007,
+        "improvementPercent": -1.2602324037041923,
+        "ABBA": 0.6062611887533254,
+        "BAAB": -3.024003916903251,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      },
+      "MedianUs": {
+        "A": 23402.0,
+        "B": 23552.5,
+        "differenceUs": -150.5,
+        "improvementPercent": -0.6431074267156653,
+        "ABBA": 0.21137831407205981,
+        "BAAB": -1.218912913426203,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MinUs": {
+        "A": 21016.0,
+        "B": 20352.0,
+        "differenceUs": 664.0,
+        "improvementPercent": 3.1594975256947087,
+        "ABBA": 4.384390059529434,
+        "BAAB": -1.798629615531024,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      },
+      "MaxUs": {
+        "A": 25331.0,
+        "B": 25559.0,
+        "differenceUs": -228.0,
+        "improvementPercent": -0.9000829023725869,
+        "ABBA": -1.6516061212525521,
+        "BAAB": -14.066276803118908,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "P95Us": {
+        "A": 25331.0,
+        "B": 25559.0,
+        "differenceUs": -228.0,
+        "improvementPercent": -0.9000829023725869,
+        "ABBA": -1.6516061212525521,
+        "BAAB": -14.066276803118908,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      }
+    }
+  },
+  {
+    "host": "deck",
+    "backend": "vk",
+    "campaign": "p200-deck-vk-cpu-focused-v1",
+    "test": "cpu_floating_point.x87_scalar",
+    "correctness": true,
+    "eligibleAttempts": 8,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 1091301.5,
+        "B": 1089339.0,
+        "differenceUs": 1962.5,
+        "improvementPercent": 0.17983114657131874,
+        "ABBA": -0.07510632389961257,
+        "BAAB": 0.011893693566444801,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MedianUs": {
+        "A": 1079017.0,
+        "B": 1084962.0,
+        "differenceUs": -5945.0,
+        "improvementPercent": -0.5509644426362142,
+        "ABBA": 0.25972389299421433,
+        "BAAB": -0.43806811959259667,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MinUs": {
+        "A": 1074159.5,
+        "B": 1078978.5,
+        "differenceUs": -4819.0,
+        "improvementPercent": -0.44862983569944687,
+        "ABBA": -0.21894907223282217,
+        "BAAB": -0.058285780095476324,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "MaxUs": {
+        "A": 1139232.5,
+        "B": 1124391.0,
+        "differenceUs": 14841.5,
+        "improvementPercent": 1.3027630444180622,
+        "ABBA": -1.079059805614745,
+        "BAAB": 1.7926586276883039,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      },
+      "P95Us": {
+        "A": 1139232.5,
+        "B": 1124391.0,
+        "differenceUs": 14841.5,
+        "improvementPercent": 1.3027630444180622,
+        "ABBA": -1.079059805614745,
+        "BAAB": 1.7926586276883039,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      }
+    }
+  },
+  {
+    "host": "deck",
+    "backend": "vk",
+    "campaign": "p200-deck-vk-cpu-focused-v1",
+    "test": "cpu_translation_blocks.direct_loop",
+    "correctness": true,
+    "eligibleAttempts": 8,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 23554.35,
+        "B": 23233.9,
+        "differenceUs": 320.4499999999971,
+        "improvementPercent": 1.3604705712532807,
+        "ABBA": -0.03557498333089286,
+        "BAAB": 1.804872585420263,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      },
+      "MedianUs": {
+        "A": 22982.0,
+        "B": 22714.0,
+        "differenceUs": 268.0,
+        "improvementPercent": 1.1661300147941867,
+        "ABBA": 0.4146200045947336,
+        "BAAB": 1.1661300147941867,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MinUs": {
+        "A": 21411.0,
+        "B": 21924.0,
+        "differenceUs": -513.0,
+        "improvementPercent": -2.3959646910466583,
+        "ABBA": -0.8139053662574148,
+        "BAAB": -2.891509433962264,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MaxUs": {
+        "A": 27682.5,
+        "B": 27475.0,
+        "differenceUs": 207.5,
+        "improvementPercent": 0.7495710286281947,
+        "ABBA": -1.0242929659173314,
+        "BAAB": 1.489845243678078,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "P95Us": {
+        "A": 27682.5,
+        "B": 27475.0,
+        "differenceUs": 207.5,
+        "improvementPercent": 0.7495710286281947,
+        "ABBA": -1.0242929659173314,
+        "BAAB": 1.489845243678078,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      }
+    }
+  },
+  {
+    "host": "win",
+    "backend": "gl",
+    "campaign": "p200-win-gl-cpu-focused-v1",
+    "test": "cpu_floating_point.x87_scalar",
+    "correctness": true,
+    "eligibleAttempts": 0,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 810366.15,
+        "B": 819348.1000000001,
+        "differenceUs": -8981.95000000007,
+        "improvementPercent": -1.1083816864759306,
+        "ABBA": -1.2138338205448067,
+        "BAAB": -0.5358034102665871,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MedianUs": {
+        "A": 810422.75,
+        "B": 819201.25,
+        "differenceUs": -8778.5,
+        "improvementPercent": -1.0832000952589251,
+        "ABBA": -1.1825194865908972,
+        "BAAB": -0.4937763037027706,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MinUs": {
+        "A": 808783.0,
+        "B": 817663.5,
+        "differenceUs": -8880.5,
+        "improvementPercent": -1.0980077474427627,
+        "ABBA": -1.1665542818610923,
+        "BAAB": -0.5627957901769568,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MaxUs": {
+        "A": 812137.5,
+        "B": 821423.0,
+        "differenceUs": -9285.5,
+        "improvementPercent": -1.1433408751596865,
+        "ABBA": -1.3412472865696998,
+        "BAAB": -0.5295527874433441,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "P95Us": {
+        "A": 812137.5,
+        "B": 821423.0,
+        "differenceUs": -9285.5,
+        "improvementPercent": -1.1433408751596865,
+        "ABBA": -1.3412472865696998,
+        "BAAB": -0.5295527874433441,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      }
+    }
+  },
+  {
+    "host": "win",
+    "backend": "gl",
+    "campaign": "p200-win-gl-cpu-focused-v1",
+    "test": "cpu_translation_blocks.direct_loop",
+    "correctness": true,
+    "eligibleAttempts": 0,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 9945.05,
+        "B": 10121.5,
+        "differenceUs": -176.45000000000073,
+        "improvementPercent": -1.7742495010080466,
+        "ABBA": -1.774583963691384,
+        "BAAB": -1.587206396801592,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MedianUs": {
+        "A": 9951.5,
+        "B": 10076.5,
+        "differenceUs": -125.0,
+        "improvementPercent": -1.2560920464251621,
+        "ABBA": -1.2397006576460805,
+        "BAAB": -1.8310247225909877,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MinUs": {
+        "A": 9812.0,
+        "B": 9964.0,
+        "differenceUs": -152.0,
+        "improvementPercent": -1.5491235222176927,
+        "ABBA": -1.6850490196078431,
+        "BAAB": -0.6617164216800525,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MaxUs": {
+        "A": 10089.5,
+        "B": 10375.5,
+        "differenceUs": -286.0,
+        "improvementPercent": -2.8346300609544577,
+        "ABBA": -3.8404064554692168,
+        "BAAB": -2.347718865598027,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "P95Us": {
+        "A": 10089.5,
+        "B": 10375.5,
+        "differenceUs": -286.0,
+        "improvementPercent": -2.8346300609544577,
+        "ABBA": -3.8404064554692168,
+        "BAAB": -2.347718865598027,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      }
+    }
+  },
+  {
+    "host": "win",
+    "backend": "vk",
+    "campaign": "p200-win-vk-cpu-focused-v1",
+    "test": "cpu_floating_point.x87_scalar",
+    "correctness": true,
+    "eligibleAttempts": 0,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 815993.7,
+        "B": 821121.85,
+        "differenceUs": -5128.150000000023,
+        "improvementPercent": -0.6284546069412085,
+        "ABBA": -1.4747883282705687,
+        "BAAB": -0.06419779956635611,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "MedianUs": {
+        "A": 816114.75,
+        "B": 820967.0,
+        "differenceUs": -4852.25,
+        "improvementPercent": -0.5945548711134065,
+        "ABBA": -1.5008884664655564,
+        "BAAB": -0.05572133085451525,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "MinUs": {
+        "A": 814311.0,
+        "B": 819636.5,
+        "differenceUs": -5325.5,
+        "improvementPercent": -0.6539884638669993,
+        "ABBA": -1.5556627227502866,
+        "BAAB": -0.1271627179296362,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "MaxUs": {
+        "A": 818507.0,
+        "B": 822803.5,
+        "differenceUs": -4296.5,
+        "improvementPercent": -0.5249191515772009,
+        "ABBA": -1.3180516108436626,
+        "BAAB": -0.008314727093538234,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      },
+      "P95Us": {
+        "A": 818507.0,
+        "B": 822803.5,
+        "differenceUs": -4296.5,
+        "improvementPercent": -0.5249191515772009,
+        "ABBA": -1.3180516108436626,
+        "BAAB": -0.008314727093538234,
+        "ordersDisagree": false,
+        "aboveOnePercent": false
+      }
+    }
+  },
+  {
+    "host": "win",
+    "backend": "vk",
+    "campaign": "p200-win-vk-cpu-focused-v1",
+    "test": "cpu_translation_blocks.direct_loop",
+    "correctness": true,
+    "eligibleAttempts": 0,
+    "suiteQualification": "unverified",
+    "metricUnits": "guest microseconds",
+    "interpretation": "Unaffected CPU control; no audio/performance or accepted-baseline claim",
+    "metrics": {
+      "MeanUs": {
+        "A": 9977.6,
+        "B": 10151.4,
+        "differenceUs": -173.79999999999927,
+        "improvementPercent": -1.7419018601667662,
+        "ABBA": -0.7968305506322516,
+        "BAAB": -3.2773728851815886,
+        "ordersDisagree": false,
+        "aboveOnePercent": true
+      },
+      "MedianUs": {
+        "A": 9942.75,
+        "B": 9999.5,
+        "differenceUs": -56.75,
+        "improvementPercent": -0.5707676447662869,
+        "ABBA": -0.9026677730004274,
+        "BAAB": 0.3064248756718742,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MinUs": {
+        "A": 9905.0,
+        "B": 9881.0,
+        "differenceUs": 24.0,
+        "improvementPercent": 0.24230186774356385,
+        "ABBA": -0.2828997221520586,
+        "BAAB": 0.30772335166221054,
+        "ordersDisagree": true,
+        "aboveOnePercent": false
+      },
+      "MaxUs": {
+        "A": 10159.0,
+        "B": 10943.5,
+        "differenceUs": -784.5,
+        "improvementPercent": -7.722216753617482,
+        "ABBA": 2.2552697391925687,
+        "BAAB": -22.272433828276306,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      },
+      "P95Us": {
+        "A": 10159.0,
+        "B": 10943.5,
+        "differenceUs": -784.5,
+        "improvementPercent": -7.722216753617482,
+        "ABBA": 2.2552697391925687,
+        "BAAB": -22.272433828276306,
+        "ordersDisagree": true,
+        "aboveOnePercent": true
+      }
+    }
+  }
+]

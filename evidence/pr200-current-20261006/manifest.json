@@ -30,7 +30,7 @@
   "statistic": "Median of four canonical per-run values per side, with both block directions retained. No pooled-frame inference.",
   "cpuUnits": "Summed xemu process utilization, one logical CPU = 100%",
   "frameSource": "READ_3D guest events, not SDL presentations or guest instruction count",
-  "controls": "Frozen existing CPU leaves in OpenGL/Vulkan; full paired suite blocked by 22 missing oracles, no affected audio leaf; current control reports pending",
+  "controls": "Completed 32 attempts, 64 leaf timing records; all correctness PASS. Deck 16/16 per-attempt admitted, Windows 0/16 cache-admitted. Two CPU leaves, OpenGL/Vulkan. Existing suite unverified; full paired suite rejected for 22 missing oracles; no affected audio leaf.",
   "limits": [
     "Scene progress and spikes are not causal worker-count proof",
     "PGR2 original cross-host flyover/countdown mismatch remains",

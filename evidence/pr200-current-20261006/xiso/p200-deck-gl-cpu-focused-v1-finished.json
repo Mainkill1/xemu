@@ -1,0 +1,22 @@
+{
+  "id": "p200-deck-gl-cpu-focused-v1",
+  "revision": "c6b88a811771f2f35227f6ff41ec7edb9a80c2a740790c9716ea2ec604aed92c",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 8,
+  "finished": 8,
+  "passed": 8,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p200-deck-gl-cpu-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p200-deck-gl-cpu-focused-v1/attempts",
+  "comparisonEligible": 8,
+  "qualification": "unverified"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "p200-win-vk-cpu-focused-v1",
+  "revision": "f8d40010db222f7e917b604b3e27ca781829daee65a550ed0910a789eeefbb86",
+  "state": "passed",
+  "event": "finished",
+  "terminal": true,
+  "startRequested": true,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 8,
+  "finished": 8,
+  "passed": 8,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 0,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/p200-win-vk-cpu-focused-v1/wait",
+  "details": "/api/v1/xiso-campaigns/p200-win-vk-cpu-focused-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

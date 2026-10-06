@@ -1,0 +1,58 @@
+{
+  "deck-vk-parent": {
+    "id": "pr200-xiso197654-deck-vk-parent-v1",
+    "sha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "deck-vk-candidate": {
+    "id": "pr200-xiso197654-deck-vk-candidate-v1",
+    "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+    "productSource": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "deck-gl-parent": {
+    "id": "pr200-xiso197654-deck-gl-parent-v1",
+    "sha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "configSha256": "2c0882353a35d3c378ee3ce0f327e306fcefccd3d686da2a38832b5a86bc85aa",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "deck-gl-candidate": {
+    "id": "pr200-xiso197654-deck-gl-candidate-v1",
+    "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "configSha256": "2c0882353a35d3c378ee3ce0f327e306fcefccd3d686da2a38832b5a86bc85aa",
+    "productSource": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "win-vk-parent": {
+    "id": "pr200-xiso197654-win-vk-parent-v1",
+    "sha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "win-vk-candidate": {
+    "id": "pr200-xiso197654-win-vk-candidate-v1",
+    "sha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "configSha256": "fb2da93a4f38c137fa46458e470fb26a47e86e1fd75bd56a31ee7fbbe75e1c35",
+    "productSource": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  },
+  "win-gl-parent": {
+    "id": "pr200-xiso197654-win-gl-parent-v1",
+    "sha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "configSha256": "2c0882353a35d3c378ee3ce0f327e306fcefccd3d686da2a38832b5a86bc85aa",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "win-gl-candidate": {
+    "id": "pr200-xiso197654-win-gl-candidate-v1",
+    "sha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "configSha256": "2c0882353a35d3c378ee3ce0f327e306fcefccd3d686da2a38832b5a86bc85aa",
+    "productSource": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+    "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+  }
+}
