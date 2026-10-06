@@ -1,0 +1,257 @@
+[
+  {
+    "variant": "b1",
+    "runId": "20261006-132214619-c357f18d31864690a6fa2aa743af4b63",
+    "app": {
+      "id": "pr330-545f61-deck-pgr2-b1-v1",
+      "sha256": "30a1bc59480a1c5bef2ad46ac52703a1fc01124a43de17a887357173db4fe90f",
+      "source": "545f6176635519b37464a084c06121efddcbd4be",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+    },
+    "test": {
+      "id": "main-deck-pgr2-vk-attribution-20261006-v1",
+      "revision": "a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495",
+      "description": "Main Vulkan attribution only. Original PGR2 controller/inputs/waits/timeout/runtime state/measurement boundary unchanged. Known initial flyover prevents stationary comparison; this is no A/B performance claim.",
+      "sourceJobId": "pr267-embedded-pgr2-source-v3",
+      "stepCount": 30,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/main-deck-pgr2-vk-attribution-20261006-v1/a7427cec1d2565e1be9a5def52e5abfa42bdc200b87b344cf56a16a2a605c495"
+    },
+    "windowStartUs": 1296895832125,
+    "windowEndUs": 1296920832125,
+    "frames": 211,
+    "guestCadenceFps": 6.830248470143475,
+    "cpuMean": 383.46278125000003,
+    "frameIntervalsMs": {
+      "count": 212,
+      "mean": 118.14731132075472,
+      "median": 71.15700000000001,
+      "min": 44.604,
+      "max": 409.712,
+      "p95": 272.79725,
+      "p99": 314.40702999999996
+    },
+    "finish": {
+      "vertex_buffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_down": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "need_buffer_space": {
+        "submits": 369,
+        "timedSubmits": 369,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 3103521,
+        "sampledWaitUsPerFrame": 14708.630331753555
+      },
+      "framebuffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "presenting": {
+        "submits": 211,
+        "timedSubmits": 211,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 549966,
+        "sampledWaitUsPerFrame": 2606.473933649289
+      },
+      "flip_stall": {
+        "submits": 210,
+        "timedSubmits": 210,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 637374,
+        "sampledWaitUsPerFrame": 3020.729857819905
+      },
+      "flush": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "stalled": {
+        "submits": 130,
+        "timedSubmits": 130,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 665734,
+        "sampledWaitUsPerFrame": 3155.137440758294
+      },
+      "texture_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "aux": {
+      "pvideo_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "display_render": {
+        "submits": 211,
+        "timedSubmits": 211,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 125413,
+        "sampledWaitUsPerFrame": 594.3744075829384
+      },
+      "surface_download": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "texture_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "dummy_texture_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "totals": {
+      "vk_queue_submit_calls_per_guest_frame": 1131,
+      "vk_submit_infos_per_guest_frame": 2051,
+      "command_buffers_per_guest_frame": 2051,
+      "staged_bytes_per_guest_frame": 3620059063,
+      "vertex_staged_bytes_per_guest_frame": 0,
+      "vertex_staging_copies_per_guest_frame": 0,
+      "vertex_direct_bytes_per_guest_frame": 864256,
+      "vertex_direct_copies_per_guest_frame": 211,
+      "vertex_version_draws_per_guest_frame": 633,
+      "vertex_version_bytes_per_guest_frame": 2647628,
+      "vertex_version_selected_ranges_per_guest_frame": 633,
+      "vertex_staging_capacity_growths_per_guest_frame": 0,
+      "vertex_staging_fallback_finishes_per_guest_frame": 0,
+      "native_bc_uploads_per_guest_frame": 6,
+      "native_bc_source_bytes_per_guest_frame": 53512,
+      "native_bc_staged_bytes_per_guest_frame": 53512,
+      "native_bc_prepare_cpu_us_per_guest_frame": 29,
+      "decoded_bc_uploads_per_guest_frame": 0,
+      "decoded_bc_source_bytes_per_guest_frame": 0,
+      "decoded_bc_staged_bytes_per_guest_frame": 0,
+      "decoded_bc_prepare_cpu_us_per_guest_frame": 0,
+      "report_entries_enqueued_per_guest_frame": 4192,
+      "report_clears_enqueued_per_guest_frame": 2096,
+      "report_max_queue_depth_per_guest_frame": 3045,
+      "report_stalled_finish_calls_per_guest_frame": 130,
+      "report_retirements_per_guest_frame": 4192,
+      "report_write_attempts_per_guest_frame": 2096,
+      "report_query_result_calls_per_guest_frame": 434,
+      "report_query_results_waited_per_guest_frame": 2096,
+      "report_query_result_wait_us_per_guest_frame": 1340,
+      "report_cpu_only_retirements_per_guest_frame": 0,
+      "report_enqueue_to_retire_frames_total_per_guest_frame": 0,
+      "report_enqueue_to_retire_frames_max_per_guest_frame": 0,
+      "descriptor_update_calls_per_guest_frame": 419790,
+      "descriptor_reuse_returns_per_guest_frame": 47994,
+      "descriptor_set_writes_per_guest_frame": 371796,
+      "descriptor_control_only_reuses_per_guest_frame": 0,
+      "descriptor_texture_change_requests_per_guest_frame": 331516,
+      "descriptor_force_reupload_requests_per_guest_frame": 709,
+      "descriptor_uniform_write_requests_per_guest_frame": 157489,
+      "descriptor_capacity_requests_per_guest_frame": 211,
+      "uniform_capacity_requests_per_guest_frame": 0,
+      "uniform_vsh_writes_per_guest_frame": 142404,
+      "uniform_psh_writes_per_guest_frame": 94330,
+      "cubemap_face_copies_per_guest_frame": 1266,
+      "cubemap_face_reuses_per_guest_frame": 53172,
+      "surface_upload_attempts_per_guest_frame": 0,
+      "surface_upload_color_attempts_per_guest_frame": 0,
+      "surface_upload_depth_attempts_per_guest_frame": 0,
+      "surface_upload_force_attempts_per_guest_frame": 0,
+      "surface_upload_requested_bytes_per_guest_frame": 0,
+      "surface_upload_new_causes_per_guest_frame": 0,
+      "surface_upload_guest_write_causes_per_guest_frame": 0,
+      "surface_upload_dirty_memory_causes_per_guest_frame": 0,
+      "surface_upload_overlap_guest_write_causes_per_guest_frame": 0
+    },
+    "cpuRegions": {
+      "draw_begin_surface_update": {
+        "calls": 419897,
+        "measuredUs": 246801,
+        "measuredUsPerFrame": 1169.6729857819905
+      },
+      "draw_flush": {
+        "calls": 419897,
+        "measuredUs": 8267619,
+        "measuredUsPerFrame": 39183.028436018954
+      },
+      "pipeline_prepare": {
+        "calls": 419790,
+        "measuredUs": 2954145,
+        "measuredUsPerFrame": 14000.687203791469
+      },
+      "bind_textures": {
+        "calls": 419790,
+        "measuredUs": 372155,
+        "measuredUsPerFrame": 1763.7677725118483
+      },
+      "texture_upload": {
+        "calls": 10,
+        "measuredUs": 588,
+        "measuredUsPerFrame": 2.786729857819905
+      },
+      "update_descriptor_sets": {
+        "calls": 419790,
+        "measuredUs": 2015475,
+        "measuredUsPerFrame": 9552.014218009479
+      }
+    },
+    "comparisonScope": "PR330 GPU cubemap path attribution; instrumented, scene review required, not acceptance evidence.",
+    "peaks": {},
+    "limits": [
+      "Instrumented development sample, uncontrolled driver cache; not balanced acceptance evidence.",
+      "Wait durations remain sampled when timedSubmits < submits; no extrapolation.",
+      "SURFACE_DOWN includes callers other than alias retirement.",
+      "Renderer CPU-region labels measure elapsed intervals, can overlap and include waits; do not add them as exclusive process CPU.",
+      "Window follows the unchanged runner guest-frame analysis; CPU covers its stationary segment."
+    ]
+  }
+]

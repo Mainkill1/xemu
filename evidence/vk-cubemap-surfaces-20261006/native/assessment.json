@@ -1,0 +1,15 @@
+{
+  "source": "545f6176635519b37464a084c06121efddcbd4be",
+  "run": "20261006-132214619-c357f18d31864690a6fa2aa743af4b63",
+  "sceneReview": "Start Hong Kong flyover; end parked at 000 MPH. No observed black screen.",
+  "comparisonEligible": false,
+  "reason": "Frozen input route reaches the start line during the recording window. Runner automatic admission is overridden; single uncontrolled-cache instrumented diagnostic only.",
+  "findings": [
+    "Six GPU face copies and 252 unchanged-face reuses per guest frame.",
+    "Zero surface-download auxiliary submissions and zero SURFACE_DOWN finishes in window.",
+    "Descriptor-capacity requests remain one per guest frame; NEED_BUFFER_SPACE waits 14.709ms/frame.",
+    "No stable overall FPS gain established."
+  ],
+  "nextExperiment": "Separate diagnostic tree abfd6a5811 = PR330 + existing PR328 graphics descriptor capacity. Product branches remain separate.",
+  "privateArtifacts": "Game images/resources and complete run files remain private."
+}
