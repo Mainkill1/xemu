@@ -229,6 +229,12 @@ static bool consume_surface_guest_writes(NV2AState *d, hwaddr start,
         visit_surface_dirty_pages, &context);
 }
 
+void pgraph_vk_surface_update_guest_writes(NV2AState *d, hwaddr start,
+                                           hwaddr size)
+{
+    consume_surface_guest_writes(d, start, size);
+}
+
 static bool refresh_readback_guest_writes(void *opaque, uint64_t start,
                                           uint64_t size)
 {
