@@ -547,6 +547,7 @@ xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   dependencies: [qemuutil])
 test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
 
+tests += {'test-xbox-mcpx-apu-voice-format': []}
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])
