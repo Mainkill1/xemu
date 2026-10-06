@@ -2783,6 +2783,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         }
         r->vertex_ram_updated_in_batch = false;
         destroy_framebuffers(pg);
+        /* Framebuffers also retain the retired image views until this point. */
+        pgraph_vk_surface_retirements_complete(r);
 
         if (check_budget) {
             pgraph_vk_check_memory_budget(pg);

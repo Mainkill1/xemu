@@ -982,7 +982,8 @@ static void unbind_surface(NV2AState *d, bool color)
     }
 }
 
-static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
+static void retire_surface(NV2AState *d, SurfaceBinding *surface,
+                           bool defer)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
@@ -993,13 +994,24 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     trace_nv2a_pgraph_surface_invalidated(surface->vram_addr);
 
-    // FIXME: We may be reading from the surface in the current command buffer!
-    // Add a detection to handle it. For now, finish to be safe.
-    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    if (!defer ||
+        r->pending_alias_retirements >= num_invalid_surfaces_to_keep) {
+        pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    }
 
-    assert((!r->in_command_buffer ||
-            surface->draw_time < r->command_buffer_start_time) &&
-           "Surface evicted while in use!");
+    /*
+     * Only clean derived aliases defer physical retirement. Keep their image
+     * handles out of every reuse/free path until the main batch completes.
+     */
+    surface->retirement_pending = defer && r->in_command_buffer;
+    if (surface->retirement_pending) {
+        assert(!surface->color && surface->swizzle && !surface->draw_dirty);
+        r->pending_alias_retirements++;
+    } else {
+        assert((!r->in_command_buffer ||
+                surface->draw_time < r->command_buffer_start_time) &&
+               "Surface evicted while in use!");
+    }
 
     if (surface == r->color_binding) {
         assert(d->pgraph.surface_color.buffer_dirty);
@@ -1014,6 +1026,25 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     QTAILQ_REMOVE(&r->surfaces, surface, entry);
     QTAILQ_INSERT_HEAD(&r->invalid_surfaces, surface, entry);
+}
+
+static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
+{
+    retire_surface(d, surface, false);
+}
+
+void pgraph_vk_surface_retirements_complete(PGRAPHVkState *r)
+{
+    SurfaceBinding *surface;
+
+    assert(!r->in_command_buffer);
+    if (!r->pending_alias_retirements) {
+        return;
+    }
+    QTAILQ_FOREACH(surface, &r->invalid_surfaces, entry) {
+        surface->retirement_pending = false;
+    }
+    r->pending_alias_retirements = 0;
 }
 
 void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
@@ -1032,13 +1063,13 @@ void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
      * Only a read-only swizzled view may coexist with its linear owner.
      * Recorded writes to that owner make the converted image stale. Retire
      * it before any later texture or surface lookup can reuse the image;
-     * invalidate_surface finishes outstanding use before retiring it.
+     * keep its allocation alive until the existing main submission completes.
      */
     QTAILQ_FOREACH_SAFE(view, &r->surfaces, entry, next) {
         if (!view->color && view->swizzle &&
             view->vram_addr == producer->vram_addr) {
             assert(!view->draw_dirty);
-            invalidate_surface(d, view);
+            retire_surface(d, view, true);
             if (r->perf.enabled) {
                 r->perf.depth_alias_views_retired++;
             }
@@ -1314,7 +1345,7 @@ get_any_compatible_invalid_surface(PGRAPHVkState *r, SurfaceBinding *target)
 {
     SurfaceBinding *surface, *next;
     QTAILQ_FOREACH_SAFE(surface, &r->invalid_surfaces, entry, next) {
-        if (!surface->retained_guest_bytes &&
+        if (!surface->retirement_pending && !surface->retained_guest_bytes &&
             check_invalid_surface_is_compatibile(surface, target)) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
             return surface;
@@ -1330,6 +1361,9 @@ static void prune_invalid_surfaces(PGRAPHVkState *r, int keep)
 
     SurfaceBinding *surface, *next;
     QTAILQ_FOREACH_SAFE(surface, &r->invalid_surfaces, entry, next) {
+        if (surface->retirement_pending) {
+            continue;
+        }
         num_surfaces += 1;
         if (num_surfaces > keep) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
@@ -1555,7 +1589,7 @@ static SurfaceBinding *get_retained_surface(NV2AState *d,
     }
 
     QTAILQ_FOREACH(surface, &r->invalid_surfaces, entry) {
-        if (!surface->retained_guest_bytes ||
+        if (surface->retirement_pending || !surface->retained_guest_bytes ||
             surface->vram_addr != target->vram_addr ||
             surface->size != target->size ||
             surface->swizzle != target->swizzle ||
@@ -2569,6 +2603,10 @@ void pgraph_vk_surface_flush(NV2AState *d)
             abort();
         }
         invalidate_surface(d, s);
+    }
+    /* A flush may contain only aliases already removed from the active list. */
+    if (r->pending_alias_retirements) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     }
     prune_invalid_surfaces(r, 0);
 

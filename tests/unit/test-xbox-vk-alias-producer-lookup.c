@@ -8,6 +8,8 @@
 #include "hw/xbox/nv2a/pgraph/vk/draw.c"
 #undef pgraph_vk_finish
 
+static unsigned int retirement_finishes;
+
 /* GPU submission is external; ownership and list retirement stay real. */
 static void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
 {
@@ -16,6 +18,8 @@ static void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
     g_assert_cmpuint(r->debug_depth, ==, 0);
     r->in_command_buffer = false;
     r->in_render_pass = false;
+    retirement_finishes++;
+    pgraph_vk_surface_retirements_complete(r);
 }
 
 #include "hw/xbox/nv2a/pgraph/vk/surface.c"
@@ -181,9 +185,32 @@ static void test_producer_rewrite(gconstpointer data)
     g_assert_false(surface_is_tracked(r, &view));
     g_assert_true(surface_is_tracked(r, &unrelated));
     g_assert_true(producer.draw_dirty);
-    g_assert_false(r->in_command_buffer);
-    g_assert_false(r->in_render_pass);
+    /* Retiring a clean alias must not submit or end the current pass. */
+    g_assert_true(r->in_command_buffer);
+    g_assert_true(r->in_render_pass);
     g_assert_true(QTAILQ_FIRST(&r->invalid_surfaces) == &view);
+    g_assert_true(view.retirement_pending);
+    g_assert_cmpuint(r->pending_alias_retirements, ==, 1);
+    g_assert_null(get_any_compatible_invalid_surface(r, &view));
+    /* Even otherwise restorable RAM-backed entries must remain unavailable. */
+    uint8_t guest[64] = { 0 };
+    d->vram_ptr = guest;
+    producer.draw_dirty = false;
+    view.vram_addr = 0;
+    view.retained_guest_bytes = guest;
+    g_assert_null(get_retained_surface(d, &view));
+    view.retained_guest_bytes = NULL;
+    view.vram_addr = producer.vram_addr;
+    producer.draw_dirty = true;
+    prune_invalid_surfaces(r, 0);
+    g_assert_true(QTAILQ_FIRST(&r->invalid_surfaces) == &view);
+
+    /* Finish releases images after fence completion and framebuffer cleanup. */
+    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
+    g_assert_false(view.retirement_pending);
+    g_assert_cmpuint(r->pending_alias_retirements, ==, 0);
+    g_assert_true(get_any_compatible_invalid_surface(r, &view) == &view);
+    g_assert_true(QTAILQ_EMPTY(&r->invalid_surfaces));
 }
 
 /*
@@ -371,9 +398,45 @@ static void test_view_rebind(gconstpointer data)
     fclose(r->perf.file);
 }
 
+static void test_retirement_bound(void)
+{
+    g_autofree NV2AState *d = g_new0(NV2AState, 1);
+    g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    SurfaceBinding producer = { .vram_addr = 4096 };
+    SurfaceBinding views[11] = { 0 };
+
+    d->pgraph.vk_renderer_state = r;
+    QTAILQ_INIT(&r->surfaces);
+    QTAILQ_INIT(&r->invalid_surfaces);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &producer, entry);
+    retirement_finishes = 0;
+    for (unsigned int i = 0; i < ARRAY_SIZE(views); i++) {
+        views[i].vram_addr = producer.vram_addr;
+        views[i].swizzle = true;
+        QTAILQ_INSERT_TAIL(&r->surfaces, &views[i], entry);
+        r->in_command_buffer = true;
+        pgraph_vk_surface_invalidate_depth_views(&d->pgraph, &producer);
+        g_assert_cmpuint(r->pending_alias_retirements, <=, 10);
+        g_assert_cmpuint(retirement_finishes, ==, i == 10 ? 1 : 0);
+    }
+    g_assert_cmpuint(r->pending_alias_retirements, ==, 0);
+    for (unsigned int i = 0; i < ARRAY_SIZE(views); i++) {
+        g_assert_false(views[i].retirement_pending);
+    }
+
+    /* Ordinary invalidation still synchronizes, including a swizzled image. */
+    QTAILQ_REMOVE(&r->invalid_surfaces, &views[0], entry);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &views[0], entry);
+    r->in_command_buffer = true;
+    invalidate_surface(d, &views[0]);
+    g_assert_false(r->in_command_buffer);
+    g_assert_cmpuint(retirement_finishes, ==, 2);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/xbox/vk/alias/retirement-bound", test_retirement_bound);
     g_test_add_data_func("/xbox/vk/alias/producer-d24s8",
                          GUINT_TO_POINTER(VK_FORMAT_D24_UNORM_S8_UINT),
                          test_producer_lookup);
