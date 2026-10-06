@@ -1,0 +1,1 @@
+emitted-parent-check: /home/codex/xemu-shader-workbench-handoff/.scratch/issue166-census-20261006/emitted-ir-check.c:117: main: Assertion `target==(uintptr_t)key.tc.ptr&&calls==0&&cpu->neg.can_do_io&&xemu_inline_lookup_hits==1' failed.

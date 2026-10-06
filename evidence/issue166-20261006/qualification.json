@@ -1,0 +1,24 @@
+{
+  "status": "HOLD: opt-in diagnostic prototype, not merge ready",
+  "censusSource": "a0eb4130b028548b5d142944699bfa57eed6b40d",
+  "prototypeSource": "3a1b515c9329768bc3a37353309c817d05f3c9fd",
+  "checks": {
+    "systemGeneratorWerror": "PASS",
+    "userGeneratorWerror": "PASS",
+    "realEmitterInterpretedIR": 17,
+    "disabledEmitterInterpretedIR": 17,
+    "existingHelperBoundary": 22,
+    "parentRed": "Fails helper-free hit assertion",
+    "scene": "Both private start/end images show Conker Xbox Live & Co menu",
+    "review": "No concrete blocker for native diagnostic; added CONFIG_TCG_INTERPRETER exclusion"
+  },
+  "limits": [
+    "No native emitted-path execution or performance evidence yet.",
+    "IR interpreter does not prove native register allocation or atomicity.",
+    "MMU/SMC/debug/IRQ/lifecycle/full XISO/native platform qualification remains.",
+    "Diagnostic parent contains main+290+291+329; not isolated main performance evidence.",
+    "Unchanged gameplay inputs/waits/controller/settings/audio/measurement boundary.",
+    "Census run records same pre-existing GLib shutdown assertion; not clean teardown proof.",
+    "Opt-in prototype not a production recommendation."
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "source": "a0eb4130b028548b5d142944699bfa57eed6b40d",
+  "parent": "890fa7954db91993056bb7236269b49af2e20c4b",
+  "runId": "20261006-155811929-05ae7370fa46492695b9cd632e19800d",
+  "app": {
+    "id": "issue166-a0eb41-deck-conker-census-v1",
+    "sha256": "67756f52c198acf17afcfec8156120258be889ada7720e02b9c6047084522436",
+    "source": "a0eb4130b028548b5d142944699bfa57eed6b40d",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+  },
+  "test": {
+    "id": "conker-deck-tb-lookup-census-20261006-v1",
+    "revision": "36d969b0424651d9b055700dfea3888f84b9eb5a10eed06878a67297edcfeabd",
+    "description": "Conker diagnostic: cumulative TB jump-cache outcomes and same-page collisions. Preserves original inputs, waits, controller, configuration and measurement boundary. Counters perturb execution; excluded from performance acceptance.",
+    "sourceJobId": "fresh-deck-conker-b-final-v6",
+    "stepCount": 13,
+    "fileCount": 41,
+    "buildFileCount": 2,
+    "self": "/api/v1/tests/conker-deck-tb-lookup-census-20261006-v1/36d969b0424651d9b055700dfea3888f84b9eb5a10eed06878a67297edcfeabd"
+  },
+  "authoredFrameWindow": {
+    "windowStartUs": 1306217066277,
+    "windowEndUs": 1306242066277,
+    "firstSampleUs": 1306217116363,
+    "lastSampleUs": 1306242066277,
+    "zeroIntervals": 0,
+    "intervalsMs": {
+      "count": 621,
+      "mean": 40.257687600644076,
+      "median": 33.385,
+      "min": 25.223,
+      "max": 85.653,
+      "p95": 50.109,
+      "p99": 64.4515999999995
+    }
+  },
+  "routes": {
+    "dispatcher": {
+      "startUs": 1306217197988,
+      "endUs": 1306241956094,
+      "seconds": 24.758106,
+      "snapshots": 74,
+      "delta": {
+        "probes": 2903035,
+        "hit": 724666,
+        "empty": 1438354,
+        "pc": 174043,
+        "cs": 0,
+        "flags": 549607,
+        "cflags": 16365,
+        "htable_hit": 2119805,
+        "translate_miss": 58563,
+        "helper_calls": 0,
+        "io_was_false": 0,
+        "policy_blocked": 0,
+        "io_recompile_total": 832565,
+        "pc_same_page": 59382,
+        "hitPercent": 24.96235835944107,
+        "pcCollisionPercent": 5.99520846286731,
+        "samePageShareOfPcCollisions": 34.1191544618284
+      }
+    },
+    "generic": {
+      "startUs": 1306217197997,
+      "endUs": 1306241956101,
+      "seconds": 24.758104,
+      "snapshots": 74,
+      "delta": {
+        "probes": 0,
+        "hit": 0,
+        "empty": 0,
+        "pc": 0,
+        "cs": 0,
+        "flags": 0,
+        "cflags": 0,
+        "htable_hit": 0,
+        "translate_miss": 0,
+        "helper_calls": 0,
+        "io_was_false": 0,
+        "policy_blocked": 0,
+        "io_recompile_total": 832565,
+        "pc_same_page": 0,
+        "hitPercent": null,
+        "pcCollisionPercent": null,
+        "samePageShareOfPcCollisions": null
+      }
+    },
+    "i32": {
+      "startUs": 1306217197999,
+      "endUs": 1306241956104,
+      "seconds": 24.758105,
+      "snapshots": 74,
+      "delta": {
+        "probes": 73643013,
+        "hit": 60769596,
+        "empty": 8117335,
+        "pc": 4178673,
+        "cs": 0,
+        "flags": 574338,
+        "cflags": 3071,
+        "htable_hit": 12870086,
+        "translate_miss": 3331,
+        "helper_calls": 73643013,
+        "io_was_false": 0,
+        "policy_blocked": 0,
+        "io_recompile_total": 832565,
+        "pc_same_page": 3365340,
+        "hitPercent": 82.5191603716703,
+        "pcCollisionPercent": 5.674228728256949,
+        "samePageShareOfPcCollisions": 80.53609363546752
+      }
+    }
+  },
+  "limits": [
+    "Diagnostic counts perturb execution; no performance acceptance claim.",
+    "Delta of first and last cumulative snapshots inside authored frame window; no boot counts.",
+    "QHT outcome may lag the probe by one in-flight lookup or guest fault.",
+    "policy_blocked covers listed guards, not a proof of all proposed inline-path eligibility.",
+    "io_recompile_total is process-thread cumulative and repeated across route rows; do not sum across routes."
+  ]
+}
