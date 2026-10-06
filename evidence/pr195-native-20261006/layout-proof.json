@@ -1,0 +1,32 @@
+{
+  "values": {
+    "parent": {
+      "apuBytes": 1593712,
+      "vpBytes": 539984,
+      "filters": 9976,
+      "gp": 543328,
+      "ep": 805792,
+      "regs": 1068256,
+      "monitor": 1592656
+    },
+    "before": {
+      "apuBytes": 1600832,
+      "vpBytes": 547104,
+      "filters": 17096,
+      "gp": 550448,
+      "ep": 812912,
+      "regs": 1075376,
+      "monitor": 1599776
+    },
+    "tail": {
+      "apuBytes": 1600832,
+      "vpBytes": 539984,
+      "filters": 9976,
+      "gp": 543328,
+      "ep": 805792,
+      "regs": 1068256,
+      "monitor": 1592656
+    }
+  },
+  "scope": "Host GCC layout diagnosis only. Moving the derived table to the device tail preserves all original hot state offsets. No causal game regression proof yet."
+}

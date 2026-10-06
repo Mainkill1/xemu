@@ -1,0 +1,386 @@
+[
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "mono-adpcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 711873.0,
+          "candidate": 696940.5,
+          "improvementPercent": 2.097635392829901
+        },
+        "process_cpu_ns": {
+          "parent": 708365102.0,
+          "candidate": 692892668.0,
+          "improvementPercent": 2.1842456603685143
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 714232.5,
+          "candidate": 695595.0,
+          "improvementPercent": 2.6094444036080686
+        },
+        "process_cpu_ns": {
+          "parent": 710622423.0,
+          "candidate": 692026013.5,
+          "improvementPercent": 2.6169184785209065
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "mono-adpcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 712571.5,
+          "candidate": 712693.0,
+          "improvementPercent": -0.01705092050411783
+        },
+        "process_cpu_ns": {
+          "parent": 708533460.0,
+          "candidate": 708307488.0,
+          "improvementPercent": 0.031892918649177135
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 715731.5,
+          "candidate": 709444.0,
+          "improvementPercent": 0.8784718850574552
+        },
+        "process_cpu_ns": {
+          "parent": 710590377.0,
+          "candidate": 703993977.5,
+          "improvementPercent": 0.9282984562567472
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "stereo-adpcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 765097.5,
+          "candidate": 727858.5,
+          "improvementPercent": 4.867222804936626
+        },
+        "process_cpu_ns": {
+          "parent": 759024577.5,
+          "candidate": 722840334.5,
+          "improvementPercent": 4.767203075186323
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 774045.5,
+          "candidate": 733540.0,
+          "improvementPercent": 5.23296111145921
+        },
+        "process_cpu_ns": {
+          "parent": 767292659.0,
+          "candidate": 728035201.0,
+          "improvementPercent": 5.116360431645939
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "stereo-adpcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 748060.0,
+          "candidate": 718904.0,
+          "improvementPercent": 3.8975483250006686
+        },
+        "process_cpu_ns": {
+          "parent": 744565871.5,
+          "candidate": 714846002.0,
+          "improvementPercent": 3.991570207230483
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 773242.5,
+          "candidate": 722792.5,
+          "improvementPercent": 6.524473240930239
+        },
+        "process_cpu_ns": {
+          "parent": 767060306.5,
+          "candidate": 718259709.5,
+          "improvementPercent": 6.362028720097772
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "mono-pcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 776744.5,
+          "candidate": 791450.0,
+          "improvementPercent": -1.8932222886676378
+        },
+        "process_cpu_ns": {
+          "parent": 772144092.0,
+          "candidate": 785929165.0,
+          "improvementPercent": -1.785297995908256
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 782991.5,
+          "candidate": 797273.5,
+          "improvementPercent": -1.8240300182058171
+        },
+        "process_cpu_ns": {
+          "parent": 778836810.5,
+          "candidate": 792649573.0,
+          "improvementPercent": -1.773511769574995
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 1,
+    "payload": "mono-pcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 765502.5,
+          "candidate": 771747.5,
+          "improvementPercent": -0.8158039980274395
+        },
+        "process_cpu_ns": {
+          "parent": 762517509.0,
+          "candidate": 768473866.0,
+          "improvementPercent": -0.7811436366636927
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 773529.5,
+          "candidate": 777610.0,
+          "improvementPercent": -0.5275170500931121
+        },
+        "process_cpu_ns": {
+          "parent": 768374296.5,
+          "candidate": 774052835.5,
+          "improvementPercent": -0.7390329200060637
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "mono-adpcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 257037.0,
+          "candidate": 252923.0,
+          "improvementPercent": 1.600547781058758
+        },
+        "process_cpu_ns": {
+          "parent": 848542321.5,
+          "candidate": 836114424.5,
+          "improvementPercent": 1.4646172247520597
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 248134.0,
+          "candidate": 251027.0,
+          "improvementPercent": -1.1659022947278486
+        },
+        "process_cpu_ns": {
+          "parent": 834660387.5,
+          "candidate": 832824391.5,
+          "improvementPercent": 0.2199692267053946
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "mono-adpcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 242502.0,
+          "candidate": 242176.5,
+          "improvementPercent": 0.13422569710765272
+        },
+        "process_cpu_ns": {
+          "parent": 832761259.5,
+          "candidate": 818838448.5,
+          "improvementPercent": 1.671885050027354
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 241157.5,
+          "candidate": 241422.0,
+          "improvementPercent": -0.10967935892518375
+        },
+        "process_cpu_ns": {
+          "parent": 839327962.0,
+          "candidate": 818114739.0,
+          "improvementPercent": 2.527405729394727
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 250603.5,
+          "candidate": 250206.5,
+          "improvementPercent": 0.1584175799619718
+        },
+        "process_cpu_ns": {
+          "parent": 885378117.5,
+          "candidate": 833254627.0,
+          "improvementPercent": 5.88714465263481
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 254046.5,
+          "candidate": 246136.0,
+          "improvementPercent": 3.1138000326711843
+        },
+        "process_cpu_ns": {
+          "parent": 883333130.5,
+          "candidate": 836363693.5,
+          "improvementPercent": 5.317295975688529
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "stereo-adpcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 251186.5,
+          "candidate": 241768.0,
+          "improvementPercent": 3.7496043776237973
+        },
+        "process_cpu_ns": {
+          "parent": 882644500.5,
+          "candidate": 835906064.5,
+          "improvementPercent": 5.295273008954753
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 249279.0,
+          "candidate": 248662.5,
+          "improvementPercent": 0.24731325141708688
+        },
+        "process_cpu_ns": {
+          "parent": 886484972.5,
+          "candidate": 835689115.0,
+          "improvementPercent": 5.730030296706468
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "mono-pcm",
+    "candidate": "before",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 253725.0,
+          "candidate": 268817.0,
+          "improvementPercent": -5.9481722337176075
+        },
+        "process_cpu_ns": {
+          "parent": 896575835.5,
+          "candidate": 903741550.0,
+          "improvementPercent": -0.7992312770736056
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 254418.5,
+          "candidate": 271965.5,
+          "improvementPercent": -6.896904116642461
+        },
+        "process_cpu_ns": {
+          "parent": 897299760.5,
+          "candidate": 924561815.5,
+          "improvementPercent": -3.038232728916459
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang-19",
+    "workers": 8,
+    "payload": "mono-pcm",
+    "candidate": "tail",
+    "orders": {
+      "ABBA": {
+        "elapsed_us": {
+          "parent": 269159.0,
+          "candidate": 266080.5,
+          "improvementPercent": 1.143747747613864
+        },
+        "process_cpu_ns": {
+          "parent": 913323429.5,
+          "candidate": 904885442.0,
+          "improvementPercent": 0.9238772626931717
+        }
+      },
+      "BAAB": {
+        "elapsed_us": {
+          "parent": 259769.5,
+          "candidate": 262959.0,
+          "improvementPercent": -1.2278192782447517
+        },
+        "process_cpu_ns": {
+          "parent": 893881802.0,
+          "candidate": 899731025.5,
+          "improvementPercent": -0.6543620741481434
+        }
+      }
+    }
+  }
+]

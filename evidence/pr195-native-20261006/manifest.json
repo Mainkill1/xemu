@@ -1,0 +1,27 @@
+{
+  "referenceProduct": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "referenceBuild": "42bd5e11e790",
+  "referenceTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "candidate": "a8f174dbc695184b696db2ad035f1eb80e521035",
+  "nativeScope": "Morrowind Vulkan only; matched release binaries; unchanged saved procedures and Auto/default-sinc configurations",
+  "completed": {
+    "deck": 8,
+    "windows": 8
+  },
+  "comparisonEligible": {
+    "deck": 8,
+    "windows": 0
+  },
+  "statistic": "Median of four canonical per-run values per arm; independent ABBA/BAAB blocks retained",
+  "frameSource": "Guest READ_3D events, not SDL presentations",
+  "cpuUnits": "Process utilization; one logical CPU = 100%",
+  "sceneReview": "Pilot endpoints reviewed; remaining endpoints retained privately and not yet all manually reviewed",
+  "layoutProbe": "Local production-linked VP diagnostic only. Before/tail preserve decoder algorithm; tail preserves original device field offsets. Neither layout cause nor native recovery is established. Tail is not committed or merged.",
+  "limits": [
+    "Windows cache admission failed",
+    "Scene/animation progress and thermal state remain uncontrolled",
+    "No Conker/PGR2 follow-on after negative Deck result",
+    "No new PCM/save-load or XISO qualification"
+  ],
+  "payloadPolicy": "Numeric records only. Screenshots, logs, guest memory, ROMs, ISOs and raw PCM remain private."
+}

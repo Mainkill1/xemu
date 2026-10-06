@@ -1,0 +1,98 @@
+{
+  "deck-parent-morrowind": {
+    "id": "pr195-stereo-a8f174-deck-parent-morrowind-v1",
+    "sha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "deck-parent-conker": {
+    "id": "pr195-stereo-a8f174-deck-parent-conker-v1",
+    "sha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "deck-parent-pgr2": {
+    "id": "pr195-stereo-a8f174-deck-parent-pgr2-v1",
+    "sha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "deck-candidate-morrowind": {
+    "id": "pr195-stereo-a8f174-deck-candidate-morrowind-v1",
+    "sha256": "ac09c45a3984ad96d5f1d7ddeb1f9726932fa8ef2cbdf0db3253330ec27759dd",
+    "configSha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  },
+  "deck-candidate-conker": {
+    "id": "pr195-stereo-a8f174-deck-candidate-conker-v1",
+    "sha256": "ac09c45a3984ad96d5f1d7ddeb1f9726932fa8ef2cbdf0db3253330ec27759dd",
+    "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  },
+  "deck-candidate-pgr2": {
+    "id": "pr195-stereo-a8f174-deck-candidate-pgr2-v1",
+    "sha256": "ac09c45a3984ad96d5f1d7ddeb1f9726932fa8ef2cbdf0db3253330ec27759dd",
+    "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  },
+  "win-parent-morrowind": {
+    "id": "pr195-stereo-a8f174-win-parent-morrowind-release-v2",
+    "sha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "win-parent-conker": {
+    "id": "pr195-stereo-a8f174-win-parent-conker-release-v2",
+    "sha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "win-parent-pgr2": {
+    "id": "pr195-stereo-a8f174-win-parent-pgr2-release-v2",
+    "sha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "productSource": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+    "version": "0.8.136-0-g42bd5e11e790",
+    "buildCommit": "42bd5e11e7909bec6cee703e12034a6fb9770681"
+  },
+  "win-candidate-morrowind": {
+    "id": "pr195-stereo-a8f174-win-candidate-morrowind-release-v2",
+    "sha256": "076144c27dcee70bc3affec0164ae2191d4fa431654c7652957203d31bdcb4bf",
+    "configSha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  },
+  "win-candidate-conker": {
+    "id": "pr195-stereo-a8f174-win-candidate-conker-release-v2",
+    "sha256": "076144c27dcee70bc3affec0164ae2191d4fa431654c7652957203d31bdcb4bf",
+    "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  },
+  "win-candidate-pgr2": {
+    "id": "pr195-stereo-a8f174-win-candidate-pgr2-release-v2",
+    "sha256": "076144c27dcee70bc3affec0164ae2191d4fa431654c7652957203d31bdcb4bf",
+    "configSha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+    "productSource": "a8f174dbc695184b696db2ad035f1eb80e521035",
+    "version": "0.8.136-0-ga8f174dbc695",
+    "buildCommit": "a8f174dbc695184b696db2ad035f1eb80e521035"
+  }
+}

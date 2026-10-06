@@ -1,0 +1,11 @@
+{
+  "reason": "Reference reused from a UI debug artifact; candidate was release. Builds must match; this pair is excluded from every performance comparison.",
+  "referenceSha256": "a7f4587da9d4eb9bc0a6f6b5a2a226d04ec0932d8d691aaf55e38ae50a39cd90",
+  "candidateSha256": "076144c27dcee70bc3affec0164ae2191d4fa431654c7652957203d31bdcb4bf",
+  "runIds": [
+    "20261006-045658189-b99d46c4c6be4b23be1166f076282d68",
+    "20261006-045747886-3a44f7bc7a324625a2182f4932023884"
+  ],
+  "retainedLocally": true,
+  "includedInComparison": false
+}
