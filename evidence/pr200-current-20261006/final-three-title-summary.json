@@ -1,0 +1,484 @@
+[
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 225.4924032258064,
+        "B": 208.29664992067688,
+        "improvementPercent": 7.625868126435209,
+        "rangeA": [
+          222.3860806451613,
+          226.82761290322583
+        ],
+        "rangeB": [
+          206.89244262295082,
+          210.6537704918033
+        ],
+        "ABBA": 6.892209160132752,
+        "BAAB": 7.779071685385234
+      },
+      "guestFlipCadence": {
+        "A": 12.865239195173151,
+        "B": 13.241667779114945,
+        "improvementPercent": 2.9259353691847707,
+        "rangeA": [
+          12.800571690176389,
+          13.01336325159933
+        ],
+        "rangeB": [
+          13.067740016834277,
+          13.325872953420737
+        ],
+        "ABBA": 2.5001146073902936,
+        "BAAB": 2.6713656739501968
+      },
+      "avgFrameMs": {
+        "A": 74.77171284786273,
+        "B": 73.25352373400132,
+        "improvementPercent": 2.0304324403407144,
+        "rangeA": [
+          73.90596470588233,
+          75.50183734939765
+        ],
+        "rangeB": [
+          72.73963953488376,
+          74.23388427299707
+        ],
+        "ABBA": 1.653073477508706,
+        "BAAB": 2.003849669625764
+      },
+      "p95FrameMs": {
+        "A": 100.002275,
+        "B": 99.97547499999999,
+        "improvementPercent": 0.026799390313878953,
+        "rangeA": [
+          99.9848,
+          100.00345
+        ],
+        "rangeB": [
+          99.9645,
+          99.994
+        ],
+        "ABBA": 0.02175141928011951,
+        "BAAB": 0.01992441721079722
+      },
+      "p99FrameMs": {
+        "A": 116.655715,
+        "B": 100.95376000000003,
+        "improvementPercent": 13.460082088562888,
+        "rangeA": [
+          105.15467999999989,
+          116.70579000000001
+        ],
+        "rangeB": [
+          100.18058,
+          110.8571999999999
+        ],
+        "ABBA": 4.878151569768151,
+        "BAAB": 13.460082088562888
+      },
+      "maxFrameMs": {
+        "A": 149.952,
+        "B": 120.018,
+        "improvementPercent": 19.962387964148526,
+        "rangeA": [
+          116.721,
+          166.663
+        ],
+        "rangeB": [
+          116.656,
+          142.781
+        ],
+        "ABBA": 15.61238460886994,
+        "BAAB": 13.194889031156638
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": []
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "guestFlipCadence": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "avgFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p95FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p99FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "maxFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261006-053746940-efc23d44dc9c410e8d9d55a09fd7775c",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "conker",
+            "cell": 7,
+            "variant": "parent",
+            "runId": "20261006-053746940-efc23d44dc9c410e8d9d55a09fd7775c",
+            "issue": "Wrong scene at both endpoints: Conker multiplayer match, expected Xbox Live & Co menu",
+            "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+            "manualAssessment": "Scene failure; withhold whole eight-cell Deck Conker paired cohort. Other seven cells show intended menu. No replacement or changed inputs."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "manual scene failure retained"
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "guestFlipCadence": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "avgFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p95FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p99FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "maxFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261006-060242069-2df8a0d718084cb3ae2b466c757b4a81",
+        "findings": [
+          {
+            "host": "deck",
+            "title": "pgr2",
+            "cell": 6,
+            "variant": "parent",
+            "runId": "20261006-060242069-2df8a0d718084cb3ae2b466c757b4a81",
+            "issue": "Wrong scene at both endpoints: Microsoft Game Studios and Bizarre Creations startup logos; expected Hong Kong race start",
+            "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+            "manualAssessment": "Scene failure. Withhold whole Deck PGR2 paired cohort; do not replace the failed reference."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "manual scene failure retained"
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 0,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 284.0633442622951,
+        "B": 231.64522062841525,
+        "improvementPercent": 18.452969977526788,
+        "rangeA": [
+          273.00255737704913,
+          288.24598360655756
+        ],
+        "rangeB": [
+          229.2440327868853,
+          242.8775737704919
+        ],
+        "ABBA": 16.764348510475536,
+        "BAAB": 17.572831456217006
+      },
+      "guestFlipCadence": {
+        "A": 32.533006764614846,
+        "B": 33.18055566222002,
+        "improvementPercent": 1.9904366734079295,
+        "rangeA": [
+          31.795188243072896,
+          33.111687156949955
+        ],
+        "rangeB": [
+          32.85049615611321,
+          33.909536139487074
+        ],
+        "ABBA": 1.7729272947285746,
+        "BAAB": 3.0731437386917837
+      },
+      "avgFrameMs": {
+        "A": 30.61157604805134,
+        "B": 30.094929484682368,
+        "improvementPercent": 1.6877489827965293,
+        "rangeA": [
+          30.052013205282115,
+          31.486156171284634
+        ],
+        "rangeB": [
+          29.259174269005875,
+          30.41715309842041
+        ],
+        "ABBA": 1.3816994499699566,
+        "BAAB": 3.3299904772477835
+      },
+      "p95FrameMs": {
+        "A": 33.729,
+        "B": 33.71965,
+        "improvementPercent": 0.027720952296236917,
+        "rangeA": [
+          33.6792,
+          33.751149999999996
+        ],
+        "rangeB": [
+          33.649,
+          33.735800000000005
+        ],
+        "ABBA": -0.008894423196656034,
+        "BAAB": 0.10418157402416194
+      },
+      "p99FrameMs": {
+        "A": 50.03206,
+        "B": 50.027029999999996,
+        "improvementPercent": 0.01005355366140226,
+        "rangeA": [
+          50.027,
+          50.0548
+        ],
+        "rangeB": [
+          50.02046,
+          50.0299
+        ],
+        "ABBA": 0.004896909070986526,
+        "BAAB": 0.03656972027160797
+      },
+      "maxFrameMs": {
+        "A": 50.372,
+        "B": 50.387,
+        "improvementPercent": -0.029778448344319402,
+        "rangeA": [
+          50.301,
+          50.54
+        ],
+        "rangeB": [
+          50.234,
+          66.641
+        ],
+        "ABBA": -16.09484265734266,
+        "BAAB": 0.1377424117804404
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "runner comparison admission incomplete"
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": null,
+    "metrics": {
+      "cpu": {
+        "A": 247.53963197644646,
+        "B": 211.10052227342553,
+        "improvementPercent": 14.720515422955842,
+        "rangeA": [
+          243.7890634920635,
+          249.74211290322577
+        ],
+        "rangeB": [
+          210.4901111111111,
+          212.3081774193548
+        ],
+        "ABBA": 15.193512643353834,
+        "BAAB": 13.848071597891426
+      },
+      "guestFlipCadence": {
+        "A": 30.00002467955362,
+        "B": 30.00017609118266,
+        "improvementPercent": 0.0005047050149397345,
+        "rangeA": [
+          30,
+          30.000044223172758
+        ],
+        "rangeB": [
+          29.999986852595402,
+          30.00053396175831
+        ],
+        "ABBA": 0.0005047050149397345,
+        "BAAB": 0.0007943180494717038
+      },
+      "avgFrameMs": {
+        "A": 33.333417999999966,
+        "B": 33.33336000000001,
+        "improvementPercent": 0.0001739995579002433,
+        "rangeA": [
+          33.33324766977362,
+          33.33357733333339
+        ],
+        "rangeB": [
+          33.33219840213053,
+          33.33378399999997
+        ],
+        "ABBA": -0.00036199866774095914,
+        "BAAB": 0.0017998992415845616
+      },
+      "p95FrameMs": {
+        "A": 33.495824999999996,
+        "B": 33.572525,
+        "improvementPercent": -0.22898376140907842,
+        "rangeA": [
+          33.466300000000004,
+          33.56105
+        ],
+        "rangeB": [
+          33.453,
+          33.61755
+        ],
+        "ABBA": -0.06243594161903276,
+        "BAAB": -0.23100359305749166
+      },
+      "p99FrameMs": {
+        "A": 33.724795,
+        "B": 33.763795,
+        "improvementPercent": -0.11564191865362407,
+        "rangeA": [
+          33.70357,
+          33.8
+        ],
+        "rangeB": [
+          33.65557,
+          33.806020000000004
+        ],
+        "ABBA": 0.09181976254520474,
+        "BAAB": -0.14536649128862209
+      },
+      "maxFrameMs": {
+        "A": 34.071,
+        "B": 34.2425,
+        "improvementPercent": -0.503360629274168,
+        "rangeA": [
+          33.925,
+          34.355
+        ],
+        "rangeB": [
+          34.157,
+          34.303
+        ],
+        "ABBA": -0.46667253676146553,
+        "BAAB": -0.30023432923256926
+      }
+    },
+    "manualSceneFindings": [],
+    "manualSceneKnownFailure": false,
+    "performanceComparisonStatus": "eligible within host",
+    "performanceComparisonLimits": []
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "attempted": 8,
+    "completed": 8,
+    "completeOrder": true,
+    "runnerEligible": 8,
+    "statistic": "Median of four per-run values per side; independent ABBA/BAAB blocks",
+    "metricSource": "Canonical performance API; READ_3D cadence, not SDL presentations; frame milliseconds; CPU one core=100%",
+    "sceneLimitation": "PGR2 cross-host flyover/countdown mismatch; diagnostic, original inputs unchanged",
+    "metrics": {
+      "cpu": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "guestFlipCadence": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "avgFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p95FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "p99FrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      },
+      "maxFrameMs": {
+        "status": "not comparable: retained scene failure or unconfirmed boundary"
+      }
+    },
+    "manualSceneFindings": [
+      {
+        "runId": "20261006-055924912-a6d74984bfc74928a796a0f345e0d125",
+        "findings": [
+          {
+            "host": "win",
+            "title": "pgr2",
+            "cell": 5,
+            "variant": "candidate",
+            "runId": "20261006-055924912-a6d74984bfc74928a796a0f345e0d125",
+            "issue": "Recording-start image is entirely white; recording-end shows expected car parked at Hong Kong start line",
+            "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+            "manualAssessment": "Start boundary cannot be independently confirmed from retained image. Retain metrics as diagnostic only; do not assert fully qualified scene match or change inputs."
+          }
+        ]
+      }
+    ],
+    "manualSceneKnownFailure": true,
+    "performanceComparisonStatus": "diagnostic only",
+    "performanceComparisonLimits": [
+      "manual scene failure retained"
+    ]
+  }
+]

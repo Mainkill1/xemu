@@ -1,0 +1,18 @@
+{
+  "deck": {
+    "OperatingSystem": "SteamOS",
+    "OsArchitecture": "X64",
+    "ProcessArchitecture": "X64",
+    "CpuModel": "AMD Custom APU 0405",
+    "LogicalProcessors": 8,
+    "PhysicalMemoryBytes": 15524212736
+  },
+  "win": {
+    "OperatingSystem": "Microsoft Windows 10.0.19045",
+    "OsArchitecture": "X64",
+    "ProcessArchitecture": "X64",
+    "CpuModel": "AMD Ryzen 9 6900HX with Radeon Graphics",
+    "LogicalProcessors": 16,
+    "PhysicalMemoryBytes": 16361480192
+  }
+}

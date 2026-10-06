@@ -1,0 +1,13 @@
+{
+  "base": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "head": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "reviewer": "pr200_current_review",
+  "sourceBlockers": [],
+  "sourceReadyOnceQualificationMet": true,
+  "remaining": [
+    "Finish native Conker/PGR2",
+    "Applicable XISO correctness and leaf timings",
+    "Disclose latency and cache limits"
+  ],
+  "optionalSuggestion": "Assert SDL query counts after the second workload instance; current code correctly resolves once before launch. No extra test added for this optional future guard."
+}

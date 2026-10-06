@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "host": "deck",
+      "title": "conker",
+      "cell": 7,
+      "variant": "parent",
+      "runId": "20261006-053746940-efc23d44dc9c410e8d9d55a09fd7775c",
+      "issue": "Wrong scene at both endpoints: Conker multiplayer match, expected Xbox Live & Co menu",
+      "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+      "manualAssessment": "Scene failure; withhold whole eight-cell Deck Conker paired cohort. Other seven cells show intended menu. No replacement or changed inputs."
+    },
+    {
+      "host": "deck",
+      "title": "pgr2",
+      "cell": 6,
+      "variant": "parent",
+      "runId": "20261006-060242069-2df8a0d718084cb3ae2b466c757b4a81",
+      "issue": "Wrong scene at both endpoints: Microsoft Game Studios and Bizarre Creations startup logos; expected Hong Kong race start",
+      "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+      "manualAssessment": "Scene failure. Withhold whole Deck PGR2 paired cohort; do not replace the failed reference."
+    },
+    {
+      "host": "win",
+      "title": "pgr2",
+      "cell": 5,
+      "variant": "candidate",
+      "runId": "20261006-055924912-a6d74984bfc74928a796a0f345e0d125",
+      "issue": "Recording-start image is entirely white; recording-end shows expected car parked at Hong Kong start line",
+      "runnerReported": "execution completed, correctness passed, evidence complete, comparison eligible",
+      "manualAssessment": "Start boundary cannot be independently confirmed from retained image. Retain metrics as diagnostic only; do not assert fully qualified scene match or change inputs."
+    }
+  ],
+  "reviewedEndpoints": 96,
+  "methods": [
+    "All Morrowind recording endpoints on each host",
+    "All Conker recording endpoints on each host",
+    "All PGR2 recording endpoints on each host"
+  ],
+  "state": "Manual scene assessment does not overwrite canonical runner outcomes",
+  "pgr2Review": "Deck reference cell 6 startup logos; Windows candidate cell 5 start image white. Other PGR2 pairs reach Hong Kong race start and end parked at 0 mph; cross-host flyover/countdown mismatch remains."
+}

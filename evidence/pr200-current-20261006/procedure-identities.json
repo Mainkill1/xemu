@@ -1,0 +1,2986 @@
+[
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 1,
+    "runId": "20261006-051258464-d16cdabe7fe84e239f19d9238ed61613",
+    "requestId": "p200-auto197654-deck-morrowind-01-parent-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "85f15f2577eb77da7e3ecc83eb0ceb40831095b448d060d09cdff98f70e9b0de",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 2,
+    "runId": "20261006-051347959-59350b0826a34e31bb2b4db4f3c81e57",
+    "requestId": "p200-auto197654-deck-morrowind-02-candidate-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "06e9b0ff42e6637dd9b681d59ab8d4cddb1c2631028b6ebb0c010551b41ae5a7",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 3,
+    "runId": "20261006-052000386-fdbba02c76ef4b1eae1c909a123d77af",
+    "requestId": "p200-auto197654-deck-morrowind-03-candidate-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "6c2df96a0353bdf78156cb3f2d87e9a4010b0e5bfc68eb004477232054b9ae5e",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 4,
+    "runId": "20261006-052050298-d527897210db428a84b3553b33ce5eb6",
+    "requestId": "p200-auto197654-deck-morrowind-04-parent-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "eb615a36a9e5e1c748693f8ef64a29ac2809108d240bd14e309890e2176115c7",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 5,
+    "runId": "20261006-052140119-b11b055d0bd04e4ebb22eaaba1b5d30f",
+    "requestId": "p200-auto197654-deck-morrowind-05-candidate-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "86fd6adbd7c31e6a6b157871a9acb45150ef7b11d98d43315d5f64a3eaa94703",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 6,
+    "runId": "20261006-052229213-51ecb50ab8404c808eeb3ce8a05601e2",
+    "requestId": "p200-auto197654-deck-morrowind-06-parent-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "559c27498b76fc867cf6fb96835918665a81834e168842d463256bd98104fcb4",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 7,
+    "runId": "20261006-052318884-95300379cc6a47198f0783b7db26582b",
+    "requestId": "p200-auto197654-deck-morrowind-07-parent-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "c59f938168efc40efd24ff3102d2fd8a3d28f955e1ba6c3e1007328be3d7f6ef",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "morrowind",
+    "cell": 8,
+    "runId": "20261006-052408906-8a79276f016744a9bbe751f2a5fdef1e",
+    "requestId": "p200-auto197654-deck-morrowind-08-candidate-v1-t001",
+    "planSha256": "8887993287519112b74240fa9373650741bebe755ae0cf86f23b1009507b4438",
+    "inputManifestSha256": "f6cfe655905c83208d6c6473419824694c24514426d60fbf86ad783bba154f43",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "deck-morrowind-vulkan-snapshot-config",
+        "sha256": "9a5ab0eb848fd0a343cee8fdc73068327933f46cabaf405defaf947c2d43e354",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 1,
+    "runId": "20261006-052524886-40c8943ba6f84f4ab0e3ccd13ebd69f4",
+    "requestId": "p200-auto197654-deck-conker-01-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "28e26f88b96a9a31e0ce2054c1f2ea316249661b83a0fbf5b06df7252be70eba",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 2,
+    "runId": "20261006-052725176-ff786f0cad5a42e1928a96acc5f587a5",
+    "requestId": "p200-auto197654-deck-conker-02-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "2a9fe895eb7d0d44e0c5a03aaeb5ff01198d7d9e89d169a96ffa308c07f6e5aa",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 3,
+    "runId": "20261006-053003429-1b962bff460343c5881e36a3af2929bb",
+    "requestId": "p200-auto197654-deck-conker-03-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "e826db0a4b91ae2afc641e3601fc95256f3640de446b3eabd48492a372f23400",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 4,
+    "runId": "20261006-053201732-f2b17ca27e224d11b4b6fea3e672b474",
+    "requestId": "p200-auto197654-deck-conker-04-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "2e955f3bf4acc73b7e2254428ee9ab52f9e9a71d39671e4fd3a99c60933fe540",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 5,
+    "runId": "20261006-053400555-a45d2cf24d614316ad1b593d319e3be4",
+    "requestId": "p200-auto197654-deck-conker-05-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "2e215013905085907cf5b59264f6c6eed878fc9ae5e6944dcceb93dd1318e531",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 6,
+    "runId": "20261006-053553522-2d35aee4e5944da2a4e10d924188f0b9",
+    "requestId": "p200-auto197654-deck-conker-06-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "b3da2ba9036aad305863637427473e5ae4c252b54c6b8ddb299410a5d547fe36",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 7,
+    "runId": "20261006-053746940-efc23d44dc9c410e8d9d55a09fd7775c",
+    "requestId": "p200-auto197654-deck-conker-07-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "47f48912755b531d20331109843a0d3be9421feb2703d2ed5c68d6cb4fa09e95",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "conker",
+    "cell": 8,
+    "runId": "20261006-053940097-c3b9b92491a64ba087c465ec16ca954e",
+    "requestId": "p200-auto197654-deck-conker-08-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "a9fc3f98c613370880533e84f4251e92df6aa747e3b7fce3863ecd5cbffe83f6",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 1,
+    "runId": "20261006-054417052-5647b123c2ad4e708b8345940856ea9d",
+    "requestId": "p200-auto197654-deck-pgr2-01-parent-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "5f241a8759d2bf0a03d77d484ef43ba95f34c1230c8583c19b2d627154a67ddc",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 2,
+    "runId": "20261006-054653248-75847eb84f06420985bdbb1ea9c77ee2",
+    "requestId": "p200-auto197654-deck-pgr2-02-candidate-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "6ff52dc0c1fb12648bc97a06ffb7cbd0bede86c006aa7203275e3e4e88aab8f9",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 3,
+    "runId": "20261006-055455063-92e70b38bd1f4068bf66379a74891408",
+    "requestId": "p200-auto197654-deck-pgr2-03-candidate-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "72ba9c28c8539b4049bc169c5e9f118d0b1a88faf394336dfd4f3dd9d246c84c",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 4,
+    "runId": "20261006-055729921-f07abb9312514f43b961089534add806",
+    "requestId": "p200-auto197654-deck-pgr2-04-parent-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "39c81131bf269eb679b10bdb376acf314e178821eaeb3d79a1ca619cd3c3e5ad",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 5,
+    "runId": "20261006-060004773-2a5ae37f1bf943abbfe3cb1d6d13a00b",
+    "requestId": "p200-auto197654-deck-pgr2-05-candidate-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "9570d10aa2653f8db2c138cb092549abdd9885625da84da5b7b82f593274dea8",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 6,
+    "runId": "20261006-060242069-2df8a0d718084cb3ae2b466c757b4a81",
+    "requestId": "p200-auto197654-deck-pgr2-06-parent-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "f920e43df419026f27b1a715a7d0a237f371f31bfa17c01c3868a20981d44ae0",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 7,
+    "runId": "20261006-060513834-ef662ece881345faa43532d4f6beb11b",
+    "requestId": "p200-auto197654-deck-pgr2-07-parent-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "b4a560adf95540cbaf19193e4ab32b00da666c00bbdca29fe6e59ac2ce3ae697",
+    "executableSha256": "2014151d289b1ee735013b2b086fb556fceeec868e6ddc68e38695ded136204c",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "title": "pgr2",
+    "cell": 8,
+    "runId": "20261006-060749649-47810caf86cb41ab8a1cc56ac35bc7c4",
+    "requestId": "p200-auto197654-deck-pgr2-08-candidate-v1-t001",
+    "planSha256": "cd7c27aa8d6609239f4bf1e1117f619ec6e2d9368bd38c1e6733d1e69df30d03",
+    "inputManifestSha256": "163d9e6fd321d2423bad3b0a60c52ee72d823f8451510cc3ece2a33ca699a76a",
+    "executableSha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+    "controller": {
+      "Backend": "native-os-gamepad",
+      "ControllerIndex": 0,
+      "MappingProfile": "runner-xbox-port1-v1"
+    },
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 210,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000,
+      6000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "portable-run-config",
+        "sha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 1,
+    "runId": "20261006-051440617-a2122d207fc744e68cd8f0664c0c2f35",
+    "requestId": "p200-auto197654-win-morrowind-01-parent-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "ed46f41f608fda8858ac267bb5526d0274fb912109c80c1dc99fe663a8e52779",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 2,
+    "runId": "20261006-051529225-909c1319860043798f88eed5966ad3ed",
+    "requestId": "p200-auto197654-win-morrowind-02-candidate-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "6e6c6c3ffc7c8e9e21e2251c154c6b11bec0a6263e286128369393c7ee62f634",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 3,
+    "runId": "20261006-052001379-199e57f57ef44b03a511d846c65b63b3",
+    "requestId": "p200-auto197654-win-morrowind-03-candidate-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "ff2894116018a37ed14c78b54a0d57156dd2384138c8048c8813e7c58824342b",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 4,
+    "runId": "20261006-052049314-23851435633743baacc1be28b1e73fca",
+    "requestId": "p200-auto197654-win-morrowind-04-parent-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "71dde2e22496e2355dbf8716fedbb6b2e31e7970d072f434791929d0d62fc91b",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 5,
+    "runId": "20261006-052137343-2db3119017814f91a3830aa328178d9c",
+    "requestId": "p200-auto197654-win-morrowind-05-candidate-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "fda460de187dd854b14050191dfa9cfc43ef4a4a892344af6e2094123929826c",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 6,
+    "runId": "20261006-052225300-fe44de0358d547729428db84964182cf",
+    "requestId": "p200-auto197654-win-morrowind-06-parent-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "9fa970e9c4b70e195a02ccb7871076710b82ec421ba889285d8a5e25d5d639f3",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 7,
+    "runId": "20261006-052312935-e9af9c3f26594137bce1c1902730ac09",
+    "requestId": "p200-auto197654-win-morrowind-07-parent-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "a0860c9a964083a8746d1b75079828c25384ff678a8e6f909118ac30b1c9bbb7",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "morrowind",
+    "cell": 8,
+    "runId": "20261006-052401105-5cdd1feab4964aa1b50e7933e76a0df9",
+    "requestId": "p200-auto197654-win-morrowind-08-candidate-v1-t001",
+    "planSha256": "f10439a952d2c67956f21af1b0c83de6461e786bb439fbe2fe92329cf78b125d",
+    "inputManifestSha256": "2f2651f93f76959db889bcf9317b8e34b7a91cc07f5b10627c2da33aafc194f8",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "morrowind-user-scene",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 180,
+    "planButtonStates": [
+      {
+        "button": "Start",
+        "durationMs": 300
+      },
+      {
+        "button": "B",
+        "durationMs": 200
+      }
+    ],
+    "planWaitsMs": [
+      2000,
+      2000,
+      4000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "morrowind-vulkan-snapshot-config",
+        "sha256": "2627501f282a49b8961c3185ce8f881380fdb5f2d3dc8e5824906bca733e739d",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 1,
+    "runId": "20261006-052524398-86e63f506efa4099a26d3e628d53d1f6",
+    "requestId": "p200-auto197654-win-conker-01-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "013df91703e672d10c716043b00cb561cd5261399fc5214f75a3e3446dc1ac0c",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 2,
+    "runId": "20261006-052715725-df93de56924043afad9ac9693c2729de",
+    "requestId": "p200-auto197654-win-conker-02-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "8116fd68f4fd41c2b20e85be38649c5e23db0c09c215ae03a755e9083598e2f6",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 3,
+    "runId": "20261006-053008628-6fab0f5737564bd39d6a91256dc5e855",
+    "requestId": "p200-auto197654-win-conker-03-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "83c5bd804c2d67b2a7ec85af0788f86f7ea0ed8b84169ae92526b74b3f5fedd9",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 4,
+    "runId": "20261006-053159761-408157c7fcb042378d172689fa9a8416",
+    "requestId": "p200-auto197654-win-conker-04-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "8eaae4ed8eefb7edf906e51ebbef8848c08068cefd045334bd6c0aa1c880b67d",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 5,
+    "runId": "20261006-053351570-66529ac4b5b448ab97050324810cdcf9",
+    "requestId": "p200-auto197654-win-conker-05-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "944f13e18cbbea82538b5e4303f2fa24f9be811a76ed4e9e31f949fa9d137177",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 6,
+    "runId": "20261006-053543211-b2869856225a40938843d7eb1427f224",
+    "requestId": "p200-auto197654-win-conker-06-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "9e79be6dc03cef356eb2193a0703270cc67308998260978929c64f7d2ac491a5",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 7,
+    "runId": "20261006-053735019-32432e090ee44cafae9353d1cf2c69cd",
+    "requestId": "p200-auto197654-win-conker-07-parent-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "de4ab5d4f0351b1b3428aafee03d0b5a36db22aa3140af05883a8b764d821e32",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "conker",
+    "cell": 8,
+    "runId": "20261006-053926790-c146f0292047442296ebc8243d81bf5b",
+    "requestId": "p200-auto197654-win-conker-08-candidate-v1-t001",
+    "planSha256": "83971c3bdd6e9ada4ca1874c85fc37f1e14aadb72d34ca631f51d16a826483a5",
+    "inputManifestSha256": "2f007a7ff104be8999c54768472698e69ec723629c9aec62778cece958083c92",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      15000,
+      15000,
+      20000,
+      15000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 1,
+    "runId": "20261006-054418743-f52e607b9ebf44058cd11aece0de239c",
+    "requestId": "p200-auto197654-win-pgr2-01-parent-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "ed603426adf5f26784d87f05f3e96d781a7bfbdfb9a812badb748e290a66f0c0",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 2,
+    "runId": "20261006-054631787-f293f688648a45e8bfbb65528a1b38e0",
+    "requestId": "p200-auto197654-win-pgr2-02-candidate-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "44a1297696334747164bacdfca5b0852fad63bf148c23c99fc9253ba1813e6d3",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 3,
+    "runId": "20261006-055457567-af312665c9f14bbc8eafbb59ae0d3784",
+    "requestId": "p200-auto197654-win-pgr2-03-candidate-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "71c26115122eb920fe1553a20d6a333f6b079ef50a6aded1de02675e4ed46568",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 4,
+    "runId": "20261006-055711160-798503d4870747f5b284749707247d1e",
+    "requestId": "p200-auto197654-win-pgr2-04-parent-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "c504d44e6c813b6f039ed662ce049303fb10865710aefbcb635c25bc13e56e9e",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 5,
+    "runId": "20261006-055924912-a6d74984bfc74928a796a0f345e0d125",
+    "requestId": "p200-auto197654-win-pgr2-05-candidate-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "c84da5d2484d3a1d8c7b3aa7d8e3165208d9cce167a787adcc8b71c124b7b670",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 6,
+    "runId": "20261006-060138494-1a9bed94ebbc46e5bed71072e203730c",
+    "requestId": "p200-auto197654-win-pgr2-06-parent-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "ce1a3e3e7932b9ad4f98a45fac9814e1f693d09737d6d61e041203f1a2a59381",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 7,
+    "runId": "20261006-060351773-58ee0b8a2e42496a974598ccc535cb9f",
+    "requestId": "p200-auto197654-win-pgr2-07-parent-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "36cac32a9093729e9514548b711c26aa99097d405fc0d16e8b0caec839e401d0",
+    "executableSha256": "036344313ed5758ff31892d3458fcac64dc95bcd228a09273bf5ab2a2580b6c3",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "host": "win",
+    "title": "pgr2",
+    "cell": 8,
+    "runId": "20261006-060605404-9c89586e82ab4e4985f63f931351ee24",
+    "requestId": "p200-auto197654-win-pgr2-08-candidate-v1-t001",
+    "planSha256": "53fe54b52056d69e6bbfc04ed609de0d15ea98c04cc2859fb8e9564af26ba702",
+    "inputManifestSha256": "5bd088059dda87a8870106042f4bf0bfe7d079e1e7caa0b95ac480ef5a410496",
+    "executableSha256": "e25a4b3d11cdb05b2df50085aac3a14b7cecaaad187d4efcfea83526f9f4f420",
+    "controller": null,
+    "measurement": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    },
+    "timeoutSeconds": 300,
+    "planButtonStates": [
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "LStickRight",
+        "durationMs": 80
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      },
+      {
+        "button": "A",
+        "durationMs": 100
+      }
+    ],
+    "planWaitsMs": [
+      30000,
+      12000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      4000,
+      10000,
+      30000
+    ],
+    "settingsIdentities": [
+      {
+        "role": "frozen-game-settings",
+        "sha256": "7f7670b3456835c6300934be2d557ec7226a4a30cbcccb48b4bc16013e56d32a",
+        "verified": true
+      }
+    ]
+  }
+]

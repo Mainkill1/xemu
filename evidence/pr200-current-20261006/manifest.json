@@ -1,0 +1,41 @@
+{
+  "referenceProduct": "741461cad9bdaf3d34cadc98a5879ce48057de33",
+  "referenceBuild": "42bd5e11e790",
+  "referenceTree": "663d7a97a1e33b0ffbec00c15d3bee8f3514d917",
+  "candidate": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "currentSourceChecks": "44/44 exact-head CI; GCC/Clang policy with and without UBSan; production VP 25/25; independent review found no source blocker",
+  "nativeScope": "Current main-equivalent versus compiled Auto-four release, Vulkan, default sinc; unchanged saved procedures, inputs, waits, settings and measurement boundaries",
+  "nativeRuns": 48,
+  "reviewedEndpoints": 96,
+  "orderPerHostAndTitle": [
+    "A",
+    "B",
+    "B",
+    "A",
+    "B",
+    "A",
+    "A",
+    "B"
+  ],
+  "fullyAdmittedCohorts": [
+    "deck/morrowind",
+    "win/conker"
+  ],
+  "diagnosticCohort": "win/morrowind: 0/8 cache-admitted",
+  "withheldCohorts": [
+    "deck/conker: wrong-scene reference cell 7",
+    "deck/pgr2: startup-screen reference cell 6",
+    "win/pgr2: unconfirmed white starting image cell 5"
+  ],
+  "statistic": "Median of four canonical per-run values per side, with both block directions retained. No pooled-frame inference.",
+  "cpuUnits": "Summed xemu process utilization, one logical CPU = 100%",
+  "frameSource": "READ_3D guest events, not SDL presentations or guest instruction count",
+  "controls": "Frozen existing CPU leaves in OpenGL/Vulkan; full paired suite blocked by 22 missing oracles, no affected audio leaf; current control reports pending",
+  "limits": [
+    "Scene progress and spikes are not causal worker-count proof",
+    "PGR2 original cross-host flyover/countdown mismatch remains",
+    "No replacement of failed runs or changed gameplay procedure",
+    "No new OpenGL title, PCM/listening, or active save/load qualification"
+  ],
+  "payloadPolicy": "Numeric/source records only. Screenshots, process/game/resource bytes, ROMs, ISOs, raw PCM and private paths stay outside Git."
+}
