@@ -21,6 +21,19 @@ static void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
 #include "hw/xbox/nv2a/pgraph/vk/surface.c"
 
 bool tcg_allowed;
+static unsigned int conversions;
+static bool conversion_succeeds;
+
+bool pgraph_vk_convert_depth_alias(PGRAPHState *pg, SurfaceBinding *producer,
+                                   SurfaceBinding *view)
+{
+    g_assert_false(producer->swizzle);
+    g_assert_true(producer->draw_dirty);
+    g_assert_true(view->swizzle);
+    g_assert_false(view->draw_dirty);
+    conversions++;
+    return conversion_succeeds;
+}
 
 CPUState *qemu_get_cpu(int index)
 {
@@ -165,6 +178,125 @@ static void test_producer_rewrite(gconstpointer data)
     g_assert_true(QTAILQ_FIRST(&r->invalid_surfaces) == &view);
 }
 
+/*
+ * Exercise the production lookup/conversion boundary without allocating GPU
+ * images. The fixture supplies the already allocated logical bindings.
+ */
+static void bind_existing_depth_surface(NV2AState *d, SurfaceBinding *target)
+{
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    SurfaceBinding *view = find_exact_surface(r, target);
+    SurfaceBinding *producer =
+        pgraph_vk_find_depth_alias_producer(d, target, view);
+
+    g_assert_true(view == target);
+    if (producer) {
+        g_assert_true(update_depth_alias_view(pg, producer, view));
+    }
+    r->zeta_binding = view;
+    /* A read-only bind updates last use, just as surface_update does. */
+    view->draw_time = ++pg->draw_time;
+    pgraph_vk_set_surface_dirty(pg, false, true);
+}
+
+static void test_view_rebind(gconstpointer data)
+{
+    g_autofree NV2AState *d = g_new0(NV2AState, 1);
+    g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    SurfaceBinding producer = {
+        .vram_addr = 0x200000,
+        .dma_addr = 0x100000,
+        .dma_len = 0x800000,
+        .size = 640 * 480 * 4,
+        .width = 640,
+        .height = 480,
+        .pitch = 640 * 4,
+        .fmt.bytes_per_pixel = 4,
+        .shape.zeta_format = NV097_SET_SURFACE_FORMAT_ZETA_Z24S8,
+        .host_fmt.vk_format = GPOINTER_TO_UINT(data),
+        .initialized = true,
+        .draw_dirty = true,
+        .lifetime_id = 1,
+    };
+    SurfaceBinding view = producer;
+
+    d->pgraph.vk_renderer_state = r;
+    d->pgraph.surface_scale_factor = 1;
+    d->pgraph.surface_shape.anti_aliasing =
+        NV097_SET_SURFACE_FORMAT_ANTI_ALIASING_CENTER_1;
+    view.width = view.height = 32;
+    view.size = view.height * view.pitch;
+    view.swizzle = true;
+    view.draw_dirty = false;
+    view.lifetime_id = 2;
+    QTAILQ_INIT(&r->surfaces);
+    QTAILQ_INIT(&r->invalid_surfaces);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &view, entry);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &producer, entry);
+    conversions = 0;
+    conversion_succeeds = true;
+
+    bind_existing_depth_surface(d, &producer);
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 1);
+    bind_existing_depth_surface(d, &producer);
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 1);
+
+    bind_existing_depth_surface(d, &producer);
+    d->pgraph.regs_[NV_PGRAPH_CONTROL_0] =
+        NV_PGRAPH_CONTROL_0_ZENABLE | NV_PGRAPH_CONTROL_0_ZWRITEENABLE;
+    pgraph_vk_set_surface_dirty(&d->pgraph, false, true);
+    g_assert_false(surface_is_tracked(r, &view));
+    g_assert_true(QTAILQ_FIRST(&r->invalid_surfaces) == &view);
+    d->pgraph.regs_[NV_PGRAPH_CONTROL_0] = 0;
+
+    /* Replace the retired binding, as update_surface_part does. */
+    QTAILQ_REMOVE(&r->invalid_surfaces, &view, entry);
+    view = (SurfaceBinding){
+        .vram_addr = producer.vram_addr,
+        .dma_addr = producer.dma_addr,
+        .dma_len = producer.dma_len,
+        .size = 32 * 640 * 4,
+        .width = 32,
+        .height = 32,
+        .pitch = 640 * 4,
+        .fmt = producer.fmt,
+        .shape = producer.shape,
+        .host_fmt = producer.host_fmt,
+        .swizzle = true,
+        .lifetime_id = 3,
+    };
+    QTAILQ_INSERT_HEAD(&r->surfaces, &view, entry);
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 2);
+    bind_existing_depth_surface(d, &producer);
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 2);
+
+    /* Recycled owner storage must not validate the old view provenance. */
+    producer.lifetime_id = 4;
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 3);
+
+    /* A contents replacement on the same owner requires a new conversion. */
+    producer.depth_write_generation++;
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 4);
+
+    /* Failed conversion must neither retain nor publish reusable provenance. */
+    producer.depth_write_generation++;
+    conversion_succeeds = false;
+    g_assert_false(update_depth_alias_view(&d->pgraph, &producer, &view));
+    g_assert_cmpuint(conversions, ==, 5);
+    conversion_succeeds = true;
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 6);
+    bind_existing_depth_surface(d, &view);
+    g_assert_cmpuint(conversions, ==, 6);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -178,5 +310,11 @@ int main(int argc, char **argv)
                          test_producer_rewrite);
     g_test_add_data_func("/xbox/vk/alias/producer-clear", GINT_TO_POINTER(1),
                          test_producer_rewrite);
+    g_test_add_data_func("/xbox/vk/alias/view-rebind-d24s8",
+                         GUINT_TO_POINTER(VK_FORMAT_D24_UNORM_S8_UINT),
+                         test_view_rebind);
+    g_test_add_data_func("/xbox/vk/alias/view-rebind-d32s8",
+                         GUINT_TO_POINTER(VK_FORMAT_D32_SFLOAT_S8_UINT),
+                         test_view_rebind);
     return g_test_run();
 }
