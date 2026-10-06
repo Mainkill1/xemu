@@ -1,0 +1,309 @@
+[
+  {
+    "variant": "a1",
+    "run": "20261006-145959186-149e4828f4d645d98afab352620a9b6e",
+    "app": {
+      "id": "pr329-890fa7-deck-conker-d1-v1",
+      "sha256": "8057aa833fe4e0562ba188faf5851dea0bfcd7feebb19773d5111e78c0eb34e4",
+      "source": "890fa7954db91993056bb7236269b49af2e20c4b",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "test": {
+      "id": "conker-original-build-slots-deck-v1",
+      "revision": "255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b",
+      "description": "Original qualified Conker inputs, waits and measurement boundary unchanged; executable/config are the two replaceable build slots. Shared libraries remain frozen test files.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/conker-original-build-slots-deck-v1/255bdff7ad310a69ffadb426690e52eb20d9c7fe88ec6674e0ea7204f2b1015b"
+    },
+    "analysis": {
+      "schemaVersion": 1,
+      "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "profile": {
+        "segment": "stationary-start",
+        "metricsPath": "metrics.csv",
+        "guestFlipsPath": "guest-flips.log",
+        "guestFramesPath": "guest-frames.log",
+        "flipTailSamples": 5,
+        "frameTailSeconds": 25,
+        "minimumCpuSamples": 55,
+        "minimumFrameSamples": 160
+      },
+      "monitoring": {
+        "segment": "stationary-start",
+        "rows": 64,
+        "missingCpuSamples": 0,
+        "missingDutySamples": 0,
+        "cpu": {
+          "count": 64,
+          "mean": 199.53945312500002,
+          "median": 201.108,
+          "min": 147.909,
+          "max": 234.101,
+          "p95": 224.42755,
+          "p99": 231.73093999999998
+        },
+        "collectorDuty": {
+          "count": 64,
+          "mean": 0.37006250000000007,
+          "median": 0.346,
+          "min": 0.218,
+          "max": 0.739,
+          "p95": 0.5126,
+          "p99": 0.6388299999999996
+        },
+        "overruns": 0
+      },
+      "flips": {
+        "samples": 5,
+        "frames": 699,
+        "elapsedUs": 25134485,
+        "cadenceFps": 27.81039675171383
+      },
+      "frames": {
+        "windowStartUs": 1302727911297,
+        "windowEndUs": 1302752911297,
+        "firstSampleUs": 1302727944666,
+        "lastSampleUs": 1302752911297,
+        "zeroIntervals": 0,
+        "intervalsMs": {
+          "count": 690,
+          "mean": 36.25462463768115,
+          "median": 33.3445,
+          "min": 23.073,
+          "max": 67.78,
+          "p95": 50.072,
+          "p99": 66.6411
+        }
+      },
+      "sources": [
+        {
+          "path": "metrics.csv",
+          "bytes": 38066,
+          "sha256": "7c8ea3351f8275b42c7e29dee42dbef95756aea3d41af8dca712f33a1ae9ccec",
+          "records": 199,
+          "ignoredRecords": 134
+        },
+        {
+          "path": "guest-flips.log",
+          "bytes": 694,
+          "sha256": "b234d0109442a5df49e87b497fde95a77b45b6d52da4baeda79123f0ee4a00a0",
+          "records": 17,
+          "ignoredRecords": 0
+        },
+        {
+          "path": "guest-frames.log",
+          "bytes": 154308,
+          "sha256": "64a3438d29492a7b0726387eefe934bea2311e8a188cafde1e6efeae6c56ce20",
+          "records": 2932,
+          "ignoredRecords": 0
+        }
+      ],
+      "errors": [],
+      "complete": true
+    },
+    "manualSceneReview": "Correct Conker Xbox Live & Co menu at start/end",
+    "comparisonEligible": false,
+    "limits": "Single development run, uncontrolled driver cache; no pair gain claim. d1 native failure requires diagnosis."
+  },
+  {
+    "variant": "c1",
+    "run": "20261006-150433446-dd7917fa82814662b1ea1b9ecaf23cf2",
+    "app": {
+      "id": "pr200-auto197654-deck-candidate-pgr2-v1",
+      "directory": "/home/codex/xemu-shader-workbench-handoff/.scratch/pr200-rebase-20261006/native/packages/deck-candidate-pgr2",
+      "sha256": "4953efc3b3e61378c86ed78aece01a956894d56efdaef522ad8977d8dd57b014",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+      "productSource": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+      "buildCommit": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+      "version": "0.8.136-0-g197654b3c09d",
+      "scope": "Current-main PGR2 Vulkan hot-path attribution only; not matched game performance qualification.",
+      "treeEquivalentTo": "197654b3c09d1b7530689a23d24de9e849fedb9f"
+    },
+    "test": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "analysis": {
+      "schemaVersion": 1,
+      "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "profile": {
+        "segment": "stationary-start",
+        "metricsPath": "metrics.csv",
+        "guestFlipsPath": "guest-flips.log",
+        "guestFramesPath": "guest-frames.log",
+        "flipTailSamples": 5,
+        "frameTailSeconds": 25,
+        "minimumCpuSamples": 55,
+        "minimumFrameSamples": 160
+      },
+      "monitoring": {
+        "segment": "stationary-start",
+        "rows": 63,
+        "missingCpuSamples": 0,
+        "missingDutySamples": 0,
+        "cpu": {
+          "count": 63,
+          "mean": 379.56287301587304,
+          "median": 389.878,
+          "min": 280.058,
+          "max": 411.952,
+          "p95": 407.90259999999995,
+          "p99": 410.67728
+        },
+        "collectorDuty": {
+          "count": 63,
+          "mean": 0.4274285714285714,
+          "median": 0.393,
+          "min": 0.282,
+          "max": 0.847,
+          "p95": 0.7257999999999999,
+          "p99": 0.8011200000000002
+        },
+        "overruns": 0
+      },
+      "flips": {
+        "samples": 5,
+        "frames": 175,
+        "elapsedUs": 25751096,
+        "cadenceFps": 6.795827253333218
+      },
+      "frames": {
+        "windowStartUs": 1303034209103,
+        "windowEndUs": 1303059209103,
+        "firstSampleUs": 1303034221773,
+        "lastSampleUs": 1303059209103,
+        "zeroIntervals": 0,
+        "intervalsMs": {
+          "count": 201,
+          "mean": 125.1517810945274,
+          "median": 77.5,
+          "min": 50.916,
+          "max": 725.139,
+          "p95": 320.033,
+          "p99": 459.611
+        }
+      },
+      "sources": [
+        {
+          "path": "metrics.csv",
+          "bytes": 48565,
+          "sha256": "9b5490527a77abaec3e581574eb7b204d5a43a1d2a7302aabc885c3130cf2d5e",
+          "records": 251,
+          "ignoredRecords": 187
+        },
+        {
+          "path": "guest-flips.log",
+          "bytes": 929,
+          "sha256": "24a498dd2031602e379bc3b33d134799f64023f69db98011081ea5042b09ad0b",
+          "records": 23,
+          "ignoredRecords": 0
+        },
+        {
+          "path": "guest-frames.log",
+          "bytes": 164629,
+          "sha256": "a8b07fdf01115a8e717a81bb383c82f7e8f017bbf775885f9ed41a8bb67b7781",
+          "records": 3125,
+          "ignoredRecords": 0
+        }
+      ],
+      "errors": [],
+      "complete": true
+    },
+    "manualSceneReview": "PGR2 Hong Kong flyover to parked; not stationary comparison",
+    "comparisonEligible": false,
+    "limits": "Single development run, uncontrolled driver cache; no pair gain claim. d1 native failure requires diagnosis."
+  },
+  {
+    "variant": "d1",
+    "run": "20261006-151049816-d4d22fa3c1f04ffd8cd8229f643e6838",
+    "app": {
+      "id": "pr332-257ee4-deck-pgr2-d1-v1",
+      "sha256": "11058d6e35ec4c5604729fe35ed974366609483b1d3a65db380f7531f4bf6237",
+      "source": "257ee477ba7aa9fcb6aa6f911b94ba23799be012",
+      "configSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f"
+    },
+    "test": {
+      "id": "pr267-deck-pgr2-stationary-base-v6",
+      "revision": "bbdb66578f2f7200d14164d98c56c63e57300d1af782f1771872c5627c24deee"
+    },
+    "analysis": {
+      "schemaVersion": 1,
+      "profileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "profile": {
+        "segment": "stationary-start",
+        "metricsPath": "metrics.csv",
+        "guestFlipsPath": "guest-flips.log",
+        "guestFramesPath": "guest-frames.log",
+        "flipTailSamples": 5,
+        "frameTailSeconds": 25,
+        "minimumCpuSamples": 55,
+        "minimumFrameSamples": 160
+      },
+      "monitoring": {
+        "segment": "stationary-start",
+        "rows": 64,
+        "missingCpuSamples": 0,
+        "missingDutySamples": 0,
+        "cpu": {
+          "count": 64,
+          "mean": 143.02662500000002,
+          "median": 142.211,
+          "min": 136.086,
+          "max": 150.264,
+          "p95": 149.83345,
+          "p99": 150.19155
+        },
+        "collectorDuty": {
+          "count": 64,
+          "mean": 0.34321874999999996,
+          "median": 0.3125,
+          "min": 0.233,
+          "max": 0.816,
+          "p95": 0.51285,
+          "p99": 0.6295199999999992
+        },
+        "overruns": 0
+      },
+      "flips": {
+        "samples": 5,
+        "frames": 19,
+        "elapsedUs": 34833361,
+        "cadenceFps": 0.5454541122230496
+      },
+      "frames": null,
+      "sources": [
+        {
+          "path": "metrics.csv",
+          "bytes": 46525,
+          "sha256": "7e9d297da763f5706bed37492386587e3a6f295ad65192d93537327889daf8ba",
+          "records": 252,
+          "ignoredRecords": 187
+        },
+        {
+          "path": "guest-flips.log",
+          "bytes": 656,
+          "sha256": "a9c8e5126b83295b2d61604cab59fe156b1e97c93b39afc4d1a9fc2b5c491508",
+          "records": 17,
+          "ignoredRecords": 0
+        },
+        {
+          "path": "guest-frames.log",
+          "bytes": 22758,
+          "sha256": "fad1a18f9eca25b1481ce3ff2afe2487c65e5cd69be56a29f02c36b850dfadaf",
+          "records": 439,
+          "ignoredRecords": 0
+        }
+      ],
+      "errors": [
+        "frames: Insufficient positive frame intervals."
+      ],
+      "complete": false
+    },
+    "manualSceneReview": "PGR2 opening animation at start/end; wrong scene and insufficient frame samples",
+    "comparisonEligible": false,
+    "limits": "Single development run, uncontrolled driver cache; no pair gain claim. d1 native failure requires diagnosis."
+  }
+]
