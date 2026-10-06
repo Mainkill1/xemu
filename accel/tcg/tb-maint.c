@@ -1179,12 +1179,12 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
      */
 #ifdef XBOX
     if (likely(whole_page)) {
+        /*
+         * current_tb cannot be linked on this page: that is exactly the
+         * condition used above to select whole_page. Keep this loop identical
+         * in spirit to the old Xbox fast path with no overlap/current-TB test.
+         */
         PAGE_FOR_EACH_TB(start, last, p, tb, n) {
-            if (unlikely(current_tb == tb) &&
-                (tb_cflags(current_tb) & CF_COUNT_MASK) != 1) {
-                current_tb_modified = true;
-                cpu_restore_state_from_tb(cpu, current_tb, retaddr);
-            }
             tb_phys_invalidate__locked(tb);
         }
     } else
