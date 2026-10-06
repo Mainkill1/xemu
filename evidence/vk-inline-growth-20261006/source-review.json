@@ -1,0 +1,13 @@
+{
+  "head": "2c37487c786fd81d53b02cf1b408330ad713ae37",
+  "base": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "reviewer": "/root/inline_growth_review",
+  "verdict": "No concrete source blocker identified; native qualification pending",
+  "findings": [
+    "Headroom restricted to inline vertex staging pair; matching destination capacity preserved.",
+    "Finish-before-resize and required-size fallback above 16 MiB preserved.",
+    "Advanced growth-off retains its existing required-large-draw exception.",
+    "Production-source fixture uses allocation doubles; does not establish GPU lifetime or native performance."
+  ],
+  "testsRunByReviewer": false
+}
