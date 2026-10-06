@@ -1,0 +1,16 @@
+{
+  "exitCode": 0,
+  "command": "ulimit -c 0; env LD_LIBRARY_PATH=/home/deck/xemu-performance/pr291-upload-qualification timeout 60 /home/deck/xemu-performance/pr291-upload-qualification/native-upload",
+  "source": "f58e6139d4 actual small uploader, image barriers, VMA flush; scoped native submission fixture",
+  "hashes": {
+    "native-upload": "31e2938cc266fd37baf35bb299f0ba044bcd9337112c9a80a32b3a985177097d"
+  },
+  "hashesVerifiedOnTarget": true,
+  "generations": 20,
+  "bytesChecked": 81920,
+  "ringTurnovers": 4,
+  "realSubmissions": 5,
+  "output": "device=AMD Custom GPU 0405 (RADV VANGOGH) vendor=1002 deviceid=163f driver=105263203\nPASS 20 immutable generations, 81920 byte checks, 4 ring turnovers, 5 real submissions\n",
+  "stderr": "",
+  "method": "Previously used PR312 scoped SSH operator native qualification; no runner jobs or definition changes"
+}

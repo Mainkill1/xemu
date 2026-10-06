@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S4215655ba837066b1a3539581c4a2806
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of display tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-display-upload.c:54:test_display_upload: 'r->in_command_buffer' should be FALSE
+not ok /xbox/vk/display/pending-tcg-upload - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-display-upload.c:54:test_display_upload: 'r->in_command_buffer' should be FALSE
+Bail out!

@@ -1,0 +1,15 @@
+TAP version 14
+# random seed: R02Sad631a22423326e19bd21e6ad3d8f4f7
+1..5
+# Start of xbox tests
+# Start of vk tests
+# Start of small-upload tests
+ok 1 /xbox/vk/small-upload/immutable-slices
+ok 2 /xbox/vk/small-upload/ring-exhaustion
+ok 3 /xbox/vk/small-upload/capacity-growth
+../.scratch/pr291-current-20261006/small-upload: Vulkan small color upload flush failed: -5
+ok 4 /xbox/vk/small-upload/flush-failure
+ok 5 /xbox/vk/small-upload/telemetry-disabled
+# End of small-upload tests
+# End of vk tests
+# End of xbox tests

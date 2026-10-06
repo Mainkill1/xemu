@@ -1,0 +1,2 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) vendor=10005 deviceid=0 driver=109056002
+PASS 20 immutable generations, 81920 byte checks, 4 ring turnovers, 5 real submissions

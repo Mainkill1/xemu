@@ -1,0 +1,13 @@
+{
+  "head": "f58e6139d4f7de90014445a586d3078e007cf5ce",
+  "parent": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "referenceBuild": "197654b3c09d1b7530689a23d24de9e849fedb9f",
+  "referenceTree": "b2a5684d501673785e02a1aa70b0337b8ce25612",
+  "checks": "Five actual-uploader and JSON telemetry tests; four production display boundary cases. Actual Vulkan/VMA uploader/image/barrier on llvmpipe and physical RADV.",
+  "limits": [
+    "Native fixture uses preallocated staging and a scoped submission adapter; not full emulator lifecycle proof.",
+    "No validation layer available.",
+    "Current in-game performance is not yet measured.",
+    "No commercial game assets or screenshots included."
+  ]
+}

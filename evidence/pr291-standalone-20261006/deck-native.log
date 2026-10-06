@@ -1,0 +1,2 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) vendor=1002 deviceid=163f driver=105263203
+PASS 20 immutable generations, 81920 byte checks, 4 ring turnovers, 5 real submissions

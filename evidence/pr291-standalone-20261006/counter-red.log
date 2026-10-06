@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S3e1234ed397f62dec4b75f0a70e27ac8
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of small-upload tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:220:check_telemetry: 'qdict_haskey(record, fields[i])' should be TRUE
+not ok /xbox/vk/small-upload/immutable-slices - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr291/tests/unit/test-xbox-vk-small-color-upload.c:220:check_telemetry: 'qdict_haskey(record, fields[i])' should be TRUE
+Bail out!
