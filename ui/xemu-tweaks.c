@@ -51,6 +51,7 @@ static void publish_profile_locked(void)
     XemuTweakResolution next = xemu_tweaks_resolve(
         &requested_profile, &environment, &startup_profile, false);
     next.sequence = published_profile.sequence + 1;
+    /* The poll setter also supports atomic renderer-thread publication. */
     qemu_poll_set_cpu_saving(next.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
     qatomic_set_u64(&xemu_tweaks_active, next.effective_bits);
     published_profile = next;

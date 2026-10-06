@@ -543,7 +543,8 @@ test('test-xemu-tweaks-resolver', xemu_tweaks_resolver_test,
 
 xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   files('test-xemu-tweak-policy.c'),
-  include_directories: include_directories('../..'))
+  include_directories: include_directories('../..'),
+  dependencies: [qemuutil])
 test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
 
 test('test-xemu-version', find_program('test-xemu-version.sh'),

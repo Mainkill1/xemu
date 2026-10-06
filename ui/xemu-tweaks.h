@@ -110,6 +110,9 @@ uint64_t xemu_tweaks_active_snapshot(void);
 
 static inline bool xemu_tweak_enabled(XemuTweak tweak)
 {
+    if ((unsigned int)tweak >= XEMU_TWEAK_COUNT) {
+        return false;
+    }
 #ifdef __cplusplus
     return (xemu_tweaks_active_snapshot() & (UINT64_C(1) << tweak)) != 0;
 #else
