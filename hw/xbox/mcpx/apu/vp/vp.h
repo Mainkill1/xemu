@@ -81,6 +81,7 @@ typedef struct VoiceWorkDispatch {
 typedef struct {
     MemoryRegion mmio;
     VoiceWorkDispatch voice_work_dispatch;
+    MCPXAPUADPCMDecodeTable adpcm_decode_table;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
 
     // FIXME: Where are these stored?
