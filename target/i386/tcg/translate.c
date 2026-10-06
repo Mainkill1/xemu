@@ -1767,7 +1767,14 @@ static void gen_fnstsw_ax(DisasContext *s, TCGv_i32 result)
      * fpstt already holds architectural TOP; fpstt_delta only maps the
      * translation-local register cache and must not be added here.
      */
+    bool flcr_was_set = s->flcr_set;
     gen_flush_fp(s);
+    /*
+     * This hard-FPU checkpoint only stores cached registers. Its st80f
+     * lowering leaves MXCSR unchanged, and no helper runs on this path.
+     * Keep a known rounding control setting for the next FP operation.
+     */
+    s->flcr_set = flcr_was_set;
     TCGv_i32 top = tcg_temp_new_i32();
     tcg_gen_ld16u_i32(result, tcg_env, offsetof(CPUX86State, fpus));
     tcg_gen_andi_i32(result, result, ~0x3800);

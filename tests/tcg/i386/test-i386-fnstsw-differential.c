@@ -157,9 +157,91 @@ static uint16_t read_memory_status(void)
     return status;
 }
 
+/* Compare AX and helper-backed memory status between FP operations. */
+#define STATUS_ROUNDING_BODY(status_op, boundary) \
+    __asm__ volatile("fninit\n\tfldcw %[cw]\n\t" \
+                     "fldl %[value]\n\tfaddl %[step]\n\t" \
+                     status_op "\n\t" boundary \
+                     "faddl %[step]\n\t" status_op "\n\t" \
+                     "faddl %[step]\n\tfstpl %[out]\n\tfninit" \
+                     : [out] "=m"(result), [status] "=m"(status) \
+                     : [cw] "m"(control), [value] "m"(value), \
+                       [step] "m"(step), [changed] "m"(changed), \
+                       [mxcsr] "m"(mxcsr) \
+                     : "eax", "st", "st(1)", "st(2)", "st(3)", "st(4)", \
+                       "st(5)", "st(6)", "st(7)", "memory")
+
+#define ROUNDING_PROBE(name, status_op) \
+static double name(uint16_t control, double value, double step, \
+                   unsigned boundary) \
+{ \
+    double result; \
+    uint16_t status; \
+    uint16_t changed = control ^ 0x0c00; \
+    uint32_t mxcsr = 0x1f80 | (((control >> 10) ^ 3) & 3) << 13; \
+    switch (boundary) { \
+    case 0: \
+        STATUS_ROUNDING_BODY(status_op, ""); \
+        break; \
+    case 1: \
+        STATUS_ROUNDING_BODY(status_op, "fldcw %[changed]\n\t"); \
+        break; \
+    case 2: \
+        STATUS_ROUNDING_BODY(status_op, "frndint\n\t"); \
+        break; \
+    default: \
+        STATUS_ROUNDING_BODY(status_op, "ldmxcsr %[mxcsr]\n\t"); \
+        break; \
+    } \
+    return result; \
+}
+
+ROUNDING_PROBE(rounding_ax, "fnstsw %%ax")
+ROUNDING_PROBE(rounding_memory, "fnstsw %[status]")
+
+static int test_rounding_boundaries(void)
+{
+    static const uint16_t precision[] = { 0, 0x200, 0x300 };
+    uint32_t saved_mxcsr;
+    unsigned cases = 0;
+
+    __asm__ volatile("stmxcsr %0" : "=m"(saved_mxcsr));
+    for (unsigned pc = 0; pc < 3; pc++) {
+        for (unsigned rc = 0; rc < 4; rc++) {
+            for (unsigned sign = 0; sign < 2; sign++) {
+                for (unsigned boundary = 0; boundary < 4; boundary++) {
+                    uint16_t control = 0x7f | precision[pc] | (rc << 10);
+                    double value = sign ? -1.0 : 1.0;
+                    double step = pc ? 1.0 / 9007199254740992.0 :
+                                       1.0 / 16777216.0;
+                    union { double value; uint64_t bits; } ax, memory;
+
+                    ax.value = rounding_ax(control, value, step, boundary);
+                    memory.value = rounding_memory(control, value, step,
+                                                   boundary);
+                    cases++;
+                    if (ax.bits != memory.bits) {
+                        printf("FAIL rounding pc=%u rc=%u "
+                               "sign=%u boundary=%u\n",
+                               pc, rc, sign, boundary);
+                        __asm__ volatile("ldmxcsr %0" : : "m"(saved_mxcsr));
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+    __asm__ volatile("ldmxcsr %0" : : "m"(saved_mxcsr));
+    printf("FNSTSW rounding boundaries: %u PASS\n", cases);
+    return 0;
+}
+#undef ROUNDING_PROBE
+#undef STATUS_ROUNDING_BODY
+
 int main(void)
 {
-    if (test_pointer_preservation() || test_fault_checkpoint()) {
+    if (test_pointer_preservation() || test_fault_checkpoint() ||
+        test_rounding_boundaries()) {
         return 1;
     }
     static const uint16_t condition_bits[] = {
