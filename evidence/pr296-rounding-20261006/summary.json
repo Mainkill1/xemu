@@ -1,0 +1,100 @@
+{
+  "parent": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "reference": "d01801f5cd4ba073ff2ed5238a4c03fdaf126dac",
+  "candidate": "35546a31f0fd470075030f709455e0deb85f879d",
+  "guest_checks": [
+    {
+      "phase": "before-valid",
+      "mode": "hard",
+      "result": "pointer=0 fault=0 matrix=0 rounding=0 configs=2097152"
+    },
+    {
+      "phase": "before-valid",
+      "mode": "soft",
+      "result": "pointer=0 fault=0 matrix=0 rounding=0 configs=2097152"
+    },
+    {
+      "phase": "after-valid",
+      "mode": "hard",
+      "result": "pointer=0 fault=0 matrix=0 rounding=0 configs=2097152"
+    },
+    {
+      "phase": "after-valid",
+      "mode": "soft",
+      "result": "pointer=0 fault=0 matrix=0 rounding=0 configs=2097152"
+    }
+  ],
+  "raw_numeric_rows": 96,
+  "before_after_rows_identical_each_mode": true,
+  "local_host": "AMD Linux x86-64; actual Xbox system emulation, software OpenGL display",
+  "performance": "Generated operation counts only; no current Windows/Deck game performance claim",
+  "known_failed_fixture": "Initial FNINIT asm clobbered only ST0, permitting NXDK compiler to retain test values elsewhere. Those runs failed before and after-independent reference. Corrected by declaring all eight x87 clobbers. Failed local evidence retained privately; excluded from numerical conclusions.",
+  "teardown": "Zero process exit in four authoritative runs; inherited GLib g_source_destroy warning retained.",
+  "generated_blocks": [
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe0dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe0d9fcdc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe00fae542414dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe00fae542414dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe0dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe0d9fcdc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "before-valid",
+      "guest_bytes": "dd442418dc442438dfe00fae542414dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 3
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe0dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 1
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe0d9fcdc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 2
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe00fae542414dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 2
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe0dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 1
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe0d9fcdc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 2
+    },
+    {
+      "phase": "after-valid",
+      "guest_bytes": "dd442418dc442438dfe00fae542414dc442438dfe0dc442438dd5c2408dbe3",
+      "flcr_count": 2
+    }
+  ]
+}

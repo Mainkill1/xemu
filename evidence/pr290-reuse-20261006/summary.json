@@ -1,0 +1,20 @@
+{
+  "base": "a39802903355def990ae50d36d64ea3fadfea653",
+  "files": [
+    "hw/xbox/nv2a/pgraph/vk/renderer.h",
+    "hw/xbox/nv2a/pgraph/vk/surface.c",
+    "tests/unit/test-xbox-vk-alias-producer-lookup.c"
+  ],
+  "regression": "Production exact lookup, producer lookup and conversion helper: producer -> view -> producer -> view without writes produced 2 conversions, expected 1. red.log records failure before reuse fix.",
+  "implementation": "Independent depth_write_generation advances on producer draw/clear retirement and depth upload attempts. Successful conversion records source lifetime and generation. Clean initialized view with matching provenance skips conversion. Upload attempts clear view provenance. Existing write retirement and fallback preserved. No producer pointers introduced.",
+  "focused": "34 subtests passed across 6 focused programs: producer/rebind6, blit3, coherence15, mapping4, conversion4, retained2. Additional dispatch-limits program built and passed separately.",
+  "production_compile": "surface.c, draw.c, blit.c compile with original configured flags plus -Werror; exact commands in production-compile.log",
+  "unit_suite": "Attempted build/pyvenv/bin/meson test -C build --suite unit --print-errorlogs --num-processes 4. Rebuild fails in unchanged tests/unit/test-xbox-mcpx-apu-resampler.c:74 missing sinf/cosf declarations; no full-suite pass claimed.",
+  "style": "git diff --check and scripts/checkpatch.pl --no-tree --no-signoff change.patch: 0 errors, 0 warnings.",
+  "review": "Independent read-only review: no new correctness blocker. P3 coverage gap: fixture models contents replacement by incrementing producer generation, so upload entry-point provenance wiring is source-reviewed, not executed; surrounding failed-conversion readback fallback also not executed.",
+  "lifetime": "New fields reset with zeroed target on binding recreation; image migration copies image resources only. Lifetime IDs prevent recycled owner addresses matching old provenance. Read-only draw_time changes do not invalidate contents generation. Pending/dirty/superseded states and existing eligibility/exclusivity gates still reject reuse.",
+  "next_native_gate": "Use matched exact parent/candidate native Vulkan queue with both D24S8 and D32S8: independently checked depth/stencil outputs for read-only alternating rebind, producer draw and clear, CPU read/write and guest dirty pages, partial/full RAM blits, writable-view fallback, failed conversion, texture use, save/load/reset, overlap ordering and teardown. Then required XISO correctness + per-test timings and controls; no game runs performed.",
+  "recommendation": "HOLD pending existing native correctness/performance gates.",
+  "candidate": "0b2d1c35e107cd18e89b1d9ff265a719d066fef6",
+  "additional_dispatch_limits": "1 subtest passed; 35 focused subtests total"
+}
