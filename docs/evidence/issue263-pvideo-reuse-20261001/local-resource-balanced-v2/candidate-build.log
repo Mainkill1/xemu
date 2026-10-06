@@ -1,0 +1,2 @@
+[1/2] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/2] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
