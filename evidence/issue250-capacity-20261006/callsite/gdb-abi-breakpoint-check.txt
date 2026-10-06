@@ -1,0 +1,4 @@
+Breakpoint 1 at 0xf00530: file ../hw/xbox/nv2a/pgraph/vk/draw.c, line 2664.
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x0000000000f00530 in pgraph_vk_finish at ../hw/xbox/nv2a/pgraph/vk/draw.c:2664
+	stop only if $esi == 11

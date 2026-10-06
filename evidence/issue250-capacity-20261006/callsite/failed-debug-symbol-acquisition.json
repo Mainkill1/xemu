@@ -1,0 +1,8 @@
+{
+  "outcome": "FAILED symbol acquisition; elevated attach/detach worked",
+  "runId": "20261006-120945687-7f29f4563def41acaec1ce198b593554",
+  "cause": "GDB -ex runs after initial executable loading; debug path needed -iex",
+  "localRedGreen": "Same exact executable and debug symbols: -ex fails lookup, -iex resolves function0xf00530",
+  "callStacksCaptured": 0,
+  "performanceUse": "Excluded, diagnostic intent and mixed flyover/parked scene"
+}
