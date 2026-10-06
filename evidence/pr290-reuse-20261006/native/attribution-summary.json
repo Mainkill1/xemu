@@ -1,0 +1,218 @@
+[
+  {
+    "host": "deck",
+    "runId": "20261006-093044373-9bd85e15fe044fe18f2dcdbf74664aab",
+    "application": {
+      "id": "pr290-f5dfba-deck-conker-attribution-v1",
+      "sha256": "f2ff67f37edec993d75a3f08a7e2a3f0e3ec809bf544307a0b2c0ea5748f9c5c",
+      "source": "f5dfba687fca62cbfc29b2ce5a96632fe9f53e8a",
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+      "version": "0.8.136-0-gf5dfba687fca",
+      "limits": "Single instrumented diagnostic on the existing depth-alias stack; not an A/B comparison with current main"
+    },
+    "frozenDiagnostic": {
+      "id": "pr290-deck-conker-attribution-v1",
+      "revision": "61ef1d68d0050d668cc656ea2f875bb354f49ce1b33d7e92a70c8fb0054eecf1",
+      "stepCount": 13,
+      "fileCount": 41
+    },
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "schema": {
+      "type": "schema",
+      "schema_version": 8,
+      "features": [
+        "report_lifecycle",
+        "descriptor_publication",
+        "surface_upload",
+        "depth_alias"
+      ],
+      "duration_sampling": {
+        "initial_per_reason_per_frame": 8,
+        "hot_stride": 16
+      },
+      "presentation_counters": "cumulative_totals",
+      "finish_reasons": [
+        "vertex_buffer_dirty",
+        "surface_create",
+        "surface_down",
+        "need_buffer_space",
+        "framebuffer_dirty",
+        "presenting",
+        "flip_stall",
+        "flush",
+        "stalled",
+        "texture_dirty"
+      ],
+      "single_time_callers": [
+        "pvideo_upload",
+        "display_render",
+        "surface_download",
+        "surface_create",
+        "surface_upload",
+        "texture_upload",
+        "dummy_texture_create"
+      ],
+      "cpu_regions": [
+        "draw_begin_surface_update",
+        "draw_flush",
+        "pipeline_prepare",
+        "bind_textures",
+        "texture_upload",
+        "update_descriptor_sets"
+      ]
+    },
+    "frames": 2586,
+    "wholeProcessTotals": {
+      "depth_alias_conversions_per_guest_frame": 3568,
+      "depth_alias_reuse_hits_per_guest_frame": 2562,
+      "depth_alias_conversion_failures_per_guest_frame": 0,
+      "depth_alias_views_retired_per_guest_frame": 3568,
+      "depth_alias_producer_pixels_per_guest_frame": 1096089600,
+      "depth_alias_view_pixels_per_guest_frame": 3653632
+    },
+    "last120FramesTotals": {
+      "depth_alias_conversions_per_guest_frame": 543,
+      "depth_alias_reuse_hits_per_guest_frame": 390,
+      "depth_alias_conversion_failures_per_guest_frame": 0,
+      "depth_alias_views_retired_per_guest_frame": 543,
+      "depth_alias_producer_pixels_per_guest_frame": 166809600,
+      "depth_alias_view_pixels_per_guest_frame": 556032
+    },
+    "scope": "Whole recorded process plus last 120 recorded guest frames; tail is not asserted to equal the runner measurement segment",
+    "reuseFraction": 0.41794453507340945,
+    "producerToViewPixelRatio": 300.0,
+    "instrumentedMetrics": {
+      "cpu": 201.78096825396833,
+      "guestRead3dCadence": 22.180672910552687,
+      "frameIntervalsMs": {
+        "count": 561,
+        "mean": 44.62474688057045,
+        "median": 49.73,
+        "min": 28.302,
+        "max": 116.725,
+        "p95": 66.694,
+        "p99": 83.3142
+      }
+    },
+    "limits": [
+      "One instrumented candidate run, no A/B speedup claim",
+      "Prior dependency stack, not current main; Auto-four is not held equal to #296 runs",
+      "No Vulkan validation layer; no complete ownership/save-load matrix",
+      "GPU command recording counters do not prove GPU completion"
+    ],
+    "sceneReview": "Both start/end screenshots show Xbox Live & Co menu, no movie or black screen; game images kept private"
+  },
+  {
+    "host": "win",
+    "runId": "20261006-092931238-e9f70e7473a942ecbafde28212fe6dc9",
+    "application": {
+      "id": "pr290-f5dfba-win-conker-attribution-v1",
+      "sha256": "0a328d11b67705bad439d92ad9fe3584a448a943ac823cdb1b5cdf1f0379e7cc",
+      "source": "f5dfba687fca62cbfc29b2ce5a96632fe9f53e8a",
+      "configSha256": "e7b3dee0882959faedd699d233e6ea68a9052fd4b2fdb51005928c42b0292714",
+      "version": "0.8.136-0-gf5dfba687fca",
+      "limits": "Single instrumented diagnostic on the existing depth-alias stack; not an A/B comparison with current main"
+    },
+    "frozenDiagnostic": {
+      "id": "pr290-win-conker-attribution-v1",
+      "revision": "38fd254550efb83ba11f3aa1eb2ddc52461e3397f31120732275e37760fba783",
+      "stepCount": 13,
+      "fileCount": 3
+    },
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "schema": {
+      "type": "schema",
+      "schema_version": 8,
+      "features": [
+        "report_lifecycle",
+        "descriptor_publication",
+        "surface_upload",
+        "depth_alias"
+      ],
+      "duration_sampling": {
+        "initial_per_reason_per_frame": 8,
+        "hot_stride": 16
+      },
+      "presentation_counters": "cumulative_totals",
+      "finish_reasons": [
+        "vertex_buffer_dirty",
+        "surface_create",
+        "surface_down",
+        "need_buffer_space",
+        "framebuffer_dirty",
+        "presenting",
+        "flip_stall",
+        "flush",
+        "stalled",
+        "texture_dirty"
+      ],
+      "single_time_callers": [
+        "pvideo_upload",
+        "display_render",
+        "surface_download",
+        "surface_create",
+        "surface_upload",
+        "texture_upload",
+        "dummy_texture_create"
+      ],
+      "cpu_regions": [
+        "draw_begin_surface_update",
+        "draw_flush",
+        "pipeline_prepare",
+        "bind_textures",
+        "texture_upload",
+        "update_descriptor_sets"
+      ]
+    },
+    "frames": 4036,
+    "wholeProcessTotals": {
+      "depth_alias_conversions_per_guest_frame": 6232,
+      "depth_alias_reuse_hits_per_guest_frame": 4461,
+      "depth_alias_conversion_failures_per_guest_frame": 0,
+      "depth_alias_views_retired_per_guest_frame": 6232,
+      "depth_alias_producer_pixels_per_guest_frame": 1914470400,
+      "depth_alias_view_pixels_per_guest_frame": 6381568
+    },
+    "last120FramesTotals": {
+      "depth_alias_conversions_per_guest_frame": 541,
+      "depth_alias_reuse_hits_per_guest_frame": 392,
+      "depth_alias_conversion_failures_per_guest_frame": 0,
+      "depth_alias_views_retired_per_guest_frame": 541,
+      "depth_alias_producer_pixels_per_guest_frame": 166195200,
+      "depth_alias_view_pixels_per_guest_frame": 553984
+    },
+    "scope": "Whole recorded process plus last 120 recorded guest frames; tail is not asserted to equal the runner measurement segment",
+    "reuseFraction": 0.41718881511269057,
+    "producerToViewPixelRatio": 300.0,
+    "instrumentedMetrics": {
+      "cpu": 261.1065000000001,
+      "guestRead3dCadence": 29.99999163346847,
+      "frameIntervalsMs": {
+        "count": 751,
+        "mean": 33.33331557922772,
+        "median": 33.334,
+        "min": 32.952,
+        "max": 33.713,
+        "p95": 33.464,
+        "p99": 33.6255
+      }
+    },
+    "limits": [
+      "One instrumented candidate run, no A/B speedup claim",
+      "Prior dependency stack, not current main; Auto-four is not held equal to #296 runs",
+      "No Vulkan validation layer; no complete ownership/save-load matrix",
+      "GPU command recording counters do not prove GPU completion"
+    ],
+    "sceneReview": "Both start/end screenshots show Xbox Live & Co menu, no movie or black screen; game images kept private"
+  }
+]
