@@ -1,0 +1,9 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) vendor=1002 device=163f driver=105263203 type=1 validation=unavailable
+SKIP unsupported format=129
+PASS format=130 case=depth-readonly pixels=16 color/depth/stencil oracle
+PASS format=130 case=depth-write pixels=16 color/depth/stencil oracle
+PASS format=130 case=stencil-readonly pixels=16 color/depth/stencil oracle
+PASS format=130 case=stencil-write pixels=16 color/depth/stencil oracle
+PASS format=130 case=explicit-clear pixels=16 color/depth/stencil oracle
+PASS format=130 case=depth-reject pixels=16 color/depth/stencil oracle
+RESULT cases=6 validation_errors=0

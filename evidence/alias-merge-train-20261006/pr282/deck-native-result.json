@@ -1,0 +1,15 @@
+{
+  "exitCode": 0,
+  "command": "ulimit -c 0; env LD_LIBRARY_PATH=/home/deck/xemu-performance/pr282-zeta-qualification timeout 60 /home/deck/xemu-performance/pr282-zeta-qualification/native",
+  "source": "01d2e1d3e3e2f0d02fab83b693bea3e3abdaf49c actual pipeline recipe; fixture owns allocation and submission",
+  "hashes": {
+    "native": "caa85968f4b4cfeb3343d6eef33a419aab85d9c3cddc2f59cc0e8d3307966e62",
+    "libshaderc.so.1": "31400b359d2f4b4a43168978412a72913474725befb87966068cfac1922ac6c9"
+  },
+  "hashesVerifiedOnTarget": true,
+  "oraclePassCount": 6,
+  "unsupportedD24Cases": 1,
+  "output": "device=AMD Custom GPU 0405 (RADV VANGOGH) vendor=1002 device=163f driver=105263203 type=1 validation=unavailable\nSKIP unsupported format=129\nPASS format=130 case=depth-readonly pixels=16 color/depth/stencil oracle\nPASS format=130 case=depth-write pixels=16 color/depth/stencil oracle\nPASS format=130 case=stencil-readonly pixels=16 color/depth/stencil oracle\nPASS format=130 case=stencil-write pixels=16 color/depth/stencil oracle\nPASS format=130 case=explicit-clear pixels=16 color/depth/stencil oracle\nPASS format=130 case=depth-reject pixels=16 color/depth/stencil oracle\nRESULT cases=6 validation_errors=0\n",
+  "stderr": "",
+  "method": "Previously used PR312 scoped SSH operator native qualification; no runner jobs or definition changes"
+}

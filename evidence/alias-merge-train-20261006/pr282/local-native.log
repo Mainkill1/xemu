@@ -1,0 +1,14 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) vendor=10005 device=0000 driver=109056002 type=4 validation=unavailable
+PASS format=129 case=depth-readonly pixels=16 color/depth/stencil oracle
+PASS format=129 case=depth-write pixels=16 color/depth/stencil oracle
+PASS format=129 case=stencil-readonly pixels=16 color/depth/stencil oracle
+PASS format=129 case=stencil-write pixels=16 color/depth/stencil oracle
+PASS format=129 case=explicit-clear pixels=16 color/depth/stencil oracle
+PASS format=129 case=depth-reject pixels=16 color/depth/stencil oracle
+PASS format=130 case=depth-readonly pixels=16 color/depth/stencil oracle
+PASS format=130 case=depth-write pixels=16 color/depth/stencil oracle
+PASS format=130 case=stencil-readonly pixels=16 color/depth/stencil oracle
+PASS format=130 case=stencil-write pixels=16 color/depth/stencil oracle
+PASS format=130 case=explicit-clear pixels=16 color/depth/stencil oracle
+PASS format=130 case=depth-reject pixels=16 color/depth/stencil oracle
+RESULT cases=12 validation_errors=0

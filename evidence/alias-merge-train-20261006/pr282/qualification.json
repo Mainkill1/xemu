@@ -1,0 +1,40 @@
+{
+  "candidate": "01d2e1d3e3e2f0d02fab83b693bea3e3abdaf49c",
+  "parent": "e15b180aa1ecdd3d05eb6f786febe47284a880a9",
+  "purpose": "Focused correctness qualification; no new performance claim",
+  "component_groups": 5,
+  "dirty_states": 64,
+  "recipe_combinations": 512,
+  "native": [
+    {
+      "host": "Steam Deck",
+      "driver": "RADV VANGOGH",
+      "format": "D32",
+      "cases_passed": 6,
+      "physical_gpu": true,
+      "validation": "unavailable",
+      "D24": "unsupported"
+    },
+    {
+      "host": "local",
+      "driver": "llvmpipe LLVM19.1.7",
+      "formats": [
+        "D24",
+        "D32"
+      ],
+      "cases_passed": 12,
+      "physical_gpu": false,
+      "validation": "enabled",
+      "validation_errors": 0
+    }
+  ],
+  "reference_oracle": "Parent draw.c fails stencil-readonly byte assertion; preceding depth tests pass",
+  "limitations": [
+    "GPU fixture uses actual recipe/render-pass creation, fixture shaders/allocation/submission; not full guest emulator",
+    "GPU explicit clear directly invokes vkCmdClearAttachments; separate production dirty-setter check",
+    "Readonly integration starts with initialized clean surface; uploads belong to #283",
+    "Initial fixture lacked required geometry stage and failed before drawing; corrected fixture passes",
+    "Historical XISO oracle/cache and game scene failures remain diagnostic"
+  ],
+  "review": "Independent source review found no blocker"
+}

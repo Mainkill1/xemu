@@ -1,0 +1,32 @@
+TAP version 14
+# random seed: R02S47f151aad0d86a76fbd73b93a86e30d4
+1..2
+# Start of xbox tests
+# Start of pgraph tests
+# Start of zeta tests
+ok 1 /xbox/pgraph/zeta/draw-write-gates
+ok 2 /xbox/pgraph/zeta/dirty-matrix
+# End of zeta tests
+# End of pgraph tests
+# End of xbox tests
+TAP version 14
+# random seed: R02Sd0608c1c5c80a7ef0d72040bc220c1bb
+1..1
+# Start of xbox tests
+# Start of vk tests
+# Start of stencil tests
+ok 1 /xbox/vk/stencil/recipe-write-mask
+# End of stencil tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S31cfac86c81b24f59440dc576b12aafe
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of surface tests
+ok 1 /xbox/vk/surface/read-only-depth-ownership
+ok 2 /xbox/vk/surface/explicit-clear-ownership
+# End of surface tests
+# End of vk tests
+# End of xbox tests

@@ -1,0 +1,4 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) vendor=10005 device=0000 driver=109056002 type=4 validation=unavailable
+PASS format=129 case=depth-readonly pixels=16 color/depth/stencil oracle
+PASS format=129 case=depth-write pixels=16 color/depth/stencil oracle
+native-reference: /home/codex/xemu-shader-workbench-handoff/.scratch/alias-train-20261006/pr282/native-reference.c:194: run_case: Assertion `bytes[128+i]==(mode==3?0xa5:mode==4?0x33:0x5a)' failed.

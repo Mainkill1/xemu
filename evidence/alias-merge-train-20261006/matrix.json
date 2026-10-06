@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "scope": "#282-#290 frozen; #291/#322 excluded",
+  "benchmark_order": "ABBA BAAB: eight total per matched workload/host",
+  "pending_meaning": "evidence not yet reconciled to refreshed layer, not a claim no prior testing exists",
+  "scenarios": [
+    {
+      "scenario": "readonly-depth-stencil",
+      "owner_pr": 282,
+      "status": "PASS",
+      "evidence": "pr282/qualification.json"
+    },
+    {
+      "scenario": "explicit-clear-ownership",
+      "owner_pr": 282,
+      "status": "PASS",
+      "evidence": "pr282/qualification.json"
+    },
+    {
+      "scenario": "direct-color-depth-upload",
+      "owner_pr": 283,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "retained-cpu-read-partial-write",
+      "owner_pr": 284,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "retained-eviction-restore-flush-reset",
+      "owner_pr": 284,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "morton-layout",
+      "owner_pr": 286,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "bounded-portable-dispatch",
+      "owner_pr": 287,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "alias-admission-negative-cases",
+      "owner_pr": 288,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "reference-images-width34-35",
+      "owner_pr": 289,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "prefix640x480-to32x32",
+      "owner_pr": 289,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "producer-to-readonly-alias",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "unchanged-reuse",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "producer-rewrite",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "depth-clear",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "cpu-read-newest",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "cpu-partial-write-newest",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "guest-dirty-page",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "partial-blit-source-destination",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "full-srccopy-destination",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "writable-transition",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "conversion-failure-fallback",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "texture-consumption",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "flush-reset-save-load",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "retirement-bound-over10",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    },
+    {
+      "scenario": "conker-parent-candidate-abba-baab",
+      "owner_pr": 290,
+      "status": "PENDING",
+      "evidence": null
+    }
+  ]
+}
