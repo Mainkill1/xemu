@@ -1,0 +1,55 @@
+{
+  "source": "65db50718535cb7821f68b47769e2d3bd434ea40",
+  "buildId": "31cdaa73695686b6cb032996ee31f8bb997ee4c3",
+  "runId": "20261006-111147904-88e50aa1a7594f99a40d6ec2d957e559",
+  "sampleScope": "25 seconds at authored recording-start; all process user-mode sampled cycles, not wall time; no call stacks",
+  "sceneReview": "Both retained start/end images show Conker Xbox Live & Co menu",
+  "tbLookupSymbols": [
+    {
+      "percent": 3.98,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "lookup_tb_ptr_common"
+    },
+    {
+      "percent": 3.0,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "helper_lookup_tb_ptr_i32"
+    },
+    {
+      "percent": 0.92,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "tb_htable_lookup_common.llvm.15934127697401424413"
+    },
+    {
+      "percent": 0.88,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "tb_lookup_cmp"
+    },
+    {
+      "percent": 0.5,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "tb_tc_cmp"
+    }
+  ],
+  "tbLookupPercent": 9.28,
+  "sharedQhtLookup": [
+    {
+      "percent": 3.47,
+      "command": "xemu",
+      "module": "xemu",
+      "symbol": "qht_lookup_custom"
+    }
+  ],
+  "limits": [
+    "Cumulative development branch; not main-only or isolated PR290",
+    "No inclusive attribution or estimated speedup from sampled percentages",
+    "Shared qht symbol not exclusively attributable to TB lookup without stacks",
+    "JIT target identities unavailable; no cache hit/miss distribution captured",
+    "Instrumented profiling run, not balanced performance acceptance"
+  ]
+}

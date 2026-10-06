@@ -1,0 +1,25 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 5K of event 'cycles:u'
+# Event count (approx.): 109443732898
+#
+# Overhead  Command      Shared Object              
+# ........  ...........  ...........................
+#
+    55.64%  xemu         xemu                       
+    18.71%  xemu         [JIT] tid 743131           
+     6.38%  xemu         libc.so.6                  
+     5.18%  xemu         libsamplerate.so.0         
+     3.65%  xemu         libvulkan_radeon.so        
+     3.11%  xemu         libgallium-25.3.0.so       
+     2.22%  xemu         [vdso]                     
+     1.57%  xemu:gdrv0   libgallium-25.3.0.so       
+     1.21%  xemu         [unknown]                  
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

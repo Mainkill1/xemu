@@ -1,0 +1,59 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 5K of event 'cycles:u'
+# Event count (approx.): 109443732898
+#
+# Overhead  Command      Shared Object                Symbol                                                                                                                         IPC   [IPC Coverage]
+# ........  ...........  ...........................  .............................................................................................................................  ....................
+#
+     3.98%  xemu         xemu                         [.] lookup_tb_ptr_common                                                                                                       -      -            
+     3.47%  xemu         xemu                         [.] qht_lookup_custom                                                                                                          -      -            
+     3.00%  xemu         xemu                         [.] helper_lookup_tb_ptr_i32                                                                                                   -      -            
+     2.06%  xemu         xemu                         [.] pfifo_thread                                                                                                               -      -            
+     1.98%  xemu         xemu                         [.] float32_mul                                                                                                                -      -            
+     1.94%  xemu         [vdso]                       [.] 0x00000000000009cc                                                                                                         -      -            
+     1.85%  xemu         xemu                         [.] float32_add                                                                                                                -      -            
+     1.66%  xemu         xemu                         [.] voice_worker_thread.llvm.9564599792968722775                                                                               -      -            
+     1.53%  xemu         xemu                         [.] pgraph_method                                                                                                              -      -            
+     1.52%  xemu         xemu                         [.] soft_f32_mul.llvm.11702124999211424084                                                                                     -      -            
+     1.43%  xemu         xemu                         [.] tlb_set_page_full                                                                                                          -      -            
+     1.41%  xemu         xemu                         [.] address_space_ldl_internal.llvm.9823001788323054012                                                                        -      -            
+     1.14%  xemu         xemu                         [.] tlb_reset_dirty                                                                                                            -      -            
+     1.06%  xemu         xemu                         [.] prepare_vertex_data                                                                                                        -      -            
+     0.92%  xemu         xemu                         [.] tb_htable_lookup_common.llvm.15934127697401424413                                                                          -      -            
+     0.88%  xemu         xemu                         [.] tb_lookup_cmp                                                                                                              -      -            
+     0.83%  xemu         libc.so.6                    [.] 0x0000000000098dba                                                                                                         -      -            
+     0.81%  xemu         xemu                         [.] qemu_mutex_lock_impl                                                                                                       -      -            
+     0.78%  xemu         xemu                         [.] address_space_translate_internal.llvm.9823001788323054012                                                                  -      -            
+     0.71%  xemu         xemu                         [.] pgraph_method_log                                                                                                          -      -            
+     0.70%  xemu         xemu                         [.] get_ptr_rcu_reader                                                                                                         -      -            
+     0.64%  xemu         xemu                         [.] pgraph_vk_bind_textures                                                                                                    -      -            
+     0.62%  xemu         xemu                         [.] pgraph_vk_surface_update                                                                                                   -      -            
+     0.52%  xemu         libsamplerate.so.0           [.] 0x000000000000328a                                                                                                         -      -            
+     0.50%  xemu         xemu                         [.] XXH3_hashLong_64b_default.llvm.7025552882428450528                                                                         -      -            
+     0.50%  xemu         xemu                         [.] dsp56300_emu::core::DspState::write_memory                                                                                 -      -            
+     0.50%  xemu         xemu                         [.] tb_tc_cmp                                                                                                                  -      -            
+     0.48%  xemu         xemu                         [.] parts64_uncanon.llvm.11702124999211424084                                                                                  -      -            
+     0.48%  xemu         xemu                         [.] helper_shufps_xmm                                                                                                          -      -            
+     0.47%  xemu         xemu                         [.] probe_access_internal.llvm.15400734734619096472                                                                            -      -            
+     0.46%  xemu         xemu                         [.] mcpx_apu_dsp_frame                                                                                                         -      -            
+     0.44%  xemu         xemu                         [.] pgraph_vk_mark_textures_possibly_dirty                                                                                     -      -            
+     0.41%  xemu         xemu                         [.] helper_mulss                                                                                                               -      -            
+     0.41%  xemu         xemu                         [.] address_space_lduw_internal.llvm.9823001788323054012                                                                       -      -            
+     0.40%  xemu         xemu                         [.] ImGui::NewFrame()                                                                                                          -      -            
+     0.38%  xemu         xemu                         [.] qemu_mutex_unlock_impl                                                                                                     -      -            
+     0.37%  xemu         xemu                         [.] do_ld4_mmu.llvm.15400734734619096472                                                                                       -      -            
+     0.37%  xemu         libc.so.6                    [.] 0x000000000009a7fc                                                                                                         -      -            
+     0.35%  xemu         xemu                         [.] mmu_translate                                                                                                              -      -            
+     0.35%  xemu         xemu                         [.] helper_addps_xmm                                                                                                           -      -            
+     0.33%  xemu         libsamplerate.so.0           [.] 0x000000000000324a                                                                                                         -      -            
+     0.32%  xemu         libc.so.6                    [.] 0x000000000016bbb3                                                                                                         -      -            
+     0.31%  xemu         xemu                         [.] float32_sub                                                                                                                -      -            
+
+
+#
+# (Tip: To only collect call graph on one event use perf record -e cpu/cpu-cycles,callgraph=1/,branches ; perf report --show-ref-call-graph)
+#
