@@ -101,7 +101,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\","
+            "\"descriptor_publication\",\"surface_upload\",\"depth_alias\","
             "\"ordered_color_upload\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
@@ -467,6 +467,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_conversions_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_reuse_hits_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_conversion_failures_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_views_retired_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_pending_retirements_peak_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_bound_drains_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_producer_pixels_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_view_pixels_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_copied_pixels_per_guest_frame\":%" PRIu64
             ",\"small_color_upload_attempts_per_guest_frame\":%" PRIu64
             ",\"small_color_uploads_recorded_per_guest_frame\":%" PRIu64
             ",\"small_color_upload_bytes_per_guest_frame\":%" PRIu64
@@ -495,6 +504,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->surface_upload_guest_write_causes,
             perf->surface_upload_dirty_memory_causes,
             perf->surface_upload_overlap_guest_write_causes,
+            perf->depth_alias_conversions,
+            perf->depth_alias_reuse_hits,
+            perf->depth_alias_conversion_failures,
+            perf->depth_alias_views_retired,
+            perf->depth_alias_pending_retirements_peak,
+            perf->depth_alias_bound_drains,
+            perf->depth_alias_producer_pixels,
+            perf->depth_alias_view_pixels,
+            perf->depth_alias_copied_pixels,
             perf->small_color_upload_attempts,
             perf->small_color_uploads_recorded,
             perf->small_color_upload_bytes,
@@ -551,6 +569,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->surface_upload_guest_write_causes = 0;
     perf->surface_upload_dirty_memory_causes = 0;
     perf->surface_upload_overlap_guest_write_causes = 0;
+    perf->depth_alias_conversions = 0;
+    perf->depth_alias_reuse_hits = 0;
+    perf->depth_alias_conversion_failures = 0;
+    perf->depth_alias_views_retired = 0;
+    perf->depth_alias_pending_retirements_peak = r->pending_alias_retirements;
+    perf->depth_alias_bound_drains = 0;
+    perf->depth_alias_producer_pixels = 0;
+    perf->depth_alias_view_pixels = 0;
+    perf->depth_alias_copied_pixels = 0;
     perf->small_color_upload_attempts = 0;
     perf->small_color_uploads_recorded = 0;
     perf->small_color_upload_bytes = 0;

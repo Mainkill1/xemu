@@ -25,6 +25,7 @@ typedef struct PGRAPHVkFamilyHistoryRecord {
     uint64_t last_used;
     bool attempted;
     /* Session-only prewarm scheduling; never serialized. */
+    bool loaded_from_disk;
     bool prewarm_considered;
     uint8_t prewarm_defer_count;
     uint64_t prewarm_retry_after_service;
