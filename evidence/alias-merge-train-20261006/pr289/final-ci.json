@@ -1,0 +1,446 @@
+{
+  "baseRefName": "main",
+  "headRefOid": "000f3f5f69647fe4a64f1fb1976f12ff2cf885e3",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:42:38Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112617651762",
+      "name": "Build / Create source package",
+      "startedAt": "2026-10-07T03:41:44Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:35:21Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112617641024",
+      "name": "Build / Create source package",
+      "startedAt": "2026-10-07T03:34:21Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:52:15Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063259",
+      "name": "Build / Linux / Build for Ubuntu (x86_64, debug)",
+      "startedAt": "2026-10-07T03:48:57Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:44:54Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290534",
+      "name": "Build / Linux / Build for Ubuntu (x86_64, debug)",
+      "startedAt": "2026-10-07T03:42:02Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:50:04Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063202",
+      "name": "Build / Linux / Build for Ubuntu (x86_64, release)",
+      "startedAt": "2026-10-07T03:46:49Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:47:21Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290485",
+      "name": "Build / Linux / Build for Ubuntu (x86_64, release)",
+      "startedAt": "2026-10-07T03:44:09Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:48:55Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063207",
+      "name": "Build / Linux / Build for Ubuntu (aarch64, debug)",
+      "startedAt": "2026-10-07T03:46:08Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:41:22Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290442",
+      "name": "Build / Linux / Build for Ubuntu (aarch64, debug)",
+      "startedAt": "2026-10-07T03:38:34Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:47:04Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063236",
+      "name": "Build / Linux / Build for Ubuntu (aarch64, release)",
+      "startedAt": "2026-10-07T03:43:28Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:41:57Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290524",
+      "name": "Build / Linux / Build for Ubuntu (aarch64, release)",
+      "startedAt": "2026-10-07T03:39:00Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:54:20Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063238",
+      "name": "Build / macOS / Build for macOS (x86_64, debug)",
+      "startedAt": "2026-10-07T03:52:43Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:44:01Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290463",
+      "name": "Build / macOS / Build for macOS (x86_64, debug)",
+      "startedAt": "2026-10-07T03:42:04Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:59:12Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063327",
+      "name": "Build / macOS / Build for macOS (x86_64, release)",
+      "startedAt": "2026-10-07T03:56:44Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:40:30Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290431",
+      "name": "Build / macOS / Build for macOS (x86_64, release)",
+      "startedAt": "2026-10-07T03:38:46Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:48:17Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063214",
+      "name": "Build / macOS / Build for macOS (arm64, debug)",
+      "startedAt": "2026-10-07T03:46:05Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:45:10Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290514",
+      "name": "Build / macOS / Build for macOS (arm64, debug)",
+      "startedAt": "2026-10-07T03:43:13Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:45:51Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063216",
+      "name": "Build / macOS / Build for macOS (arm64, release)",
+      "startedAt": "2026-10-07T03:43:34Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:47:21Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290454",
+      "name": "Build / macOS / Build for macOS (arm64, release)",
+      "startedAt": "2026-10-07T03:45:10Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:20Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624021688",
+      "name": "Build / macOS / Build macOS Universal bundle (debug)",
+      "startedAt": "2026-10-07T04:00:06Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:57:14Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621213416",
+      "name": "Build / macOS / Build macOS Universal bundle (debug)",
+      "startedAt": "2026-10-07T03:56:58Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:17Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624021750",
+      "name": "Build / macOS / Build macOS Universal bundle (release)",
+      "startedAt": "2026-10-07T04:00:06Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:56:57Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621213308",
+      "name": "Build / macOS / Build macOS Universal bundle (release)",
+      "startedAt": "2026-10-07T03:56:45Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:51:43Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063203",
+      "name": "Build / Windows / Build for Windows (x86_64, debug)",
+      "startedAt": "2026-10-07T03:48:19Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:45:29Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290484",
+      "name": "Build / Windows / Build for Windows (x86_64, debug)",
+      "startedAt": "2026-10-07T03:42:40Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:59:15Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063265",
+      "name": "Build / Windows / Build for Windows (x86_64, release)",
+      "startedAt": "2026-10-07T03:54:26Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:49:15Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290562",
+      "name": "Build / Windows / Build for Windows (x86_64, release)",
+      "startedAt": "2026-10-07T03:44:34Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:58:39Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063260",
+      "name": "Build / Windows / Build for Windows (arm64, debug)",
+      "startedAt": "2026-10-07T03:54:45Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:50:10Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290539",
+      "name": "Build / Windows / Build for Windows (arm64, debug)",
+      "startedAt": "2026-10-07T03:46:44Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:47:47Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063245",
+      "name": "Build / Windows / Build for Windows (arm64, release)",
+      "startedAt": "2026-10-07T03:44:28Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:43:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290493",
+      "name": "Build / Windows / Build for Windows (arm64, release)",
+      "startedAt": "2026-10-07T03:39:28Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:09Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624033967",
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, debug)",
+      "startedAt": "2026-10-07T03:59:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:53:30Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621891620",
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, debug)",
+      "startedAt": "2026-10-07T03:53:04Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:56Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624034061",
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, release)",
+      "startedAt": "2026-10-07T04:00:44Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:52:36Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621891542",
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, release)",
+      "startedAt": "2026-10-07T03:52:22Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:17Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624033917",
+      "name": "Build / Windows / Generate PDB for Windows (arm64, debug)",
+      "startedAt": "2026-10-07T04:00:01Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:56:25Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621891651",
+      "name": "Build / Windows / Generate PDB for Windows (arm64, debug)",
+      "startedAt": "2026-10-07T03:56:08Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T04:00:39Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112624033986",
+      "name": "Build / Windows / Generate PDB for Windows (arm64, release)",
+      "startedAt": "2026-10-07T04:00:23Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:52:49Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112621891648",
+      "name": "Build / Windows / Generate PDB for Windows (arm64, release)",
+      "startedAt": "2026-10-07T03:52:31Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:48:58Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063182",
+      "name": "Build / Unit tests / Run unit tests",
+      "startedAt": "2026-10-07T03:44:03Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:54:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290452",
+      "name": "Build / Unit tests / Run unit tests",
+      "startedAt": "2026-10-07T03:49:35Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:51:11Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063231",
+      "name": "Build / Unit tests / Run production sample-memory tests",
+      "startedAt": "2026-10-07T03:44:46Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:44:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290465",
+      "name": "Build / Unit tests / Run production sample-memory tests",
+      "startedAt": "2026-10-07T03:39:00Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:51:12Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567243723/job/112620063252",
+      "name": "Build / Unit tests / Run production resampler tests",
+      "startedAt": "2026-10-07T03:44:44Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-07T03:42:59Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Mainkill1/xemu/actions/runs/37567240576/job/112618290403",
+      "name": "Build / Unit tests / Run production resampler tests",
+      "startedAt": "2026-10-07T03:37:58Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    }
+  ]
+}

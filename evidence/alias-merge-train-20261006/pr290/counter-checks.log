@@ -1,0 +1,68 @@
+TAP version 14
+# random seed: R02S98d709e4ed3d2f237198aca819cd1beb
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of surface-alias tests
+ok 1 /xbox/vk/surface-alias/guest-morton-layout
+ok 2 /xbox/vk/surface-alias/reject-invalid-shapes
+ok 3 /xbox/vk/surface-alias/read-only-eligibility
+ok 4 /xbox/vk/surface-alias/buffer-plan
+# End of surface-alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S43854d74a6a6753d09957ace5447bb85
+1..7
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/three-descriptors
+ok 2 /xbox/vk/alias/descriptor-reset
+ok 3 /xbox/vk/alias/capacity-reset
+ok 4 /xbox/vk/alias/reject-before-recording
+ok 5 /xbox/vk/alias/reject-one-pixel
+ok 6 /xbox/vk/alias/reject-two-pixel-column
+ok 7 /xbox/vk/alias/reject-two-pixel-row
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S74ed5e80e42a34df44c1bc0e5ee2d297
+1..7
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/retirement-bound
+ok 2 /xbox/vk/alias/producer-d24s8
+ok 3 /xbox/vk/alias/producer-d32s8
+ok 4 /xbox/vk/alias/producer-rewrite
+ok 5 /xbox/vk/alias/producer-clear
+ok 6 /xbox/vk/alias/view-rebind-d24s8
+ok 7 /xbox/vk/alias/view-rebind-d32s8
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02Sc377c94d4dc9db963aa59ce3a46e984f
+1..3
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/blit-owned-ram
+ok 2 /xbox/vk/alias/full-blend-owned-ram
+ok 3 /xbox/vk/alias/full-copy-no-dest-readback
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02S1b8b687245219166896ef54dea341198
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of surface tests
+ok 1 /xbox/vk/surface/read-only-depth-ownership
+ok 2 /xbox/vk/surface/explicit-clear-ownership
+# End of surface tests
+# End of vk tests
+# End of xbox tests

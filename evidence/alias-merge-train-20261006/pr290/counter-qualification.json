@@ -1,0 +1,14 @@
+{
+  "head": "02ebd503171dff15d4f17d27151be3c4fd5c79ed",
+  "groups": 23,
+  "result": "PASS",
+  "review": "Independent dedicated reviewer passed source and independently reran retirement-bound test.",
+  "checkpatch": "0 errors / 0 warnings, --no-signoff for raw diff",
+  "counter_contract": {
+    "peak": "Pending count maximum within guest-frame interval, seeded with prior pending images.",
+    "drains": "Only deferred alias retirements that force finish due to ten-entry capacity. Ordinary invalidation excluded."
+  },
+  "red": "Missing peak JSON key before implementation.",
+  "green": "Serialized peaks 5/5/10/0, one forced drain, ordinary invalidation zero; all23component groups pass.",
+  "limits": "Native GPU lifetime matrix and balanced performance not yet complete."
+}

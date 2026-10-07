@@ -1,0 +1,39 @@
+TAP version 14
+# random seed: R02S076d22bba594ff7116e4af35f6b3a481
+1..4
+# Start of xbox tests
+# Start of vk tests
+# Start of surface-alias tests
+ok 1 /xbox/vk/surface-alias/guest-morton-layout
+ok 2 /xbox/vk/surface-alias/reject-invalid-shapes
+ok 3 /xbox/vk/surface-alias/read-only-eligibility
+ok 4 /xbox/vk/surface-alias/buffer-plan
+# End of surface-alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02Sd048219f9d3c6fcfb661ba2ef0154023
+1..7
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+ok 1 /xbox/vk/alias/three-descriptors
+ok 2 /xbox/vk/alias/descriptor-reset
+ok 3 /xbox/vk/alias/capacity-reset
+ok 4 /xbox/vk/alias/reject-before-recording
+ok 5 /xbox/vk/alias/reject-one-pixel
+ok 6 /xbox/vk/alias/reject-two-pixel-column
+ok 7 /xbox/vk/alias/reject-two-pixel-row
+# End of alias tests
+# End of vk tests
+# End of xbox tests
+TAP version 14
+# random seed: R02Sd8a753722d0f942ecb20cd9c5feb6ab5
+1..7
+# Start of xbox tests
+# Start of vk tests
+# Start of alias tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr290/tests/unit/test-xbox-vk-alias-producer-lookup.c:415:assert_retirement_frame: 'qdict_haskey(record, "depth_alias_pending_retirements_peak_per_guest_frame")' should be TRUE
+not ok /xbox/vk/alias/retirement-bound - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-pr290/tests/unit/test-xbox-vk-alias-producer-lookup.c:415:assert_retirement_frame: 'qdict_haskey(record, "depth_alias_pending_retirements_peak_per_guest_frame")' should be TRUE
+Bail out!
