@@ -68,6 +68,16 @@ bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
     assert(producer_workgroup_size && producer_group_count);
     assert(view_workgroup_size && view_group_count);
 
+    /*
+     * The pack shader only consumes dimensions and format. Keep the real
+     * producer's metadata unchanged while packing the copied row prefix.
+     */
+    SurfaceBinding source_prefix = {
+        .width = producer->width,
+        .height = plan.producer_pixels / producer->width,
+        .host_fmt = producer->host_fmt,
+    };
+
     /* Three distinct descriptor sets remain valid until the command buffer
      * completes. Capacity growth and descriptor reset may submit old work. */
     if (r->compute.descriptor_set_index >
@@ -108,13 +118,13 @@ bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
         {
             .imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
             .imageSubresource.layerCount = 1,
-            .imageExtent = { producer->width, producer->height, 1 },
+            .imageExtent = { source_prefix.width, source_prefix.height, 1 },
         },
         {
             .bufferOffset = plan.producer_stencil_offset,
             .imageSubresource.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT,
             .imageSubresource.layerCount = 1,
-            .imageExtent = { producer->width, producer->height, 1 },
+            .imageExtent = { source_prefix.width, source_prefix.height, 1 },
         },
     };
     pgraph_vk_transition_image_layout(
@@ -134,7 +144,7 @@ bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
                    VK_ACCESS_TRANSFER_WRITE_BIT,
                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                    VK_ACCESS_SHADER_READ_BIT);
-    pgraph_vk_pack_depth_stencil(pg, producer, cmd, split, packed, false);
+    pgraph_vk_pack_depth_stencil(pg, &source_prefix, cmd, split, packed, false);
 
     barrier_buffer(cmd, packed, 0, producer_packed_bytes,
                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,

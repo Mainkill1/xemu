@@ -99,9 +99,25 @@ bool pgraph_vk_depth_alias_plan(uint32_t producer_width,
     if (!plan || !producer_pixels || producer_pixels > INT_MAX ||
         !pgraph_vk_alias_morton_index(0, 0, view_width, view_height,
                                       &unused_index) ||
+        view_pixels > producer_pixels ||
         alignment > UINT32_MAX || !is_power_of_two(alignment)) {
         return false;
     }
+
+    /*
+     * Morton addresses fill [0, view_pixels). Copy only the complete
+     * linear source rows covering that prefix, including its partial tail.
+     * Stencil is read as uint words, so retain enough complete rows to
+     * keep the stencil descriptor range a multiple of four bytes.
+     */
+    uint32_t row_alignment = (producer_width & 1) ? 4 :
+                             (producer_width & 2) ? 2 : 1;
+    uint64_t rows = ROUND_UP(DIV_ROUND_UP(view_pixels, producer_width),
+                             row_alignment);
+    if (rows > producer_height) {
+        return false;
+    }
+    producer_pixels = rows * producer_width;
 
     uint64_t producer_depth = producer_pixels * sizeof(uint32_t);
     uint64_t view_depth = view_pixels * sizeof(uint32_t);

@@ -51,6 +51,7 @@ bool pgraph_vk_depth_alias_read_only_eligible(
     bool antialiasing);
 
 typedef struct PGRAPHVkDepthAliasPlan {
+    /* Copied source prefix, rounded up to complete producer rows. */
     uint64_t producer_pixels;
     uint64_t view_pixels;
     uint64_t producer_stencil_offset;

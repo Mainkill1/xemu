@@ -89,6 +89,8 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
                                   VkBuffer dst, bool downscale)
 {
     check_buffers(pg, src, dst, true);
+    g_assert_cmpuint(surface->width, ==, 640);
+    g_assert_cmpuint(surface->height, ==, 2);
     consume_descriptor(pg);
 }
 
@@ -129,6 +131,12 @@ static VKAPI_ATTR void VKAPI_CALL record_image_to_buffer(
     uint32_t count, const VkBufferImageCopy *regions)
 {
     g_assert_true(started);
+    g_assert_cmpuint(count, ==, 2);
+    for (unsigned i = 0; i < count; i++) {
+        g_assert_cmpuint(regions[i].imageExtent.width, ==, 640);
+        g_assert_cmpuint(regions[i].imageExtent.height, ==, 2);
+    }
+    g_assert_cmpuint(regions[1].bufferOffset, ==, 5120);
     commands++;
 }
 
@@ -162,6 +170,7 @@ static void test_conversion_sequence(gconstpointer data)
     finishes = capacities = commands = descriptors = 0;
     started = false;
     pg->vk_renderer_state = r;
+    r->perf.enabled = true;
     pg->surface_scale_factor = 1;
     view.image = (VkImage)(uintptr_t)2;
     view.width = view.height = 32;
@@ -189,6 +198,7 @@ static void test_conversion_sequence(gconstpointer data)
         return;
     }
     g_assert_true(pgraph_vk_convert_depth_alias(pg, &producer, &view));
+    g_assert_cmpuint(producer.height, ==, 480);
     g_assert_cmpuint(finishes, ==, scenario == 0 ? 0 : 1);
     g_assert_cmpuint(descriptors, ==, 3);
     g_assert_cmpuint(commands, >, 0);
