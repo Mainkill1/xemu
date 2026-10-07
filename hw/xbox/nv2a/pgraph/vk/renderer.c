@@ -138,6 +138,11 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
                 "shared external memory" : "host copy");
 #endif
 
+    pg->vk_renderer_state->diagnostic_skip_live_family_admission =
+        g_strcmp0(g_getenv("XEMU_DIAGNOSTIC_SKIP_LIVE_FAMILY_ADMISSION"),
+                  "1") == 0;
+    fprintf(stderr, "nv2a/vk: diagnostic skip live family admission=%u\n",
+            pg->vk_renderer_state->diagnostic_skip_live_family_admission);
     pgraph_vk_perf_init(pg->vk_renderer_state);
     const char *hybrid_trace_path = g_getenv("XEMU_VK_HYBRID_TRACE");
     if (hybrid_trace_path && hybrid_trace_path[0]) {

@@ -832,6 +832,17 @@ static void test_fallback_family_production_lifecycle(void)
     /* Once capacity exists, the exact family is admitted once and both
      * matching specialized owners transfer to TRACKED. */
     r->fallback_family_requests[0].in_use = false;
+    r->fallback_family_requests[1].from_prewarm = true;
+    r->diagnostic_skip_live_family_admission = true;
+    pgraph_vk_enqueue_retained_fallback_families(r);
+    g_assert_false(r->fallback_family_requests[0].in_use);
+    g_assert_true(r->fallback_family_requests[1].in_use);
+    g_assert_true(r->fallback_family_requests[1].from_prewarm);
+    g_assert_cmpint(first->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_RETRY_PENDING);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 2);
+
+    r->diagnostic_skip_live_family_admission = false;
     pgraph_vk_enqueue_retained_fallback_families(r);
     PGRAPHVkFallbackFamilyRequest *request = NULL;
     for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {

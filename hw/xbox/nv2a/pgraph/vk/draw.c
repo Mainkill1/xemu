@@ -1553,7 +1553,7 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
             key->fragment_route, hash,
             fast_hash((const uint8_t *)&key->shader_state,
                       sizeof(key->shader_state)), work->ticket,
-            status, r->pipeline_cache.num_free, 0, 0);
+            status, r->pipeline_cache.num_free, priority, prewarm);
     }
     if (status != PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED) {
         hybrid_pipeline_work_clear(r, work);

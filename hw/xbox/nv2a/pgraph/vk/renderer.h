@@ -900,6 +900,7 @@ typedef struct PGRAPHVkState {
     PGRAPHVkHybridTicketAllocator hybrid_ticket_allocator;
     PGRAPHVkHybridCompiler hybrid_compiler;
     PGRAPHVkHybridTrace *hybrid_trace;
+    bool diagnostic_skip_live_family_admission;
     PGRAPHVkHybridShaderWork
         hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
     PGRAPHVkFallbackFamilyRequest fallback_family_requests[

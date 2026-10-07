@@ -509,7 +509,13 @@ void pgraph_vk_fallback_family_note_pipeline_failure_at(
 
 void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r)
 {
-    if (!r->fallback_family_retry_count) {
+    /*
+     * Diagnostic only: retain learned owners/history, but isolate the cost
+     * of constructing their optional fallback before any draw needs it.
+     * Independent prewarm and actual draw-demand paths remain enabled.
+     */
+    if (r->diagnostic_skip_live_family_admission ||
+        !r->fallback_family_retry_count) {
         return;
     }
     size_t capacity = r->pipeline_cache.num_used +
