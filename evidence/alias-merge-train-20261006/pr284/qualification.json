@@ -1,0 +1,37 @@
+{
+  "candidate": "586bb429e9d44af408c6aca025db973aa25f1f08",
+  "parent": "4c3a7bba4d4dae70d1682058729e197b7be0982d",
+  "maintained_checks": 20,
+  "review": "No runtime blocker; initial lookup-only coverage extended through actual pgraph_vk_surface_update rebind/upload decision",
+  "native_local": {
+    "device": "llvmpipe LLVM19",
+    "physical": false,
+    "formats": [
+      "D16",
+      "D24S8",
+      "D32S8"
+    ],
+    "groups": 15,
+    "validation_errors": 0
+  },
+  "native_deck": {
+    "device": "RADV VANGOGH",
+    "physical": true,
+    "formats": [
+      "D16",
+      "D32S8"
+    ],
+    "groups": 10,
+    "D24": "unsupported",
+    "validation": "unavailable"
+  },
+  "method": "Actual GPU clear/readback, owned bytes and padded guest publication, invalidation, full rebind retaining same VkImage with zero upload copies, partial write rejection, dirty-page supersession, map/invalidate failure with recovery, overlapping newer producer veto, pruning 12 images to 10, production flush destruction",
+  "limitations": [
+    "Guest memory mutations and dirty-page provider are fixture adapters, not TCG/MMU execution",
+    "VMA adapters use actual coherent VkDeviceMemory; production image/compute commands run on Vulkan",
+    "Prune/reset-flush checks exercise production flush primitive, not full VM reset/save-load",
+    "Allocation failure remains maintained helper coverage; native injected failures are map/invalidate",
+    "No isolated FPS benefit claimed; historical combined Conker result remains cache-ineligible",
+    "Physical D24 unavailable; local software D24 validation only"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "exitCode": 0,
+  "command": "ulimit -c 0; env LD_LIBRARY_PATH=/home/deck/xemu-performance/pr284-retention-qualification timeout 60 /home/deck/xemu-performance/pr284-retention-qualification/native",
+  "source": "586bb429e9d44af408c6aca025db973aa25f1f08 production GPU readback, retention lookup, invalidation and flush; coherent VMA/dirty-page adapters",
+  "hashes": {
+    "native": "c9e3a3618d9fed8d6859ebe3cd2f3862de7ecb44fa555003924b782a539a3e82",
+    "libshaderc.so.1": "31400b359d2f4b4a43168978412a72913474725befb87966068cfac1922ac6c9"
+  },
+  "hashesVerifiedOnTarget": true,
+  "oraclePassCount": 10,
+  "unsupportedD24Cases": 1,
+  "output": "device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024\nvendor=1002 device=163f api=4211018 driver=105263203 type=1\nPASS retained format=124 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload\nPASS retained format=124 partial-guest-write/reject-reuse/dirty-page-supersedes\nPASS retained format=124 failed-map/failed-invalidate/no-publication/recovery\nPASS retained format=124 newer-producer-blocks/flush-releases-image-and-reference\nPASS retained format=124 prune12-to10/reset-flush-destroys-all\nSKIP format=129 unsupported\nPASS retained format=130 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload\nPASS retained format=130 partial-guest-write/reject-reuse/dirty-page-supersedes\nPASS retained format=130 failed-map/failed-invalidate/no-publication/recovery\nPASS retained format=130 newer-producer-blocks/flush-releases-image-and-reference\nPASS retained format=130 prune12-to10/reset-flush-destroys-all\nRESULT validation=unavailable errors=0\n",
+  "stderr": "Vulkan surface readback map failed: -5\nVulkan surface readback invalidate failed: -5\nVulkan surface readback map failed: -5\nVulkan surface readback invalidate failed: -5\n",
+  "method": "Previously used PR312 scoped SSH operator native qualification; no runner jobs or definition changes"
+}

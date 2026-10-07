@@ -1,0 +1,18 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS retained format=124 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=124 partial-guest-write/reject-reuse/dirty-page-supersedes
+PASS retained format=124 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=124 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=124 prune12-to10/reset-flush-destroys-all
+SKIP format=129 unsupported
+PASS retained format=130 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=130 partial-guest-write/reject-reuse/dirty-page-supersedes
+PASS retained format=130 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=130 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=130 prune12-to10/reset-flush-destroys-all
+RESULT validation=unavailable errors=0
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5

@@ -25,14 +25,16 @@
     {
       "scenario": "retained-cpu-read-partial-write",
       "owner_pr": 284,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (production ownership fixture)",
+      "evidence": "pr284/qualification.json",
+      "limits": "Dirty-page provider injected; reset flush primitive, not full VM reset/save-load"
     },
     {
       "scenario": "retained-eviction-restore-flush-reset",
       "owner_pr": 284,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (production ownership fixture)",
+      "evidence": "pr284/qualification.json",
+      "limits": "Dirty-page provider injected; reset flush primitive, not full VM reset/save-load"
     },
     {
       "scenario": "morton-layout",
@@ -156,6 +158,7 @@
     }
   ],
   "merged": {
-    "282": "36477451eef2f3b292cebec901711a65c0bc1c42"
+    "282": "36477451eef2f3b292cebec901711a65c0bc1c42",
+    "283": "4c3a7bba4d4dae70d1682058729e197b7be0982d"
   }
 }
