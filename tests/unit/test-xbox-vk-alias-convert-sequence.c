@@ -53,14 +53,7 @@ void pgraph_vk_end_nondraw_commands(PGRAPHState *pg, VkCommandBuffer cmd)
     g_assert_cmpuint(descriptors, ==, 3);
 }
 
-void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
-                                       VkImage image, VkFormat format,
-                                       VkImageLayout before,
-                                       VkImageLayout after)
-{
-    g_assert_true(started);
-    commands++;
-}
+#include "hw/xbox/nv2a/pgraph/vk/image.c"
 
 static void consume_descriptor(PGRAPHState *pg)
 {
@@ -123,6 +116,14 @@ static VKAPI_ATTR void VKAPI_CALL record_barrier(
     const VkImageMemoryBarrier *image)
 {
     g_assert_true(started);
+    for (unsigned int i = 0; i < images; i++) {
+        if (image[i].oldLayout ==
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL &&
+            image[i].newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+            g_assert_true(src & VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT);
+            g_assert_true(src & VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT);
+        }
+    }
     commands++;
 }
 
@@ -206,6 +207,7 @@ static void test_conversion_sequence(gconstpointer data)
         return;
     }
     g_assert_true(pgraph_vk_convert_depth_alias(pg, &producer, &view));
+    g_assert_cmpuint(r->perf.depth_alias_copied_pixels, ==, 1280);
     g_assert_cmpuint(producer.height, ==, 480);
     g_assert_cmpuint(finishes, ==, scenario == 0 ? 0 : 1);
     g_assert_cmpuint(descriptors, ==, 3);

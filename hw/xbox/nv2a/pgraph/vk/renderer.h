@@ -257,6 +257,14 @@ typedef struct SurfaceBinding {
 
     /* Identifies this logical binding even when its allocation is recycled. */
     uint64_t lifetime_id;
+
+    /* Contents change independently of draw_time, which tracks read use too. */
+    uint64_t depth_write_generation;
+    uint64_t derived_from_lifetime_id;
+    uint64_t derived_from_generation;
+
+    /* Retired image is still referenced by the open main command buffer. */
+    bool retirement_pending;
 } SurfaceBinding;
 
 typedef struct ShaderModuleInfo {
@@ -739,6 +747,15 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t surface_upload_guest_write_causes;
     uint64_t surface_upload_dirty_memory_causes;
     uint64_t surface_upload_overlap_guest_write_causes;
+    uint64_t depth_alias_conversions;
+    uint64_t depth_alias_reuse_hits;
+    uint64_t depth_alias_conversion_failures;
+    uint64_t depth_alias_views_retired;
+    uint64_t depth_alias_pending_retirements_peak;
+    uint64_t depth_alias_bound_drains;
+    uint64_t depth_alias_producer_pixels;
+    uint64_t depth_alias_view_pixels;
+    uint64_t depth_alias_copied_pixels;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
@@ -857,6 +874,7 @@ typedef struct PGRAPHVkState {
 
     QTAILQ_HEAD(, SurfaceBinding) surfaces;
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
+    unsigned int pending_alias_retirements;
     unsigned long *surface_dirty_page_bits;
     size_t surface_dirty_page_words;
     SurfaceBinding *color_binding, *zeta_binding;
@@ -1107,9 +1125,12 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
 // surface.c
 void pgraph_vk_init_surfaces(PGRAPHState *pg);
 void pgraph_vk_finalize_surfaces(PGRAPHState *pg);
+void pgraph_vk_surface_retirements_complete(PGRAPHVkState *r);
 void pgraph_vk_surface_flush(NV2AState *d);
 void pgraph_vk_process_pending_downloads(NV2AState *d);
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
+void pgraph_vk_surface_invalidate_depth_views(PGRAPHState *pg,
+                                              SurfaceBinding *producer);
 SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
 bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);

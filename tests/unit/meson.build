@@ -233,6 +233,7 @@ if vulkan.found()
       nv2a_vk_runtime_prod = declare_dependency(
         sources: config_target_h['i386-softmmu'],
         compile_args: [
+          '-DXBOX',
           '-DCOMPILING_PER_TARGET',
           '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
         ] + nv2a_vk_runtime_section_args,
@@ -251,6 +252,7 @@ if vulkan.found()
         tests += {
           'test-xbox-vk-surface-ownership': [
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
             surface_ownership_runtime,
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
@@ -259,6 +261,17 @@ if vulkan.found()
         }
       endif
       tests += {
+        'test-xbox-vk-alias-blit': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-alias-producer-lookup': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-alias-convert-sequence': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
           nv2a_vk_runtime_prod,
