@@ -1177,11 +1177,14 @@ static void process_deferred_hybrid_publications(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
     unsigned int processed = 0;
 
-    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work) && processed < 2 &&
-         pgraph_vk_hybrid_owner_budget_available(r); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work) && processed < 2; i++) {
         PGRAPHVkHybridShaderWork *work = &r->hybrid_work[i];
         if (!work->in_use || !work->completed_spirv) {
             continue;
+        }
+        /* Empty slots need no timed work; check before materialization. */
+        if (!pgraph_vk_hybrid_owner_budget_available(r)) {
+            break;
         }
         processed++;
         PGRAPHVkSpirvCacheArtifactResult artifact =
