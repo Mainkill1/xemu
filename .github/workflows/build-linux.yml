@@ -51,6 +51,8 @@ jobs:
           )
           mkdir -p ${LTO_CACHE_DIR}
         fi
+        # Diagnostic branch only: produce a sites-capable native artifact.
+        opts+=(--enable-xemu-tcg-jump-cache-probe)
         echo "XEMU_BUILD_OPTIONS=${opts[*]}" >> "$GITHUB_ENV"
     - name: Initialize compiler cache
       id: cache
