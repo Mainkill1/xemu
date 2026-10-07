@@ -1,0 +1,20 @@
+{
+  "platform": "Linux-6.12.101+deb13-amd64-x86_64-with-glibc2.41",
+  "affinity": [
+    0
+  ],
+  "powerPolicy": "unchanged; frequency and shared-host activity uncontrolled",
+  "iterations": 5000000,
+  "blocksPerOrder": 8,
+  "binaries": {
+    "A": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue234-dsp-dispatch/parent-gcc",
+      "sha256": "037e6179a02ad48daae349373d12c5b03a4f6e42db5e2544a19db6604c051679"
+    },
+    "B": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue234-dsp-dispatch/candidate-gcc",
+      "sha256": "d7544075a292d2f65e78c8433727a11e94066a7e29b199d117751f193b3a0d34"
+    }
+  },
+  "scope": "synthetic production C-interpreter replay; not game FPS"
+}

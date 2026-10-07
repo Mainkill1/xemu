@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue234-prepare-profiles.py", line 30, in <module>
+    receipt=api.json('/api/v1/jobs','POST',d);(p/'created.json').write_text(json.dumps(receipt,indent=2)+'\n');wf.operation(name)
+                                                                                                               ~~~~~~~~~~~~^^^^^^
+  File "/home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/scripts/runner_workflows.py", line 44, in operation
+    raise ClientError("operation_missing", "No operation receipt is available.", "Inspect the existing job before retrying.")
+runner_transport.ClientError: No operation receipt is available.

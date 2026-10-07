@@ -1,0 +1,203 @@
+{
+  "capturedUtc": "2026-10-02T02:03:47.639598+00:00",
+  "sourceHead": "58df82fe70dfc5ad07cecac974ce84db81559dac",
+  "scope": "Authoring host only; existing #281 dispatch vs one cold-branch hint",
+  "decision": "Reject hinted variant for product; native candidate unchanged",
+  "archive": {
+    "path": "records.tar.gz",
+    "bytes": 70301,
+    "sha256": "a4c850cef2b681d1e3a1723c6964213c6f09613181da79c0faf80ad5a9882609"
+  },
+  "payloads": [
+    {
+      "path": "build-identities.json",
+      "bytes": 6501,
+      "sha256": "795ec92fc717d38e333f4b6c26a8a7843f3e4f430f469be85fa978341a402342"
+    },
+    {
+      "path": "clang-balanced/manifest.json",
+      "bytes": 725,
+      "sha256": "85c20c5ad864cdfc25118645c738bcdce59a0cd6e5097e36ec18b53c3dc86b3c"
+    },
+    {
+      "path": "clang-balanced/runs.json",
+      "bytes": 475720,
+      "sha256": "400e170915cffed1517246e0156a13414f581a5b3bedd19db2b5019f5fe3180c"
+    },
+    {
+      "path": "clang-balanced/summary.json",
+      "bytes": 7043,
+      "sha256": "056b7619d5b5b0b1a6751495a7a8c74ee3e626747497bb59f047c7db5a9a76cc"
+    },
+    {
+      "path": "clang-balanced.log",
+      "bytes": 5582,
+      "sha256": "2c2dd0fa7ba9c8340f508dbc2f040590d46ff1371cefe87b4b924d20bd28ef76"
+    },
+    {
+      "path": "clang-candidate-dispatch.txt",
+      "bytes": 23581,
+      "sha256": "71d931300208596b3a7435f2e1d0cb74af823be464e1303fb147e011a92faa8d"
+    },
+    {
+      "path": "clang-candidate-symbol-extents.txt",
+      "bytes": 139,
+      "sha256": "221804ca69d5f86297ea7175f78346ebf1f38c9f92db56adf3043884fcf898d4"
+    },
+    {
+      "path": "clang-control-dispatch.txt",
+      "bytes": 23500,
+      "sha256": "27fe1ee9111f2e8672888c317b73ca1f875cdf9157d641c3192205bb2269130d"
+    },
+    {
+      "path": "clang-control-symbol-extents.txt",
+      "bytes": 139,
+      "sha256": "b496eb7d84160ef143d8274e4490605237e54dfe61102776746c7f18ef1dce42"
+    },
+    {
+      "path": "clang-unit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "clang-unit.stdout.txt",
+      "bytes": 688,
+      "sha256": "8162a715c1423032c523010cb6ca75ffae2d8da3cbccf778ac39a2f06b21625f"
+    },
+    {
+      "path": "cold-hint.patch",
+      "bytes": 498,
+      "sha256": "bf527583554a8f12bf2acbf74f1386fd7db21eddf2eb151f833c82d09725eaad"
+    },
+    {
+      "path": "gcc-balanced/manifest.json",
+      "bytes": 721,
+      "sha256": "ae60647827df3461fe78f2e4e01506d95b69b498ea004946edaa0c309401d4c8"
+    },
+    {
+      "path": "gcc-balanced/runs.json",
+      "bytes": 474493,
+      "sha256": "b25b7d198c087ce7386696bab97afc89a9316274bb09e63d8463cbabf544b4d3"
+    },
+    {
+      "path": "gcc-balanced/summary.json",
+      "bytes": 7081,
+      "sha256": "e4d2b87ecd809d031c77744645a085205102c8610cac7f5c67dad25ec3456ffa"
+    },
+    {
+      "path": "gcc-balanced.log",
+      "bytes": 5620,
+      "sha256": "dbe75af082622e2685e8dc6e2c5673dfd9dbe12a4f272cdae6c718bece6fe0d1"
+    },
+    {
+      "path": "gcc-candidate-dispatch.txt",
+      "bytes": 26521,
+      "sha256": "e8a1bf942ec45c7d4cc2a3e2adf40ae8bd8876f8255765fb9ef460b7ea49cc32"
+    },
+    {
+      "path": "gcc-candidate-symbol-extents.txt",
+      "bytes": 131,
+      "sha256": "7f3188ae6fca8a028f19a402f6240e8c2c291747d680b4a095076a15372aa260"
+    },
+    {
+      "path": "gcc-control-dispatch.txt",
+      "bytes": 26486,
+      "sha256": "aff8e2886f6623f3ca9f8d1af6696796125e883713b19ca970ff91111e44d531"
+    },
+    {
+      "path": "gcc-control-symbol-extents.txt",
+      "bytes": 131,
+      "sha256": "7f3188ae6fca8a028f19a402f6240e8c2c291747d680b4a095076a15372aa260"
+    },
+    {
+      "path": "gcc-unit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "gcc-unit.stdout.txt",
+      "bytes": 688,
+      "sha256": "314fc3e1d93e1e1e6681e966b92fcfa9b4c09cb55bcc800d2025e83f34d2fa25"
+    },
+    {
+      "path": "hinted-dsp_cpu.c",
+      "bytes": 51566,
+      "sha256": "3eba028781e1e2d92d7508b27b5b45d1aa0f709c436cba1427fe2eebc02b68fb"
+    },
+    {
+      "path": "setup.json",
+      "bytes": 2274,
+      "sha256": "5e7b3b73e52f022b6a6d540aabf27fe15d5091daa482de49d2089c4f1cec6cc6"
+    },
+    {
+      "path": "text-identities.json",
+      "bytes": 591,
+      "sha256": "0f6f6d4c3a949163b123c16ee936a80f84c820f7ce4f31386b4b94585e4f555d"
+    },
+    {
+      "path": "unhinted-dsp_cpu.c",
+      "bytes": 51556,
+      "sha256": "7eca3cc2c39d9d876768b9477cf84cc68271479b7a62d4d6c412fe32412f0f5a"
+    },
+    {
+      "path": "build/cold-hint-control-gcc-argv.json",
+      "bytes": 1290,
+      "sha256": "ba750ccca27ae5105655390e5301eec6427ec338253de8a606115a70cd59c11c"
+    },
+    {
+      "path": "build/cold-hint-control-gcc-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/cold-hint-candidate-gcc-argv.json",
+      "bytes": 1292,
+      "sha256": "f1e9db27f7af21262677703093263186ba693ebed63b03e18cb7e77d9a16d6b7"
+    },
+    {
+      "path": "build/cold-hint-candidate-gcc-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/cold-hint-control-clang-argv.json",
+      "bytes": 1312,
+      "sha256": "c05c0b8a36f3b610867e536cdfb1c70b2562275dc223b349a200a34cf8ad6942"
+    },
+    {
+      "path": "build/cold-hint-control-clang-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/cold-hint-candidate-clang-argv.json",
+      "bytes": 1314,
+      "sha256": "1ccb95765d0eee201f8a5f7c5fa06315228e89d7f822ce9067a31c3ff7471d30"
+    },
+    {
+      "path": "build/cold-hint-candidate-clang-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "omittedLocalBinaries": {
+    "cold-hint-control-gcc": {
+      "bytes": 1526808,
+      "sha256": "e69876e739526e55fb1cb97075d82256d4252860d8c386433e81db6e63964e67"
+    },
+    "cold-hint-candidate-gcc": {
+      "bytes": 1526816,
+      "sha256": "1822ade8a764bb146179f15d408ec1f62016c5c7ea18706173bc1f14d92e8500"
+    },
+    "cold-hint-control-clang": {
+      "bytes": 1712928,
+      "sha256": "71d6e877d7e19d942021659508bb3a049f639d1398c1839ebe01b6e5f7e0f4f8"
+    },
+    "cold-hint-candidate-clang": {
+      "bytes": 1712944,
+      "sha256": "f96157819e18d5cfd147e58931170924872cb26a26b887d68ef4b9d40f44a7e7"
+    }
+  },
+  "qemuutilSha256": "468aa7926e6e425d80521fec314383fba03eebe1d2614dd2b3ce5bfe6bb53b28",
+  "fixtureSha256": "9211949d1212bcb080f6b730b120afadfca00b0c9f2421dcdc74148fa0455eb6"
+}

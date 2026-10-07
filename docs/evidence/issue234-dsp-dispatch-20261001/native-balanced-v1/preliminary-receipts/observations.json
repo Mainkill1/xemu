@@ -1,0 +1,112 @@
+{
+  "capturedUtc": "2026-10-02T01:31:39.297966+00:00",
+  "host": "10.0.0.123",
+  "status": "Frozen 12-attempt campaign continues; first 7 cached reports only",
+  "records": [
+    {
+      "jobId": "issue234-deck-c-v1-aaaa-1",
+      "runId": "20261002-003132983-1667c27e5cbb48a1a5d93063f1bbd629",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 198.2979933554815,
+      "flipControlIntervalMeanMs": 1193.4472460317463,
+      "positiveFlipControlIntervals": 252
+    },
+    {
+      "jobId": "issue234-deck-c-v1-aaaa-2",
+      "runId": "20261002-003936571-d8f5cd2f47874fd6ab8c54c6652b0068",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 204.2392155887229,
+      "flipControlIntervalMeanMs": 1203.9481359999997,
+      "positiveFlipControlIntervals": 250
+    },
+    {
+      "jobId": "issue234-deck-c-v1-aaaa-3",
+      "runId": "20261002-004741017-ff670980adec46abbc896f5e5ac3794e",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 199.54386235489224,
+      "flipControlIntervalMeanMs": 1374.5314840182648,
+      "positiveFlipControlIntervals": 219
+    },
+    {
+      "jobId": "issue234-deck-c-v1-aaaa-4",
+      "runId": "20261002-005546502-99a2a01a414644199b9170555332ce15",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 199.68595854063028,
+      "flipControlIntervalMeanMs": 1403.4176355140187,
+      "positiveFlipControlIntervals": 214
+    },
+    {
+      "jobId": "issue234-deck-c-v1-abba-1",
+      "runId": "20261002-010351141-ef6b70fc9d2145a4975442d9c1f2f880",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 200.29196849087884,
+      "flipControlIntervalMeanMs": 1271.340737288136,
+      "positiveFlipControlIntervals": 236
+    },
+    {
+      "jobId": "issue234-deck-c-v1-abba-2",
+      "runId": "20261002-011155922-afeb676e44584c0f811707c2e1168c27",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpuMeanCorePercent": 193.10242454394708,
+      "flipControlIntervalMeanMs": 1797.5768323353307,
+      "positiveFlipControlIntervals": 167
+    },
+    {
+      "jobId": "issue234-deck-c-v1-abba-3",
+      "runId": "20261002-012000249-9b161940b632443da9c5525604bba274",
+      "executableSha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "outcome": {
+        "execution": "failed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpuMeanCorePercent": 193.7430364842452,
+      "flipControlIntervalMeanMs": 1527.3427258883241,
+      "positiveFlipControlIntervals": 197
+    }
+  ],
+  "limits": [
+    "These are saved runner API reports, not a completed raw-source audit.",
+    "Failed ABBA3 remains ineligible, without retry or outcome repair.",
+    "Crash brief confirms no native crash; it does not classify the execution failure.",
+    "All raw files, source hashes and screenshots will be audited when all 12 attempts are terminal and host is idle.",
+    "No A/B improvement estimate is calculated from this incomplete campaign."
+  ]
+}

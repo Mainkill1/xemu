@@ -1,0 +1,77 @@
+[
+  {
+    "directory": "glslang",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/glslang",
+    "gitHead": "e1b562a8bed273a02f30b59b66a5d499793cede5"
+  },
+  {
+    "directory": "nlohmann_json",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/nlohmann_json",
+    "gitHead": "55f93686c01528224f448c19128836e7df245f72"
+  },
+  {
+    "directory": "VulkanMemoryAllocator",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/VulkanMemoryAllocator",
+    "gitHead": "3aa921224c154a0d2c43912bc88e1c42ce1f7607"
+  },
+  {
+    "directory": "berkeley-softfloat-3",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/berkeley-softfloat-3",
+    "gitHead": "b64af41c3276f97f0e181920400ee056b9c88037"
+  },
+  {
+    "directory": "genconfig",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/genconfig",
+    "gitHead": "42f85f9a2457e61d7e32542c07723565a284fcd6"
+  },
+  {
+    "directory": "nv2a_vsh_cpu",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/nv2a_vsh_cpu",
+    "gitHead": "561fe80da57a881f89000256b459440c0178a7ce"
+  },
+  {
+    "directory": "imgui",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/imgui",
+    "gitHead": "b911105fca3ca1b025706dd168e5798070f143a1"
+  },
+  {
+    "directory": "berkeley-testfloat-3",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/berkeley-testfloat-3",
+    "gitHead": "e7af9751d9f9fd3b47911f51a5cfd08af256a9ab"
+  },
+  {
+    "directory": "packagecache",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/packagecache",
+    "gitHead": "42261a2c9fac3f0d6481a4c58c5bfbc9fd03ae54"
+  },
+  {
+    "directory": "implot",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/implot",
+    "gitHead": "8553562dbb2025fd520f4bed57b094767b96c670"
+  },
+  {
+    "directory": "SPIRV-Reflect",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/SPIRV-Reflect",
+    "gitHead": "9137a7e529e4e911a4dbd63f1ce71e4b3e8f4cfc"
+  },
+  {
+    "directory": "volk",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/volk",
+    "gitHead": "3ca312a4f38baa63d8006b6905abbeeb89c8087d"
+  },
+  {
+    "directory": "keycodemapdb",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/keycodemapdb",
+    "gitHead": "f5772a62ec52591ff6870b7e8ef32482371f22c6"
+  },
+  {
+    "directory": "tomlplusplus",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/tomlplusplus",
+    "gitHead": "30172438cee64926dc41fdd9c11fb3ba5b2ba9de"
+  },
+  {
+    "directory": "xxHash-0.8.3",
+    "copiedFrom": "/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/subprojects/xxHash-0.8.3",
+    "gitHead": "42261a2c9fac3f0d6481a4c58c5bfbc9fd03ae54"
+  }
+]

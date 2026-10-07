@@ -1,0 +1,295 @@
+{
+  "reviewedCaptures": 24,
+  "method": "Visual inspection of every original recording-start/end PNG with view_image, no editing",
+  "attempts": [
+    {
+      "id": "issue234-deck-c-v1-aaaa-1",
+      "runId": "20261002-003132983-1667c27e5cbb48a1a5d93063f1bbd629",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-003132983-1667c27e5cbb48a1a5d93063f1bbd629/screenshots/recording-start.png",
+          "sha256": "accdd2b0f808133fe78310d83dd81214328c9756fcd8ce408c1ba39f6a198eef",
+          "bytes": 649690
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-003132983-1667c27e5cbb48a1a5d93063f1bbd629/screenshots/recording-end.png",
+          "sha256": "910caefee488bdd97db0040ca703861d2db74e036da7733f840154ff5ed0451f",
+          "bytes": 637967
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-2",
+      "runId": "20261002-003936571-d8f5cd2f47874fd6ab8c54c6652b0068",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-003936571-d8f5cd2f47874fd6ab8c54c6652b0068/screenshots/recording-start.png",
+          "sha256": "714d824856a3bc6aeda8f7f2c3fa31077b4f9d67ee7352e1e098856771f86292",
+          "bytes": 653781
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-003936571-d8f5cd2f47874fd6ab8c54c6652b0068/screenshots/recording-end.png",
+          "sha256": "8fe95d6ec6895a8d158f16af1dac24d9d9703f8cfb4270692bc4cdd2769592aa",
+          "bytes": 638311
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-3",
+      "runId": "20261002-004741017-ff670980adec46abbc896f5e5ac3794e",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-004741017-ff670980adec46abbc896f5e5ac3794e/screenshots/recording-start.png",
+          "sha256": "6e2946d0f87540cd4e2f6373a480c930b336863cca18c465f68ab5c4a63e6b66",
+          "bytes": 656682
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-004741017-ff670980adec46abbc896f5e5ac3794e/screenshots/recording-end.png",
+          "sha256": "135e91bd1b085a54d10f3acf907c102204c00babfa88d3dcdc6ab2dbe4dd3d74",
+          "bytes": 638448
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-aaaa-4",
+      "runId": "20261002-005546502-99a2a01a414644199b9170555332ce15",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-005546502-99a2a01a414644199b9170555332ce15/screenshots/recording-start.png",
+          "sha256": "3e02f1b714b1159bc1fa278e08008cf9ed5897a7954e2d32b6e59d4bd5b4370b",
+          "bytes": 654878
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-005546502-99a2a01a414644199b9170555332ce15/screenshots/recording-end.png",
+          "sha256": "e3f44eb1a6b37d47ebcadcc78265b9e606d45ca4f61f2392cded15bde540eb55",
+          "bytes": 638291
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-1",
+      "runId": "20261002-010351141-ef6b70fc9d2145a4975442d9c1f2f880",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-010351141-ef6b70fc9d2145a4975442d9c1f2f880/screenshots/recording-start.png",
+          "sha256": "c08cfdc8d43be80a4d1aacf073456c5232cbd666cc183c3a9ed2832c2bbcbd5b",
+          "bytes": 654701
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-010351141-ef6b70fc9d2145a4975442d9c1f2f880/screenshots/recording-end.png",
+          "sha256": "38bb9d37234e8bed2f476021bc51f4cb6b5afc89ec9cf64875853e9e5dfa47c9",
+          "bytes": 637965
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-2",
+      "runId": "20261002-011155922-afeb676e44584c0f811707c2e1168c27",
+      "build": "B",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-011155922-afeb676e44584c0f811707c2e1168c27/screenshots/recording-start.png",
+          "sha256": "9f305887c8a735b72151bb0a27371a2a705aeab0a527564ad01cdf7dbf5e2215",
+          "bytes": 648359
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-011155922-afeb676e44584c0f811707c2e1168c27/screenshots/recording-end.png",
+          "sha256": "265eb69371797507fbed04e9d2b25e20345d8e2c1c1c0ccabb7e861a7a177f4b",
+          "bytes": 638434
+        }
+      ],
+      "startOverlay": "1",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-3",
+      "runId": "20261002-012000249-9b161940b632443da9c5525604bba274",
+      "build": "B",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-012000249-9b161940b632443da9c5525604bba274/screenshots/recording-start.png",
+          "sha256": "fd19ca28dd34c8ba49f6dcfd17aa64b4321c3ac57b3c8bd7dc317dd294d13730",
+          "bytes": 656893
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-012000249-9b161940b632443da9c5525604bba274/screenshots/recording-end.png",
+          "sha256": "0d479b82d2c4f22806afefa04d9c24c147d741b82fe13f4cd301ebc8fc18873f",
+          "bytes": 638702
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-abba-4",
+      "runId": "20261002-012816976-4f1fe36e4c9243f5af4a2d7142bb1b88",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-012816976-4f1fe36e4c9243f5af4a2d7142bb1b88/screenshots/recording-start.png",
+          "sha256": "47324281485a1b047f3fbf7e26835e81cf7cb2b76533137cd9b3170e2c5f9663",
+          "bytes": 656812
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-012816976-4f1fe36e4c9243f5af4a2d7142bb1b88/screenshots/recording-end.png",
+          "sha256": "61a6bc6bbfb1d267335737e9910aaef337702c1bebe67f4582a23ef55d0a6513",
+          "bytes": 638709
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-1",
+      "runId": "20261002-013621194-a6d3e05551764dfca668bf9ff88a38c2",
+      "build": "B",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-013621194-a6d3e05551764dfca668bf9ff88a38c2/screenshots/recording-start.png",
+          "sha256": "ee44604ccd647eec5234833752b2a2c20f794618d02dc6e6f7645cf54748558c",
+          "bytes": 649821
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-013621194-a6d3e05551764dfca668bf9ff88a38c2/screenshots/recording-end.png",
+          "sha256": "ff0d099eb01b6c16705ca0d459d813fb1382aef6f9312ea830e2c8b2626100d4",
+          "bytes": 638049
+        }
+      ],
+      "startOverlay": "fading GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-2",
+      "runId": "20261002-014425648-fd0dad67570d4c65a7f1d859143a4655",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-014425648-fd0dad67570d4c65a7f1d859143a4655/screenshots/recording-start.png",
+          "sha256": "b52672b09a8370109d76ce15da65b396e13095b15cc02ea13d78b47b7c919917",
+          "bytes": 655681
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-014425648-fd0dad67570d4c65a7f1d859143a4655/screenshots/recording-end.png",
+          "sha256": "e18dc161ad8493469a99dc1361baa9db75e7c3e6664188524893bff9ff01eada",
+          "bytes": 638260
+        }
+      ],
+      "startOverlay": "GO",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-3",
+      "runId": "20261002-015229922-cda9c417462441e4945a4f092a12df73",
+      "build": "A",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-015229922-cda9c417462441e4945a4f092a12df73/screenshots/recording-start.png",
+          "sha256": "02ba8eb65a903108eeba60a27a72a55bd6ca1d6e0053b4ef993b5a87814bcf21",
+          "bytes": 628897
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-015229922-cda9c417462441e4945a4f092a12df73/screenshots/recording-end.png",
+          "sha256": "f0e7147d3f7cd084bbaf5fbda4e4ebbe98c9d08aa4ad5b7168ef7462b063a153",
+          "bytes": 640550
+        }
+      ],
+      "startOverlay": "2",
+      "startCamera": "oblique prerace",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    },
+    {
+      "id": "issue234-deck-c-v1-baab-4",
+      "runId": "20261002-020046457-e7cff794bc024e66b662bba69457ec4d",
+      "build": "B",
+      "captures": [
+        {
+          "stage": "start",
+          "path": "collected/20261002-020046457-e7cff794bc024e66b662bba69457ec4d/screenshots/recording-start.png",
+          "sha256": "d139044a5caaf1e783d2df274f32834bae0d17a1149c60924754bc12112be089",
+          "bytes": 651294
+        },
+        {
+          "stage": "end",
+          "path": "collected/20261002-020046457-e7cff794bc024e66b662bba69457ec4d/screenshots/recording-end.png",
+          "sha256": "62c2c13905de5c31f2b6a905faf64d4bd50ea16f7b8160931333a562a26f24ca",
+          "bytes": 638847
+        }
+      ],
+      "startOverlay": "1",
+      "startCamera": "rear view",
+      "endCamera": "rear view",
+      "both": "Red coupe on intended city grid, 6/6 position, 000 MPH",
+      "end": "Countdown gone; own car stationary; opponents moved away, at differing distances"
+    }
+  ],
+  "conclusion": "Intended stationary scene reached in every pair; countdown/camera phases and AI progress differ. No pixel/phase equivalence, fixed guest work, PCM parity or independently rendered throughput established. Endpoint captures cannot establish continuity through the entire window."
+}

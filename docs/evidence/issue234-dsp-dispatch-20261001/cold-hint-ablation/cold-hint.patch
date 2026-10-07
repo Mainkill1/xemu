@@ -1,0 +1,11 @@
+--- a/hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c
++++ b/hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c
+@@ -634,7 +634,7 @@
+      * no immutable-RAM assumption or cached extension operands.
+      */
+     DspInstructionHandler handler = dsp->pram_opcache[dsp->pc];
+-    if (handler == NULL) {
++    if (unlikely(handler == NULL)) {
+         if (dsp->cur_inst < 0x100000) {
+             const OpcodeEntry *op = lookup_opcode(dsp->cur_inst);
+             handler = op->emu_func ? op->emu_func : execute_unimplemented;

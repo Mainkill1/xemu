@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02Scf40be5e1f17d09db2396cd813a7f314
+# Start of dsp tests
+# Start of dispatch tests
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:74:test_parallel_cache: 'core->pram_opcache[DSP_PRAM_SIZE - 1]' should not be NULL
+not ok /dsp/dispatch/parallel-cache - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:74:test_parallel_cache: 'core->pram_opcache[DSP_PRAM_SIZE - 1]' should not be NULL
+Bail out!

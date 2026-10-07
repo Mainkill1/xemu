@@ -1,0 +1,22 @@
+TAP version 14
+# random seed: R02Sb2fa4f3db00a75fe258ab5d907bcea67
+1..10
+# Start of dsp tests
+# Start of dispatch tests
+ok 1 /dsp/dispatch/overwrite
+ok 2 /dsp/dispatch/parallel-cache
+ok 3 /dsp/dispatch/reset
+ok 4 /dsp/dispatch/extension-loops
+ok 5 /dsp/dispatch/self-write
+ok 6 /dsp/dispatch/backend-lifecycle
+ok 7 /dsp/dispatch/wait-interrupt
+Dsp: 0x0000: 0x000203 Illegal instruction
+Dsp: 0x0000: 0x000203 Illegal instruction
+ok 8 /dsp/dispatch/undefined
+ok 9 /dsp/dispatch/traced
+Dsp: 0x0007: 0x000203 Illegal instruction
+Dsp: 0x0007: 0x000203 Illegal instruction
+Dsp: 0x0007: 0x000203 Illegal instruction
+ok 10 /dsp/dispatch/cold-warm-state
+# End of dispatch tests
+# End of dsp tests

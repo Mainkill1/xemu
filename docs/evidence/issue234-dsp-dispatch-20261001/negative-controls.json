@@ -1,0 +1,12 @@
+[
+  {
+    "mutation": "no-invalidate",
+    "test": "overwrite",
+    "returncode": -6
+  },
+  {
+    "mutation": "wrong-handler",
+    "test": "overwrite",
+    "returncode": -6
+  }
+]

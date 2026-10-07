@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S758f693522e0a9a89a2dc25c1c8ade9c
+# Start of dsp tests
+# Start of dispatch tests
+Dsp: 0x0007: 0x000203 Illegal instruction
+Dsp: 0x0007: 0x000203 Illegal instruction
+Dsp: 0x0007: 0x000203 Illegal instruction
+ok 1 /dsp/dispatch/cold-warm-state
+# End of dispatch tests
+# End of dsp tests
+1..1

@@ -1,0 +1,23 @@
+{
+  "sourceHead": "58df82fe70dfc5ad07cecac974ce84db81559dac",
+  "ciTemporaryMergeCommit": "ecb2a59e3a89f34f079787dd7b02c06b30578e2b",
+  "sourceTreeEqual": true,
+  "githubArtifact": 11201896179,
+  "githubRun": 36944071061,
+  "executables": {
+    "parent": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/native-builds/parent-linux/squashfs-root/usr/bin/xemu",
+      "sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "bytes": 25548144,
+      "elfComments": "",
+      "elfBuildId": "7cc47cc0deb81956e198d71935d1a198116cdb02"
+    },
+    "candidate": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue234-dsp-dispatch/native-builds/candidate-linux/squashfs-root/usr/bin/xemu",
+      "sha256": "4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26",
+      "bytes": 25548144,
+      "elfComments": "",
+      "elfBuildId": "0d6fb2c6fb59451d5ce9291a7538c6992ce7398d"
+    }
+  }
+}

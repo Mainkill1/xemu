@@ -1,0 +1,12 @@
+{
+  "archiveBytes": 20140071,
+  "archiveSha256": "b046a3bf7d334a8761f80ac0cfe07ae4d6fdc51d5950c00b8516b5ee3ccdb99f",
+  "verifiedPayloadFiles": 468,
+  "omittedCacheFiles": 9990,
+  "omittedCacheBytes": 46362510,
+  "archivedAttempts": 12,
+  "eligibleAttempts": 9,
+  "rawReportsMatchCached": true,
+  "rawFramesMatchRunnerCoverage": true,
+  "allArchivePayloadsRehashed": true
+}
