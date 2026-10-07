@@ -904,9 +904,20 @@ static void tb_jmp_cache_inval_tb(TranslationBlock *tb)
     CPUState *cpu;
 
     if (tb_cflags(tb) & CF_PCREL) {
-        /* A TB may be at any virtual address */
+        /* A PC-relative TB may have aliases at any virtual address. */
         CPU_FOREACH(cpu) {
-            tcg_flush_jmp_cache(cpu);
+            CPUJumpCache *jc = cpu->tb_jmp_cache;
+
+            /* During early initialization, the cache may not exist yet. */
+            if (unlikely(jc == NULL)) {
+                continue;
+            }
+
+            for (int i = 0; i < TB_JMP_CACHE_SIZE; i++) {
+                if (qatomic_read(&jc->array[i].tb) == tb) {
+                    qatomic_set(&jc->array[i].tb, NULL);
+                }
+            }
         }
     } else {
         uint32_t h = tb_jmp_cache_hash_func(tb->pc);
