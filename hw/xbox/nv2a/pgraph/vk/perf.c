@@ -86,6 +86,33 @@ static void write_cpu_stat_array(FILE *file, const char *key,
 
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
+    const char *probe_path = g_getenv("XEMU_VK_BATCH_PROBE");
+    if (probe_path && probe_path[0]) {
+        QueueFamilyIndices indices =
+            pgraph_vk_find_queue_families(r->physical_device);
+        uint32_t count = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(r->physical_device,
+                                                &count, NULL);
+        g_autofree VkQueueFamilyProperties *props =
+            g_new0(VkQueueFamilyProperties, count);
+        vkGetPhysicalDeviceQueueFamilyProperties(r->physical_device,
+                                                &count, props);
+        FILE *file = qemu_fopen(probe_path, "w");
+        if (file) {
+            setvbuf(file, NULL, _IOFBF, 256 * 1024);
+        }
+        if (indices.queue_family < 0 || indices.queue_family >= count ||
+            !pgraph_vk_batch_probe_init(
+                &r->batch_probe, r->device,
+                props[indices.queue_family].timestampValidBits,
+                r->device_props.limits.timestampPeriod, file)) {
+            error_report("nv2a/vk: batch probe unavailable");
+            if (file) {
+                fputs("{\"type\":\"batch_probe_unavailable\"}\n", file);
+                fclose(file);
+            }
+        }
+    }
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
     if (path == NULL || path[0] == '\0') {
         return;
@@ -117,6 +144,11 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
 
 void pgraph_vk_perf_finalize(PGRAPHVkState *r)
 {
+    pgraph_vk_batch_probe_finalize(&r->batch_probe);
+    if (r->batch_probe.file) {
+        fclose(r->batch_probe.file);
+        r->batch_probe.file = NULL;
+    }
     if (r->perf.file != NULL) {
         fflush(r->perf.file);
         fclose(r->perf.file);
