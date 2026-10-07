@@ -484,8 +484,10 @@ void pgraph_vk_fallback_family_note_pipeline_ready(
 }
 
 void pgraph_vk_fallback_family_note_pipeline_failure_at(
-    PGRAPHVkState *r, const PipelineKey *key, int64_t now_us)
+    PGRAPHState *pg, const PipelineKey *key, int64_t now_us)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
     if (key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
         return;
     }
@@ -499,6 +501,10 @@ void pgraph_vk_fallback_family_note_pipeline_failure_at(
     pgraph_vk_fallback_family_mark_pipeline_owners(
         r, key, retained ? PGRAPH_VK_FAMILY_TRACKED :
                            PGRAPH_VK_FAMILY_REJECTED);
+    /* Draw preparation can consume the result without another service pass. */
+    if (retained) {
+        pgraph_vk_fallback_family_schedule_retry(pg, request);
+    }
 }
 
 void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r)

@@ -1624,7 +1624,7 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
             continue;
         }
         if (!pgraph_vk_fallback_family_retry_due(request, now_us)) {
-            pgraph_vk_hybrid_schedule_service(pg, request->retry_after_us);
+            pgraph_vk_fallback_family_schedule_retry(pg, request);
             continue;
         }
         processed++;
@@ -1939,7 +1939,7 @@ static void process_hybrid_pipeline_result(
             r->hybrid_prewarm.rejected++;
         }
         pgraph_vk_fallback_family_note_pipeline_failure_at(
-            r, &work->key, g_get_monotonic_time());
+            pg, &work->key, g_get_monotonic_time());
     }
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(

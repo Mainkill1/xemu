@@ -1249,7 +1249,7 @@ void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
 void pgraph_vk_fallback_family_note_pipeline_ready(
     PGRAPHVkState *r, const PipelineKey *key);
 void pgraph_vk_fallback_family_note_pipeline_failure_at(
-    PGRAPHVkState *r, const PipelineKey *key, int64_t now_us);
+    PGRAPHState *pg, const PipelineKey *key, int64_t now_us);
 void pgraph_vk_pipeline_family_owner_evict(
     PGRAPHVkState *r, PipelineBinding *binding);
 void pgraph_vk_fallback_family_key_from_specialized(
