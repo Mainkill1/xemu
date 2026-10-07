@@ -146,8 +146,6 @@ static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, pipeline_cache);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
 
-    pgraph_vk_pipeline_family_owner_evict(r, snode);
-
     assert((snode->pipeline == VK_NULL_HANDLE ||
             pgraph_vk_graphics_pipeline_can_evict(
                 r->in_command_buffer, snode->draw_time,
@@ -1599,8 +1597,6 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
         !r->hybrid_pipeline_builder_initialized) {
         return;
     }
-
-    pgraph_vk_enqueue_retained_fallback_families(r);
 
     unsigned int visited = 0;
     unsigned int processed = 0;

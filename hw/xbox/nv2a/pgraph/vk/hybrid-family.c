@@ -333,26 +333,7 @@ void pgraph_vk_pipeline_family_set_state(PGRAPHVkState *r,
                                          PipelineBinding *binding,
                                          PGRAPHVkFamilyLearnState state)
 {
-    if (binding->family_learn_state == state) {
-        return;
-    }
-    if (binding->family_learn_state == PGRAPH_VK_FAMILY_RETRY_PENDING) {
-        assert(r->fallback_family_retry_count > 0);
-        r->fallback_family_retry_count--;
-    }
     binding->family_learn_state = state;
-    if (state == PGRAPH_VK_FAMILY_RETRY_PENDING) {
-        r->fallback_family_retry_count++;
-    }
-}
-
-void pgraph_vk_pipeline_family_owner_evict(PGRAPHVkState *r,
-                                           PipelineBinding *binding)
-{
-    if (binding->family_learn_state == PGRAPH_VK_FAMILY_RETRY_PENDING) {
-        assert(r->fallback_family_retry_count > 0);
-        r->fallback_family_retry_count--;
-    }
 }
 
 void pgraph_vk_track_specialized_fallback_family(
@@ -383,8 +364,12 @@ void pgraph_vk_track_specialized_fallback_family(
                 pgraph_vk_family_key_blob_destroy(&blob);
             }
         }
+        /*
+         * Learn for a future launch. A ready specialized pipeline does not
+         * require a second executable while the current draw is running.
+         */
         pgraph_vk_pipeline_family_set_state(
-            r, owner, PGRAPH_VK_FAMILY_RETRY_PENDING);
+            r, owner, PGRAPH_VK_FAMILY_HISTORY_RECORDED);
     }
 }
 
@@ -429,7 +414,7 @@ void pgraph_vk_fallback_family_mark_pipeline_owners(
             binding->key.fragment_route != PGRAPH_VK_FRAGMENT_SPECIALIZED) {
             continue;
         }
-        if (binding->family_learn_state != PGRAPH_VK_FAMILY_RETRY_PENDING &&
+        if (binding->family_learn_state != PGRAPH_VK_FAMILY_HISTORY_RECORDED &&
             binding->family_learn_state != PGRAPH_VK_FAMILY_TRACKED) {
             continue;
         }
@@ -504,41 +489,5 @@ void pgraph_vk_fallback_family_note_pipeline_failure_at(
     /* Draw preparation can consume the result without another service pass. */
     if (retained) {
         pgraph_vk_fallback_family_schedule_retry(pg, request);
-    }
-}
-
-void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r)
-{
-    if (!r->fallback_family_retry_count) {
-        return;
-    }
-    size_t capacity = r->pipeline_cache.num_used +
-                      r->pipeline_cache.num_free;
-    unsigned int visited = 0;
-    unsigned int processed = 0;
-    while (visited < capacity && processed < 2 &&
-           r->fallback_family_retry_count) {
-        unsigned int index = r->fallback_family_pipeline_cursor++ % capacity;
-        PipelineBinding *binding = &r->pipeline_cache_entries[index];
-        visited++;
-        if (!lru_is_node_in_use(&r->pipeline_cache, &binding->node) ||
-            binding->family_learn_state !=
-                PGRAPH_VK_FAMILY_RETRY_PENDING ||
-            binding->pipeline == VK_NULL_HANDLE || binding->key.clear ||
-            binding->key.fragment_route !=
-                PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-            continue;
-        }
-        processed++;
-        PipelineKey family_key;
-        pgraph_vk_fallback_family_key_from_specialized(binding, &family_key);
-        bool queued = pgraph_vk_fallback_family_enqueue(
-            r->fallback_family_requests,
-            ARRAY_SIZE(r->fallback_family_requests), &family_key,
-            &binding->key.shader_state, false);
-        if (queued) {
-            pgraph_vk_pipeline_family_set_state(
-                r, binding, PGRAPH_VK_FAMILY_TRACKED);
-        }
     }
 }
