@@ -81,6 +81,37 @@ static void test_read_only_alias_eligibility(void)
     g_assert_true(pgraph_vk_depth_alias_read_only_eligible(
         &producer, &view, false, false, 1, false));
 
+    /* Each otherwise valid pair must reject an incompatible field alone. */
+#define REJECT_FIELD(which, field, value) do {                            \
+        PGRAPHVkDepthAliasView saved = which;                            \
+        which.field = value;                                            \
+        g_assert_false(pgraph_vk_depth_alias_read_only_eligible(         \
+            &producer, &view, false, false, 1, false));                  \
+        which = saved;                                                  \
+    } while (0)
+    REJECT_FIELD(producer, color, true);
+    REJECT_FIELD(view, color, true);
+    REJECT_FIELD(producer, swizzled, true);
+    REJECT_FIELD(view, swizzled, false);
+    REJECT_FIELD(producer, initialized, false);
+    REJECT_FIELD(producer, download_pending, true);
+    REJECT_FIELD(producer, guest_z24s8, false);
+    REJECT_FIELD(view, guest_z24s8, false);
+    REJECT_FIELD(view, host_supported, false);
+    REJECT_FIELD(producer, host_format, 0);
+    REJECT_FIELD(view, host_format, 2);
+    REJECT_FIELD(view, dma_length, view.dma_length - 1);
+    REJECT_FIELD(view, pitch, view.pitch + 4);
+    REJECT_FIELD(view, extent, view.width * view.height * 4 - 1);
+    REJECT_FIELD(view, width, 1024);
+    REJECT_FIELD(view, height, 512);
+    REJECT_FIELD(view, height, 0);
+#undef REJECT_FIELD
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        NULL, &view, false, false, 1, false));
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, NULL, false, false, 1, false));
+
     producer.upload_pending = true;
     g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
         &producer, &view, false, false, 1, false));
