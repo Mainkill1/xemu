@@ -1,0 +1,36 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=1056
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=192
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=556
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=221
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=170
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=132
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=122
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=111
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=562
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=182
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=450
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=130
+ZERO_DEPTH canonicalizations=0 generation=1
+SKIP format=129 unsupported
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=2 blit=0 host_us=166865
+ZERO_DEPTH canonicalizations=1 generation=0
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=2 blit=0 host_us=254
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=2 blit=0 host_us=228
+ZERO_DEPTH canonicalizations=4 generation=0
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=2 blit=0 host_us=378
+ZERO_DEPTH canonicalizations=0 generation=1
+RESULT validation=unavailable errors=0

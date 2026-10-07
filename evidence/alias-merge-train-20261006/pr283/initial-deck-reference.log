@@ -1,0 +1,18 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=1061
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=167
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=631
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=190
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=212
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=188
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=164
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=116
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=529
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=133
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=517
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=326
+SKIP format=129 unsupported
+DEPTH MISMATCH format=130 scale=1 generation=0 pixel=0 input=00000000 expected=00000001 actual=00000000
+reference: /home/codex/xemu-shader-workbench-handoff/.scratch/alias-train-20261006/pr283/reference.c:253: upload_case: Assertion `actual==expected' failed.
+timeout: the monitored command dumped core

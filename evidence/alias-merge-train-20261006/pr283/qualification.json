@@ -1,0 +1,127 @@
+{
+  "candidate": "4248253d7aec9fd36aab0fee986e06f0e30683d7",
+  "parent": "36477451eef2f3b292cebec901711a65c0bc1c42",
+  "tested_integration_tree_equivalent": "0a35809c30a1710b5d1a9ddbd00100858cb3b06a",
+  "CI": "44 successful exact-head checks",
+  "source_review": "No blocker",
+  "local_validation": {
+    "driver": "llvmpipe LLVM19",
+    "physical": false,
+    "formats": [
+      "RGB565",
+      "RGBA8",
+      "D16",
+      "D24S8",
+      "D32S8"
+    ],
+    "cases": 20,
+    "errors": 0
+  },
+  "Deck": {
+    "driver": "RADV VANGOGH",
+    "physical": true,
+    "D24": "unsupported",
+    "cases_per_variant_smoke": 16,
+    "balanced_oracles": 2048,
+    "validation": "unavailable"
+  },
+  "canonicalization": "Parent and candidate both convert expected D32 bit-pattern1 to0 for zero input; count1 at1x,4 at2x initial generation; all other bits exact",
+  "method": "Actual surface upload, compute and image barriers; fixture coherent memory and queue submission; original padded rows and alternate overwritten generations independently checked",
+  "limitations": [
+    "Synthetic upload wall cost, not guest FPS or CPU profile",
+    "Scaled controls vary across orderings; RGBA8 scale2 aggregate cost12.4% worse, direction flips by order; no repeatable scaled benefit claimed",
+    "No physical D24 device in this test; software Vulkan covers D24 with validation",
+    "Guest save/load, runtime texture consumption and alias ownership remain later layer gates",
+    "Historical title/XISO oracle/cache limits unchanged; no full-suite pass claim"
+  ],
+  "summary": [
+    {
+      "format": 4,
+      "scale": 1,
+      "parent_us": 120.5,
+      "candidate_us": 109.5,
+      "improvement_pct": 9.12863070539419,
+      "orders": {
+        "ABBA": 12.658227848101266,
+        "BAAB": 6.2745098039215685
+      }
+    },
+    {
+      "format": 4,
+      "scale": 2,
+      "parent_us": 153.5,
+      "candidate_us": 152.0,
+      "improvement_pct": 0.9771986970684039,
+      "orders": {
+        "ABBA": 19.935691318327976,
+        "BAAB": -32.280701754385966
+      }
+    },
+    {
+      "format": 37,
+      "scale": 1,
+      "parent_us": 119.5,
+      "candidate_us": 108.5,
+      "improvement_pct": 9.205020920502092,
+      "orders": {
+        "ABBA": 8.474576271186441,
+        "BAAB": 15.0
+      }
+    },
+    {
+      "format": 37,
+      "scale": 2,
+      "parent_us": 133.0,
+      "candidate_us": 149.5,
+      "improvement_pct": -12.406015037593985,
+      "orders": {
+        "ABBA": 8.710801393728223,
+        "BAAB": -26.69172932330827
+      }
+    },
+    {
+      "format": 124,
+      "scale": 1,
+      "parent_us": 130.0,
+      "candidate_us": 116.0,
+      "improvement_pct": 10.76923076923077,
+      "orders": {
+        "ABBA": 11.428571428571429,
+        "BAAB": 5.2434456928838955
+      }
+    },
+    {
+      "format": 124,
+      "scale": 2,
+      "parent_us": 250.5,
+      "candidate_us": 205.5,
+      "improvement_pct": 17.964071856287426,
+      "orders": {
+        "ABBA": 30.316742081447963,
+        "BAAB": -8.383233532934131
+      }
+    },
+    {
+      "format": 130,
+      "scale": 1,
+      "parent_us": 147.5,
+      "candidate_us": 125.5,
+      "improvement_pct": 14.915254237288135,
+      "orders": {
+        "ABBA": 24.375,
+        "BAAB": 11.986301369863014
+      }
+    },
+    {
+      "format": 130,
+      "scale": 2,
+      "parent_us": 268.5,
+      "candidate_us": 269.5,
+      "improvement_pct": -0.37243947858473,
+      "orders": {
+        "ABBA": 9.090909090909092,
+        "BAAB": -11.788617886178862
+      }
+    }
+  ]
+}

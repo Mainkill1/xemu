@@ -19,8 +19,8 @@
     {
       "scenario": "direct-color-depth-upload",
       "owner_pr": 283,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS",
+      "evidence": "pr283/qualification.json"
     },
     {
       "scenario": "retained-cpu-read-partial-write",
@@ -154,5 +154,8 @@
       "status": "PENDING",
       "evidence": null
     }
-  ]
+  ],
+  "merged": {
+    "282": "36477451eef2f3b292cebec901711a65c0bc1c42"
+  }
 }

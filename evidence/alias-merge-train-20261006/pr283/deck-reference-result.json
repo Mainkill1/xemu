@@ -1,0 +1,15 @@
+{
+  "exitCode": 0,
+  "command": "ulimit -c 0; env LD_LIBRARY_PATH=/home/deck/xemu-performance/pr283-upload-qualification timeout 60 /home/deck/xemu-performance/pr283-upload-qualification/reference",
+  "source": "01d2e1d3e3e2f0d02fab83b693bea3e3abdaf49c reference actual surface upload, compute and image transitions; VMA allocation adapter",
+  "hashes": {
+    "reference": "31b18c4ef3155d97bd9281a8c75c92b7ae313df7420e681396aadce27ec11213",
+    "libshaderc.so.1": "31400b359d2f4b4a43168978412a72913474725befb87966068cfac1922ac6c9"
+  },
+  "hashesVerifiedOnTarget": true,
+  "oraclePassCount": 16,
+  "unsupportedD24Cases": 1,
+  "output": "device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024\nvendor=1002 device=163f api=4211018 driver=105263203 type=1\nPASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=1056\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=192\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=556\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=221\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=170\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=132\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=122\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=111\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=562\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=1 blit=0 host_us=182\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=450\nZERO_DEPTH canonicalizations=0 generation=0\nPASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=130\nZERO_DEPTH canonicalizations=0 generation=1\nSKIP format=129 unsupported\nPASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=2 blit=0 host_us=166865\nZERO_DEPTH canonicalizations=1 generation=0\nPASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=2 blit=0 host_us=254\nZERO_DEPTH canonicalizations=0 generation=1\nPASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=2 blit=0 host_us=228\nZERO_DEPTH canonicalizations=4 generation=0\nPASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=2 blit=0 host_us=378\nZERO_DEPTH canonicalizations=0 generation=1\nRESULT validation=unavailable errors=0\n",
+  "stderr": "",
+  "method": "Previously used PR312 scoped SSH operator native qualification; no runner jobs or definition changes"
+}

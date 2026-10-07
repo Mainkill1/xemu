@@ -1,0 +1,43 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) actualX=1024 actualInv=1024
+vendor=10005 device=0000 api=4211036 driver=109056002 type=4
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=932
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=125
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=29512
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=296
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=44
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=39
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=8614
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=190
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=61
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=56
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=5282
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=210
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=129 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=72892
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=129 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=247
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=129 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=171
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=129 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=164
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=59389
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=269
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=267
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=122
+ZERO_DEPTH canonicalizations=0 generation=1
+RESULT validation=enabled errors=0

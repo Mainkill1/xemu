@@ -1,0 +1,516 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=838
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=178
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=143
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=151
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=117
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=132
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=137
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=139
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=137
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=104
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=105
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=139
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=135
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=197
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=130
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=124
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=98
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=99
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=109
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=100
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=98
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=104
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=106
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=103
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=148
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=126
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=141
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=139
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=102
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=99
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=100
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=4 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=101
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=549
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=279
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=182
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=208
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=242
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=288
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=188
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=142
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=279
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=206
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=242
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=199
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=206
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=151
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=249
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=180
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=128
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=126
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=119
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=151
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=203
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=116
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=117
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=160
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=205
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=295
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=250
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=199
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=291
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=168
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=264
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=4 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=316
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=211
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=145
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=149
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=114
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=100
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=100
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=113
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=105
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=98
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=106
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=100
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=104
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=141
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=139
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=177
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=151
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=132
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=106
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=99
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=136
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=103
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=144
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=169
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=145
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=143
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=114
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=105
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=143
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=97
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=166
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=154
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=37 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=111
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=173
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=171
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=181
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=267
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=183
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=113
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=148
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=177
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=124
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=291
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=155
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=150
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=109
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=110
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=171
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=168
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=179
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=180
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=154
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=152
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=189
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=150
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=170
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=150
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=120
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=170
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=117
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=181
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=155
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=112
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=171
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=37 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=178
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=433
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=135
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=142
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=131
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=164
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=182
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=170
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=175
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=122
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=133
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=122
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=162
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=122
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=170
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=121
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=125
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=117
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=162
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=126
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=161
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=153
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=195
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=182
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=132
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=124
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=133
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=123
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=133
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=151
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=128
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=126
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=124 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=126
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=528
+ZERO_DEPTH canonicalizations=0 generation=0
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=305
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=189
+ZERO_DEPTH canonicalizations=0 generation=2
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=257
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=315
+ZERO_DEPTH canonicalizations=0 generation=4
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=243
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=255
+ZERO_DEPTH canonicalizations=0 generation=6
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=230
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=255
+ZERO_DEPTH canonicalizations=0 generation=8
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=281
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=258
+ZERO_DEPTH canonicalizations=0 generation=10
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=253
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=294
+ZERO_DEPTH canonicalizations=0 generation=12
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=268
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=359
+ZERO_DEPTH canonicalizations=0 generation=14
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=266
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=279
+ZERO_DEPTH canonicalizations=0 generation=16
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=263
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=354
+ZERO_DEPTH canonicalizations=0 generation=18
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=199
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=235
+ZERO_DEPTH canonicalizations=0 generation=20
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=298
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=295
+ZERO_DEPTH canonicalizations=0 generation=22
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=215
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=256
+ZERO_DEPTH canonicalizations=0 generation=24
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=320
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=198
+ZERO_DEPTH canonicalizations=0 generation=26
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=253
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=260
+ZERO_DEPTH canonicalizations=0 generation=28
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=253
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=229
+ZERO_DEPTH canonicalizations=0 generation=30
+PASS upload format=124 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=1 host_us=254
+ZERO_DEPTH canonicalizations=0 generation=31
+SKIP format=129 unsupported
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=171144
+ZERO_DEPTH canonicalizations=1 generation=0
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=240
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=189
+ZERO_DEPTH canonicalizations=1 generation=2
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=181
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=196
+ZERO_DEPTH canonicalizations=1 generation=4
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=195
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=167
+ZERO_DEPTH canonicalizations=1 generation=6
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=133
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=136
+ZERO_DEPTH canonicalizations=1 generation=8
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=146
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=126
+ZERO_DEPTH canonicalizations=1 generation=10
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=125
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=123
+ZERO_DEPTH canonicalizations=1 generation=12
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=128
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=174
+ZERO_DEPTH canonicalizations=1 generation=14
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=185
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=120
+ZERO_DEPTH canonicalizations=1 generation=16
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=120
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=133
+ZERO_DEPTH canonicalizations=1 generation=18
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=154
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=123
+ZERO_DEPTH canonicalizations=1 generation=20
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=180
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=163
+ZERO_DEPTH canonicalizations=1 generation=22
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=125
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=121
+ZERO_DEPTH canonicalizations=1 generation=24
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=118
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=117
+ZERO_DEPTH canonicalizations=1 generation=26
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=119
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=119
+ZERO_DEPTH canonicalizations=1 generation=28
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=120
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=119
+ZERO_DEPTH canonicalizations=1 generation=30
+PASS upload format=130 scale=1 pixels=1024 bufferToImage=1 imageCopy=0 blit=0 host_us=119
+ZERO_DEPTH canonicalizations=0 generation=31
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=140
+ZERO_DEPTH canonicalizations=4 generation=0
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=265
+ZERO_DEPTH canonicalizations=0 generation=1
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=264
+ZERO_DEPTH canonicalizations=4 generation=2
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=325
+ZERO_DEPTH canonicalizations=0 generation=3
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=393
+ZERO_DEPTH canonicalizations=4 generation=4
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=293
+ZERO_DEPTH canonicalizations=0 generation=5
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=280
+ZERO_DEPTH canonicalizations=4 generation=6
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=277
+ZERO_DEPTH canonicalizations=0 generation=7
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=272
+ZERO_DEPTH canonicalizations=4 generation=8
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=314
+ZERO_DEPTH canonicalizations=0 generation=9
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=269
+ZERO_DEPTH canonicalizations=4 generation=10
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=268
+ZERO_DEPTH canonicalizations=0 generation=11
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=271
+ZERO_DEPTH canonicalizations=4 generation=12
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=314
+ZERO_DEPTH canonicalizations=0 generation=13
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=281
+ZERO_DEPTH canonicalizations=4 generation=14
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=385
+ZERO_DEPTH canonicalizations=0 generation=15
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=284
+ZERO_DEPTH canonicalizations=4 generation=16
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=296
+ZERO_DEPTH canonicalizations=0 generation=17
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=316
+ZERO_DEPTH canonicalizations=4 generation=18
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=242
+ZERO_DEPTH canonicalizations=0 generation=19
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=343
+ZERO_DEPTH canonicalizations=4 generation=20
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=214
+ZERO_DEPTH canonicalizations=0 generation=21
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=266
+ZERO_DEPTH canonicalizations=4 generation=22
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=345
+ZERO_DEPTH canonicalizations=0 generation=23
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=234
+ZERO_DEPTH canonicalizations=4 generation=24
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=244
+ZERO_DEPTH canonicalizations=0 generation=25
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=240
+ZERO_DEPTH canonicalizations=4 generation=26
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=278
+ZERO_DEPTH canonicalizations=0 generation=27
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=349
+ZERO_DEPTH canonicalizations=4 generation=28
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=233
+ZERO_DEPTH canonicalizations=0 generation=29
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=234
+ZERO_DEPTH canonicalizations=4 generation=30
+PASS upload format=130 scale=2 pixels=4096 bufferToImage=1 imageCopy=0 blit=0 host_us=275
+ZERO_DEPTH canonicalizations=0 generation=31
+RESULT validation=unavailable errors=0
