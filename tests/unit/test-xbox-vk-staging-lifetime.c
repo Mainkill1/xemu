@@ -86,7 +86,7 @@ static void test_pending_drain(gconstpointer recording)
     r->framebuffer_index = 2;
     vkWaitForFences = wait_fences;
     waits = 0;
-    pgraph_vk_wait_pending_submission(pg);
+    pgraph_vk_wait_pending_submission(pg, VK_PENDING_DRAIN_VERTEX_WRITE);
     g_assert_cmpuint(waits, ==, 1);
     g_assert_false(r->submission_pending);
     g_assert_true(r->submission_retained);
@@ -96,8 +96,34 @@ static void test_pending_drain(gconstpointer recording)
     g_assert_cmpuint(r->descriptor_set_index, ==, 7);
     g_assert_cmpuint(r->num_queries_in_flight, ==, 3);
     g_assert_cmpuint(r->framebuffer_index, ==, 2);
-    pgraph_vk_wait_pending_submission(pg);
+    pgraph_vk_wait_pending_submission(pg, VK_PENDING_DRAIN_VERTEX_WRITE);
     g_assert_cmpuint(waits, ==, 1);
+}
+
+static void test_drain_attribution(void)
+{
+    g_autofree PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    pg->vk_renderer_state = r;
+    r->perf.enabled = true;
+    vkWaitForFences = wait_fences;
+    waits = 0;
+    for (int i = 0; i < VK_PENDING_DRAIN_COUNT; i++) {
+        r->submission_pending = true;
+        pgraph_vk_wait_pending_submission(pg, i);
+        /* The same completed submission must never be counted twice. */
+        pgraph_vk_wait_pending_submission(pg, i);
+        g_assert_cmpuint(r->perf.overlap_origins[i].count, ==, 1);
+        g_assert_cmpuint(r->perf.overlap_drains, ==, i + 1);
+        g_assert_cmpuint(waits, ==, i + 1);
+    }
+    r->perf.enabled = false;
+    r->submission_pending = true;
+    pgraph_vk_wait_pending_submission(pg, VK_PENDING_DRAIN_VERTEX_WRITE);
+    PGRAPHVkPendingDrainStats *vertex =
+        &r->perf.overlap_origins[VK_PENDING_DRAIN_VERTEX_WRITE];
+    g_assert_cmpuint(vertex->count, ==, 1);
+    g_assert_cmpuint(waits, ==, VK_PENDING_DRAIN_COUNT + 1);
 }
 
 int main(int argc, char **argv)
@@ -109,5 +135,6 @@ int main(int argc, char **argv)
                          GINT_TO_POINTER(1), test_pending_drain);
     g_test_add_data_func("/vk/submission/drain-without-recording", NULL,
                          test_pending_drain);
+    g_test_add_func("/vk/submission/drain-origin", test_drain_attribution);
     return g_test_run();
 }

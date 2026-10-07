@@ -29,6 +29,32 @@ static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = "texture_dirty",
 };
 
+static const char *pending_drain_names[VK_PENDING_DRAIN_COUNT] = {
+    [VK_PENDING_DRAIN_VERTEX_WRITE] = "vertex_write",
+    [VK_PENDING_DRAIN_BUFFER_RESIZE] = "buffer_resize",
+    [VK_PENDING_DRAIN_AUXILIARY] = "auxiliary",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] =
+        "finish_vertex_buffer_dirty",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_SURFACE_CREATE] =
+        "finish_surface_create",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_SURFACE_DOWN] =
+        "finish_surface_down",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_NEED_BUFFER_SPACE] =
+        "finish_need_buffer_space",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_FRAMEBUFFER_DIRTY] =
+        "finish_framebuffer_dirty",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_PRESENTING] =
+        "finish_presenting",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_FLIP_STALL] =
+        "finish_flip_stall",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_FLUSH] =
+        "finish_flush",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_STALLED] =
+        "finish_stalled",
+    [VK_PENDING_DRAIN_FINISH_BASE + VK_FINISH_REASON_TEXTURE_DIRTY] =
+        "finish_texture_dirty",
+};
+
 static const char *single_time_reason_names[VK_SINGLE_TIME_REASON_COUNT] = {
     [VK_SINGLE_TIME_PVIDEO_UPLOAD] = "pvideo_upload",
     [VK_SINGLE_TIME_DISPLAY_RENDER] = "display_render",
@@ -112,6 +138,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
                 ARRAY_SIZE(single_time_reason_names));
     write_names(r->perf.file, "cpu_regions", cpu_region_names,
                 ARRAY_SIZE(cpu_region_names));
+    write_names(r->perf.file, "overlap_drain_origins", pending_drain_names,
+                ARRAY_SIZE(pending_drain_names));
     fprintf(r->perf.file, "}\n");
 }
 
@@ -457,6 +485,25 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->overlap_defer_elapsed_us,
             perf->overlap_wait_us);
 
+    fprintf(perf->file, ",\"overlap_origin_count_per_guest_frame\":[");
+    for (size_t i = 0; i < VK_PENDING_DRAIN_COUNT; i++) {
+        fprintf(perf->file, "%s%" PRIu64, i ? "," : "",
+                perf->overlap_origins[i].count);
+    }
+    fputc(']', perf->file);
+    fprintf(perf->file, ",\"overlap_origin_wait_us_per_guest_frame\":[");
+    for (size_t i = 0; i < VK_PENDING_DRAIN_COUNT; i++) {
+        fprintf(perf->file, "%s%" PRIu64, i ? "," : "",
+                perf->overlap_origins[i].wait_us);
+    }
+    fputc(']', perf->file);
+    fprintf(perf->file, ",\"overlap_origin_defer_us_per_guest_frame\":[");
+    for (size_t i = 0; i < VK_PENDING_DRAIN_COUNT; i++) {
+        fprintf(perf->file, "%s%" PRIu64, i ? "," : "",
+                perf->overlap_origins[i].defer_us);
+    }
+    fputc(']', perf->file);
+
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64
             ",\"descriptor_reuse_returns_per_guest_frame\":%" PRIu64
@@ -533,6 +580,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->overlap_update_epochs = 0;
     perf->overlap_defer_elapsed_us = 0;
     perf->overlap_wait_us = 0;
+    memset(perf->overlap_origins, 0, sizeof(perf->overlap_origins));
     perf->descriptor_update_calls = 0;
     perf->descriptor_reuse_returns = 0;
     perf->descriptor_set_writes = 0;

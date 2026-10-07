@@ -657,6 +657,22 @@ typedef enum FinishReason {
     VK_FINISH_REASON_COUNT,
 } FinishReason;
 
+typedef enum PendingDrainReason {
+    VK_PENDING_DRAIN_VERTEX_WRITE,
+    VK_PENDING_DRAIN_BUFFER_RESIZE,
+    VK_PENDING_DRAIN_AUXILIARY,
+    /* The remaining slots preserve the finalizing FinishReason. */
+    VK_PENDING_DRAIN_FINISH_BASE,
+    VK_PENDING_DRAIN_COUNT = VK_PENDING_DRAIN_FINISH_BASE +
+                             VK_FINISH_REASON_COUNT,
+} PendingDrainReason;
+
+typedef struct PGRAPHVkPendingDrainStats {
+    uint64_t count;
+    uint64_t wait_us;
+    uint64_t defer_us;
+} PGRAPHVkPendingDrainStats;
+
 typedef enum SingleTimeReason {
     VK_SINGLE_TIME_PVIDEO_UPLOAD,
     VK_SINGLE_TIME_DISPLAY_RENDER,
@@ -698,6 +714,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t overlap_update_epochs;
     uint64_t overlap_defer_elapsed_us;
     uint64_t overlap_wait_us;
+    PGRAPHVkPendingDrainStats overlap_origins[VK_PENDING_DRAIN_COUNT];
     FILE *file;
     bool enabled;
     uint64_t frame;
@@ -1288,7 +1305,7 @@ void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason why);
 void pgraph_vk_finish_descriptor_batch(PGRAPHState *pg);
-void pgraph_vk_wait_pending_submission(PGRAPHState *pg);
+void pgraph_vk_wait_pending_submission(PGRAPHState *pg, PendingDrainReason why);
 
 void pgraph_vk_flush_draw(NV2AState *d);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);

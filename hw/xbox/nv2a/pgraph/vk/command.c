@@ -78,7 +78,8 @@ VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     /* Standalone copies observe resources owned by the earlier submission. */
-    pgraph_vk_wait_pending_submission(pg);
+    pgraph_vk_wait_pending_submission(
+        pg, VK_PENDING_DRAIN_AUXILIARY);
     assert(!r->in_aux_command_buffer);
     r->in_aux_command_buffer = true;
 

@@ -2663,12 +2663,13 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
 
-void pgraph_vk_wait_pending_submission(PGRAPHState *pg)
+void pgraph_vk_wait_pending_submission(PGRAPHState *pg, PendingDrainReason why)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     if (!r->submission_pending) {
         return;
     }
+    assert(why >= 0 && why < VK_PENDING_DRAIN_COUNT);
     int64_t now = r->pending_timed ? g_get_monotonic_time() : 0;
     VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                              VK_TRUE, UINT64_MAX));
@@ -2682,9 +2683,14 @@ void pgraph_vk_wait_pending_submission(PGRAPHState *pg)
         r->perf.in_flight_submission_count = 0;
         r->perf.oldest_in_flight_serial = 0;
         r->perf.overlap_drains++;
-        r->perf.overlap_defer_elapsed_us += MAX(now - r->pending_started_us, 0);
+        uint64_t defer_us = MAX(now - r->pending_started_us, 0);
+        r->perf.overlap_defer_elapsed_us += defer_us;
         r->perf.overlap_wait_us += wait_us;
         r->perf.overlap_update_epochs += pg->draw_time - r->pending_draw_time;
+        PGRAPHVkPendingDrainStats *origin = &r->perf.overlap_origins[why];
+        origin->count++;
+        origin->wait_us += wait_us;
+        origin->defer_us += defer_us;
     }
     r->submission_pending = false;
     /* B may contain unsubmitted work: no resets or report reads here. */
@@ -2721,7 +2727,8 @@ static void finish_submission(PGRAPHState *pg, FinishReason finish_reason,
     assert(!r->in_draw);
     assert(r->debug_depth == 0);
     pgraph_vk_perf_record_finish_call(r, finish_reason);
-    pgraph_vk_wait_pending_submission(pg);
+    pgraph_vk_wait_pending_submission(
+        pg, VK_PENDING_DRAIN_FINISH_BASE + finish_reason);
 
     if (r->in_command_buffer) {
         uint64_t staged_bytes = 0;
