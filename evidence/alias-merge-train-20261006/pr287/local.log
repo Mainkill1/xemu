@@ -1,0 +1,41 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) actualX=1024 actualInv=1024
+vendor=10005 device=0000 api=4211036 driver=109056002 type=4
+PASS format=129 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=1024 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=1024 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=1024 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=1024
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=1024
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=1024
+PASS format=129 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=129 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=129 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 unpack scale=2 pixels=4096 deviceX=256 inv=128
+PASS format=130 pack scale=1 pixels=1024 deviceX=256 inv=128
+PASS format=130 pack scale=2 pixels=1024 deviceX=256 inv=128
+PASS format=129 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=129 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=129 pack scale=2 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 unpack scale=2 pixels=4000 deviceX=192 inv=1024
+PASS format=130 pack scale=1 pixels=1000 deviceX=192 inv=1024
+PASS format=130 pack scale=2 pixels=1000 deviceX=192 inv=1024
+PASS unswizzle 32x32 bytes=4096 guard=256 rejected-without-descriptor=5
+PASS unswizzle 16x32 bytes=2048 guard=256 rejected-without-descriptor=5
+PASS unswizzle 32x16 bytes=2048 guard=256 rejected-without-descriptor=5
+PASS unswizzle 1x1 bytes=4 guard=256 rejected-without-descriptor=5
+PASS unswizzle 2x4 bytes=32 guard=256 rejected-without-descriptor=5
+RESULT validation=enabled errors=0
+PASS 32 actual adapter dispatches

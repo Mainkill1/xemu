@@ -45,8 +45,8 @@
     {
       "scenario": "bounded-portable-dispatch",
       "owner_pr": 287,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native buffer compute)",
+      "evidence": "pr287/qualification.json"
     },
     {
       "scenario": "alias-admission-negative-cases",

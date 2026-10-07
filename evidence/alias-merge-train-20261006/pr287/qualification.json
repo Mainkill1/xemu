@@ -1,0 +1,31 @@
+{
+  "candidate": "99f802f300c80fed8e10bd8dd670d478b1bec598",
+  "parent": "3661acb4234bf395b7ced90cb9dc8a78ed7ae33b",
+  "native_per_host": {
+    "pack_unpack_dispatches": 32,
+    "unswizzle_dispatches": 5,
+    "rejected_no_descriptor_changes": 25,
+    "shapes": [
+      "32x32",
+      "16x32",
+      "32x16",
+      "1x1",
+      "2x4"
+    ],
+    "guard_bytes_per_unswizzle": 256,
+    "synthetic_limits": [
+      "1024/1024",
+      "256/1024",
+      "256/128",
+      "192/1024"
+    ]
+  },
+  "local": "llvmpipe LLVM19 validation enabled zero errors",
+  "Deck": "RADV VANGOGH validation unavailable",
+  "oracle": "Independent CPU pack/unpack arithmetic; guest swizzle_box for source Morton ordering; exact bytes + destination guard",
+  "limits": [
+    "D24 and D32 buffer encoding tested on both hosts; this does not imply physical D24 image format support",
+    "No guest ownership/save-load or game-performance claim",
+    "Actual compute source and shader compiler dispatch; fixture host-visible coherent buffers and queue submission"
+  ]
+}
