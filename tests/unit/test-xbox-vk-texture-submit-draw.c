@@ -4,7 +4,9 @@
  */
 #include "qemu/osdep.h"
 #define pgraph_vk_finish texture_submit_unused_finish
+#define pgraph_vk_finish_descriptor_batch unused_descriptor_finish
 #include "hw/xbox/nv2a/pgraph/vk/draw.c"
+#undef pgraph_vk_finish_descriptor_batch
 #undef pgraph_vk_finish
 
 #include "test-xbox-vk-texture-submit.h"

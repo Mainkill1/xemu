@@ -657,6 +657,22 @@ typedef enum FinishReason {
     VK_FINISH_REASON_COUNT,
 } FinishReason;
 
+typedef enum PendingDrainReason {
+    VK_PENDING_DRAIN_VERTEX_WRITE,
+    VK_PENDING_DRAIN_BUFFER_RESIZE,
+    VK_PENDING_DRAIN_AUXILIARY,
+    /* The remaining slots preserve the finalizing FinishReason. */
+    VK_PENDING_DRAIN_FINISH_BASE,
+    VK_PENDING_DRAIN_COUNT = VK_PENDING_DRAIN_FINISH_BASE +
+                             VK_FINISH_REASON_COUNT,
+} PendingDrainReason;
+
+typedef struct PGRAPHVkPendingDrainStats {
+    uint64_t count;
+    uint64_t wait_us;
+    uint64_t defer_us;
+} PGRAPHVkPendingDrainStats;
+
 typedef enum SingleTimeReason {
     VK_SINGLE_TIME_PVIDEO_UPLOAD,
     VK_SINGLE_TIME_DISPLAY_RENDER,
@@ -693,6 +709,12 @@ typedef struct PGRAPHVkCpuStats {
 } PGRAPHVkCpuStats;
 
 typedef struct PGRAPHVkPerfTelemetry {
+    uint64_t overlap_submissions;
+    uint64_t overlap_drains;
+    uint64_t overlap_update_epochs;
+    uint64_t overlap_defer_elapsed_us;
+    uint64_t overlap_wait_us;
+    PGRAPHVkPendingDrainStats overlap_origins[VK_PENDING_DRAIN_COUNT];
     FILE *file;
     bool enabled;
     uint64_t frame;
@@ -787,7 +809,7 @@ typedef struct PGRAPHVkState {
 
     VkQueue queue;
     VkCommandPool command_pool;
-    VkCommandBuffer command_buffers[2];
+    VkCommandBuffer command_buffers[4];
 
     VkCommandBuffer command_buffer;
     VkSemaphore command_buffer_semaphore;
@@ -795,6 +817,16 @@ typedef struct PGRAPHVkState {
     unsigned int command_buffer_start_time;
     bool in_command_buffer;
     uint32_t submit_count;
+    /* One pending batch; recording uses the other command/descriptor bank. */
+    bool descriptor_overlap_enabled;
+    bool submission_pending;
+    bool submission_retained;
+    unsigned int recording_bank;
+    uint32_t pending_submit_time;
+    unsigned int pending_start_time;
+    unsigned int pending_draw_time;
+    int64_t pending_started_us;
+    bool pending_timed;
     PGRAPHVkBlendConstantsCache blend_constants;
 
     VkCommandBuffer aux_command_buffer;
@@ -828,6 +860,7 @@ typedef struct PGRAPHVkState {
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
     VkDescriptorSet descriptor_sets[1024];
+    VkDescriptorSet spare_descriptor_sets[1024];
     int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
@@ -1271,6 +1304,9 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter);
 void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason why);
+void pgraph_vk_finish_descriptor_batch(PGRAPHState *pg);
+void pgraph_vk_wait_pending_submission(PGRAPHState *pg, PendingDrainReason why);
+
 void pgraph_vk_flush_draw(NV2AState *d);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg);

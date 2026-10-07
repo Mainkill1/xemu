@@ -49,6 +49,11 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
     finishes++;
 }
 
+void pgraph_vk_finish_descriptor_batch(PGRAPHState *pg)
+{
+    pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+}
+
 static void test_rollover(gconstpointer uniform_capacity)
 {
     g_autofree PGRAPHState *pg = g_new0(PGRAPHState, 1);

@@ -148,8 +148,9 @@ static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
 
     assert((snode->pipeline == VK_NULL_HANDLE ||
             pgraph_vk_graphics_pipeline_can_evict(
-                r->in_command_buffer, snode->draw_time,
-                r->command_buffer_start_time)) &&
+                r->in_command_buffer || r->submission_pending, snode->draw_time,
+                r->submission_pending ? r->pending_start_time :
+                                        r->command_buffer_start_time)) &&
            "Pipeline evicted while in use!");
 
     vkDestroyPipeline(r->device, snode->pipeline, NULL);
@@ -170,8 +171,9 @@ static bool pipeline_cache_entry_pre_evict(Lru *lru, LruNode *node)
 
     return snode != r->pipeline_binding &&
            pgraph_vk_graphics_pipeline_can_evict(
-        r->in_command_buffer, snode->draw_time,
-        r->command_buffer_start_time);
+        r->in_command_buffer || r->submission_pending, snode->draw_time,
+        r->submission_pending ? r->pending_start_time :
+                                r->command_buffer_start_time);
 }
 
 static bool pipeline_cache_entry_compare(Lru *lru, LruNode *node,
@@ -2583,7 +2585,7 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         r->allocator, b_src->allocation, cmd, b_src->buffer, b_dst->buffer,
         b_src->buffer_offset, dst_access_mask, dst_stage_mask));
 
-    b_src->buffer_offset = 0;
+    /* Reuse is permitted only after completion, not after recording a copy. */
 }
 
 static void flush_memory_buffer(PGRAPHState *pg, VkCommandBuffer cmd)
@@ -2661,16 +2663,72 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
 
-void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
+void pgraph_vk_wait_pending_submission(PGRAPHState *pg, PendingDrainReason why)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->submission_pending) {
+        return;
+    }
+    assert(why >= 0 && why < VK_PENDING_DRAIN_COUNT);
+    int64_t now = r->pending_timed ? g_get_monotonic_time() : 0;
+    VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
+                             VK_TRUE, UINT64_MAX));
+    uint64_t wait_us = r->pending_timed ?
+        MAX(g_get_monotonic_time() - now, 0) : 0;
+    if (r->perf.enabled) {
+        PGRAPHVkWaitStats *stats =
+            &r->perf.finish[VK_FINISH_REASON_NEED_BUFFER_SPACE];
+        stats->wait_count++;
+        stats->wait_us += wait_us;
+        r->perf.in_flight_submission_count = 0;
+        r->perf.oldest_in_flight_serial = 0;
+        r->perf.overlap_drains++;
+        uint64_t defer_us = MAX(now - r->pending_started_us, 0);
+        r->perf.overlap_defer_elapsed_us += defer_us;
+        r->perf.overlap_wait_us += wait_us;
+        r->perf.overlap_update_epochs += pg->draw_time - r->pending_draw_time;
+        PGRAPHVkPendingDrainStats *origin = &r->perf.overlap_origins[why];
+        origin->count++;
+        origin->wait_us += wait_us;
+        origin->defer_us += defer_us;
+    }
+    r->submission_pending = false;
+    /* B may contain unsubmitted work: no resets or report reads here. */
+}
+
+static bool descriptor_overlap_staging_coherent(PGRAPHVkState *r)
+{
+    const int indices[] = {
+        BUFFER_INDEX_STAGING, BUFFER_VERTEX_INLINE_STAGING,
+        BUFFER_UNIFORM_STAGING, BUFFER_VERTEX_RAM_STAGING,
+        BUFFER_TEXTURE_STAGING,
+    };
+    for (size_t i = 0; i < ARRAY_SIZE(indices); i++) {
+        VkMemoryPropertyFlags flags;
+        vmaGetAllocationMemoryProperties(
+            r->allocator, r->storage_buffers[indices[i]].allocation, &flags);
+        if (!(flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static void finish_submission(PGRAPHState *pg, FinishReason finish_reason,
+                               bool defer)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     bool trace_had_command_buffer = r->in_command_buffer;
+    bool had_retained_submission = r->submission_retained;
     uint64_t trace_submit_us = 0;
     uint64_t trace_wait_us = 0;
+    bool check_budget = false;
 
     assert(!r->in_draw);
     assert(r->debug_depth == 0);
     pgraph_vk_perf_record_finish_call(r, finish_reason);
+    pgraph_vk_wait_pending_submission(
+        pg, VK_PENDING_DRAIN_FINISH_BASE + finish_reason);
 
     if (r->in_command_buffer) {
         uint64_t staged_bytes = 0;
@@ -2724,7 +2782,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         vkResetFences(r->device, 1, &r->command_buffer_fence);
         bool time_submit =
             pgraph_vk_perf_should_time_finish(r, finish_reason) ||
-            r->hybrid_trace != NULL;
+            r->hybrid_trace != NULL || (defer && r->perf.enabled);
         int64_t submit_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         VkResult result = vkQueueSubmit(
@@ -2737,7 +2795,38 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_GPU_SUBMIT);
         r->submit_count += 1;
 
-        bool check_budget = false;
+        if (defer) {
+            r->submission_pending = true;
+            r->submission_retained = true;
+            r->pending_submit_time = r->submit_count - 1;
+            r->pending_start_time = r->command_buffer_start_time;
+            r->pending_draw_time = pg->draw_time;
+            r->pending_timed = time_submit;
+            r->pending_started_us = time_submit ? g_get_monotonic_time() : 0;
+            r->recording_bank ^= 1;
+            r->command_buffer = r->command_buffers[2 * r->recording_bank];
+            r->aux_command_buffer =
+                r->command_buffers[2 * r->recording_bank + 1];
+            for (size_t i = 0; i < ARRAY_SIZE(r->descriptor_sets); i++) {
+                VkDescriptorSet old = r->descriptor_sets[i];
+                r->descriptor_sets[i] = r->spare_descriptor_sets[i];
+                r->spare_descriptor_sets[i] = old;
+            }
+            r->descriptor_set_index = 0;
+            r->in_command_buffer = false;
+            pgraph_vk_perf_record_finish_submit(
+                r, finish_reason, time_submit, submit_cpu_us, 0,
+                staged_bytes, ARRAY_SIZE(submit_infos), 2);
+            if (r->perf.enabled) {
+                /* Submission is counted now; its wait is counted at drain. */
+                r->perf.finish[finish_reason].wait_count--;
+                r->perf.in_flight_submission_count = 1;
+                r->perf.oldest_in_flight_serial =
+                    r->perf.newest_submitted_serial;
+                r->perf.overlap_submissions++;
+            }
+            return;
+        }
 
         // Periodically check memory budget
         const int max_num_submits_before_budget_update = 5;
@@ -2762,6 +2851,12 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
+    }
+
+    if (trace_had_command_buffer || r->submission_retained) {
+        r->storage_buffers[BUFFER_INDEX_STAGING].buffer_offset = 0;
+        r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING].buffer_offset = 0;
+        r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset = 0;
         r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
         r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset = 0;
 
@@ -2785,6 +2880,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         }
         r->vertex_ram_updated_in_batch = false;
         destroy_framebuffers(pg);
+        r->submission_retained = false;
 
         if (check_budget) {
             pgraph_vk_check_memory_budget(pg);
@@ -2792,7 +2888,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     }
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
-    if (r->perf.enabled && !trace_had_command_buffer) {
+    if (r->perf.enabled && !trace_had_command_buffer &&
+        !had_retained_submission) {
         r->perf.report_cpu_only_retirements += r->report_queue_depth;
     }
     pgraph_vk_process_pending_reports_internal(d);
@@ -2804,6 +2901,20 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         r->shader_binding ? r->shader_binding->fragment_route : 0,
         0, 0, 0, finish_reason, trace_wait_us, trace_submit_us,
         trace_had_command_buffer);
+}
+
+void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
+{
+    finish_submission(pg, finish_reason, false);
+}
+
+void pgraph_vk_finish_descriptor_batch(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    bool defer = r->descriptor_overlap_enabled && r->in_command_buffer &&
+                 !r->submission_pending && !r->submission_retained &&
+                 descriptor_overlap_staging_coherent(r);
+    finish_submission(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE, defer);
 }
 
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
@@ -2871,6 +2982,11 @@ static bool begin_pre_draw(PGRAPHState *pg)
     assert(r->color_binding || r->zeta_binding);
     assert(!r->color_binding || r->color_binding->initialized);
     assert(!r->zeta_binding || r->zeta_binding->initialized);
+
+    if (r->num_queries_in_flight >= r->max_queries_in_flight &&
+        r->max_queries_in_flight) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+    }
 
     if (pg->clearing) {
         create_clear_pipeline(pg);

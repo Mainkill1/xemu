@@ -259,6 +259,16 @@ if vulkan.found()
         }
       endif
       tests += {
+        'test-xbox-vk-staging-lifetime': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-vertex-pending-write': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-texture-submit': [
           'test-xbox-vk-texture-submit-draw.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',

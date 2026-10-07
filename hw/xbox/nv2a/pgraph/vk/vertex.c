@@ -77,6 +77,23 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
      * buffer. Later draws see the write through finish's host-write barrier.
      * Rewritten pages already read in this batch still need an ordered copy. */
     if (!r->in_command_buffer || allow_mapped_write) {
+        if (r->submission_pending) {
+            VkMemoryPropertyFlags flags = 0;
+            /*
+             * The retained page bitmap covers both submissions' reads.
+             * Staged copies can precede that bookkeeping on a failed draw,
+             * so require no queued vertex writes as well. Coherent memory
+             * avoids flushing atoms that the pending GPU work may read.
+             */
+            if (allow_mapped_write && !staging->buffer_offset) {
+                vmaGetAllocationMemoryProperties(r->allocator,
+                                                 vertex->allocation, &flags);
+            }
+            if (!(flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
+                pgraph_vk_wait_pending_submission(
+                    pg, VK_PENDING_DRAIN_VERTEX_WRITE);
+            }
+        }
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         if (r->in_command_buffer) {
             pgraph_vk_perf_record_vertex_direct_copy(r, size);
