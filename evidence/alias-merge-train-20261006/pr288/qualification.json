@@ -1,0 +1,8 @@
+{
+  "candidate": "7ce445369384a59a8d833c964dac1a59cfd83b84",
+  "parent": "99f802f300c80fed8e10bd8dd670d478b1bec598",
+  "maintained_groups": 4,
+  "added_independent_negative_cases": 19,
+  "review": "No concrete blocker; bounded pure admission and buffer sizing, no production caller",
+  "limits": "Runtime ownership and newest overlapping producer detection belong to290, tiny stencil output rejection belongs to289 converter preflight"
+}

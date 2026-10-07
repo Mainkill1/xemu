@@ -51,8 +51,8 @@
     {
       "scenario": "alias-admission-negative-cases",
       "owner_pr": 288,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS",
+      "evidence": "pr288/qualification.json"
     },
     {
       "scenario": "reference-images-width34-35",
