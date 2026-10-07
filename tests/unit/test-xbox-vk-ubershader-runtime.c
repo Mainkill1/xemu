@@ -772,6 +772,36 @@ static void test_fallback_family_shader_preparation_outcomes(void)
     g_assert_cmpuint(fixture.preparations, ==, 1);
 }
 
+static void test_live_family_records_without_queueing(void)
+{
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    ShaderState state = base_state();
+    PipelineBinding owner = {
+        .pipeline = (VkPipeline)(uintptr_t)1,
+        .key = pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &state),
+    };
+    g_assert_true(pgraph_vk_family_history_init(
+        &r->fallback_family_history, 4));
+    r->fallback_family_history_initialized = true;
+    pgraph_vk_track_specialized_fallback_family(r, &owner, true, false, 123);
+    g_assert_cmpuint(r->fallback_family_history.count, ==, 1);
+    g_assert_cmpint(owner.family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_HISTORY_RECORDED);
+    for (unsigned int i = 0; i < 10; i++) {
+        pgraph_vk_track_specialized_fallback_family(r, &owner, true,
+                                                    false, 123);
+    }
+    g_assert_cmpuint(r->fallback_family_history.records[0].uses, ==, 1);
+    g_assert_cmpuint(r->fallback_family_history.records[0].cold_misses, ==, 1);
+    g_assert_cmpuint(
+        r->fallback_family_history.records[0].synchronous_create_us, ==, 123);
+    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
+        g_assert_false(r->fallback_family_requests[i].in_use);
+    }
+    pgraph_vk_family_history_destroy(&r->fallback_family_history);
+    g_free(r);
+}
+
 static void test_fallback_family_production_lifecycle(void)
 {
     PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
@@ -811,43 +841,19 @@ static void test_fallback_family_production_lifecycle(void)
         rejected->pipeline = (VkPipeline)(uintptr_t)1;
     pgraph_vk_pipeline_family_set_state(
         r, rejected, PGRAPH_VK_FAMILY_REJECTED);
-    pgraph_vk_pipeline_family_set_state(
-        r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
-    pgraph_vk_pipeline_family_set_state(
-        r, second, PGRAPH_VK_FAMILY_RETRY_PENDING);
-    g_assert_cmpuint(r->fallback_family_retry_count, ==, 2);
-
-    /* A full request table retains both owners for a later bounded pass. */
-    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
-        r->fallback_family_requests[i].in_use = true;
-        r->fallback_family_requests[i].key.regs[0] = i + 1;
-    }
-    pgraph_vk_enqueue_retained_fallback_families(r);
+    pgraph_vk_track_specialized_fallback_family(r, first, true, false, 0);
+    pgraph_vk_track_specialized_fallback_family(r, second, true, false, 0);
     g_assert_cmpint(first->family_learn_state, ==,
-                    PGRAPH_VK_FAMILY_RETRY_PENDING);
+                    PGRAPH_VK_FAMILY_HISTORY_RECORDED);
     g_assert_cmpint(second->family_learn_state, ==,
-                    PGRAPH_VK_FAMILY_RETRY_PENDING);
-    g_assert_cmpuint(r->fallback_family_retry_count, ==, 2);
+                    PGRAPH_VK_FAMILY_HISTORY_RECORDED);
 
-    /* Once capacity exists, the exact family is admitted once and both
-     * matching specialized owners transfer to TRACKED. */
-    r->fallback_family_requests[0].in_use = false;
-    pgraph_vk_enqueue_retained_fallback_families(r);
-    PGRAPHVkFallbackFamilyRequest *request = NULL;
-    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
-        if (r->fallback_family_requests[i].in_use &&
-            memcmp(&r->fallback_family_requests[i].key, &family_key,
-                   sizeof(family_key)) == 0) {
-            request = &r->fallback_family_requests[i];
-            break;
-        }
-    }
-    g_assert_nonnull(request);
-    g_assert_cmpint(first->family_learn_state, ==,
-                    PGRAPH_VK_FAMILY_TRACKED);
-    g_assert_cmpint(second->family_learn_state, ==,
-                    PGRAPH_VK_FAMILY_TRACKED);
-    g_assert_cmpuint(r->fallback_family_retry_count, ==, 0);
+    /* Explicit prewarm requests still own retry and completion handling. */
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        r->fallback_family_requests, ARRAY_SIZE(r->fallback_family_requests),
+        &family_key, &first_state, true));
+    PGRAPHVkFallbackFamilyRequest *request = &r->fallback_family_requests[0];
+    g_assert_true(request->in_use);
 
     g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
         request, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED, 1000));
@@ -878,11 +884,6 @@ static void test_fallback_family_production_lifecycle(void)
     g_assert_cmpint(rejected->family_learn_state, ==,
                     PGRAPH_VK_FAMILY_REJECTED);
 
-    pgraph_vk_pipeline_family_set_state(
-        r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
-    g_assert_cmpuint(r->fallback_family_retry_count, ==, 1);
-    pgraph_vk_pipeline_family_owner_evict(r, first);
-    g_assert_cmpuint(r->fallback_family_retry_count, ==, 0);
     g_free(r);
 }
 
@@ -1344,6 +1345,8 @@ static void test_canonicalization_preserves_fragment_shell_state(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/nv2a/vk/live-family/history-only",
+                    test_live_family_records_without_queueing);
     g_test_add_func("/xbox/vk/ubershader/runtime/control-abi",
                     test_dynamic_control_binding_matches_packet_abi);
     g_test_add_func("/xbox/vk/ubershader/runtime/control-only-upload",
