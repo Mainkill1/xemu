@@ -38,6 +38,8 @@ bool pgraph_vk_convert_depth_alias(PGRAPHState *pg, SurfaceBinding *producer,
 NV2AStats g_nv2a_stats;
 XemuTweakBits xemu_tweaks_active;
 bool tcg_allowed;
+static bool allow_retirement_finish;
+static unsigned int retirement_finishes;
 /* RAM metadata and a clean dirty-page response replace the host memory
  * boundary. Target selection, binding, upload gating, dirty attribution and
  * the CPU-read callback execute the maintained production code. */
@@ -76,7 +78,9 @@ void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
 void __wrap_pgraph_vk_finish(PGRAPHState *pg, FinishReason reason);
 void __wrap_pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
 {
-    g_assert_not_reached();
+    g_assert_true(allow_retirement_finish);
+    g_assert_cmpint(reason, ==, VK_FINISH_REASON_SURFACE_DOWN);
+    retirement_finishes++;
 }
 void __wrap_pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg);
 void __wrap_pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg)
@@ -133,7 +137,7 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 
 /* Removing read-only zeta access must fail the binding assertion.
  * Incorrect dirty attribution must fail before reaching a GPU wake/transfer. */
-static void test_read_only_surface(void)
+static void test_read_only_surface(gconstpointer data)
 {
     g_autofree NV2AState *d = g_new0(NV2AState, 1);
     g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
@@ -175,6 +179,21 @@ static void test_read_only_surface(void)
     surface_access_callback(&binding, &vram, 0, 2, false);
     g_assert_false(binding.download_pending);
     g_assert_true(pgraph_vk_surface_download_if_dirty(d, &binding));
+    if (GPOINTER_TO_INT(data)) {
+        /* A previous linear clear can migrate without any derived alias. */
+        binding.draw_dirty = true;
+        binding.cleared = true;
+        pg->surface_type = NV097_SET_SURFACE_FORMAT_TYPE_SWIZZLE;
+        pg->surface_shape.log_width = pg->surface_shape.log_height = 2;
+        pg->surface_zeta.buffer_dirty = true;
+        pg->regs_[NV_PGRAPH_CONTROL_0] |= NV_PGRAPH_CONTROL_0_ZWRITEENABLE;
+        pgraph_vk_surface_update(d, true, false, true);
+        g_assert_true(r->zeta_binding == &binding);
+        g_assert_true(QTAILQ_FIRST(&r->surfaces) == &binding);
+        g_assert_true(QTAILQ_EMPTY(&r->invalid_surfaces));
+        g_assert_true(binding.draw_dirty);
+        g_assert_false(binding.upload_pending);
+    }
     qemu_mutex_destroy(&d->pfifo.lock);
     qemu_mutex_destroy(&d->pgraph.lock);
     g_free(r->surface_dirty_page_bits);
@@ -207,11 +226,48 @@ static void test_explicit_clear_ownership(void)
     g_assert_true(color_binding.draw_dirty);
 }
 
+static void test_writable_alias_pair(void)
+{
+    g_autofree NV2AState *d = g_new0(NV2AState, 1);
+    g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    SurfaceBinding producer = { .vram_addr = 4096 };
+    SurfaceBinding view = { .vram_addr = 8192, .swizzle = true };
+
+    d->pgraph.vk_renderer_state = r;
+    QTAILQ_INIT(&r->surfaces);
+    QTAILQ_INIT(&r->invalid_surfaces);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &producer, entry);
+    QTAILQ_INSERT_TAIL(&r->surfaces, &view, entry);
+    /* An unrelated view or same-address color surface is not a depth pair. */
+    retire_depth_alias_for_write(d, producer.vram_addr);
+    g_assert_true(surface_is_tracked(r, &producer));
+    view.vram_addr = producer.vram_addr;
+    view.color = true;
+    retire_depth_alias_for_write(d, producer.vram_addr);
+    g_assert_true(surface_is_tracked(r, &producer));
+
+    /* Failed conversion has no provenance, but the live pair must retire. */
+    view.color = false;
+    g_assert_cmpuint(view.derived_from_lifetime_id, ==, 0);
+    allow_retirement_finish = true;
+    retirement_finishes = 0;
+    retire_depth_alias_for_write(d, producer.vram_addr);
+    allow_retirement_finish = false;
+    g_assert_cmpuint(retirement_finishes, ==, 1);
+    g_assert_false(surface_is_tracked(r, &producer));
+    g_assert_true(surface_is_tracked(r, &view));
+    g_assert_true(view.upload_pending);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/xbox/vk/surface/read-only-depth-ownership",
-                    test_read_only_surface);
+    g_test_add_data_func("/xbox/vk/surface/read-only-depth-ownership", NULL,
+                         test_read_only_surface);
+    g_test_add_data_func("/xbox/vk/surface/cleared-linear-without-alias",
+                         GINT_TO_POINTER(1), test_read_only_surface);
+    g_test_add_func("/xbox/vk/surface/writable-alias-pair",
+                    test_writable_alias_pair);
     g_test_add_func("/xbox/vk/surface/explicit-clear-ownership",
                     test_explicit_clear_ownership);
     return g_test_run();

@@ -1554,6 +1554,21 @@ static void retire_depth_alias_for_write(NV2AState *d, hwaddr address)
     SurfaceBinding *surface, *next;
     bool retired = false;
 
+    /*
+     * Only a coexisting view requires alias ownership to be dismantled.
+     * Preserve ordinary linear/cleared image reuse when no view exists.
+     * Failed conversions still have a tracked view with no provenance tag.
+     */
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (!surface->color && surface->swizzle &&
+            surface->vram_addr == address) {
+            break;
+        }
+    }
+    if (!surface) {
+        return;
+    }
+
     QTAILQ_FOREACH_SAFE(surface, &r->surfaces, entry, next) {
         if (!surface->color && !surface->swizzle &&
             surface->vram_addr == address) {
