@@ -99,6 +99,8 @@ bool pgraph_vk_depth_alias_plan(uint32_t producer_width,
     if (!plan || !producer_pixels || producer_pixels > INT_MAX ||
         !pgraph_vk_alias_morton_index(0, 0, view_width, view_height,
                                       &unused_index) ||
+        /* Stencil unpack reads four packed pixels per output word. */
+        view_pixels % sizeof(uint32_t) != 0 ||
         view_pixels > producer_pixels ||
         alignment > UINT32_MAX || !is_power_of_two(alignment)) {
         return false;

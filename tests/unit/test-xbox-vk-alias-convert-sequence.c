@@ -197,6 +197,14 @@ static void test_conversion_sequence(gconstpointer data)
         g_assert_cmpuint(capacities + commands + descriptors, ==, 0);
         return;
     }
+    if (scenario >= 4) {
+        view.width = scenario == 6 ? 2 : 1;
+        view.height = scenario == 5 ? 2 : 1;
+        g_assert_false(pgraph_vk_convert_depth_alias(pg, &producer, &view));
+        g_assert_false(started);
+        g_assert_cmpuint(finishes + capacities + commands + descriptors, ==, 0);
+        return;
+    }
     g_assert_true(pgraph_vk_convert_depth_alias(pg, &producer, &view));
     g_assert_cmpuint(producer.height, ==, 480);
     g_assert_cmpuint(finishes, ==, scenario == 0 ? 0 : 1);
@@ -215,5 +223,11 @@ int main(int argc, char **argv)
                          test_conversion_sequence);
     g_test_add_data_func("/xbox/vk/alias/reject-before-recording",
                          GUINT_TO_POINTER(3), test_conversion_sequence);
+    g_test_add_data_func("/xbox/vk/alias/reject-one-pixel",
+                         GUINT_TO_POINTER(4), test_conversion_sequence);
+    g_test_add_data_func("/xbox/vk/alias/reject-two-pixel-column",
+                         GUINT_TO_POINTER(5), test_conversion_sequence);
+    g_test_add_data_func("/xbox/vk/alias/reject-two-pixel-row",
+                         GUINT_TO_POINTER(6), test_conversion_sequence);
     return g_test_run();
 }
