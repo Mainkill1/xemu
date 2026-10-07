@@ -1,0 +1,41 @@
+{
+  "candidate": "000f3f5f69647fe4a64f1fb1976f12ff2cf885e3",
+  "parent": "7ce445369384a59a8d833c964dac1a59cfd83b84",
+  "native_tested": "d7b001e0eafe7fcaa49bdf71ddd6b87306d5cb94",
+  "applicability": "Only later runtime difference rejects1/2pixel views before commands; tested4x4/32x32 admitted paths unchanged; independent reviewer accepted applicability",
+  "native_local": {
+    "conversions": 32,
+    "formats": [
+      "D24S8",
+      "D32S8"
+    ],
+    "validation_errors": 0
+  },
+  "native_deck": {
+    "conversions": 16,
+    "formats": [
+      "D32S8"
+    ],
+    "D24": "unsupported",
+    "validation": "unavailable"
+  },
+  "shapes": [
+    "64x16->4x4",
+    "640x480->32x32",
+    "34x64->32x32",
+    "35x64->32x32"
+  ],
+  "generations": 2,
+  "repeat_conversion_per_generation": 2,
+  "component_groups": 11,
+  "review": "No remaining blocker after tiny stencil-word admission fix",
+  "oracle": "CPU quadrant Morton transform, exact scratch shader output, separately uploaded reference image; producer image bytes checked independently",
+  "canonicalization": "D32 expected bit1 zero depth can transfer as0 on Deck; only this observed reference-image case accepted, counted in raw records; all other depth/stencil bytes exact",
+  "prefix": "Existinge82a7098b8 converter/map moved from290 to289, Conker copy307200->1280pixels, real producer metadata unchanged",
+  "limitations": [
+    "No runtime reuse/ownership claim; direct converter invoked twice per generation",
+    "Fixture capacity/submission adapters; production converter,image barriers,compute shaders execute on Vulkan",
+    "Physical D24 unavailable; local D24 is software Vulkan",
+    "No gameFPS claim; runtime290performance gate remains"
+  ]
+}

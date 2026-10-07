@@ -57,14 +57,16 @@
     {
       "scenario": "reference-images-width34-35",
       "owner_pr": 289,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native conversion)",
+      "evidence": "pr289/qualification.json",
+      "limits": "D24software; D32physical Deck; runtime ownership remains290"
     },
     {
       "scenario": "prefix640x480-to32x32",
       "owner_pr": 289,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native conversion)",
+      "evidence": "pr289/qualification.json",
+      "limits": "D24software; D32physical Deck; runtime ownership remains290"
     },
     {
       "scenario": "producer-to-readonly-alias",
