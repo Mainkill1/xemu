@@ -1686,7 +1686,7 @@ static bool bound_texture_sources_match(PGRAPHState *pg)
     return true;
 }
 
-static void update_timestamps(PGRAPHVkState *r)
+void pgraph_vk_pin_bound_textures(PGRAPHVkState *r)
 {
     for (int i = 0; i < ARRAY_SIZE(r->texture_bindings); i++) {
         if (r->texture_bindings[i]) {
@@ -1729,7 +1729,7 @@ bool pgraph_vk_bind_textures(NV2AState *d)
         bound_texture_sources_match(pg)) {
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
-        update_timestamps(r);
+        pgraph_vk_pin_bound_textures(r);
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_BIND_TEXTURES,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
@@ -1795,7 +1795,7 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             &r->texture_descriptor_publication_pending, before, after);
     }
 
-    update_timestamps(r);
+    pgraph_vk_pin_bound_textures(r);
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_BIND_TEXTURES,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
