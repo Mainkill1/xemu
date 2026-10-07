@@ -39,8 +39,8 @@
     {
       "scenario": "morton-layout",
       "owner_pr": 286,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS",
+      "evidence": "pr286/qualification.json"
     },
     {
       "scenario": "bounded-portable-dispatch",
@@ -159,6 +159,7 @@
   ],
   "merged": {
     "282": "36477451eef2f3b292cebec901711a65c0bc1c42",
-    "283": "4c3a7bba4d4dae70d1682058729e197b7be0982d"
+    "283": "4c3a7bba4d4dae70d1682058729e197b7be0982d",
+    "284": "10db341dacaf1a73e148bd2ec615ad7c2b753cf3"
   }
 }

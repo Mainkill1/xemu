@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S3fa4a4863d3cc05592fa8959eab69c34
+1..2
+# Start of xbox tests
+# Start of vk tests
+# Start of surface-alias tests
+ok 1 /xbox/vk/surface-alias/guest-morton-layout
+ok 2 /xbox/vk/surface-alias/reject-invalid-shapes
+# End of surface-alias tests
+# End of vk tests
+# End of xbox tests

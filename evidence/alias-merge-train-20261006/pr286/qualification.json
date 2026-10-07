@@ -1,0 +1,9 @@
+{
+  "candidate": "3661acb4234bf395b7ced90cb9dc8a78ed7ae33b",
+  "parent": "10db341dacaf1a73e148bd2ec615ad7c2b753cf3",
+  "tested_equal_tree": "828d7ea5643f42371ec730930d8babe4a86bd52d",
+  "morton_checks": 2,
+  "shader_compile": "glslc + spirv-val workgroup1/256 PASS",
+  "source_review": "No blockers; no production callers",
+  "limits": "No GPU execution claim for unused mapping primitive; integration native dispatch at287/289"
+}
