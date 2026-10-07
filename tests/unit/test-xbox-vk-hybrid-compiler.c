@@ -597,6 +597,14 @@ static void test_blocking_slot_is_reserved_from_async_limits(void)
     g_assert_cmpuint(blocking.result.ticket, ==, 6);
     pgraph_vk_hybrid_compile_result_destroy(&blocking.result);
 
+    /*
+     * Joining the required lane does not wait for async result publication.
+     * Observe completion without consuming the result tested below.
+     */
+    for (unsigned int i = 0;
+         i < 1000 && !pgraph_vk_hybrid_compiler_has_result(&compiler); i++) {
+        g_usleep(1000);
+    }
     g_assert_true(pgraph_vk_hybrid_compiler_has_result(&compiler));
     g_assert_true(take_result(&compiler, &result));
     g_assert_cmpuint(result.ticket, ==, 4);

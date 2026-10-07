@@ -146,8 +146,6 @@ static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, pipeline_cache);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
 
-    pgraph_vk_pipeline_family_owner_evict(r, snode);
-
     assert((snode->pipeline == VK_NULL_HANDLE ||
             pgraph_vk_graphics_pipeline_can_evict(
                 r->in_command_buffer, snode->draw_time,
@@ -1600,8 +1598,6 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
         return;
     }
 
-    pgraph_vk_enqueue_retained_fallback_families(r);
-
     unsigned int visited = 0;
     unsigned int processed = 0;
     int64_t now_us = g_get_monotonic_time();
@@ -1624,7 +1620,7 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
             continue;
         }
         if (!pgraph_vk_fallback_family_retry_due(request, now_us)) {
-            pgraph_vk_hybrid_schedule_service(pg, request->retry_after_us);
+            pgraph_vk_fallback_family_schedule_retry(pg, request);
             continue;
         }
         processed++;
@@ -1939,7 +1935,7 @@ static void process_hybrid_pipeline_result(
             r->hybrid_prewarm.rejected++;
         }
         pgraph_vk_fallback_family_note_pipeline_failure_at(
-            r, &work->key, g_get_monotonic_time());
+            pg, &work->key, g_get_monotonic_time());
     }
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
