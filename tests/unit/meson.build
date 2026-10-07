@@ -178,6 +178,11 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-batch-probe': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/batch-probe.c',
+      volk.partial_dependency(compile_args: true, includes: true),
+      vulkan.partial_dependency(compile_args: true, includes: true),
+    ],
     'test-xbox-vk-hybrid-prewarm': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm-runtime.c',
@@ -352,6 +357,7 @@ if 'i386-softmmu' in target_dirs and vulkan.found()
     tests += {
       'test-xbox-pgraph-vk-reports': [
         'xbox-pgraph-report-test-support.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/batch-probe.c',
         meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',

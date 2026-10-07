@@ -2662,6 +2662,12 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool probe = pgraph_vk_batch_probe_active(&r->batch_probe);
+    PGRAPHVkBatchHost host = { 0 };
+    if (probe) {
+        host.record_us = r->batch_probe.record_us;
+        host.finish_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    }
     bool trace_had_command_buffer = r->in_command_buffer;
     uint64_t trace_submit_us = 0;
     uint64_t trace_wait_us = 0;
@@ -2672,7 +2678,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
     if (r->in_command_buffer) {
         uint64_t staged_bytes = 0;
-        if (r->perf.enabled) {
+        if (r->perf.enabled || probe) {
             staged_bytes =
                 r->storage_buffers[BUFFER_INDEX_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset +
@@ -2688,9 +2694,15 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->query_in_flight) {
             end_query(r);
         }
+        if (probe) {
+            pgraph_vk_batch_probe_main(&r->batch_probe, r->command_buffer);
+        }
         VK_CHECK(vkEndCommandBuffer(r->command_buffer));
 
         VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg); // FIXME: Cleanup
+        if (probe) {
+            pgraph_vk_batch_probe_aux(&r->batch_probe, cmd);
+        }
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
@@ -2720,16 +2732,18 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
         vkResetFences(r->device, 1, &r->command_buffer_fence);
-        bool time_submit =
+        bool perf_time_submit =
             pgraph_vk_perf_should_time_finish(r, finish_reason) ||
             r->hybrid_trace != NULL;
+        bool time_submit = perf_time_submit || probe;
         int64_t submit_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         VkResult result = vkQueueSubmit(
             r->queue, ARRAY_SIZE(submit_infos), submit_infos,
             r->command_buffer_fence);
-        uint64_t submit_cpu_us = time_submit ?
-            MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
+        int64_t submit_end = time_submit ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+        uint64_t submit_cpu_us = MAX(submit_end - submit_start, 0);
         trace_submit_us = submit_cpu_us;
         VK_CHECK(result);
         nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_GPU_SUBMIT);
@@ -2753,13 +2767,23 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         result = vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX);
-        uint64_t wait_us = time_submit ?
-            MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
+        int64_t wait_end = time_submit ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+        uint64_t wait_us = MAX(wait_end - wait_start, 0);
         trace_wait_us = wait_us;
         VK_CHECK(result);
+        if (probe) {
+            host.submit_us = submit_start;
+            host.submitted_us = submit_end;
+            host.wait_us = wait_start;
+            host.completed_us = wait_end;
+            pgraph_vk_batch_probe_complete(&r->batch_probe, &host,
+                                          r->submit_count, finish_reason,
+                                          staged_bytes);
+        }
         pgraph_vk_perf_record_finish_submit(
-            r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
-            ARRAY_SIZE(submit_infos), 2);
+            r, finish_reason, perf_time_submit, submit_cpu_us, wait_us,
+            staged_bytes, ARRAY_SIZE(submit_infos), 2);
         r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
         r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset = 0;
 
@@ -2808,6 +2832,9 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     assert(!r->in_command_buffer);
+    if (pgraph_vk_batch_probe_active(&r->batch_probe)) {
+        r->batch_probe.record_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    }
 
     VkCommandBufferBeginInfo command_buffer_begin_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,

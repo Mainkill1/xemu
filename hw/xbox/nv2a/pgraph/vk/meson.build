@@ -4,6 +4,7 @@ if vulkan.found()
 
 specific_ss.add([volk, libglslang, vma, vulkan, spirv_reflect, 
 	files(
+		'batch-probe.c',
 		'blit.c',
 		'buffer.c',
 		'command.c',

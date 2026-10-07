@@ -71,6 +71,8 @@ void pgraph_vk_text_debug_printf(const char *format, ...)
 
 PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
+PFN_vkCmdResetQueryPool vkCmdResetQueryPool;
+PFN_vkCmdWriteTimestamp vkCmdWriteTimestamp;
 PFN_vkCmdEndQuery vkCmdEndQuery;
 PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
 PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;

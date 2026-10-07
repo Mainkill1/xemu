@@ -40,6 +40,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "batch-probe.h"
 #include "device-selection.h"
 #include "display-output-state.h"
 #include "debug.h"
@@ -781,6 +782,7 @@ typedef struct PGRAPHVkState {
     PGRAPHVkDeviceRecord selected_device;
     VkPhysicalDeviceFeatures enabled_physical_device_features;
     VkPhysicalDeviceProperties device_props;
+    PGRAPHVkBatchProbe batch_probe;
     VkDevice device;
     VmaAllocator allocator;
     uint32_t allocator_last_submit_index;
