@@ -116,7 +116,7 @@ typedef struct PipelineKey {
 
 typedef enum PGRAPHVkFamilyLearnState {
     PGRAPH_VK_FAMILY_UNCHECKED,
-    PGRAPH_VK_FAMILY_RETRY_PENDING,
+    PGRAPH_VK_FAMILY_HISTORY_RECORDED,
     PGRAPH_VK_FAMILY_TRACKED,
     PGRAPH_VK_FAMILY_READY,
     PGRAPH_VK_FAMILY_REJECTED,
@@ -250,6 +250,10 @@ typedef struct SurfaceBinding {
     VmaAllocation allocation_scratch;
 
     bool initialized;
+
+    /* Guest bytes corresponding to an evicted image that can be restored
+     * without another upload if no overlapping resource changed them. */
+    uint8_t *retained_guest_bytes;
 
     /* Identifies this logical binding even when its allocation is recycled. */
     uint64_t lifetime_id;
@@ -561,11 +565,69 @@ typedef struct PGRAPHVkDisplayState {
     GLuint gl_texture_id;
 } PGRAPHVkDisplayState;
 
+typedef enum PGRAPHVkComputeOperation {
+    PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL,
+    PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL,
+    PGRAPH_VK_COMPUTE_UNSWIZZLE_PACKED_DEPTH,
+} PGRAPHVkComputeOperation;
+
 typedef struct ComputePipelineKey {
     VkFormat host_fmt;
-    bool pack;
+    PGRAPHVkComputeOperation operation;
     int workgroup_size;
 } ComputePipelineKey;
+
+static inline ComputePipelineKey pgraph_vk_compute_pipeline_key(
+    VkFormat host_fmt, PGRAPHVkComputeOperation operation, int workgroup_size)
+{
+    ComputePipelineKey key = { 0 };
+
+    key.host_fmt = host_fmt;
+    key.operation = operation;
+    key.workgroup_size = workgroup_size;
+    return key;
+}
+
+static inline uint32_t pgraph_vk_compute_workgroup_size(
+    uint64_t output_units, uint32_t max_size_x, uint32_t max_invocations)
+{
+    uint32_t limit = MIN(1024u, MIN(max_size_x, max_invocations));
+
+    if (!output_units || !limit) {
+        return 0;
+    }
+
+    uint32_t group_size = 1;
+    while (group_size <= limit / 2) {
+        group_size *= 2;
+    }
+    while (group_size > 1 && output_units % group_size != 0) {
+        group_size /= 2;
+    }
+    return group_size;
+}
+
+static inline bool pgraph_vk_compute_dispatch_plan(
+    uint64_t output_units, uint32_t max_size_x, uint32_t max_invocations,
+    uint32_t max_group_count, uint32_t *workgroup_size,
+    uint32_t *group_count)
+{
+    uint32_t size = pgraph_vk_compute_workgroup_size(
+        output_units, max_size_x, max_invocations);
+
+    if (!size || !max_group_count || !workgroup_size || !group_count) {
+        return false;
+    }
+
+    uint64_t count = DIV_ROUND_UP(output_units, size);
+    if (count > max_group_count) {
+        return false;
+    }
+
+    *workgroup_size = size;
+    *group_count = count;
+    return true;
+}
 
 typedef struct ComputePipeline {
     LruNode node;
@@ -847,8 +909,6 @@ typedef struct PGRAPHVkState {
     PGRAPHVkFallbackFamilyRequest fallback_family_requests[
         PGRAPH_VK_HYBRID_MAX_FALLBACK_FAMILIES];
     unsigned int fallback_family_cursor;
-    unsigned int fallback_family_pipeline_cursor;
-    size_t fallback_family_retry_count;
     const ShaderModuleCacheKey *hybrid_materializing_key;
     ShaderModuleInfo *hybrid_materialized_module_info;
 
@@ -1066,9 +1126,10 @@ bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                                    bool force);
 void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
-                              bool zeta_write);
+                              bool zeta_access);
 SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr);
-void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta);
+void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color,
+                                 bool zeta_accessed);
 void pgraph_vk_set_surface_scale_factor(NV2AState *d, unsigned int scale);
 unsigned int pgraph_vk_get_surface_scale_factor(NV2AState *d);
 void pgraph_vk_reload_surface_scale_factor(PGRAPHState *pg);
@@ -1084,6 +1145,13 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
                                     VkCommandBuffer cmd, VkBuffer src,
                                     VkBuffer dst);
+bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
+                                     VkBuffer src, VkDeviceSize src_size,
+                                     VkBuffer dst, VkDeviceSize dst_size,
+                                     uint32_t width, uint32_t height);
+bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
+                                   SurfaceBinding *producer,
+                                   SurfaceBinding *view);
 
 // display.c
 void pgraph_vk_init_display(PGRAPHState *pg);
@@ -1160,13 +1228,10 @@ void pgraph_vk_track_specialized_fallback_family(
 void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
                                       const PipelineKey *key,
                                       uint64_t synchronous_create_us);
-void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
 void pgraph_vk_fallback_family_note_pipeline_ready(
     PGRAPHVkState *r, const PipelineKey *key);
 void pgraph_vk_fallback_family_note_pipeline_failure_at(
-    PGRAPHVkState *r, const PipelineKey *key, int64_t now_us);
-void pgraph_vk_pipeline_family_owner_evict(
-    PGRAPHVkState *r, PipelineBinding *binding);
+    PGRAPHState *pg, const PipelineKey *key, int64_t now_us);
 void pgraph_vk_fallback_family_key_from_specialized(
     const PipelineBinding *binding, PipelineKey *key);
 void pgraph_vk_fallback_family_mark_pipeline_owners(

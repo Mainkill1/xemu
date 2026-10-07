@@ -112,25 +112,92 @@ Choose exactly one current recommendation:
   performance, and review gates. Required evidence is complete and applicable
   to the current candidate. This is a recommendation, not permission to merge.
 - **HOLD**: Required testing is missing, evidence is stale or incomparable,
-  results are inconclusive, or useful improvements come with unresolved
-  regressions or tradeoffs. Preserve the useful result and provide a bounded
+  the overall result is inconclusive, or a material regression remains
+  unresolved. A favorable, explained tradeoff is not automatically HOLD.
+  Preserve the useful result and provide a bounded
   handoff: what improved, what worsened, and what to investigate next.
 - **FAIL**: Completed, adequate evaluation identifies zero useful improvements
   in performance, correctness, or functionality, and no worthwhile direction
   remains for this candidate. This means stop pursuing it, not merely that
-  one test or metric failed. Missing evidence, uncertainty, or mixed gains
-  and losses are HOLD, not FAIL.
+  one test or metric failed. Missing required evidence, unresolved material
+  regressions or an inconclusive overall result are HOLD, not FAIL.
 
-For example, p99 increasing by 10 ms while CPU falls by 10% is **HOLD** with
-both measurements and a performance handoff, not FAIL. A correctness repair
-is itself an improvement even without a speedup. A failed correctness check
-still blocks MERGE; a useful but broken candidate remains HOLD for repair.
-Record individual test failures honestly regardless of the PR recommendation.
+**SKIPPED** is an investigation disposition for the PR title or remaining-work
+summary, not a fourth recommendation. Preserve HOLD when qualification is
+incomplete or inconclusive; use FAIL only when the definition above is met.
+Record why work stopped and what evidence would justify reopening it.
 
 A successful build or passing correctness suite is not performance proof.
 "No speedup claimed" does not exempt runtime changes from regression testing.
-A necessary correctness fix with a measured performance cost must disclose
-that cost and remain HOLD until the tradeoff is explicitly accepted.
+A correctness repair is itself an improvement without a speedup. Assess its
+cost under the policy below. Record every failed check and known limitation;
+do not relabel an accepted risk as a passing test or a repaired defect.
+
+### Judge performance by the overall game result
+
+The objective is useful game performance and efficiency with correct rendering
+and functionality. Evaluate throughput, frame-time tails and CPU consumption
+together, rather than assigning a verdict from one counter or synthetic leaf.
+
+- A performance regression is a repeatable overall game FPS/cadence loss or
+  a significant p95/p99 increase. Loss of functionality or correct rendering
+  is a correctness regression. Keep guest cadence and host-presented FPS
+  distinctly labeled; neither proves identical simulation progress.
+- A 2% slowdown in one XISO test is a diagnostic finding, not an automatic
+  merge blocker. Report it and inspect its relevance to the changed path.
+  Do not impose an arbitrary per-leaf percentage gate or require a waiver
+  solely for crossing it. Synthetic correctness failures remain important:
+  distinguish new failures from reproduced parent/oracle limitations.
+- Higher CPU usage can accompany a worthwhile throughput gain. For example,
+  15% higher CPU with 3% higher FPS is a positive throughput tradeoff when
+  rendering and tails remain acceptable; CPU growth alone does not veto it.
+- A 2% FPS decrease with 15% lower CPU can also be beneficial when the FPS
+  difference is within observed run variation, or p95/p99/max spikes improve.
+  Establish that explanation from comparable measurements; do not simply
+  declare an unfavorable result noise. At a frame cap, lower CPU at unchanged
+  cadence is a useful efficiency gain.
+- Assess tail changes in absolute time, relative size and repeatability.
+  Investigate isolated maximum spikes, but do not automatically treat one
+  as a sustained regression. Do not average away consistent tail degradation.
+- Raw CPU percentage is not cost per frame. Where workloads and progress are
+  comparable, include CPU time per unit of guest work as supporting context.
+  Concurrent CPU/GPU times are not additive frame time or stage-exclusive cost.
+
+Keep HOLD for unresolved material game regressions, newly broken rendering or
+functionality, or insufficient evidence to judge the overall result. Obtain
+explicit user acceptance for those unresolved risks before merging. Record
+such acceptance and retain the failed evidence; do not keep seeking approval
+for favorable tradeoffs already covered by this policy. Do not merge a loss
+merely because doing so makes the next implementation easier.
+
+### Qualify dependent PRs together and land completed work
+
+- A required parent may receive a performance exception when the tested child
+  or stack demonstrates the net benefit and the parent is actually necessary.
+  Identify that dependency and compare the combined result against a clean
+  reference. Stacking does not excuse broken rendering or functionality, and
+  an unrelated regression cannot hide inside the combined result.
+- Keep different fixes in separate PRs. Qualify expensive native behavior at
+  the relevant stack boundary, with focused checks for each layer. A parent
+  need not independently improve FPS when its justified contribution enables
+  the demonstrated improvement above it.
+- Give each performance patch a dedicated independent review of correctness,
+  hot paths and avoidable work. Consider hardware acceleration only where the
+  measured bottleneck supports it; removing unnecessary work can be better
+  than accelerating it. Do not turn review into speculative feature expansion.
+- Merge qualified stacks bottom-up. After a parent lands, immediately retarget
+  its child and verify the resulting source tree. Preserve applicable evidence
+  when the tree is unchanged; do not repeat a complete campaign just because
+  commit IDs or PR bases changed. Review and test any actual integration delta.
+- Use light, focused tests during development. Reserve extensive native and
+  XISO qualification for merge decisions. Use the approved ABBA/BAAB procedures
+  where applicable, without changing inputs, waits, scenes or analysis windows
+  to obtain a favorable result. Never repeat benchmarks until they pass.
+- Once review, applicable CI and qualification are complete and merge is
+  authorized, merge promptly. Do not leave ready work indefinitely on HOLD for
+  speculative improvements. If an avenue is exhausted, mark it SKIPPED with
+  the findings and move on. Close resolved PRs/issues; keep broader issues open
+  when only one part was addressed, naming the remaining work.
 
 ### Update the body; do not create a progress-comment stream
 
@@ -200,6 +267,8 @@ For runtime/performance-affecting changes:
    OpenGL and Vulkan. Include affected cases, controls, and material
    regressions, not only favorable rows. Use a compact table:
    `Test ID | Backend | Before | After | Time difference | Improvement % | Correctness`.
+   Note changes over 1%; this is a disclosure requirement, not a standalone
+   rejection threshold. Apply the overall game acceptance policy above.
 
 4. Preserve the full per-test comparison in linked evidence. A total
    suite duration or "160/160 passed" cannot replace individual timings.
@@ -249,6 +318,11 @@ summary, compact result tables, and links to detailed evidence. Raw per-test
 tables, logs, manifests, and captures belong in durable linked evidence
 storage.
 
+Do not merge raw benchmark logs, captures, dumps or evidence-storage commits
+into main. Keep compact conclusions in the PR body and link the retained
+artifacts. Missing public publication does not erase privately reviewed
+evidence; state its access limits without calling it publicly reproducible.
+
 When a GitHub comment is the only practical way to attach or preserve an
 evidence package, post one consolidated evidence comment for that coherent
 campaign, label it clearly, and link it from the PR body. Do not use comments
@@ -290,7 +364,12 @@ To produce high-quality, easily reviewable pull requests, agents must observe th
 
 - **Single Responsibility**: Each pull request must address exactly one bug fix, hardware improvement, or specific feature. Never bundle multiple independent bug fixes, features, or cleanups into a single commit or pull request. Break independent changes into separate, logically sequenced PRs.
 - **Minimal Change**: Touch only the files and lines necessary to accomplish the stated task. Do not refactor surrounding functions or reorganize include headers unless explicitly requested.
-- **Verify Against Upstream**: Always ensure the branch is rebased on the latest upstream `master` and that changes do not stomp on or duplicate existing open PRs.
+- **Verify the Target and Dependencies**: Use the PR's declared target branch
+  (normally this fork's `main`) or its explicitly required parent PR. Check
+  relevant upstream changes and open PRs for duplication or conflicts. Do not
+  rebase a dependent PR onto an unrelated branch merely because it is named
+  `master`. After its parent merges, retarget to the intended integration branch
+  and verify the resulting source tree before reusing qualification evidence.
 
 ---
 
@@ -312,7 +391,10 @@ Before finalizing any commit or pull request, ensure:
 - [ ] Existing open pull requests have been searched to avoid duplicating work.
 - [ ] The PR body follows the mandatory template from the first draft and explains the current branch delta, important files/functions, mechanism, scope, and present validation state.
 - [ ] A draft or HOLD PR clearly separates what is implemented now from future work; a plan-only PR is labeled and justified as such.
-- [ ] The PR starts with one MERGE/HOLD/FAIL recommendation, a concrete result summary, and bounded remaining work; mixed benefits and regressions are HOLD, not FAIL.
+- [ ] The PR starts with one MERGE/HOLD/FAIL recommendation, a concrete result
+  summary, and bounded remaining work. Unresolved material regressions or an
+  inconclusive overall result remain HOLD; explained favorable tradeoffs do
+  not automatically block MERGE.
 - [ ] The pull request description includes the agent/model declaration.
 - [ ] The PR body was updated in place instead of posting routine progress comments; any necessary evidence comment is consolidated and linked from the body.
 - [ ] Required XISO per-test before/after timings and correctness are reported, including controls, material regressions, and the full linked comparison; pass/fail counts alone are insufficient.

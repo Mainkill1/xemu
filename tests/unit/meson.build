@@ -33,6 +33,7 @@ tests = {
   'test-xbox-mcpx-apu-worker-count': [],
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
+  'test-xbox-pgraph-zeta-write': [xbox_i386_target_headers],
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
@@ -80,6 +81,7 @@ tests = {
   'test-xbox-gl-texture-binding': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-surface-coherence': [],
+  'test-xbox-vk-surface-retention': [],
   'test-xbox-vk-failpoint': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/failpoint.c',
     declare_dependency(
@@ -184,6 +186,10 @@ if vulkan.found()
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
     ],
     'test-xbox-vk-staging-flush': [volk, vma],
+    'test-xbox-vk-surface-alias-map': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
+    ],
     'test-xbox-vk-hybrid-family-codec': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
@@ -199,6 +205,7 @@ if vulkan.found()
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
       xbox_i386_target_headers,
       volk, libglslang, vma, vulkan, spirv_reflect,
     ],
@@ -232,7 +239,50 @@ if vulkan.found()
         link_args: nv2a_vk_runtime_gc_link_args,
         include_directories: include_directories('../../target/i386'),
       )
+      if host_os == 'linux'
+        surface_ownership_runtime = declare_dependency(
+          compile_args: ['-DXBOX=1'],
+          dependencies: [nv2a_vk_runtime_prod],
+          link_args: [
+            '-Wl,--wrap=pgraph_vk_finish',
+            '-Wl,--wrap=pgraph_vk_ensure_not_in_render_pass',
+          ],
+        )
+        tests += {
+          'test-xbox-vk-surface-ownership': [
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+            surface_ownership_runtime,
+            xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+            spirv_reflect,
+          ],
+        }
+      endif
       tests += {
+        'test-xbox-vk-alias-convert-sequence': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-alias-dispatch-limits': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-surface-retained-lookup': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-stencil-write': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-cubemap-surface': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/texture.c',
           nv2a_vk_runtime_prod,
