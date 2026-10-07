@@ -169,17 +169,37 @@ static void test_depth_alias_buffer_plan(void)
 
     g_assert_true(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,
                                              2 * 1024 * 1024, &plan));
-    g_assert_cmpuint(plan.producer_pixels, ==, 307200);
+    g_assert_cmpuint(plan.producer_pixels, ==, 1280);
     g_assert_cmpuint(plan.view_pixels, ==, 1024);
-    g_assert_cmpuint(plan.producer_stencil_offset, ==, 1228800);
+    g_assert_cmpuint(plan.producer_stencil_offset, ==, 5120);
     g_assert_cmpuint(plan.view_stencil_offset, ==, 4096);
-    g_assert_cmpuint(plan.compute_dst_bytes, ==, 1536000);
-    g_assert_cmpuint(plan.compute_src_bytes, ==, 1228800);
+    g_assert_cmpuint(plan.compute_dst_bytes, ==, 6400);
+    g_assert_cmpuint(plan.compute_src_bytes, ==, 5120);
+
+    /* One partial source row and a final partial row must stay in bounds. */
+    g_assert_true(pgraph_vk_depth_alias_plan(64, 16, 4, 4, 256,
+                                             4096, &plan));
+    g_assert_cmpuint(plan.producer_pixels, ==, 64);
+    g_assert_true(pgraph_vk_depth_alias_plan(640, 480, 512, 512, 256,
+                                             2 * 1024 * 1024, &plan));
+    g_assert_cmpuint(plan.producer_pixels, ==, 262400);
+    g_assert_false(pgraph_vk_depth_alias_plan(64, 16, 64, 32, 256,
+                                              2 * 1024 * 1024, &plan));
+
+    /* Packed stencil reads use uint words, including padded source rows. */
+    g_assert_true(pgraph_vk_depth_alias_plan(34, 64, 32, 32, 256,
+                                             8192, &plan));
+    g_assert_cmpuint(plan.producer_pixels, ==, 1088);
+    g_assert_true(pgraph_vk_depth_alias_plan(35, 64, 32, 32, 256,
+                                             8192, &plan));
+    g_assert_cmpuint(plan.producer_pixels, ==, 1120);
+    g_assert_false(pgraph_vk_depth_alias_plan(1, 1, 1, 1, 256,
+                                              4096, &plan));
 
     g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 3,
                                               2 * 1024 * 1024, &plan));
     g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,
-                                              1000000, &plan));
+                                              6399, &plan));
     g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 0, 32, 256,
                                               2 * 1024 * 1024, &plan));
     g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,

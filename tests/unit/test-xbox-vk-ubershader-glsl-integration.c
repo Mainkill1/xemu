@@ -214,6 +214,9 @@ static void test_depth_alias_pipeline_identity(void)
 
 static void test_compute_workgroup_selection(void)
 {
+    uint32_t workgroup_size;
+    uint32_t group_count;
+
     g_assert_cmpuint(pgraph_vk_compute_workgroup_size(307200, 1024, 1024),
                      ==, 1024);
     g_assert_cmpuint(pgraph_vk_compute_workgroup_size(307200, 256, 1024),
@@ -225,6 +228,21 @@ static void test_compute_workgroup_selection(void)
     g_assert_cmpuint(pgraph_vk_compute_workgroup_size(1, 1, 1), ==, 1);
     g_assert_cmpuint(pgraph_vk_compute_workgroup_size(0, 1024, 1024), ==, 0);
     g_assert_cmpuint(pgraph_vk_compute_workgroup_size(32, 0, 1024), ==, 0);
+
+    g_assert_true(pgraph_vk_compute_dispatch_plan(
+        307200, 256, 1024, 65535, &workgroup_size, &group_count));
+    g_assert_cmpuint(workgroup_size, ==, 256);
+    g_assert_cmpuint(group_count, ==, 1200);
+    g_assert_true(pgraph_vk_compute_dispatch_plan(
+        1000, 256, 256, 65535, &workgroup_size, &group_count));
+    g_assert_cmpuint(workgroup_size, ==, 8);
+    g_assert_cmpuint(group_count, ==, 125);
+    g_assert_false(pgraph_vk_compute_dispatch_plan(
+        307200, 256, 1024, 1199, &workgroup_size, &group_count));
+    g_assert_false(pgraph_vk_compute_dispatch_plan(
+        0, 256, 1024, 65535, &workgroup_size, &group_count));
+    g_assert_false(pgraph_vk_compute_dispatch_plan(
+        307200, 0, 1024, 65535, &workgroup_size, &group_count));
 }
 
 static void test_depth_replace_compiles_for_both_fragment_routes(void)
