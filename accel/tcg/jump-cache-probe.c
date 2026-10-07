@@ -37,6 +37,9 @@ TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode)
         return NULL;
     } else if (!strcmp(mode, "counters")) {
         selected = TCG_JUMP_CACHE_PROBE_COUNTERS;
+    } else if (!strcmp(mode, "returns")) {
+        selected = TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES |
+                   TCG_JUMP_CACHE_PROBE_RETURNS;
     } else if (!strcmp(mode, "sites")) {
         selected = TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES;
     } else if (!strcmp(mode, "conflicts")) {
@@ -383,6 +386,10 @@ void tcg_jump_cache_probe_format(TCGJumpCacheProbe *probe, GString *out,
         break;
     case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_TIMING:
         mode = "timing";
+        break;
+    case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES |
+         TCG_JUMP_CACHE_PROBE_RETURNS:
+        mode = "returns";
         break;
     case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES:
         mode = "sites";

@@ -509,6 +509,16 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
     return lookup_tb_ptr_common_profile(cpu, s, NULL);
 }
 
+void HELPER(observe_return_i32)(CPUArchState *env, uint32_t eip,
+                               uint64_t cs_base, uint32_t flags,
+                               uint32_t stack_slot, uint32_t event)
+{
+    CPUState *cpu = env_cpu(env);
+    tcg_return_observe(cpu->tb_jmp_cache->probe,
+        (TCGSiteKey){ (uint32_t)(cs_base + eip), cs_base, flags,
+                      curr_cflags(cpu) }, stack_slot, event);
+}
+
 const void *HELPER(lookup_tb_ptr_i32_sites)(CPUArchState *env, uint32_t eip,
                                           uint64_t cs_base, uint32_t flags,
                                           uint32_t site_pc, uint32_t kind)

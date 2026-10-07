@@ -14,6 +14,54 @@ static bool key_equal(TCGSiteKey a, TCGSiteKey b)
            a.cflags == b.cflags;
 }
 
+void tcg_return_observe(TCGJumpCacheProbe *probe, TCGSiteKey target,
+                        uint32_t stack_slot, unsigned event)
+{
+    if (!probe || !(probe->mode & TCG_JUMP_CACHE_PROBE_RETURNS)) {
+        return;
+    }
+    assert(event <= TCG_RETURN_POP);
+    TCGReturnProfile *r = &probe->owner.sites->returns;
+    uint64_t epoch = qatomic_load_acquire(&probe->conflict_epoch);
+    bool invalidating = qatomic_read(&probe->conflict_invalidators) != 0;
+    if (event != TCG_RETURN_POP) {
+        r->calls[event]++;
+        r->entries[r->next] =
+            (TCGReturnEntry){ target, epoch, stack_slot, invalidating };
+        r->next = (r->next + 1) % TCG_RETURN_PROFILE_DEPTH;
+        if (r->count == TCG_RETURN_PROFILE_DEPTH) {
+            r->overflow++;
+        } else {
+            r->count++;
+        }
+        r->peak = MAX(r->peak, r->count);
+        return;
+    }
+    r->pops++;
+    if (!r->count) {
+        r->underflow++;
+        return;
+    }
+    r->next =
+        (r->next + TCG_RETURN_PROFILE_DEPTH - 1) % TCG_RETURN_PROFILE_DEPTH;
+    TCGReturnEntry *entry = &r->entries[r->next];
+    r->count--;
+    if (entry->target.pc != target.pc || entry->stack_slot != stack_slot) {
+        r->mismatch++;
+        /* Unknown unwinds/context switches must not invent correspondence. */
+        r->count = 0;
+        return;
+    }
+    r->matched++;
+    if (!key_equal(entry->target, target)) {
+        return;
+    }
+    r->context_matched++;
+    /* Observed epoch stability is not executable-pointer lifetime proof. */
+    r->epoch_stable +=
+        !invalidating && !entry->invalidating && entry->epoch == epoch;
+}
+
 TCGSiteObservation tcg_site_observe_begin(TCGJumpCacheProbe *probe,
                                           TCGSiteKey source, unsigned kind)
 {
@@ -102,6 +150,25 @@ void tcg_site_format_owner(TCGJumpCacheProbe *probe, GString *out, int cpu)
         return;
     }
     TCGJumpCacheSites *sites = probe->owner.sites;
+    if (probe->mode & TCG_JUMP_CACHE_PROBE_RETURNS) {
+        TCGReturnProfile *r = &sites->returns;
+        g_string_append_printf(
+            out,
+            "returns depth=%u count=%u peak=%u direct=%" PRIu64
+            " indirect=%" PRIu64 " pops=%" PRIu64 " underflow=%" PRIu64
+            " overflow=%" PRIu64 " mismatch=%" PRIu64 " matched=%" PRIu64
+            " context_matched=%" PRIu64 " epoch_stable=%" PRIu64 "\n",
+            TCG_RETURN_PROFILE_DEPTH, r->count, r->peak, r->calls[0],
+            r->calls[1], r->pops, r->underflow, r->overflow, r->mismatch,
+            r->matched, r->context_matched, r->epoch_stable);
+        g_string_append(
+            out, "returns diagnostic: successful near CALL/RET only; "
+                 "i386 code32/stack32/operand32; direct calls included; "
+                 "address+stack matches, then context, then observed epoch; "
+                 "not executable-target availability or a speedup; "
+                 "event totals differ from lookup-reaching sites\n");
+    }
+
     g_string_append_printf(
         out,
         "sites cpu=%d capacity=%u probes=%u used=%u collisions=%" PRIu64 "\n",

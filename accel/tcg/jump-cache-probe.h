@@ -18,6 +18,7 @@ typedef enum TCGJumpCacheProbeMode {
     TCG_JUMP_CACHE_PROBE_TIMING = 4,
     TCG_JUMP_CACHE_PROBE_CONFLICTS = 8,
     TCG_JUMP_CACHE_PROBE_SITES = 16,
+    TCG_JUMP_CACHE_PROBE_RETURNS = 32,
 } TCGJumpCacheProbeMode;
 
 typedef struct TCGJumpCacheProbeSlot {

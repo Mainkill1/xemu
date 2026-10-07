@@ -1575,12 +1575,18 @@ static void gen_BZHI(DisasContext *s, X86DecodedInsn *decode)
 static void gen_CALL(DisasContext *s, X86DecodedInsn *decode)
 {
     gen_push_v(s, eip_next_tl(s));
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    observe_near_call(s, 0); /* Direct CALL. */
+#endif
     gen_JMP(s, decode);
 }
 
 static void gen_CALL_m(DisasContext *s, X86DecodedInsn *decode)
 {
     gen_push_v(s, eip_next_tl(s));
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    observe_near_call(s, 1); /* Indirect CALL. */
+#endif
     gen_JMP_m(s, decode);
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
     s->site_profile_kind = 1; /* CALL, after shared JMP emission. */
@@ -3602,9 +3608,18 @@ static void gen_RET(DisasContext *s, X86DecodedInsn *decode)
 {
     int16_t adjust = decode->e.op1 == X86_TYPE_I ? decode->immediate : 0;
 
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    /* Preserve the original slot; RET imm16 may advance ESP again below. */
+    TCGv slot = observe_near_return_enabled(s) ?
+                capture_return_stack_slot(s) : NULL;
+#endif
     MemOp ot = gen_pop_T0(s);
     gen_stack_update(s, adjust + (1 << ot));
 #if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    if (slot) {
+        /* A faulting pop never reaches the diagnostic observation. */
+        tcg_gen_observe_return_i32(s->T0, s->cs_base, s->flags, slot, 2);
+    }
     capture_dispatch_site(s, 3);
 #endif
     gen_op_jmp_v(s, s->T0);

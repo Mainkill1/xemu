@@ -37,9 +37,40 @@ typedef struct TCGSiteEntry {
     TCGSiteKey recent[2];
 } TCGSiteEntry;
 
+#define TCG_RETURN_PROFILE_DEPTH 64
+
+enum TCGReturnEvent {
+    TCG_RETURN_DIRECT_CALL,
+    TCG_RETURN_INDIRECT_CALL,
+    TCG_RETURN_POP,
+};
+
+typedef struct TCGReturnEntry {
+    TCGSiteKey target;
+    uint64_t epoch;
+    uint32_t stack_slot;
+    bool invalidating;
+} TCGReturnEntry;
+
+typedef struct TCGReturnProfile {
+    uint64_t calls[2];
+    uint64_t pops;
+    uint64_t underflow;
+    uint64_t overflow;
+    uint64_t mismatch;
+    uint64_t matched;
+    uint64_t context_matched;
+    uint64_t epoch_stable;
+    unsigned next;
+    unsigned count;
+    unsigned peak;
+    TCGReturnEntry entries[TCG_RETURN_PROFILE_DEPTH];
+} TCGReturnProfile;
+
 typedef struct TCGJumpCacheSites {
     uint64_t attempts[TCG_SITE_KIND_COUNT];
     uint64_t untracked[TCG_SITE_KIND_COUNT];
+    TCGReturnProfile returns;
     uint64_t collisions;
     unsigned used;
     TCGSiteEntry entries[TCG_SITE_PROFILE_CAPACITY];
@@ -50,6 +81,10 @@ typedef struct TCGSiteObservation {
     uint64_t epoch;
     bool invalidating;
 } TCGSiteObservation;
+
+/* Owner-only diagnostic. No host pointers or additional target lookup. */
+void tcg_return_observe(TCGJumpCacheProbe *probe, TCGSiteKey target,
+                        uint32_t stack_slot, unsigned event);
 
 /* Dispatch owner only. Entries are never evicted or used for execution. */
 TCGSiteObservation tcg_site_observe_begin(TCGJumpCacheProbe *probe,

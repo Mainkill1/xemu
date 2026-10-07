@@ -82,6 +82,10 @@ void tcg_gen_lookup_and_goto_ptr(void);
 /* 32-bit target variant with state known by the front end. */
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
 bool tcg_site_profile_enabled(void);
+bool tcg_return_profile_enabled(void);
+void tcg_gen_observe_return_i32(TCGv_i32 eip, uint64_t cs_base,
+                               uint32_t flags, TCGv_i32 stack_slot,
+                               uint32_t event);
 void tcg_gen_lookup_and_goto_ptr_i32_sites(TCGv_i32 eip, uint64_t cs_base,
                                           uint32_t flags, TCGv_i32 site_pc,
                                           uint32_t kind);

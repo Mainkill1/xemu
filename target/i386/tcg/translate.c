@@ -2628,6 +2628,30 @@ static void gen_push_v(DisasContext *s, TCGv val)
     gen_op_mov_reg_v(s, a_ot, R_ESP, new_esp);
 }
 
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+static bool observe_near_return_enabled(DisasContext *s)
+{
+    return tcg_return_profile_enabled() && CODE32(s) && SS32(s) &&
+           mo_pushpop(s, s->dflag) == MO_32;
+}
+
+static TCGv capture_return_stack_slot(DisasContext *s)
+{
+    TCGv slot = tcg_temp_new();
+    gen_lea_ss_ofs(s, slot, cpu_regs[R_ESP], 0);
+    return slot;
+}
+
+static void observe_near_call(DisasContext *s, unsigned event)
+{
+    if (observe_near_return_enabled(s)) {
+        /* Called after the guest store and ESP commit, before changing EIP. */
+        tcg_gen_observe_return_i32(eip_next_tl(s), s->cs_base, s->flags,
+                                  capture_return_stack_slot(s), event);
+    }
+}
+#endif
+
 /* two step pop is necessary for precise exceptions */
 static MemOp gen_pop_T0(DisasContext *s)
 {

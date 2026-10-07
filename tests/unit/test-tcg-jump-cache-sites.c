@@ -130,6 +130,115 @@ static void test_bound_and_format(void)
     tcg_jump_cache_probe_free(p);
 }
 
+static void test_returns_nested(void)
+{
+    TCGJumpCacheProbe *p = tcg_jump_cache_probe_new("returns");
+    g_assert_nonnull(p);
+    g_assert_true(tcg_site_enabled(p));
+    tcg_return_observe(p, key(10), 0xfffc, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(p, key(20), 0xfff8, TCG_RETURN_INDIRECT_CALL);
+    tcg_return_observe(p, key(20), 0xfff8, TCG_RETURN_POP);
+    tcg_return_observe(p, key(10), 0xfffc, TCG_RETURN_POP);
+    TCGReturnProfile *r = &p->owner.sites->returns;
+    g_assert_cmpuint(r->calls[0], ==, 1);
+    g_assert_cmpuint(r->calls[1], ==, 1);
+    g_assert_cmpuint(r->pops, ==, 2);
+    g_assert_cmpuint(r->matched, ==, 2);
+    g_assert_cmpuint(r->context_matched, ==, 2);
+    g_assert_cmpuint(r->epoch_stable, ==, 2);
+    g_assert_cmpuint(r->count, ==, 0);
+    g_assert_cmpuint(r->peak, ==, 2);
+    g_autoptr(GString) text = g_string_new(NULL);
+    tcg_site_format_owner(p, text, 0);
+    g_assert_nonnull(strstr(text->str, "returns depth=64"));
+    g_assert_nonnull(strstr(text->str, "not executable-target availability"));
+    tcg_jump_cache_probe_free(p);
+}
+
+static void test_returns_mismatch(void)
+{
+    TCGJumpCacheProbe *p = tcg_jump_cache_probe_new("returns");
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_POP);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(p, key(20), 0, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(p, key(20), 4, TCG_RETURN_POP);
+    TCGReturnProfile *r = &p->owner.sites->returns;
+    g_assert_cmpuint(r->underflow, ==, 1);
+    g_assert_cmpuint(r->mismatch, ==, 1);
+    g_assert_cmpuint(r->count, ==, 0);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(p, key(11), 4, TCG_RETURN_POP);
+    g_assert_cmpuint(r->mismatch, ==, 2);
+    g_assert_cmpuint(r->matched, ==, 0);
+    tcg_jump_cache_probe_free(p);
+}
+
+static void test_returns_bounds(void)
+{
+    TCGJumpCacheProbe *p = tcg_jump_cache_probe_new("returns");
+    for (unsigned i = 0; i < TCG_RETURN_PROFILE_DEPTH + 3; i++) {
+        tcg_return_observe(p, key(i), UINT32_MAX - i * 4,
+                           TCG_RETURN_DIRECT_CALL);
+    }
+    TCGReturnProfile *r = &p->owner.sites->returns;
+    g_assert_cmpuint(r->overflow, ==, 3);
+    g_assert_cmpuint(r->peak, ==, TCG_RETURN_PROFILE_DEPTH);
+    for (unsigned i = TCG_RETURN_PROFILE_DEPTH + 3; i > 3; i--) {
+        tcg_return_observe(p, key(i - 1), UINT32_MAX - (i - 1) * 4,
+                           TCG_RETURN_POP);
+    }
+    g_assert_cmpuint(r->matched, ==, TCG_RETURN_PROFILE_DEPTH);
+    g_assert_cmpuint(r->count, ==, 0);
+    tcg_return_observe(p, key(2), UINT32_MAX - 8, TCG_RETURN_POP);
+    g_assert_cmpuint(r->underflow, ==, 1);
+    tcg_jump_cache_probe_free(p);
+}
+
+static void test_returns_context_epoch(void)
+{
+    TCGJumpCacheProbe *p = tcg_jump_cache_probe_new("returns");
+    TCGJumpCacheProbe *sites = tcg_jump_cache_probe_new("sites");
+    tcg_return_observe(NULL, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(sites, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    g_assert_cmpuint(sites->owner.sites->returns.count, ==, 0);
+    TCGReturnProfile *r = &p->owner.sites->returns;
+    for (unsigned i = 0; i < 3; i++) {
+        TCGSiteKey k = key(10);
+        tcg_return_observe(p, k, 4, TCG_RETURN_DIRECT_CALL);
+        if (i == 0) {
+            k.cs_base++;
+        }
+        if (i == 1) {
+            k.flags++;
+        }
+        if (i == 2) {
+            k.cflags++;
+        }
+        tcg_return_observe(p, k, 4, TCG_RETURN_POP);
+    }
+    g_assert_cmpuint(r->matched, ==, 3);
+    g_assert_cmpuint(r->context_matched, ==, 0);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_jump_cache_probe_invalidate_begin(p);
+    tcg_jump_cache_probe_invalidate_end(p);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_POP);
+    tcg_jump_cache_probe_invalidate_begin(p);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_jump_cache_probe_invalidate_end(p);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_POP);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_jump_cache_probe_invalidate_begin(p);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_POP);
+    tcg_jump_cache_probe_invalidate_end(p);
+    g_assert_cmpuint(r->context_matched, ==, 3);
+    g_assert_cmpuint(r->epoch_stable, ==, 0);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_DIRECT_CALL);
+    tcg_return_observe(p, key(10), 4, TCG_RETURN_POP);
+    g_assert_cmpuint(r->epoch_stable, ==, 1);
+    tcg_jump_cache_probe_free(sites);
+    tcg_jump_cache_probe_free(p);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -138,5 +247,9 @@ int main(int argc, char **argv)
     g_test_add_func("/sites/full-key-epilogue", test_full_key_and_epilogue);
     g_test_add_func("/sites/invalidation", test_invalidation);
     g_test_add_func("/sites/bound-format", test_bound_and_format);
+    g_test_add_func("/returns/nested", test_returns_nested);
+    g_test_add_func("/returns/mismatch", test_returns_mismatch);
+    g_test_add_func("/returns/bounds", test_returns_bounds);
+    g_test_add_func("/returns/context-epoch", test_returns_context_epoch);
     return g_test_run();
 }
