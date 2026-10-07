@@ -3279,3 +3279,34 @@ void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
     tcg_gen_op1i(INDEX_op_goto_ptr, TCG_TYPE_PTR, tcgv_ptr_arg(ptr));
     tcg_temp_free_ptr(ptr);
 }
+
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+bool tcg_site_profile_enabled(void)
+{
+    static gsize initialized;
+    static bool enabled;
+
+    if (g_once_init_enter(&initialized)) {
+        enabled = g_strcmp0(g_getenv("XEMU_TCG_JUMP_CACHE_PROBE"), "sites") == 0;
+        g_once_init_leave(&initialized, 1);
+    }
+    return enabled;
+}
+
+void tcg_gen_lookup_and_goto_ptr_i32_sites(TCGv_i32 eip, uint64_t cs_base,
+                                          uint32_t flags, TCGv_i32 site_pc,
+                                          uint32_t kind)
+{
+    if (tcg_ctx->gen_tb->cflags & CF_NO_GOTO_PTR) {
+        tcg_gen_exit_tb(NULL, 0);
+        return;
+    }
+    plugin_gen_disable_mem_helpers();
+    TCGv_ptr ptr = tcg_temp_ebb_new_ptr();
+    gen_helper_lookup_tb_ptr_i32_sites(ptr, tcg_env, eip,
+        tcg_constant_i64(cs_base), tcg_constant_i32(flags),
+        site_pc, tcg_constant_i32(kind));
+    tcg_gen_op1i(INDEX_op_goto_ptr, TCG_TYPE_PTR, tcgv_ptr_arg(ptr));
+    tcg_temp_free_ptr(ptr);
+}
+#endif

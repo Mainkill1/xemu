@@ -1582,6 +1582,9 @@ static void gen_CALL_m(DisasContext *s, X86DecodedInsn *decode)
 {
     gen_push_v(s, eip_next_tl(s));
     gen_JMP_m(s, decode);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    s->site_profile_kind = 1; /* CALL, after shared JMP emission. */
+#endif
 }
 
 static void gen_CALLF(DisasContext *s, X86DecodedInsn *decode)
@@ -2317,6 +2320,9 @@ static void gen_JMP(DisasContext *s, X86DecodedInsn *decode)
 
 static void gen_JMP_m(DisasContext *s, X86DecodedInsn *decode)
 {
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    capture_dispatch_site(s, 2);
+#endif
     gen_op_jmp_v(s, s->T0);
     gen_bnd_jmp(s);
     s->base.is_jmp = DISAS_JUMP_STATIC;
@@ -3598,6 +3604,9 @@ static void gen_RET(DisasContext *s, X86DecodedInsn *decode)
 
     MemOp ot = gen_pop_T0(s);
     gen_stack_update(s, adjust + (1 << ot));
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+    capture_dispatch_site(s, 3);
+#endif
     gen_op_jmp_v(s, s->T0);
     gen_bnd_jmp(s);
     s->base.is_jmp = DISAS_JUMP_STATIC;

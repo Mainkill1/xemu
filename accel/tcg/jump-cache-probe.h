@@ -10,12 +10,14 @@
 
 typedef struct TCGJumpCacheProbe TCGJumpCacheProbe;
 typedef struct TCGJumpCacheConflicts TCGJumpCacheConflicts;
+typedef struct TCGJumpCacheSites TCGJumpCacheSites;
 
 typedef enum TCGJumpCacheProbeMode {
     TCG_JUMP_CACHE_PROBE_COUNTERS = 1,
     TCG_JUMP_CACHE_PROBE_OCCUPANCY = 2,
     TCG_JUMP_CACHE_PROBE_TIMING = 4,
     TCG_JUMP_CACHE_PROBE_CONFLICTS = 8,
+    TCG_JUMP_CACHE_PROBE_SITES = 16,
 } TCGJumpCacheProbeMode;
 
 typedef struct TCGJumpCacheProbeSlot {

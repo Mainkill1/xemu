@@ -174,6 +174,11 @@ static TCGv_i32 fpstt;
 typedef struct TCGv_fp_d *TCGv_fp;
 
 typedef struct DisasContext {
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    TCGv_i32 site_profile_pc;
+    uint32_t site_profile_kind;
+#endif
+
     DisasContextBase base;
 
     target_ulong pc;       /* pc = eip + cs_base */
@@ -720,6 +725,18 @@ static TCGv eip_cur_tl(DisasContext *s)
         return tcg_constant_tl((uint32_t)(s->base.pc_next - s->cs_base));
     }
 }
+
+#if defined(CONFIG_XEMU_TCG_JUMP_CACHE_PROBE) && !defined(TARGET_X86_64)
+static void capture_dispatch_site(DisasContext *s, uint32_t kind)
+{
+    if (tcg_site_profile_enabled()) {
+        s->site_profile_kind = kind;
+        s->site_profile_pc = tcg_temp_new_i32();
+        /* Capture before EIP is overwritten; PC-relative TB aliases matter. */
+        tcg_gen_addi_i32(s->site_profile_pc, eip_cur_tl(s), s->cs_base);
+    }
+}
+#endif
 
 /* Compute SEG:REG into DEST.  SEG is selected from the override segment
    (OVR_SEG) and the default segment (DEF_SEG).  OVR_SEG may be -1 to
@@ -2796,7 +2813,17 @@ gen_eob(DisasContext *s, int mode)
 #ifdef TARGET_X86_64
             tcg_gen_lookup_and_goto_ptr();
 #else
-            tcg_gen_lookup_and_goto_ptr_i32(cpu_eip, s->cs_base, s->flags);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+            if (tcg_site_profile_enabled()) {
+                tcg_gen_lookup_and_goto_ptr_i32_sites(
+                    cpu_eip, s->cs_base, s->flags,
+                    s->site_profile_pc ? s->site_profile_pc : tcg_constant_i32(0),
+                    s->site_profile_kind);
+            } else
+#endif
+            {
+                tcg_gen_lookup_and_goto_ptr_i32(cpu_eip, s->cs_base, s->flags);
+            }
 #endif
         } else {
             tcg_gen_lookup_and_goto_ptr();
@@ -4324,6 +4351,10 @@ static void i386_tr_insn_start(DisasContextBase *dcbase, CPUState *cpu)
 static void i386_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    dc->site_profile_pc = NULL;
+    dc->site_profile_kind = 0; /* Other, including direct cross-page exits. */
+#endif
     bool orig_cc_op_dirty = dc->cc_op_dirty;
     CCOp orig_cc_op = dc->cc_op;
     target_ulong orig_pc_save = dc->pc_save;

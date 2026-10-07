@@ -15,6 +15,7 @@ struct TCGJumpCacheProbe {
         uint32_t random;
         bool timing;
         TCGJumpCacheConflicts *conflicts;
+        TCGJumpCacheSites *sites;
     } owner; /* Only the serialized vCPU dispatch thread may access this. */
     /* Keep shared clear statistics off the owner's 64-byte cache lines without
      * requiring a stronger allocation alignment than g_malloc provides.
@@ -29,7 +30,7 @@ struct TCGJumpCacheProbe {
 static inline uint64_t
 tcg_jump_cache_probe_conflict_epoch(TCGJumpCacheProbe *probe)
 {
-    return probe && probe->owner.conflicts ?
+    return probe && (probe->owner.conflicts || probe->owner.sites) ?
                qatomic_load_acquire(&probe->conflict_epoch) :
                0;
 }

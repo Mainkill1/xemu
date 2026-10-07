@@ -44,6 +44,7 @@
 #include "tb-jmp-cache.h"
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
 #include "jump-cache-probe-lookup.h"
+#include "jump-cache-sites.h"
 #endif
 #include "tb-hash.h"
 #include "tb-code-hash.h"
@@ -252,10 +253,11 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
 /* Optional probe paths must not turn ordinary dispatch into a helper call. */
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
 static inline QEMU_ALWAYS_INLINE TranslationBlock *
-tb_lookup(CPUState *cpu, TCGTBCPUState s);
-#endif
-
+tb_lookup_profile(CPUState *cpu, TCGTBCPUState s,
+                  const TCGSiteObservation *observation)
+#else
 static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+#endif
 {
     TranslationBlock *tb;
     CPUJumpCache *jc;
@@ -302,6 +304,11 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
 #endif
     if (tb == NULL) {
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+        if (observation) {
+            tcg_site_observe_end(jc->probe, observation,
+                (TCGSiteKey){ s.pc, s.cs_base, s.flags, s.cflags },
+                TCG_JUMP_CACHE_GLOBAL_MISS);
+        }
         if (unlikely(jc->probe)) {
             tcg_jump_cache_probe_lookup_end(jc->probe,
                                             TCG_JUMP_CACHE_GLOBAL_MISS,
@@ -326,6 +333,10 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
 
 hit:
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    if (observation) {
+        tcg_site_observe_end(jc->probe, observation,
+            (TCGSiteKey){ s.pc, s.cs_base, s.flags, s.cflags }, probe_result);
+    }
     if (unlikely(jc->probe)) {
         tcg_jump_cache_probe_lookup_end(jc->probe, probe_result, sample_start_ns);
     }
@@ -337,6 +348,13 @@ hit:
     assert((tb_cflags(tb) & CF_PCREL) || tb->pc == s.pc);
     return tb;
 }
+
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+{
+    return tb_lookup_profile(cpu, s, NULL);
+}
+#endif
 
 static void log_cpu_exec(vaddr pc, CPUState *cpu,
                          const TranslationBlock *tb)
@@ -439,7 +457,12 @@ static inline bool check_for_breakpoints(CPUState *cpu, vaddr pc,
         check_for_breakpoints_slow(cpu, pc, cflags);
 }
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static const void *lookup_tb_ptr_common_profile(
+    CPUState *cpu, TCGTBCPUState s, const TCGSiteObservation *observation)
+#else
 static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
+#endif
 {
     TranslationBlock *tb;
 
@@ -456,7 +479,11 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
         cpu_loop_exit(cpu);
     }
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    tb = tb_lookup_profile(cpu, s, observation);
+#else
     tb = tb_lookup(cpu, s);
+#endif
     if (tb == NULL) {
         return tcg_code_gen_epilogue;
     }
@@ -476,6 +503,32 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
  * If found, return the code pointer.  If not found, return
  * the tcg epilogue so that we return into cpu_tb_exec.
  */
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
+{
+    return lookup_tb_ptr_common_profile(cpu, s, NULL);
+}
+
+const void *HELPER(lookup_tb_ptr_i32_sites)(CPUArchState *env, uint32_t eip,
+                                          uint64_t cs_base, uint32_t flags,
+                                          uint32_t site_pc, uint32_t kind)
+{
+    CPUState *cpu = env_cpu(env);
+    TCGTBCPUState state = {
+        .pc = (uint32_t)(cs_base + eip),
+        .cs_base = cs_base,
+        .flags = flags,
+        .cflags = curr_cflags(cpu),
+    };
+    TCGSiteObservation observation = tcg_site_observe_begin(
+        cpu->tb_jmp_cache->probe,
+        (TCGSiteKey){ site_pc, cs_base, flags, state.cflags }, kind);
+
+    /* One authoritative resolver; its post-breakpoint key is observed. */
+    return lookup_tb_ptr_common_profile(cpu, state, &observation);
+}
+#endif
+
 const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
 {
     CPUState *cpu = env_cpu(env);

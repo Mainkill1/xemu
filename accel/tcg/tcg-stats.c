@@ -9,6 +9,7 @@
 #include "qemu/osdep.h"
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
 #include "tb-jmp-cache.h"
+#include "jump-cache-sites.h"
 #endif
 #include "qemu/accel.h"
 #include "qemu/qht.h"
@@ -165,6 +166,16 @@ static void tcg_dump_flush_info(GString *buf)
     g_string_append_printf(buf, "TLB elided flushes  %zu\n", flush_elide);
 }
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static void dump_sites_on_cpu(CPUState *cpu, run_on_cpu_data data)
+{
+    GString *buf = data.host_ptr;
+    g_string_append_printf(buf, "sites snapshot_host_ns=%" PRId64 "\n",
+                           get_clock());
+    tcg_site_format_owner(cpu->tb_jmp_cache->probe, buf, cpu->cpu_index);
+}
+#endif
+
 static void dump_exec_info(GString *buf)
 {
     struct tb_tree_stats tst = {};
@@ -213,6 +224,9 @@ static void dump_exec_info(GString *buf)
         CPUJumpCache *jc = cpu->tb_jmp_cache;
         if (jc) {
             tcg_jump_cache_probe_format(jc->probe, buf, cpu->cpu_index);
+            if (tcg_site_enabled(jc->probe)) {
+                run_on_cpu(cpu, dump_sites_on_cpu, RUN_ON_CPU_HOST_PTR(buf));
+            }
         }
     }
 #endif

@@ -3,6 +3,7 @@
 #include "qemu/atomic.h"
 #include "qemu/timer.h"
 #include "jump-cache-probe-lookup.h"
+#include "jump-cache-sites.h"
 
 struct TCGJumpCacheConflicts {
     TCGJumpCacheProbeSlot victim[2][16];
@@ -36,6 +37,8 @@ TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode)
         return NULL;
     } else if (!strcmp(mode, "counters")) {
         selected = TCG_JUMP_CACHE_PROBE_COUNTERS;
+    } else if (!strcmp(mode, "sites")) {
+        selected = TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES;
     } else if (!strcmp(mode, "conflicts")) {
         selected =
             TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_CONFLICTS;
@@ -57,6 +60,9 @@ TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode)
     if (selected & TCG_JUMP_CACHE_PROBE_CONFLICTS) {
         probe->owner.conflicts = g_new0(TCGJumpCacheConflicts, 1);
     }
+    if (selected & TCG_JUMP_CACHE_PROBE_SITES) {
+        probe->owner.sites = g_new0(TCGJumpCacheSites, 1);
+    }
     return probe;
 }
 
@@ -64,6 +70,7 @@ void tcg_jump_cache_probe_free(TCGJumpCacheProbe *probe)
 {
     if (probe) {
         g_free(probe->owner.conflicts);
+        g_free(probe->owner.sites);
     }
     g_free(probe);
 }
@@ -162,7 +169,8 @@ void tcg_jump_cache_probe_record_fill(TCGJumpCacheProbe *probe, unsigned hash,
 
 void tcg_jump_cache_probe_invalidate_begin(TCGJumpCacheProbe *probe)
 {
-    if (probe && (probe->mode & TCG_JUMP_CACHE_PROBE_CONFLICTS)) {
+    if (probe && (probe->mode & (TCG_JUMP_CACHE_PROBE_CONFLICTS |
+                                 TCG_JUMP_CACHE_PROBE_SITES))) {
         qatomic_inc(&probe->conflict_invalidators);
         qatomic_inc(&probe->conflict_epoch);
     }
@@ -170,7 +178,8 @@ void tcg_jump_cache_probe_invalidate_begin(TCGJumpCacheProbe *probe)
 
 void tcg_jump_cache_probe_invalidate_end(TCGJumpCacheProbe *probe)
 {
-    if (probe && (probe->mode & TCG_JUMP_CACHE_PROBE_CONFLICTS)) {
+    if (probe && (probe->mode & (TCG_JUMP_CACHE_PROBE_CONFLICTS |
+                                 TCG_JUMP_CACHE_PROBE_SITES))) {
         qatomic_inc(&probe->conflict_epoch);
         qatomic_dec(&probe->conflict_invalidators);
     }
@@ -374,6 +383,9 @@ void tcg_jump_cache_probe_format(TCGJumpCacheProbe *probe, GString *out,
         break;
     case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_TIMING:
         mode = "timing";
+        break;
+    case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_SITES:
+        mode = "sites";
         break;
     case TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_CONFLICTS:
         mode = "conflicts";

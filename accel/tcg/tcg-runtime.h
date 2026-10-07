@@ -24,6 +24,10 @@ DEF_HELPER_FLAGS_1(clrsb_i64, TCG_CALL_NO_RWG_SE, i64, i64)
 DEF_HELPER_FLAGS_1(ctpop_i32, TCG_CALL_NO_RWG_SE, i32, i32)
 DEF_HELPER_FLAGS_1(ctpop_i64, TCG_CALL_NO_RWG_SE, i64, i64)
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+DEF_HELPER_FLAGS_6(lookup_tb_ptr_i32_sites, TCG_CALL_NO_WG_SE, cptr,
+                   env, i32, i64, i32, i32, i32)
+#endif
 DEF_HELPER_FLAGS_1(lookup_tb_ptr, TCG_CALL_NO_WG_SE, cptr, env)
 DEF_HELPER_FLAGS_4(lookup_tb_ptr_i32, TCG_CALL_NO_WG_SE, cptr,
                    env, i32, i64, i32)
