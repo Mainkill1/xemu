@@ -283,6 +283,12 @@ if vulkan.found()
           xbox_i386_target_headers, volk, libglslang, vma, vulkan,
           spirv_reflect,
         ],
+        'test-xbox-vk-cubemap-surface': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/texture.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-hybrid-wake': [
           meson.project_source_root() / 'hw/xbox/nv2a/pfifo.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-wake.c',
