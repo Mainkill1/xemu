@@ -3361,18 +3361,27 @@ void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
     }
 
     plugin_gen_disable_mem_helpers();
-#if defined(XBOX) && defined(__x86_64__) && defined(CONFIG_SOFTMMU) && \
-    !defined(CONFIG_PLUGIN) && !defined(CONFIG_TCG_INTERPRETER)
-    if (g_strcmp0(getenv("XEMU_EXPERIMENTAL_INLINE_JUMP_CACHE"), "1") == 0) {
-        TCGLabel *miss = gen_new_label();
-        gen_xemu_inline_jump_cache(eip, cs_base, flags, miss);
-        gen_set_label(miss);
-    }
-#endif
     ptr = tcg_temp_ebb_new_ptr();
     gen_helper_lookup_tb_ptr_i32(ptr, tcg_env, eip,
                                  tcg_constant_i64(cs_base),
                                  tcg_constant_i32(flags));
     tcg_gen_op1i(INDEX_op_goto_ptr, TCG_TYPE_PTR, tcgv_ptr_arg(ptr));
     tcg_temp_free_ptr(ptr);
+}
+
+void tcg_gen_lookup_and_goto_ptr_i32_return(TCGv_i32 eip, uint64_t cs_base,
+                                           uint32_t flags)
+{
+#if defined(XBOX) && defined(__x86_64__) && defined(CONFIG_SOFTMMU) && \
+    !defined(CONFIG_PLUGIN) && !defined(CONFIG_TCG_INTERPRETER)
+    if (!(tcg_ctx->gen_tb->cflags & CF_NO_GOTO_PTR) &&
+        g_strcmp0(getenv("XEMU_EXPERIMENTAL_INLINE_RETURN_CACHE"), "1") == 0) {
+        TCGLabel *miss = gen_new_label();
+        plugin_gen_disable_mem_helpers();
+        gen_xemu_inline_jump_cache(eip, cs_base, flags, miss);
+        gen_set_label(miss);
+    }
+#endif
+    /* Policy exclusions and cache misses retain the original resolver. */
+    tcg_gen_lookup_and_goto_ptr_i32(eip, cs_base, flags);
 }

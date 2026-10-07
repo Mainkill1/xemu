@@ -3598,6 +3598,7 @@ static void gen_RET(DisasContext *s, X86DecodedInsn *decode)
 
     MemOp ot = gen_pop_T0(s);
     gen_stack_update(s, adjust + (1 << ot));
+    s->inline_return_eligible = CODE32(s) && SS32(s) && ot == MO_32;
     gen_op_jmp_v(s, s->T0);
     gen_bnd_jmp(s);
     s->base.is_jmp = DISAS_JUMP_STATIC;

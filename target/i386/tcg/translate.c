@@ -175,6 +175,7 @@ typedef struct TCGv_fp_d *TCGv_fp;
 
 typedef struct DisasContext {
     DisasContextBase base;
+    bool inline_return_eligible;
 
     target_ulong pc;       /* pc = eip + cs_base */
     target_ulong cs_base;  /* base of CS segment */
@@ -2796,7 +2797,12 @@ gen_eob(DisasContext *s, int mode)
 #ifdef TARGET_X86_64
             tcg_gen_lookup_and_goto_ptr();
 #else
-            tcg_gen_lookup_and_goto_ptr_i32(cpu_eip, s->cs_base, s->flags);
+            if (s->inline_return_eligible) {
+                tcg_gen_lookup_and_goto_ptr_i32_return(cpu_eip, s->cs_base,
+                                                      s->flags);
+            } else {
+                tcg_gen_lookup_and_goto_ptr_i32(cpu_eip, s->cs_base, s->flags);
+            }
 #endif
         } else {
             tcg_gen_lookup_and_goto_ptr();
@@ -4288,6 +4294,7 @@ static void i386_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cpu)
     dc->jmp_opt = !((cflags & CF_NO_GOTO_TB) ||
                     (flags & (HF_RF_MASK | HF_TF_MASK | HF_INHIBIT_IRQ_MASK)));
 
+    dc->inline_return_eligible = false;
     dc->T0 = tcg_temp_new();
     dc->T1 = tcg_temp_new();
     dc->A0 = tcg_temp_new();

@@ -80,6 +80,9 @@ void tcg_gen_goto_tb(unsigned idx);
 void tcg_gen_lookup_and_goto_ptr(void);
 
 /* 32-bit target variant with state known by the front end. */
+/* Eligible i386 near RET only; opt-in experiment, same fallback resolver. */
+void tcg_gen_lookup_and_goto_ptr_i32_return(TCGv_i32 eip, uint64_t cs_base,
+                                           uint32_t flags);
 void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
                                      uint32_t flags);
 
