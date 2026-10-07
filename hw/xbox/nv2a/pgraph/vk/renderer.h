@@ -756,6 +756,10 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t report_query_results_waited;
     uint64_t report_query_result_wait_us;
     uint64_t report_cpu_only_retirements;
+    uint64_t query_pool_bulk_resets;
+    uint64_t query_pool_slot_resets;
+    uint64_t query_in_render_pass_begins;
+    uint64_t query_budget_finishes;
     uint64_t report_enqueue_to_retire_frames_total;
     uint64_t report_enqueue_to_retire_frames_max;
     /* Cumulative UI-thread totals, read by the renderer-thread perf writer. */
@@ -942,6 +946,9 @@ typedef struct PGRAPHVkState {
     int num_queries_in_flight;
     bool new_query_needed;
     bool query_in_flight;
+    bool query_pool_reset;
+    bool query_pool_reset_pending;
+    uint64_t *query_results;
     uint32_t zpass_pixel_count_result;
     uint32_t report_queue_depth;
     QSIMPLEQ_HEAD(, QueryReport) report_queue; // FIXME: Statically allocate

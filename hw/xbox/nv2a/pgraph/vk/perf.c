@@ -314,7 +314,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":8"
+            "{\"type\":\"frame\",\"schema_version\":9"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -404,6 +404,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"report_query_results_waited_per_guest_frame\":%" PRIu64
             ",\"report_query_result_wait_us_per_guest_frame\":%" PRIu64
             ",\"report_cpu_only_retirements_per_guest_frame\":%" PRIu64
+            ",\"query_pool_bulk_resets_per_guest_frame\":%" PRIu64
+            ",\"query_pool_slot_resets_per_guest_frame\":%" PRIu64
+            ",\"query_in_render_pass_begins_per_guest_frame\":%" PRIu64
+            ",\"query_budget_finishes_per_guest_frame\":%" PRIu64
             ",\"report_enqueue_to_retire_frames_total_per_guest_frame\":%" PRIu64
             ",\"report_enqueue_to_retire_frames_max_per_guest_frame\":%" PRIu64
             ",\"framebuffer_acquire_calls_total\":%" PRIu64
@@ -437,6 +441,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->report_query_results_waited,
             perf->report_query_result_wait_us,
             perf->report_cpu_only_retirements,
+            perf->query_pool_bulk_resets,
+            perf->query_pool_slot_resets,
+            perf->query_in_render_pass_begins,
+            perf->query_budget_finishes,
             perf->report_enqueue_to_retire_frames_total,
             perf->report_enqueue_to_retire_frames_max,
             qatomic_read_u64(&perf->framebuffer_acquire_calls_total),
@@ -551,6 +559,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->report_query_results_waited = 0;
     perf->report_query_result_wait_us = 0;
     perf->report_cpu_only_retirements = 0;
+    perf->query_pool_bulk_resets = 0;
+    perf->query_pool_slot_resets = 0;
+    perf->query_in_render_pass_begins = 0;
+    perf->query_budget_finishes = 0;
     perf->report_enqueue_to_retire_frames_total = 0;
     perf->report_enqueue_to_retire_frames_max = 0;
 }

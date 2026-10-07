@@ -2511,7 +2511,7 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 static void begin_query(PGRAPHVkState *r)
 {
     assert(r->in_command_buffer);
-    assert(!r->in_render_pass);
+    assert(r->query_pool_reset || !r->in_render_pass);
     assert(!r->query_in_flight);
 
     // FIXME: We should handle this. Make the query buffer bigger, but at least
@@ -2519,8 +2519,16 @@ static void begin_query(PGRAPHVkState *r)
     assert(r->num_queries_in_flight < r->max_queries_in_flight);
 
     nv2a_profile_inc_counter(NV2A_PROF_QUERY);
-    vkCmdResetQueryPool(r->command_buffer, r->query_pool,
-                        r->num_queries_in_flight, 1);
+    assert(!r->query_pool_reset_pending);
+    if (!r->query_pool_reset) {
+        vkCmdResetQueryPool(r->command_buffer, r->query_pool,
+                            r->num_queries_in_flight, 1);
+        if (r->perf.enabled) {
+            r->perf.query_pool_slot_resets++;
+        }
+    } else if (r->in_render_pass && r->perf.enabled) {
+        r->perf.query_in_render_pass_begins++;
+    }
     vkCmdBeginQuery(r->command_buffer, r->query_pool, r->num_queries_in_flight,
                     VK_QUERY_CONTROL_PRECISE_BIT);
 
@@ -2532,7 +2540,7 @@ static void begin_query(PGRAPHVkState *r)
 static void end_query(PGRAPHVkState *r)
 {
     assert(r->in_command_buffer);
-    assert(!r->in_render_pass);
+    assert(r->query_pool_reset || !r->in_render_pass);
     assert(r->query_in_flight);
 
     vkCmdEndQuery(r->command_buffer, r->query_pool,
@@ -2637,6 +2645,15 @@ static void begin_render_pass(PGRAPHState *pg)
 static void end_render_pass(PGRAPHVkState *r)
 {
     if (r->in_render_pass) {
+        /*
+         * A query begun inside this pass must end in the same scope. When the
+         * pool was reset at command-buffer start, query rotation does not need
+         * to split the pass, but any unrelated pass ending still closes the
+         * active host query before vkCmdEndRenderPass.
+         */
+        if (r->query_in_flight && r->query_pool_reset) {
+            end_query(r);
+        }
         vkCmdEndRenderPass(r->command_buffer);
         r->in_render_pass = false;
     }
@@ -2814,6 +2831,14 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
+
+    /*
+     * A whole-pool reset is only legal once all prior results are retired.
+     * Defer recording it until the command buffer actually needs its first
+     * occlusion query so query-free command buffers pay no reset cost.
+     */
+    r->query_pool_reset = false;
+    r->query_pool_reset_pending = r->num_queries_in_flight == 0;
 }
 
 // FIXME: Refactor below
@@ -2861,6 +2886,20 @@ void pgraph_vk_end_nondraw_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 static bool begin_pre_draw(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+
+    /*
+     * Query rotation can consume the pool without consuming staging space.
+     * Retire the current batch before begin_query() would overflow; doing this
+     * before submission-local draw preparation avoids publishing resources
+     * that immediately become stale across pgraph_vk_finish().
+     */
+    if (!pg->clearing && pg->zpass_pixel_count_enable &&
+        r->num_queries_in_flight >= r->max_queries_in_flight) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        if (r->perf.enabled) {
+            r->perf.query_budget_finishes++;
+        }
+    }
 
     assert(r->color_binding || r->zeta_binding);
     assert(!r->color_binding || r->color_binding->initialized);
@@ -2956,26 +2995,59 @@ static void begin_draw(PGRAPHState *pg)
 
     assert(r->in_command_buffer);
 
+    bool must_bind_pipeline = r->pipeline_binding_changed;
+
+    /*
+     * Record the full-pool reset only when visibility testing is first needed.
+     * If ordinary draws already opened a render pass in this command buffer,
+     * close it once so the reset remains outside render-pass scope. Subsequent
+     * query rotations stay inside the new pass.
+     */
+    if (!pg->clearing && pg->zpass_pixel_count_enable &&
+        r->query_pool_reset_pending) {
+        end_render_pass(r);
+        assert(!r->query_in_flight);
+        vkCmdResetQueryPool(r->command_buffer, r->query_pool, 0,
+                            r->max_queries_in_flight);
+        r->query_pool_reset_pending = false;
+        r->query_pool_reset = true;
+        if (r->perf.enabled) {
+            r->perf.query_pool_bulk_resets++;
+        }
+    }
+
+    bool split_pass_for_query = !r->query_pool_reset;
+
+    if (!split_pass_for_query && !pg->clearing &&
+        pg->zpass_pixel_count_enable && !r->in_render_pass) {
+        begin_render_pass(pg);
+        must_bind_pipeline = true;
+    }
+
     // Visibility testing
     if (!pg->clearing && pg->zpass_pixel_count_enable) {
         if (r->new_query_needed && r->query_in_flight) {
-            end_render_pass(r);
+            if (split_pass_for_query) {
+                end_render_pass(r);
+            }
             end_query(r);
         }
         if (!r->query_in_flight) {
-            end_render_pass(r);
+            if (split_pass_for_query) {
+                end_render_pass(r);
+            }
             begin_query(r);
         }
     } else if (r->query_in_flight) {
-        end_render_pass(r);
+        if (split_pass_for_query) {
+            end_render_pass(r);
+        }
         end_query(r);
     }
 
     if (pg->clearing) {
         end_render_pass(r);
     }
-
-    bool must_bind_pipeline = r->pipeline_binding_changed;
 
     if (!r->in_render_pass) {
         begin_render_pass(pg);

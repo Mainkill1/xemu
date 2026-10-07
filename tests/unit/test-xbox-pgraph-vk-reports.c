@@ -55,6 +55,7 @@ static void fixture_free(ReportFixture *fixture)
         QSIMPLEQ_REMOVE_HEAD(&fixture->renderer.report_queue, entry);
         g_free(report);
     }
+    g_free(fixture->renderer.query_results);
     g_free(fixture);
 }
 
@@ -346,6 +347,9 @@ static void fixture_init(ReportFixture *fixture)
     fixture->renderer.device = (VkDevice)(uintptr_t)6;
     fixture->renderer.allocator = (VmaAllocator)(uintptr_t)7;
     fixture->renderer.query_pool = (VkQueryPool)(uintptr_t)8;
+    fixture->renderer.max_queries_in_flight = 1024;
+    fixture->renderer.query_results =
+        g_new(uint64_t, fixture->renderer.max_queries_in_flight);
     QSIMPLEQ_INIT(&fixture->renderer.report_queue);
     memset(fixture->vram, CANARY, sizeof(fixture->vram));
     memset(&boundary_trace, 0, sizeof(boundary_trace));
