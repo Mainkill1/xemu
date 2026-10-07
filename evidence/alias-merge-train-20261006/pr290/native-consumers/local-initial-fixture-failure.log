@@ -1,0 +1,28 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) actualX=1024 actualInv=1024
+vendor=10005 device=0000 api=4211036 driver=109056002 type=4
+PASS retained format=124 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=124 partial-guest-write/reject-reuse/dirty-page-supersedes
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
+PASS retained format=124 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=124 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=124 prune12-to10/reset-flush-destroys-all
+PASS retained format=129 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=129 partial-guest-write/reject-reuse/dirty-page-supersedes
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
+PASS retained format=129 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=129 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=129 prune12-to10/reset-flush-destroys-all
+PASS retained format=130 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=130 partial-guest-write/reject-reuse/dirty-page-supersedes
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
+PASS retained format=130 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=130 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=130 prune12-to10/reset-flush-destroys-all
+image format=129 admission=0
+PASS producer roundtrip format=129 generation=0 pixels=1024
+VALIDATION: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) is not compatible with VkImage 0x4c800000004c8 usage flags VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.
+The Vulkan spec states: If srcQueueFamilyIndex and dstQueueFamilyIndex define a queue family ownership transfer or oldLayout and newLayout define an image layout transition, and oldLayout or newLayout is VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL then image must have been created with VK_IMAGE_USAGE_SAMPLED_BIT or VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01211)
+native: /home/codex/xemu-shader-workbench-handoff/xemu-pr290/hw/xbox/nv2a/pgraph/vk/image.c:205: pgraph_vk_transition_image_layout: Assertion `!"unsupported layout transition!"' failed.

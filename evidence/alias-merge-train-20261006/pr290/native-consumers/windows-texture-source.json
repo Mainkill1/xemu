@@ -1,0 +1,7 @@
+{
+  "source": "xemu-pr290/hw/xbox/nv2a/pgraph/vk/texture.c",
+  "startLine": 758,
+  "helperBytes": 9654,
+  "helperSha256": "5d96c4163e6b067eeabfc0afa6fdab17c3f5c169d16341345980b6cc652d389e",
+  "method": "Verbatim helper extracted at each build; Linux includes complete production translation unit"
+}

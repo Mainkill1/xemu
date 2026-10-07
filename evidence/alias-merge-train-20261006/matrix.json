@@ -119,14 +119,16 @@
     {
       "scenario": "partial-blit-source-destination",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production consumer fixture)",
+      "evidence": "pr290/native-consumers/qualification.json",
+      "limits": "Exact GPU texture-copy output; full texture binding/shader sampling separate. Actual blit with DMA/tile adapters."
     },
     {
       "scenario": "full-srccopy-destination",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production consumer fixture)",
+      "evidence": "pr290/native-consumers/qualification.json",
+      "limits": "Exact GPU texture-copy output; full texture binding/shader sampling separate. Actual blit with DMA/tile adapters."
     },
     {
       "scenario": "writable-transition",
@@ -144,8 +146,9 @@
     {
       "scenario": "texture-consumption",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production consumer fixture)",
+      "evidence": "pr290/native-consumers/qualification.json",
+      "limits": "Exact GPU texture-copy output; full texture binding/shader sampling separate. Actual blit with DMA/tile adapters."
     },
     {
       "scenario": "flush-reset-save-load",

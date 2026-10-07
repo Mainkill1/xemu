@@ -1,0 +1,41 @@
+{
+  "source": "02ebd503171dff15d4f17d27151be3c4fd5c79ed",
+  "records": {
+    "local": {
+      "texturePixelChecks": 32,
+      "blitCases": 6,
+      "validation": "enabled",
+      "attributableValidationErrors": 0,
+      "hostLoaderManifestErrors": 0
+    },
+    "deck": {
+      "texturePixelChecks": 16,
+      "blitCases": 3,
+      "validation": "unavailable",
+      "attributableValidationErrors": null,
+      "hostLoaderManifestErrors": 0
+    },
+    "windows": {
+      "texturePixelChecks": 32,
+      "blitCases": 6,
+      "validation": "enabled",
+      "attributableValidationErrors": 0,
+      "hostLoaderManifestErrors": 1
+    }
+  },
+  "review": "Dedicated independent reviewer approved pixel oracles and exact-source Windows helper adapter.",
+  "oracle": [
+    "Every texture word independently derived from original producer bytes and CPU Morton transform, including unchanged alias reuse.",
+    "Blits: every source/destination byte checked; partial copy/full copy/full blend require 2/1/2 GPU readbacks. Clean alias precedes dirty owner."
+  ],
+  "limits": [
+    "Texture helper output tested, not full cache/binding or shader sampling.",
+    "DMA/tile-clipping and dirty-page adapters; actual blit entry point and GPU readback.",
+    "Windows compiles verbatim current production helper; Linux includes full texture translation unit. Windows consumes GLSL-equality-checked cached SPIR-V.",
+    "No full VM save/load/reset or performance claim."
+  ],
+  "initialFailures": [
+    "Fixture omitted sampled texture usage; diagnostic readback used unsupported helper transition. Fixed fixture only.",
+    "Windows COFF full texture TU retained unrelated cache dependencies; final adapter compiles exact helper without modifying implementation."
+  ]
+}
