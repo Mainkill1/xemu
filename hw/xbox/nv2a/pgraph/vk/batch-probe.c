@@ -4,7 +4,27 @@
  */
 #include "qemu/osdep.h"
 #include <math.h>
+#ifdef __linux__
+#include <sys/syscall.h>
+#endif
 #include "batch-probe.h"
+
+/* Diagnostic only. Unsupported/failed clocks must not appear as zero CPU. */
+int64_t pgraph_vk_batch_thread_cpu_ns(int64_t *tid)
+{
+    *tid = -1;
+#ifdef __linux__
+    struct timespec ts;
+    if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts) == 0) {
+        long id = syscall(SYS_gettid);
+        if (id > 0) {
+            *tid = id;
+            return (int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
+        }
+    }
+#endif
+    return -1;
+}
 
 bool pgraph_vk_batch_interval(uint64_t start, uint64_t end, uint32_t bits,
                              double period_ns, uint64_t host_bound_us,
@@ -43,11 +63,12 @@ bool pgraph_vk_batch_probe_init(PGRAPHVkBatchProbe *p, VkDevice device,
         .file = file, .device = device, .pool = pool,
         .valid_bits = bits, .period_ns = period_ns,
     };
-    fprintf(file, "{\"type\":\"batch_probe_schema\",\"version\":1,"
+    fprintf(file, "{\"type\":\"batch_probe_schema\",\"version\":2,"
             "\"timestamp_valid_bits\":%u,\"timestamp_period_ns\":%.9g,"
             "\"limit\":%u,\"host_clock\":\"qemu_realtime_us\","
             "\"scope\":\"aux_staging_to_main_completion\","
-            "\"gpu_host_calibrated\":false}\n",
+            "\"gpu_host_calibrated\":false,\"thread_cpu_scope\":"
+            "\"record_to_finish_entry_same_linux_tid\"}\n",
             bits, period_ns, VK_BATCH_PROBE_LIMIT);
     return true;
 }
@@ -114,7 +135,17 @@ void pgraph_vk_batch_probe_complete(PGRAPHVkBatchProbe *p,
     } else {
         fputs("null", p->file);
     }
-    fputs("}\n", p->file);
+    fputs(",\"record_thread_cpu_us\":", p->file);
+    if (h->record_tid > 0 && h->record_tid == h->finish_tid &&
+        h->record_cpu_ns >= 0 && h->finish_cpu_ns >= h->record_cpu_ns) {
+        fprintf(p->file, "%.3f",
+                (h->finish_cpu_ns - h->record_cpu_ns) / 1000.0);
+    } else {
+        fputs("null", p->file);
+    }
+    fprintf(p->file, ",\"record_tid\":%" PRId64
+            ",\"finish_tid\":%" PRId64 "}\n",
+            h->record_tid, h->finish_tid);
     p->records++;
     if (p->records == VK_BATCH_PROBE_LIMIT) {
         fputs("{\"type\":\"batch_probe_limit\"}\n", p->file);

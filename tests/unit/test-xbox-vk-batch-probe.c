@@ -110,12 +110,26 @@ static void test_probe(void)
     pgraph_vk_batch_probe_main(&p, VK_NULL_HANDLE);
     pgraph_vk_batch_probe_complete(&p, &host, 8, 8, 0);
     g_assert_cmpuint(reads, ==, 2);
+    /* Same-thread CPU is usable; thread changes and clock errors are not. */
+    host.record_tid = host.finish_tid = 42;
+    host.record_cpu_ns = 1000;
+    host.finish_cpu_ns = 17500;
+    pgraph_vk_batch_probe_complete(&p, &host, 9, 8, 0);
+    host.finish_tid = 43;
+    pgraph_vk_batch_probe_complete(&p, &host, 10, 8, 0);
+    host.finish_tid = 42;
+    host.finish_cpu_ns = -1;
+    pgraph_vk_batch_probe_complete(&p, &host, 11, 8, 0);
     rewind(file);
     size_t n = fread(output, 1, sizeof(output) - 1, file);
     output[n] = 0;
     g_assert_nonnull(strstr(output, "\"gpu_span_us\":11.000"));
+    g_assert_nonnull(strstr(output, "\"record_thread_cpu_us\":null"));
     g_assert_nonnull(strstr(output, "\"gpu_span_us\":null"));
     g_assert_nonnull(strstr(output, "\"status\":\"unavailable\""));
+    g_assert_nonnull(strstr(output, "\"record_thread_cpu_us\":16.500"));
+    g_assert_nonnull(strstr(output,
+        "\"record_thread_cpu_us\":null,\"record_tid\":42,\"finish_tid\":43"));
     pgraph_vk_batch_probe_finalize(&p);
     g_assert_cmpuint(destroys, ==, 1);
     g_assert_false(pgraph_vk_batch_probe_active(&p));

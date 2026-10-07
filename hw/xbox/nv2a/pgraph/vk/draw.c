@@ -2662,6 +2662,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     PGRAPHVkBatchHost host = { 0 };
     if (probe) {
         host.record_us = r->batch_probe.record_us;
+        host.record_cpu_ns = r->batch_probe.record_cpu_ns;
+        host.record_tid = r->batch_probe.record_tid;
+        host.finish_cpu_ns = pgraph_vk_batch_thread_cpu_ns(&host.finish_tid);
         host.finish_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     }
     bool trace_had_command_buffer = r->in_command_buffer;
@@ -2830,6 +2833,8 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     assert(!r->in_command_buffer);
     if (pgraph_vk_batch_probe_active(&r->batch_probe)) {
         r->batch_probe.record_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+        r->batch_probe.record_cpu_ns =
+            pgraph_vk_batch_thread_cpu_ns(&r->batch_probe.record_tid);
     }
 
     VkCommandBufferBeginInfo command_buffer_begin_info = {
