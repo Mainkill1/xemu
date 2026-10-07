@@ -281,24 +281,12 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         (any_uniform_write || need_uber_control_write) &&
         required_end > r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
 
-    bool need_descriptor_write_reset = need_descriptor_update &&
-        (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
-
     if (r->perf.enabled) {
-        r->perf.descriptor_capacity_requests += need_descriptor_write_reset;
         r->perf.uniform_capacity_requests += need_ubo_staging_buffer_reset;
     }
 
-    if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
+    if (need_ubo_staging_buffer_reset) {
         if (r->hybrid_trace) {
-            if (need_descriptor_write_reset) {
-                pgraph_vk_hybrid_trace_record(
-                    r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
-                    binding->fragment_route, 0, 0, 0,
-                    VK_HYBRID_SHORTAGE_DESCRIPTOR_SET,
-                    r->descriptor_set_index,
-                    ARRAY_SIZE(r->descriptor_sets), 0);
-            }
             if (need_ubo_staging_buffer_reset) {
                 pgraph_vk_hybrid_trace_record(
                     r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
@@ -360,7 +348,63 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         return;
     }
 
-    assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
+    /*
+     * Texture preparation and uniform writes are complete. Earlier sets in
+     * this batch still own these exact resource generations; a different
+     * binding merely selects another immutable set, never overwrites one.
+     */
+    PGRAPHVkDescriptorKey key = { 0 };
+    QEMU_BUILD_BUG_ON(NV2A_MAX_TEXTURES != ARRAY_SIZE(key.textures));
+    for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+        key.uniforms[i][0] =
+            (uintptr_t)r->storage_buffers[BUFFER_UNIFORM].buffer;
+        key.uniforms[i][1] = r->uniform_buffer_offsets[i];
+        key.uniforms[i][2] = layouts[i]->total_size;
+    }
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        key.textures[i][0] = (uintptr_t)r->texture_bindings[i]->image_view;
+        key.textures[i][1] = (uintptr_t)r->texture_bindings[i]->sampler;
+    }
+    if (r->ubershader_runtime_enabled) {
+        key.control_buffer =
+            (uintptr_t)r->storage_buffers[BUFFER_UNIFORM].buffer;
+        key.control_range = sizeof(r->uber_controls);
+    }
+    uint64_t hash = fast_hash((const uint8_t *)&key, sizeof(key));
+    int cached = pgraph_vk_descriptor_cache_find(&r->descriptor_cache,
+                                                &key, hash);
+    if (cached >= 0) {
+        assert(cached < r->descriptor_set_index);
+        r->descriptor_set_selected = cached;
+        pgraph_vk_texture_descriptor_publication_complete(
+            &r->texture_descriptor_publication_pending);
+        if (r->perf.enabled) {
+            r->perf.descriptor_cache_hits++;
+        }
+        return;
+    }
+    if (r->perf.enabled) {
+        r->perf.descriptor_cache_misses++;
+    }
+
+    /*
+     * A full pool can still satisfy a hit. Drain only on a miss and rebuild
+     * after the finish: uniform offsets and all cached sets are now stale.
+     */
+    if (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets)) {
+        if (r->perf.enabled) {
+            r->perf.descriptor_capacity_requests++;
+        }
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+            binding->fragment_route, 0, 0, 0,
+            VK_HYBRID_SHORTAGE_DESCRIPTOR_SET, r->descriptor_set_index,
+            ARRAY_SIZE(r->descriptor_sets), 0);
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        /* Bounded retry: finish empties the pool, so the next miss fits. */
+        pgraph_vk_update_descriptor_sets(pg);
+        return;
+    }
 
     VkDescriptorBufferInfo ubo_buffer_infos[3];
     uint32_t descriptor_write_count = 2 + NV2A_MAX_TEXTURES;
@@ -424,6 +468,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         r->perf.descriptor_set_writes++;
     }
 
+    r->descriptor_set_selected = r->descriptor_set_index;
+    pgraph_vk_descriptor_cache_insert(&r->descriptor_cache, &key, hash,
+                                      r->descriptor_set_index);
     r->descriptor_set_index++;
 }
 
