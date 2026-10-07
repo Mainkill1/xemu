@@ -1,0 +1,59 @@
+device=llvmpipe (LLVM 19.1.7, 256 bits) actualX=1024 actualInv=1024
+vendor=10005 device=0000 api=4211036 driver=109056002 type=4
+image format=129 admission=0
+PASS producer roundtrip format=129 generation=0 pixels=1024
+PASS native alias format=129 64x16->4x4 generation=0 repeat=0 pixels=16 zeroCanonicalized=0
+PASS native alias format=129 64x16->4x4 generation=0 repeat=1 pixels=16 zeroCanonicalized=0
+PASS producer roundtrip format=129 generation=1 pixels=1024
+PASS native alias format=129 64x16->4x4 generation=1 repeat=0 pixels=16 zeroCanonicalized=0
+PASS native alias format=129 64x16->4x4 generation=1 repeat=1 pixels=16 zeroCanonicalized=0
+image format=129 admission=0
+PASS producer roundtrip format=129 generation=0 pixels=307200
+PASS native alias format=129 640x480->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 640x480->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=129 generation=1 pixels=307200
+PASS native alias format=129 640x480->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 640x480->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+image format=129 admission=0
+PASS producer roundtrip format=129 generation=0 pixels=2176
+PASS native alias format=129 34x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 34x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=129 generation=1 pixels=2176
+PASS native alias format=129 34x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 34x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+image format=129 admission=0
+PASS producer roundtrip format=129 generation=0 pixels=2240
+PASS native alias format=129 35x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 35x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=129 generation=1 pixels=2240
+PASS native alias format=129 35x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=129 35x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=0 repeat=0 pixels=16 zeroCanonicalized=0
+PASS native alias format=130 64x16->4x4 generation=0 repeat=1 pixels=16 zeroCanonicalized=0
+PASS producer roundtrip format=130 generation=1 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=1 repeat=0 pixels=16 zeroCanonicalized=0
+PASS native alias format=130 64x16->4x4 generation=1 repeat=1 pixels=16 zeroCanonicalized=0
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 640x480->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=130 generation=1 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 640x480->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=2176
+PASS native alias format=130 34x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 34x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=130 generation=1 pixels=2176
+PASS native alias format=130 34x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 34x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=2240
+PASS native alias format=130 35x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 35x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=0
+PASS producer roundtrip format=130 generation=1 pixels=2240
+PASS native alias format=130 35x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=0
+PASS native alias format=130 35x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=0
+RESULT validation=enabled errors=0

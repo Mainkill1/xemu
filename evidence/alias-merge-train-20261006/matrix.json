@@ -59,14 +59,14 @@
       "owner_pr": 289,
       "status": "PASS (native conversion)",
       "evidence": "pr289/qualification.json",
-      "limits": "D24software; D32physical Deck; runtime ownership remains290"
+      "limits": "Physical D24/D32 Windows and D32 Deck; runtime ownership remains290; Windows stale EOS loader manifest separately recorded"
     },
     {
       "scenario": "prefix640x480-to32x32",
       "owner_pr": 289,
       "status": "PASS (native conversion)",
       "evidence": "pr289/qualification.json",
-      "limits": "D24software; D32physical Deck; runtime ownership remains290"
+      "limits": "Physical D24/D32 Windows and D32 Deck; runtime ownership remains290; Windows stale EOS loader manifest separately recorded"
     },
     {
       "scenario": "producer-to-readonly-alias",
@@ -162,6 +162,7 @@
   "merged": {
     "282": "36477451eef2f3b292cebec901711a65c0bc1c42",
     "283": "4c3a7bba4d4dae70d1682058729e197b7be0982d",
-    "284": "10db341dacaf1a73e148bd2ec615ad7c2b753cf3"
+    "284": "10db341dacaf1a73e148bd2ec615ad7c2b753cf3",
+    "286": "2e63c55ad2cf8bbc9df827c06733ba58d9a686f3"
   }
 }

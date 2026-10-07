@@ -35,7 +35,22 @@
   "limitations": [
     "No runtime reuse/ownership claim; direct converter invoked twice per generation",
     "Fixture capacity/submission adapters; production converter,image barriers,compute shaders execute on Vulkan",
-    "Physical D24 unavailable; local D24 is software Vulkan",
-    "No gameFPS claim; runtime290performance gate remains"
-  ]
+    "No gameFPS claim; runtime290performance gate remains",
+    "Windows host has one unrelated stale Epic overlay manifest error; initial failed attempt retained; no registry changes"
+  ],
+  "native_windows": {
+    "candidate": "000f3f5f69647fe4a64f1fb1976f12ff2cf885e3",
+    "device": "NVIDIA RTX3070Ti Laptop",
+    "conversions": 32,
+    "formats": [
+      "D24S8",
+      "D32S8"
+    ],
+    "validation": "enabled",
+    "validation_errors": 0,
+    "host_loader_errors": 1,
+    "host_loader_error": "Missing registered EOSOverlayVkLayer-Win64.json, GENERAL type, exact-message classified separately after initial failed assertion; other errors remain fatal",
+    "compiler": "Installed MXEClang, current production converter/compute/image sources; existing configured Windows dependency headers",
+    "shader_compiler": "SPIRV catalog generated from exact production GLSL locally, Windows validates full generated GLSL equality before using binary"
+  }
 }
