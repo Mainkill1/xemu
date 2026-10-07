@@ -1,4 +1,5 @@
 specific_ss.add(files(
+	'neural-present-loader.c',
 	'pgraph.c',
 	'profile.c',
 	'renderer-switch.c',

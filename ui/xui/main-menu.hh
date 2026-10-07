@@ -27,6 +27,7 @@
 #include "../xemu-snapshots.h"
 #include "../xemu-controllers.h"
 #include "ui/xemu-input.h"
+#include "../xemu-settings-menu.h"
 
 extern "C" {
 #include "net/pcap.h"
@@ -65,6 +66,12 @@ public:
 };
 
 class MainMenuDisplayView : public virtual MainMenuTabView
+{
+public:
+    void Draw() override;
+};
+
+class MainMenuDLSSView : public virtual MainMenuTabView
 {
 public:
     void Draw() override;
@@ -184,6 +191,7 @@ protected:
     MainMenuTabButton               m_general_button,
                                     m_input_button,
                                     m_display_button,
+                                    m_dlss_button,
                                     m_audio_button,
                                     m_network_button,
                                     m_snapshots_button,
@@ -194,6 +202,7 @@ protected:
     MainMenuGeneralView             m_general_view;
     MainMenuInputView               m_input_view;
     MainMenuDisplayView             m_display_view;
+    MainMenuDLSSView                m_dlss_view;
     MainMenuAudioView               m_audio_view;
     MainMenuNetworkView             m_network_view;
     MainMenuSnapshotsView           m_snapshots_view;

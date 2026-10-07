@@ -950,6 +950,7 @@ typedef struct PGRAPHVkState {
 
     uint32_t clear_parameter;
 
+    struct PGRAPHVkNeuralPresent *neural_present;
     PGRAPHVkDisplayState display;
     PGRAPHVkComputeState compute;
 } PGRAPHVkState;
