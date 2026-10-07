@@ -31,6 +31,12 @@
 #include "tcg-internal.h"
 #include "tcg-has.h"
 
+#if defined(XBOX) && defined(__x86_64__) && defined(CONFIG_SOFTMMU) && \
+    !defined(CONFIG_PLUGIN) && !defined(CONFIG_TCG_INTERPRETER)
+#include "accel/tcg/internal-common.h"
+#include "accel/tcg/tb-hash.h"
+#endif
+
 /*
  * Encourage the compiler to tail-call to a function, rather than inlining.
  * Minimizes code size across 99 bottles of beer on the wall.
@@ -3261,6 +3267,89 @@ void tcg_gen_lookup_and_goto_ptr(void)
     tcg_temp_free_ptr(ptr);
 }
 
+#if defined(XBOX) && defined(__x86_64__) && defined(CONFIG_SOFTMMU) && \
+    !defined(CONFIG_PLUGIN) && !defined(CONFIG_TCG_INTERPRETER)
+/*
+ * Opt-in experiment. Reuse the existing owner's cache and full key.
+ * On x86-64 these naturally aligned scalar loads emit single MOV loads,
+ * matching the existing relaxed qatomic_read protocol. The entry pointer
+ * is not based on tcg_env, so TCG's environment-load forwarding cannot
+ * replace its atomic observation with a previous value. No cache fill,
+ * retained target, or invalidation policy is added here.
+ */
+static void gen_xemu_inline_jump_cache(TCGv_i32 eip, uint64_t cs_base,
+                                       uint32_t flags, TCGLabel *miss)
+{
+    TCGv_i32 v = tcg_temp_new_i32();
+    TCGv_i32 pc = tcg_temp_new_i32();
+    TCGv_i32 hash = tcg_temp_new_i32();
+    TCGv_i32 cflags = tcg_temp_new_i32();
+    TCGv_i64 wide = tcg_temp_new_i64();
+    TCGv_ptr entry = tcg_temp_new_ptr();
+    TCGv_ptr tb = tcg_temp_new_ptr();
+    TCGv_ptr target = tcg_temp_new_ptr();
+    const int page_shift = TARGET_PAGE_BITS - TB_JMP_PAGE_BITS;
+
+#define CPU_OFFSET(field) (offsetof(CPUState, field) - sizeof(CPUState))
+    QEMU_BUILD_BUG_ON(sizeof_field(CPUJumpCache, array[0]) != 16);
+    QEMU_BUILD_BUG_ON(offsetof(CPUJumpCache, array) % 8);
+    QEMU_BUILD_BUG_ON(offsetof(CPUJumpCache, array[0].tb) !=
+                      offsetof(CPUJumpCache, array));
+    QEMU_BUILD_BUG_ON(offsetof(TranslationBlock, cflags) % 4);
+
+    /* Dynamic modes must retain all current helper/dispatcher side effects. */
+    tcg_gen_ld_i32(v, tcg_env, CPU_OFFSET(singlestep_enabled));
+    tcg_gen_brcondi_i32(TCG_COND_NE, v, 0, miss);
+    tcg_gen_ld_ptr(target, tcg_env, CPU_OFFSET(breakpoints.tqh_first));
+    tcg_gen_brcondi_ptr(TCG_COND_NE, target, 0, miss);
+    tcg_gen_ld8u_i32(v, tcg_constant_ptr(&one_insn_per_tb), 0);
+    tcg_gen_brcondi_i32(TCG_COND_NE, v, 0, miss);
+    tcg_gen_ld_i32(v, tcg_constant_ptr(&qemu_loglevel), 0);
+    tcg_gen_andi_i32(v, v, CPU_LOG_TB_NOCHAIN | CPU_LOG_TB_CPU | CPU_LOG_EXEC);
+    tcg_gen_brcondi_i32(TCG_COND_NE, v, 0, miss);
+    tcg_gen_ld_i32(cflags, tcg_env, CPU_OFFSET(tcg_cflags));
+    tcg_gen_andi_i32(v, cflags, CF_NO_GOTO_PTR | CF_USE_ICOUNT | CF_BP_PAGE);
+    tcg_gen_brcondi_i32(TCG_COND_NE, v, 0, miss);
+
+    /* Same wrapped 32-bit virtual address and page-aware hash as the helper. */
+    tcg_gen_addi_i32(pc, eip, (uint32_t)cs_base);
+    tcg_gen_shri_i32(hash, pc, page_shift);
+    tcg_gen_xor_i32(hash, hash, pc);
+    tcg_gen_shri_i32(v, hash, page_shift);
+    tcg_gen_andi_i32(v, v, TB_JMP_PAGE_MASK);
+    tcg_gen_andi_i32(hash, hash, TB_JMP_ADDR_MASK);
+    tcg_gen_or_i32(hash, hash, v);
+    tcg_gen_extu_i32_i64(wide, hash);
+    tcg_gen_shli_i64(wide, wide, 4);
+    tcg_gen_ld_ptr(entry, tcg_env, CPU_OFFSET(tb_jmp_cache));
+    tcg_gen_brcondi_ptr(TCG_COND_EQ, entry, 0, miss);
+    tcg_gen_add_ptr(entry, entry, (TCGv_ptr)wide);
+    tcg_gen_addi_ptr(entry, entry, offsetof(CPUJumpCache, array));
+    tcg_gen_ld_ptr(tb, entry, 0);
+    tcg_gen_brcondi_ptr(TCG_COND_EQ, tb, 0, miss);
+
+    tcg_gen_ld_i64(wide, entry,
+                   offsetof(CPUJumpCache, array[0].pc) -
+                       offsetof(CPUJumpCache, array));
+    TCGv_i64 pc64 = tcg_temp_new_i64();
+    tcg_gen_extu_i32_i64(pc64, pc);
+    tcg_gen_brcond_i64(TCG_COND_NE, wide, pc64, miss);
+    tcg_gen_ld_i64(wide, tb, offsetof(TranslationBlock, cs_base));
+    tcg_gen_brcondi_i64(TCG_COND_NE, wide, cs_base, miss);
+    tcg_gen_ld_i32(v, tb, offsetof(TranslationBlock, flags));
+    tcg_gen_brcondi_i32(TCG_COND_NE, v, flags, miss);
+    tcg_gen_ld_i32(v, tb, offsetof(TranslationBlock, cflags));
+    tcg_gen_brcond_i32(TCG_COND_NE, v, cflags, miss);
+
+    /* Keep the original helper's I/O state and ordinary TB-entry checks. */
+    tcg_gen_st8_i32(tcg_constant_i32(1), tcg_env, CPU_OFFSET(neg.can_do_io));
+
+    tcg_gen_ld_ptr(target, tb, offsetof(TranslationBlock, tc.ptr));
+    tcg_gen_op1i(INDEX_op_goto_ptr, TCG_TYPE_PTR, tcgv_ptr_arg(target));
+#undef CPU_OFFSET
+}
+#endif
+
 void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
                                      uint32_t flags)
 {
@@ -3272,6 +3361,14 @@ void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
     }
 
     plugin_gen_disable_mem_helpers();
+#if defined(XBOX) && defined(__x86_64__) && defined(CONFIG_SOFTMMU) && \
+    !defined(CONFIG_PLUGIN) && !defined(CONFIG_TCG_INTERPRETER)
+    if (g_strcmp0(getenv("XEMU_EXPERIMENTAL_INLINE_JUMP_CACHE"), "1") == 0) {
+        TCGLabel *miss = gen_new_label();
+        gen_xemu_inline_jump_cache(eip, cs_base, flags, miss);
+        gen_set_label(miss);
+    }
+#endif
     ptr = tcg_temp_ebb_new_ptr();
     gen_helper_lookup_tb_ptr_i32(ptr, tcg_env, eip,
                                  tcg_constant_i64(cs_base),
