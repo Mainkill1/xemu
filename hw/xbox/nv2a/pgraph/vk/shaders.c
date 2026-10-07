@@ -246,6 +246,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     bool need_descriptor_update = pgraph_vk_descriptor_update_needed(
         r->texture_descriptor_publication_pending, force_reupload,
         any_uniform_write);
+    bool need_descriptor_pool_reset =
+        need_descriptor_update && any_uniform_write &&
+        r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets);
 
     if (r->perf.enabled) {
         r->perf.descriptor_texture_change_requests +=
@@ -283,9 +286,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     if (r->perf.enabled) {
         r->perf.uniform_capacity_requests += need_ubo_staging_buffer_reset;
+        r->perf.descriptor_capacity_requests += need_descriptor_pool_reset;
     }
 
-    if (need_ubo_staging_buffer_reset) {
+    /* New uniform offsets cannot reuse an old set. Drain before uploading. */
+    if (need_ubo_staging_buffer_reset || need_descriptor_pool_reset) {
         if (r->hybrid_trace) {
             if (need_ubo_staging_buffer_reset) {
                 pgraph_vk_hybrid_trace_record(
@@ -295,6 +300,14 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
                     required_end,
                     r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size,
                     uses_uber_controls);
+            }
+            if (need_descriptor_pool_reset) {
+                pgraph_vk_hybrid_trace_record(
+                    r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+                    binding->fragment_route, 0, 0, 0,
+                    VK_HYBRID_SHORTAGE_DESCRIPTOR_SET,
+                    r->descriptor_set_index,
+                    ARRAY_SIZE(r->descriptor_sets), 0);
             }
         }
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
@@ -371,8 +384,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         key.control_range = sizeof(r->uber_controls);
     }
     uint64_t hash = fast_hash((const uint8_t *)&key, sizeof(key));
-    int cached = pgraph_vk_descriptor_cache_find(&r->descriptor_cache,
-                                                &key, hash);
+    /* Keep the key for insertion, but skip the guaranteed-miss probe. */
+    int cached = any_uniform_write ? -1 :
+        pgraph_vk_descriptor_cache_find(&r->descriptor_cache, &key, hash);
     if (cached >= 0) {
         assert(cached < r->descriptor_set_index);
         r->descriptor_set_selected = cached;

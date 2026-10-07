@@ -111,6 +111,17 @@ static void test_publication(gconstpointer with_controls)
         g_assert_cmpuint(uploads, ==, old_uploads + 1);
         g_assert_cmpuint(writes, ==, 2);
         g_assert_cmpint(r->descriptor_set_selected, ==, 1);
+
+        /* A changed dynamic packet must not prevent a texture-return hit. */
+        textures[0].image_view = (VkImageView)(uintptr_t)10;
+        r->texture_descriptor_publication_pending = true;
+        ((unsigned char *)&r->uber_controls)[0] ^= 1;
+        old_uploads = uploads;
+        pgraph_vk_update_descriptor_sets(pg);
+        g_assert_cmpuint(uploads, ==, old_uploads + 1);
+        g_assert_cmpuint(finishes, ==, 0);
+        g_assert_cmpuint(writes, ==, 2);
+        g_assert_cmpint(r->descriptor_set_selected, ==, 0);
     }
 
     /* A real miss must finish and reupload BOTH uniforms before publication. */
@@ -130,6 +141,33 @@ static void test_publication(gconstpointer with_controls)
     pgraph_vk_update_descriptor_sets(pg);
     g_assert_cmpuint(writes, ==, 4);
     g_assert_cmpint(r->descriptor_set_selected, ==, 1);
+
+    /*
+     * A changed uniform guarantees a miss. At capacity, drain before any
+     * uploads: neither a stage nor an uber packet should be copied twice.
+     * Exercise descriptor-only and simultaneous staging exhaustion.
+     */
+    for (int staging_full = 0; staging_full < 2; staging_full++) {
+        r->descriptor_set_index = ARRAY_SIZE(r->descriptor_sets);
+        r->uniform_stage_dirty[0] = true;
+        uniform_bytes[0][0] ^= 1;
+        ((unsigned char *)&r->uber_controls)[0] ^= 1;
+        if (staging_full) {
+            r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset =
+                r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
+        }
+        old_uploads = uploads;
+        unsigned int old_finishes = finishes;
+        unsigned int old_writes = writes;
+        pgraph_vk_update_descriptor_sets(pg);
+        g_assert_cmpuint(finishes, ==, old_finishes + 1);
+        g_assert_cmpuint(uploads, ==, old_uploads + (with_controls ? 3 : 2));
+        g_assert_cmpuint(writes, ==, old_writes + 1);
+        g_assert_cmpint(r->descriptor_set_selected, ==, 0);
+        g_assert_cmpint(r->descriptor_set_index, ==, 1);
+        g_assert_cmpuint(r->uniform_buffer_offsets[0], ==, 0);
+        g_assert_cmpuint(r->uniform_buffer_offsets[1], ==, 256);
+    }
 }
 
 int main(int argc, char **argv)
