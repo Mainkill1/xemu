@@ -133,7 +133,8 @@ int main(int argc, char **argv)
         "unread-coherent", "no-read-proof", "noncoherent", "pending-copy",
     };
     for (unsigned i = 0; i < ARRAY_SIZE(names); i++) {
-        g_autofree char *path = g_strdup_printf("/vk/vertex-write/%s", names[i]);
+        g_autofree char *path = g_strdup_printf("/vk/vertex-write/%s",
+                                               names[i]);
         g_test_add_data_func(path, GUINT_TO_POINTER(i), test_write);
     }
     return g_test_run();
