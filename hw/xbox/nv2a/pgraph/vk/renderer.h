@@ -116,7 +116,7 @@ typedef struct PipelineKey {
 
 typedef enum PGRAPHVkFamilyLearnState {
     PGRAPH_VK_FAMILY_UNCHECKED,
-    PGRAPH_VK_FAMILY_RETRY_PENDING,
+    PGRAPH_VK_FAMILY_HISTORY_RECORDED,
     PGRAPH_VK_FAMILY_TRACKED,
     PGRAPH_VK_FAMILY_READY,
     PGRAPH_VK_FAMILY_REJECTED,
@@ -905,8 +905,6 @@ typedef struct PGRAPHVkState {
     PGRAPHVkFallbackFamilyRequest fallback_family_requests[
         PGRAPH_VK_HYBRID_MAX_FALLBACK_FAMILIES];
     unsigned int fallback_family_cursor;
-    unsigned int fallback_family_pipeline_cursor;
-    size_t fallback_family_retry_count;
     const ShaderModuleCacheKey *hybrid_materializing_key;
     ShaderModuleInfo *hybrid_materialized_module_info;
 
@@ -1224,13 +1222,10 @@ void pgraph_vk_track_specialized_fallback_family(
 void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
                                       const PipelineKey *key,
                                       uint64_t synchronous_create_us);
-void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
 void pgraph_vk_fallback_family_note_pipeline_ready(
     PGRAPHVkState *r, const PipelineKey *key);
 void pgraph_vk_fallback_family_note_pipeline_failure_at(
     PGRAPHState *pg, const PipelineKey *key, int64_t now_us);
-void pgraph_vk_pipeline_family_owner_evict(
-    PGRAPHVkState *r, PipelineBinding *binding);
 void pgraph_vk_fallback_family_key_from_specialized(
     const PipelineBinding *binding, PipelineKey *key);
 void pgraph_vk_fallback_family_mark_pipeline_owners(
