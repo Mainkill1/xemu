@@ -1526,23 +1526,38 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         copy_buffer = unpack_buffer;
     }
 
-    //
-    // Copy image data from buffer to staging image
-    //
+    bool upscale = pg->surface_scale_factor > 1 &&
+                   !use_compute_to_convert_depth_stencil_format;
+    /* Keep the staging image on platforms where direct uploads have not been
+     * qualified. AMD Windows drivers have exhibited a synchronization bug. */
+#ifdef __linux__
+    bool direct_upload = !upscale;
+#else
+    bool direct_upload = false;
+#endif
 
-    if (surface->image_scratch_current_layout !=
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-        pgraph_vk_transition_image_layout(pg, cmd, surface->image_scratch,
-                                          surface->host_fmt.vk_format,
-                                          surface->image_scratch_current_layout,
-                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        surface->image_scratch_current_layout =
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    if (!direct_upload) {
+        if (surface->image_scratch_current_layout !=
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            pgraph_vk_transition_image_layout(
+                pg, cmd, surface->image_scratch, surface->host_fmt.vk_format,
+                surface->image_scratch_current_layout,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            surface->image_scratch_current_layout =
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        }
     }
 
-    vkCmdCopyBufferToImage(cmd, copy_buffer->buffer, surface->image_scratch,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num_regions,
-                           regions);
+    pgraph_vk_transition_image_layout(
+        pg, cmd, surface->image, surface->host_fmt.vk_format,
+        surface->color ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
+                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    vkCmdCopyBufferToImage(
+        cmd, copy_buffer->buffer,
+        direct_upload ? surface->image : surface->image_scratch,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num_regions, regions);
 
     VkBufferMemoryBarrier post_copy_src_buffer_barrier = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1561,21 +1576,14 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     // Copy staging image to final image
     //
 
-    pgraph_vk_transition_image_layout(pg, cmd, surface->image_scratch,
-                                      surface->host_fmt.vk_format,
-                                      surface->image_scratch_current_layout,
-                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    surface->image_scratch_current_layout =
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-    pgraph_vk_transition_image_layout(
-        pg, cmd, surface->image, surface->host_fmt.vk_format,
-        surface->color ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL :
-                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-    bool upscale = pg->surface_scale_factor > 1 &&
-                   !use_compute_to_convert_depth_stencil_format;
+    if (!direct_upload) {
+        pgraph_vk_transition_image_layout(
+            pg, cmd, surface->image_scratch, surface->host_fmt.vk_format,
+            surface->image_scratch_current_layout,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+        surface->image_scratch_current_layout =
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    }
 
     if (upscale) {
         VkImageBlit blitRegion = {
@@ -1598,12 +1606,7 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                        surface->image_scratch_current_layout, surface->image,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blitRegion,
                        VK_FILTER_NEAREST);
-    } else {
-        // Note: We should be able to vkCmdCopyBufferToImage directly into
-        // surface->image, but there is an apparent AMD Windows driver
-        // synchronization bug we'll hit when doing this. For this reason,
-        // always use a staging image.
-
+    } else if (!direct_upload) {
         for (int i = 0; i < num_regions; i++) {
             VkImageAspectFlags aspect = regions[i].imageSubresource.aspectMask;
             VkImageCopy copy_region = {
