@@ -398,6 +398,30 @@ static void test_view_rebind(gconstpointer data)
     fclose(r->perf.file);
 }
 
+static void assert_retirement_frame(PGRAPHVkState *r, uint64_t peak,
+                                    uint64_t drains)
+{
+    long start = ftell(r->perf.file);
+    pgraph_vk_perf_frame(r);
+    long end = ftell(r->perf.file);
+    g_assert_cmpint(end, >, start);
+    size_t length = end - start;
+    g_autofree char *json = g_malloc(length + 1);
+    g_assert_cmpint(fseek(r->perf.file, start, SEEK_SET), ==, 0);
+    g_assert_cmpuint(fread(json, 1, length, r->perf.file), ==, length);
+    json[length] = 0;
+    QDict *record = qobject_to(QDict, qobject_from_json(json, NULL));
+    g_assert_nonnull(record);
+    g_assert_true(qdict_haskey(record,
+        "depth_alias_pending_retirements_peak_per_guest_frame"));
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_pending_retirements_peak_per_guest_frame"), ==, peak);
+    g_assert_cmpuint(qdict_get_int(record,
+        "depth_alias_bound_drains_per_guest_frame"), ==, drains);
+    qobject_unref(record);
+    g_assert_cmpint(fseek(r->perf.file, 0, SEEK_END), ==, 0);
+}
+
 static void test_retirement_bound(void)
 {
     g_autofree NV2AState *d = g_new0(NV2AState, 1);
@@ -406,6 +430,9 @@ static void test_retirement_bound(void)
     SurfaceBinding views[11] = { 0 };
 
     d->pgraph.vk_renderer_state = r;
+    r->perf.enabled = true;
+    r->perf.file = tmpfile();
+    g_assert_nonnull(r->perf.file);
     QTAILQ_INIT(&r->surfaces);
     QTAILQ_INIT(&r->invalid_surfaces);
     QTAILQ_INSERT_TAIL(&r->surfaces, &producer, entry);
@@ -418,8 +445,15 @@ static void test_retirement_bound(void)
         pgraph_vk_surface_invalidate_depth_views(&d->pgraph, &producer);
         g_assert_cmpuint(r->pending_alias_retirements, <=, 10);
         g_assert_cmpuint(retirement_finishes, ==, i == 10 ? 1 : 0);
+        if (i == 4) {
+            assert_retirement_frame(r, 5, 0);
+            /* Pending images persist across a frame without new retirements. */
+            assert_retirement_frame(r, 5, 0);
+        }
     }
     g_assert_cmpuint(r->pending_alias_retirements, ==, 0);
+    assert_retirement_frame(r, 10, 1);
+    assert_retirement_frame(r, 0, 0);
     for (unsigned int i = 0; i < ARRAY_SIZE(views); i++) {
         g_assert_false(views[i].retirement_pending);
     }
@@ -431,6 +465,8 @@ static void test_retirement_bound(void)
     invalidate_surface(d, &views[0]);
     g_assert_false(r->in_command_buffer);
     g_assert_cmpuint(retirement_finishes, ==, 2);
+    assert_retirement_frame(r, 0, 0);
+    fclose(r->perf.file);
 }
 
 int main(int argc, char **argv)

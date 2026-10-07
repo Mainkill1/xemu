@@ -470,6 +470,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"depth_alias_reuse_hits_per_guest_frame\":%" PRIu64
             ",\"depth_alias_conversion_failures_per_guest_frame\":%" PRIu64
             ",\"depth_alias_views_retired_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_pending_retirements_peak_per_guest_frame\":%" PRIu64
+            ",\"depth_alias_bound_drains_per_guest_frame\":%" PRIu64
             ",\"depth_alias_producer_pixels_per_guest_frame\":%" PRIu64
             ",\"depth_alias_view_pixels_per_guest_frame\":%" PRIu64
             ",\"depth_alias_copied_pixels_per_guest_frame\":%" PRIu64
@@ -498,6 +500,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->depth_alias_reuse_hits,
             perf->depth_alias_conversion_failures,
             perf->depth_alias_views_retired,
+            perf->depth_alias_pending_retirements_peak,
+            perf->depth_alias_bound_drains,
             perf->depth_alias_producer_pixels,
             perf->depth_alias_view_pixels,
             perf->depth_alias_copied_pixels);
@@ -554,6 +558,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->depth_alias_reuse_hits = 0;
     perf->depth_alias_conversion_failures = 0;
     perf->depth_alias_views_retired = 0;
+    perf->depth_alias_pending_retirements_peak = r->pending_alias_retirements;
+    perf->depth_alias_bound_drains = 0;
     perf->depth_alias_producer_pixels = 0;
     perf->depth_alias_view_pixels = 0;
     perf->depth_alias_copied_pixels = 0;

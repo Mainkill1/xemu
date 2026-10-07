@@ -996,6 +996,9 @@ static void retire_surface(NV2AState *d, SurfaceBinding *surface,
 
     if (!defer ||
         r->pending_alias_retirements >= num_invalid_surfaces_to_keep) {
+        if (defer && r->perf.enabled) {
+            r->perf.depth_alias_bound_drains++;
+        }
         pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
     }
 
@@ -1007,6 +1010,11 @@ static void retire_surface(NV2AState *d, SurfaceBinding *surface,
     if (surface->retirement_pending) {
         assert(!surface->color && surface->swizzle && !surface->draw_dirty);
         r->pending_alias_retirements++;
+        if (r->perf.enabled) {
+            r->perf.depth_alias_pending_retirements_peak =
+                MAX(r->perf.depth_alias_pending_retirements_peak,
+                    r->pending_alias_retirements);
+        }
     } else {
         assert((!r->in_command_buffer ||
                 surface->draw_time < r->command_buffer_start_time) &&

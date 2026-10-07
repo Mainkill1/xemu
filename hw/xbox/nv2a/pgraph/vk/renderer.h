@@ -751,6 +751,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t depth_alias_reuse_hits;
     uint64_t depth_alias_conversion_failures;
     uint64_t depth_alias_views_retired;
+    uint64_t depth_alias_pending_retirements_peak;
+    uint64_t depth_alias_bound_drains;
     uint64_t depth_alias_producer_pixels;
     uint64_t depth_alias_view_pixels;
     uint64_t depth_alias_copied_pixels;
