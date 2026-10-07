@@ -1,0 +1,63 @@
+{
+  "source": "02ebd503171dff15d4f17d27151be3c4fd5c79ed",
+  "records": {
+    "local": {
+      "retained_groups": 15,
+      "runtime_image_checks": 32,
+      "admission_rewrite_reuse_recovery_groups": 8,
+      "cpu_read_write_dirty_writable_groups": 8,
+      "real_gpu_retirement_groups": 2,
+      "validation": "enabled",
+      "attributable_validation_errors": 0,
+      "host_loader_manifest_errors": 0
+    },
+    "deck": {
+      "retained_groups": 10,
+      "runtime_image_checks": 16,
+      "admission_rewrite_reuse_recovery_groups": 4,
+      "cpu_read_write_dirty_writable_groups": 4,
+      "real_gpu_retirement_groups": 1,
+      "validation": "unavailable",
+      "attributable_validation_errors": null,
+      "host_loader_manifest_errors": 0
+    },
+    "windows": {
+      "retained_groups": 15,
+      "runtime_image_checks": 32,
+      "admission_rewrite_reuse_recovery_groups": 8,
+      "cpu_read_write_dirty_writable_groups": 8,
+      "real_gpu_retirement_groups": 2,
+      "validation": "enabled",
+      "attributable_validation_errors": 0,
+      "host_loader_manifest_errors": 1
+    }
+  },
+  "review": "Independent reviewer approved after list-membership and writable-publication assertions strengthened. Windows synchronization uses real QEMU event/mutex sources; only logger, tracing, and no-BQL host boundaries adapted.",
+  "oracles": [
+    "Independent CPU Morton/format transform plus separately uploaded reference image",
+    "Producer readback words including stencil match all pixels",
+    "Actual callbacks publish GPU producer before partial guest mutation; dirty pages preserve newer guest bytes",
+    "Writable transition resets pending flag first, then must set it and overwrite mutated guest bytes with independently checked GPU data",
+    "Eleven queued GPU clears retain first ten images against pruning, force one bound drain, verify pixels on all eleven, then destroy eleven images"
+  ],
+  "boundaries": [
+    "Direct helper/callback invocation; no TCG/MMU dispatch claim",
+    "Coherent Vulkan allocations behind VMA adapter",
+    "Dirty-page provider injected",
+    "Synchronous PFIFO dispatch invokes production pending-download worker",
+    "Command submission adapter waits actual GPU queue; no real framebuffer ownership exercised",
+    "Windows uses source-equality-checked Linux-compiled SPIR-V; Windows shader compiler not qualified"
+  ],
+  "pending": [
+    "Native texture consumer",
+    "Native partial/full blit consumers",
+    "Full VM save/load/reset and framebuffer lifecycle",
+    "Balanced game performance acceptance"
+  ],
+  "notes": [
+    "Map/invalidation error messages are intentional fault-injection recovery cases",
+    "Deck D24 image unsupported; physical D24 covered Windows",
+    "One stale Windows Epic manifest diagnostic remains separate",
+    "Linux fixture compiled before addition of unused g_nv2a Windows link definition; tested ownership/GPU routines unchanged"
+  ]
+}

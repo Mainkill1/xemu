@@ -71,20 +71,23 @@
     {
       "scenario": "producer-to-readonly-alias",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "unchanged-reuse",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "producer-rewrite",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "depth-clear",
@@ -95,20 +98,23 @@
     {
       "scenario": "cpu-read-newest",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "cpu-partial-write-newest",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "guest-dirty-page",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "partial-blit-source-destination",
@@ -125,8 +131,9 @@
     {
       "scenario": "writable-transition",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "conversion-failure-fallback",
@@ -149,8 +156,9 @@
     {
       "scenario": "retirement-bound-over10",
       "owner_pr": 290,
-      "status": "PENDING",
-      "evidence": null
+      "status": "PASS (native production ownership fixture)",
+      "evidence": "pr290/native-ownership/qualification.json",
+      "limits": "Direct callbacks/synchronous PFIFO and submission adapters; full VM/MMU/framebuffer lifecycle separate"
     },
     {
       "scenario": "conker-parent-candidate-abba-baab",

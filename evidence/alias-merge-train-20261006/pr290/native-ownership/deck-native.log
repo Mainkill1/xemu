@@ -1,0 +1,64 @@
+device=AMD Custom GPU 0405 (RADV VANGOGH) actualX=1024 actualInv=1024
+vendor=1002 device=163f api=4211018 driver=105263203 type=1
+PASS retained format=124 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=124 partial-guest-write/reject-reuse/dirty-page-supersedes
+PASS retained format=124 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=124 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=124 prune12-to10/reset-flush-destroys-all
+SKIP format=129 unsupported
+PASS retained format=130 GPU-readback-owned-bytes/padding/eviction/full-rebind-no-upload
+PASS retained format=130 partial-guest-write/reject-reuse/dirty-page-supersedes
+PASS retained format=130 failed-map/failed-invalidate/no-publication/recovery
+PASS retained format=130 newer-producer-blocks/flush-releases-image-and-reference
+PASS retained format=130 prune12-to10/reset-flush-destroys-all
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=129 admission=-11
+SKIP unsupported depth image format=129
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=0 repeat=0 pixels=16 zeroCanonicalized=4
+PASS native alias format=130 64x16->4x4 generation=0 repeat=1 pixels=16 zeroCanonicalized=4
+PASS producer roundtrip format=130 generation=1 pixels=1024
+PASS native alias format=130 64x16->4x4 generation=1 repeat=0 pixels=16 zeroCanonicalized=3
+PASS native alias format=130 64x16->4x4 generation=1 repeat=1 pixels=16 zeroCanonicalized=3
+PASS runtime admission/rewrite/reuse/failure-recovery format=130 width=64
+PASS runtime CPU-read/partial-write/dirty-page/writable-transition format=130 width=64
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=205
+PASS native alias format=130 640x480->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=205
+PASS producer roundtrip format=130 generation=1 pixels=307200
+PASS native alias format=130 640x480->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=204
+PASS native alias format=130 640x480->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=204
+PASS runtime admission/rewrite/reuse/failure-recovery format=130 width=640
+PASS runtime CPU-read/partial-write/dirty-page/writable-transition format=130 width=640
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=2176
+PASS native alias format=130 34x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=205
+PASS native alias format=130 34x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=205
+PASS producer roundtrip format=130 generation=1 pixels=2176
+PASS native alias format=130 34x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=204
+PASS native alias format=130 34x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=204
+PASS runtime admission/rewrite/reuse/failure-recovery format=130 width=34
+PASS runtime CPU-read/partial-write/dirty-page/writable-transition format=130 width=34
+image format=130 admission=0
+PASS producer roundtrip format=130 generation=0 pixels=2240
+PASS native alias format=130 35x64->32x32 generation=0 repeat=0 pixels=1024 zeroCanonicalized=205
+PASS native alias format=130 35x64->32x32 generation=0 repeat=1 pixels=1024 zeroCanonicalized=205
+PASS producer roundtrip format=130 generation=1 pixels=2240
+PASS native alias format=130 35x64->32x32 generation=1 repeat=0 pixels=1024 zeroCanonicalized=204
+PASS native alias format=130 35x64->32x32 generation=1 repeat=1 pixels=1024 zeroCanonicalized=204
+PASS runtime admission/rewrite/reuse/failure-recovery format=130 width=35
+PASS runtime CPU-read/partial-write/dirty-page/writable-transition format=130 width=35
+PASS native retirement format=130 pending10/prune-protected/bound-drain11/queued-image-oracle/flush
+RESULT validation=unavailable errors=0
+HOST loader_missing_EOS_manifest_errors=0
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
+Vulkan surface readback map failed: -5
+Vulkan surface readback invalidate failed: -5
