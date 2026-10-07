@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "id": "main39338-deck-conker-critical-v1-t001",
+  "state": "tested",
+  "event": "finished",
+  "terminal": true,
+  "runId": "20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd",
+  "code": null,
+  "queueIssue": null,
+  "next": "/api/v1/runs/20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd?view=summary",
+  "result": {
+    "ok": true,
+    "runId": "20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd",
+    "available": true,
+    "code": null,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "reasons": [],
+    "moreReasons": 0,
+    "failures": [],
+    "moreFailures": 0,
+    "truncated": false,
+    "detail": "/api/v1/runs/20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd/artifacts/assessment.json",
+    "diagnostics": "/api/v1/runs/20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd/diagnostics"
+  }
+}

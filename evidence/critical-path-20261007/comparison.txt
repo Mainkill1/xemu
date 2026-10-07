@@ -1,0 +1,11 @@
+clean-main cadence 16.19 cpu 174.55 frames 400 intervals {'count': 401, 'mean': 62.427291770573554, 'median': 64.255, 'min': 33.219, 'max': 121.457, 'p95': 99.854, 'p99': 100.081}
+submits/frame 28.33
+finish {'surface_create': 1.211, 'surface_down': 8.08, 'flip_stall': 5.305}
+aux {'display_render': 1.187, 'surface_download': 4.157, 'surface_upload': 5.489}
+alias {'vk_queue_submit_calls_per_guest_frame': 11332}
+candidate290 cadence 24.695 cpu 196.34 frames 608 intervals {'count': 609, 'mean': 41.06900985221672, 'median': 33.402, 'min': 20.187, 'max': 127.727, 'p95': 66.61, 'p99': 67.03652}
+submits/frame 11.241776315789474
+finish {'surface_create': 3.697, 'surface_down': 2.048, 'flip_stall': 3.995, 'stalled': 0.09}
+aux {'display_render': 0.697, 'surface_download': 0.695, 'surface_create': 0.005, 'surface_upload': 0.715}
+alias {'vk_queue_submit_calls_per_guest_frame': 6835, 'depth_alias_conversions_per_guest_frame': 2735, 'depth_alias_reuse_hits_per_guest_frame': 1953, 'depth_alias_conversion_failures_per_guest_frame': 0, 'depth_alias_views_retired_per_guest_frame': 2735, 'depth_alias_bound_drains_per_guest_frame': 0, 'depth_alias_producer_pixels_per_guest_frame': 840192000, 'depth_alias_view_pixels_per_guest_frame': 2800640, 'depth_alias_copied_pixels_per_guest_frame': 3500800}
+cadence directional change 52.527484155884466

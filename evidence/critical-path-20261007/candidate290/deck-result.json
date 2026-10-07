@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "id": "pr290-02eb-deck-conker-critical-v1-t001",
+  "state": "tested",
+  "event": "finished",
+  "terminal": true,
+  "runId": "20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01",
+  "code": null,
+  "queueIssue": null,
+  "next": "/api/v1/runs/20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01?view=summary",
+  "result": {
+    "ok": true,
+    "runId": "20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01",
+    "available": true,
+    "code": null,
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible"
+    },
+    "reasons": [],
+    "moreReasons": 0,
+    "failures": [],
+    "moreFailures": 0,
+    "truncated": false,
+    "detail": "/api/v1/runs/20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01/artifacts/assessment.json",
+    "diagnostics": "/api/v1/runs/20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01/diagnostics"
+  }
+}

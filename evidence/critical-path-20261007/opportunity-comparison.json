@@ -1,0 +1,370 @@
+{
+  "reference": {
+    "variant": "clean-main",
+    "runId": "20261007-043407126-9445eeba7cd746f7a728975e07dc9ddd",
+    "app": {
+      "id": "main39338-deck-conker-critical-v1",
+      "sha256": "1fd831cf1f4f4a4e999273bf5073e485d81c21280e4d547386a8d6548d992620",
+      "source": "39338d3d044bef6eae9d28c2f4676474b5137f4c",
+      "buildCommit": "000f3f5f69647fe4a64f1fb1976f12ff2cf885e3",
+      "treeEquivalent": true,
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "test": {
+      "id": "main39338-deck-conker-critical-v1",
+      "revision": "9ec085d58ecad16b886abbb0aea982f3025a8d72cef00af3315410b1643ab47f",
+      "description": "Clean main tree, existing Conker diagnostic procedure unchanged. One baseline attribution capture; no speedup or complete critical-path claim.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/main39338-deck-conker-critical-v1/9ec085d58ecad16b886abbb0aea982f3025a8d72cef00af3315410b1643ab47f"
+    },
+    "windowStartUs": 1351575427526,
+    "windowEndUs": 1351600427526,
+    "frames": 400,
+    "guestCadenceFps": 16.190416440129805,
+    "cpuMean": 174.554734375,
+    "frameIntervalsMs": {
+      "count": 401,
+      "mean": 62.427291770573554,
+      "median": 64.255,
+      "min": 33.219,
+      "max": 121.457,
+      "p95": 99.854,
+      "p99": 100.081
+    },
+    "finish": {
+      "vertex_buffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_create": {
+        "submits": 859,
+        "timedSubmits": 621,
+        "allSubmitsTimed": false,
+        "sampledWaitUs": 484349,
+        "sampledWaitUsPerFrame": 1210.8725
+      },
+      "surface_down": {
+        "submits": 3709,
+        "timedSubmits": 2238,
+        "allSubmitsTimed": false,
+        "sampledWaitUs": 3231880,
+        "sampledWaitUsPerFrame": 8079.7
+      },
+      "need_buffer_space": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "framebuffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "presenting": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "flip_stall": {
+        "submits": 293,
+        "timedSubmits": 293,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 2122143,
+        "sampledWaitUsPerFrame": 5305.3575
+      },
+      "flush": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "stalled": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "texture_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "aux": {
+      "pvideo_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "display_render": {
+        "submits": 632,
+        "timedSubmits": 632,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 474716,
+        "sampledWaitUsPerFrame": 1186.79
+      },
+      "surface_download": {
+        "submits": 2630,
+        "timedSubmits": 2630,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 1662941,
+        "sampledWaitUsPerFrame": 4157.3525
+      },
+      "surface_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_upload": {
+        "submits": 3209,
+        "timedSubmits": 3209,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 2195570,
+        "sampledWaitUsPerFrame": 5488.925
+      },
+      "texture_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "dummy_texture_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "totals": {
+      "vk_queue_submit_calls_per_guest_frame": 11332
+    },
+    "limits": [
+      "One clean-main diagnostic, uncontrolled driver cache, no before/after comparison.",
+      "Wait durations remain sampled when timedSubmits < submits; no extrapolation.",
+      "SURFACE_DOWN includes callers other than alias retirement.",
+      "Window follows the unchanged runner guest-frame analysis; CPU covers its stationary segment.",
+      "Telemetry guest_frame counts renderer flip-stall callbacks; guest frame log counts READ_3D. Numeric frame IDs must not be joined as identical events. Aggregates share a monotonic time window only.",
+      "Host fence/queue waits are not GPU execution durations or automatically removable critical time. CPU-region durations are nested and must not be added.",
+      "No matched driver-cache control. Existing GLib shutdown assertion retained; no clean-teardown qualification."
+    ],
+    "sceneCheck": {
+      "start": "Conker menu",
+      "end": "Conker menu",
+      "verified": "Manual review of complete saved screenshots",
+      "limit": "Animated scene phase differs; not identical guest simulation state."
+    }
+  },
+  "candidate": {
+    "variant": "candidate290",
+    "runId": "20261007-043750837-698e5ee0fbb84e639cc1b8e078eabe01",
+    "app": {
+      "id": "pr290-02eb-deck-conker-critical-v1",
+      "sha256": "f1fb75260e0ac2aa97438fcdddfa71087b9c93f3ec93916bb2e87e2547cdea4e",
+      "source": "02ebd503171dff15d4f17d27151be3c4fd5c79ed",
+      "buildCommit": "02ebd503171dff15d4f17d27151be3c4fd5c79ed",
+      "treeEquivalent": true,
+      "configSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12"
+    },
+    "test": {
+      "id": "pr290-02eb-deck-conker-critical-v1",
+      "revision": "b0e305e120f1d408cef95ab5bc276c05f90f0ccf07c97db1ea9201ed822515ef",
+      "description": "PR290 against clean main, existing Conker diagnostic procedure unchanged. One opportunity check; no balanced acceptance or complete critical-path claim.",
+      "sourceJobId": "fresh-deck-conker-b-final-v6",
+      "stepCount": 13,
+      "fileCount": 41,
+      "buildFileCount": 2,
+      "self": "/api/v1/tests/pr290-02eb-deck-conker-critical-v1/b0e305e120f1d408cef95ab5bc276c05f90f0ccf07c97db1ea9201ed822515ef"
+    },
+    "windowStartUs": 1351795562690,
+    "windowEndUs": 1351820562690,
+    "frames": 608,
+    "guestCadenceFps": 24.694834870490702,
+    "cpuMean": 196.33679687499998,
+    "frameIntervalsMs": {
+      "count": 609,
+      "mean": 41.06900985221672,
+      "median": 33.402,
+      "min": 20.187,
+      "max": 127.727,
+      "p95": 66.61,
+      "p99": 67.03652
+    },
+    "finish": {
+      "vertex_buffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "surface_create": {
+        "submits": 2025,
+        "timedSubmits": 1894,
+        "allSubmitsTimed": false,
+        "sampledWaitUs": 2247886,
+        "sampledWaitUsPerFrame": 3697.1809210526317
+      },
+      "surface_down": {
+        "submits": 265,
+        "timedSubmits": 265,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 1245476,
+        "sampledWaitUsPerFrame": 2048.4802631578946
+      },
+      "need_buffer_space": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "framebuffer_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "presenting": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "flip_stall": {
+        "submits": 429,
+        "timedSubmits": 429,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 2428695,
+        "sampledWaitUsPerFrame": 3994.564144736842
+      },
+      "flush": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "stalled": {
+        "submits": 14,
+        "timedSubmits": 14,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 54849,
+        "sampledWaitUsPerFrame": 90.21217105263158
+      },
+      "texture_dirty": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "aux": {
+      "pvideo_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "display_render": {
+        "submits": 995,
+        "timedSubmits": 995,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 423977,
+        "sampledWaitUsPerFrame": 697.3305921052631
+      },
+      "surface_download": {
+        "submits": 1067,
+        "timedSubmits": 1067,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 422313,
+        "sampledWaitUsPerFrame": 694.59375
+      },
+      "surface_create": {
+        "submits": 13,
+        "timedSubmits": 13,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 2930,
+        "sampledWaitUsPerFrame": 4.819078947368421
+      },
+      "surface_upload": {
+        "submits": 2027,
+        "timedSubmits": 2027,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 434660,
+        "sampledWaitUsPerFrame": 714.9013157894736
+      },
+      "texture_upload": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      },
+      "dummy_texture_create": {
+        "submits": 0,
+        "timedSubmits": 0,
+        "allSubmitsTimed": true,
+        "sampledWaitUs": 0,
+        "sampledWaitUsPerFrame": 0.0
+      }
+    },
+    "totals": {
+      "vk_queue_submit_calls_per_guest_frame": 6835,
+      "depth_alias_conversions_per_guest_frame": 2735,
+      "depth_alias_reuse_hits_per_guest_frame": 1953,
+      "depth_alias_conversion_failures_per_guest_frame": 0,
+      "depth_alias_views_retired_per_guest_frame": 2735,
+      "depth_alias_bound_drains_per_guest_frame": 0,
+      "depth_alias_producer_pixels_per_guest_frame": 840192000,
+      "depth_alias_view_pixels_per_guest_frame": 2800640,
+      "depth_alias_copied_pixels_per_guest_frame": 3500800
+    },
+    "limits": [
+      "One instrumented opportunity pair; no controlled-cache or balanced acceptance claim.",
+      "Telemetry renderer flip-stall IDs and READ3D IDs differ; only common timestamp window used.",
+      "Fence/queue waits are host elapsed time, not GPU execution duration. Partial timing coverage remains sampled."
+    ],
+    "maxPendingAliasRetirements": 5,
+    "sceneCheck": {
+      "start": "Conker menu",
+      "end": "Conker menu",
+      "verified": "Manual review of complete saved screenshots",
+      "limit": "Animated scene phase differs; not identical guest simulation state."
+    }
+  },
+  "identity": {
+    "settingsIdentical": true,
+    "frozenProcedureIdentical": true,
+    "noExtraWaitsOrInputs": true,
+    "referenceMain": "39338d3d044bef6eae9d28c2f4676474b5137f4c",
+    "candidate": "02ebd503171dff15d4f17d27151be3c4fd5c79ed"
+  },
+  "comparisonEligible": false,
+  "reason": "Single opportunity pair, uncontrolled driver cache, animated menu phases not identical; no balanced qualification."
+}

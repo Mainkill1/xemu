@@ -1,0 +1,10 @@
+{
+  "id": "pr290-02eb-deck-conker-critical-v1",
+  "revision": "b0e305e120f1d408cef95ab5bc276c05f90f0ccf07c97db1ea9201ed822515ef",
+  "description": "PR290 against clean main, existing Conker diagnostic procedure unchanged. One opportunity check; no balanced acceptance or complete critical-path claim.",
+  "sourceJobId": "fresh-deck-conker-b-final-v6",
+  "stepCount": 13,
+  "fileCount": 41,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/pr290-02eb-deck-conker-critical-v1/b0e305e120f1d408cef95ab5bc276c05f90f0ccf07c97db1ea9201ed822515ef"
+}

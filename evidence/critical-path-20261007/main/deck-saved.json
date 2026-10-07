@@ -1,0 +1,10 @@
+{
+  "id": "main39338-deck-conker-critical-v1",
+  "revision": "9ec085d58ecad16b886abbb0aea982f3025a8d72cef00af3315410b1643ab47f",
+  "description": "Clean main tree, existing Conker diagnostic procedure unchanged. One baseline attribution capture; no speedup or complete critical-path claim.",
+  "sourceJobId": "fresh-deck-conker-b-final-v6",
+  "stepCount": 13,
+  "fileCount": 41,
+  "buildFileCount": 2,
+  "self": "/api/v1/tests/main39338-deck-conker-critical-v1/9ec085d58ecad16b886abbb0aea982f3025a8d72cef00af3315410b1643ab47f"
+}
