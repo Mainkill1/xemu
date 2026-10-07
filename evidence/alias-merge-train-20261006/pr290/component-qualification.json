@@ -1,0 +1,8 @@
+{
+  "head": "3816502168fe56d5c57b275076280f8f8d842505",
+  "groups": 23,
+  "result": "PASS",
+  "repair": "Link real alias admission helper into inherited ownership fixture; converter assertion preserves forbidden-GPU boundary.",
+  "review": "Independent review passed; initial local QOM linkage fixed by linking the same event-loop/QOM objects as maintained Meson target.",
+  "limits": "Component tests only; native runtime ownership and balanced performance still pending."
+}
