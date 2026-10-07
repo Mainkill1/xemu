@@ -513,6 +513,83 @@ static void test_shader_alias_priority_and_owned_retry_source(void)
     g_assert_cmpuint(owned_size, ==, strlen(source));
 }
 
+static unsigned int scheduled_retries;
+static int64_t scheduled_deadline;
+
+void pgraph_vk_hybrid_schedule_service(PGRAPHState *pg, int64_t deadline_us)
+{
+    scheduled_retries++;
+    scheduled_deadline = deadline_us;
+}
+
+static void test_pending_pipeline_waits_for_completion_notification(void)
+{
+    PGRAPHVkFallbackFamilyRequest request = {
+        .in_use = true,
+        .status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+    };
+    scheduled_retries = 0;
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
+        &request, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED, 1000));
+    g_assert_false(pgraph_vk_fallback_family_retry_due(&request, 1000));
+    g_assert_cmpint(request.retry_after_us, ==, 0);
+    for (int i = 0; i < 32; i++) {
+        pgraph_vk_fallback_family_schedule_retry(NULL, &request);
+    }
+    g_assert_cmpuint(scheduled_retries, ==, 0);
+
+    /* A failed completion needs its timed retry, unlike work still running. */
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_failure(
+        &request, 2000));
+    pgraph_vk_fallback_family_schedule_retry(NULL, &request);
+    g_assert_cmpuint(scheduled_retries, ==, 1);
+    g_assert_cmpint(scheduled_deadline, ==, request.retry_after_us);
+    g_assert_cmpint(scheduled_deadline, >, 2000);
+
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
+        &request, PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL, 3000));
+    pgraph_vk_fallback_family_schedule_retry(NULL, &request);
+    g_assert_cmpuint(scheduled_retries, ==, 2);
+    g_assert_cmpint(scheduled_deadline, ==, request.retry_after_us);
+    g_assert_cmpint(scheduled_deadline, >, 3000);
+
+    request.status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
+    request.retry_after_us = 4000;
+    pgraph_vk_fallback_family_schedule_retry(NULL, &request);
+    g_assert_cmpuint(scheduled_retries, ==, 3);
+    g_assert_cmpint(scheduled_deadline, ==, 4000);
+}
+
+static void test_failed_completion_schedules_backoff(void)
+{
+    g_autofree PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PGRAPHState pg = { .vk_renderer_state = r };
+    PipelineKey key = { .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER };
+    PGRAPHVkFallbackFamilyRequest *request = &r->fallback_family_requests[0];
+    request->in_use = true;
+    request->key = key;
+    request->status = PGRAPH_VK_FAMILY_PIPELINE_PENDING;
+    scheduled_retries = 0;
+
+    /* Consume outside process_pending: no later service pass is required. */
+    pgraph_vk_fallback_family_note_pipeline_failure_at(&pg, &key, 2000);
+    g_assert_cmpuint(scheduled_retries, ==, 1);
+    g_assert_cmpint(request->status, ==,
+                    PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF);
+    g_assert_cmpint(scheduled_deadline, ==, request->retry_after_us);
+    g_assert_cmpint(scheduled_deadline, >, 2000);
+
+    request->attempts = PGRAPH_VK_FAMILY_MAX_PIPELINE_ATTEMPTS - 1;
+    pgraph_vk_fallback_family_note_pipeline_failure_at(&pg, &key, 3000);
+    g_assert_false(request->in_use);
+    g_assert_cmpuint(scheduled_retries, ==, 1);
+    pgraph_vk_fallback_family_note_pipeline_failure_at(&pg, &key, 4000);
+    g_assert_cmpuint(scheduled_retries, ==, 1);
+    key.fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    pgraph_vk_fallback_family_note_pipeline_failure_at(&pg, &key, 5000);
+    g_assert_cmpuint(scheduled_retries, ==, 1);
+}
+
 static void test_fallback_family_tracks_pipeline_until_ready(void)
 {
     PGRAPHVkFallbackFamilyRequest request = {
@@ -774,8 +851,9 @@ static void test_fallback_family_production_lifecycle(void)
 
     g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
         request, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED, 1000));
+    PGRAPHState pg = { .vk_renderer_state = r };
     pgraph_vk_fallback_family_note_pipeline_failure_at(
-        r, &family_key, 2000);
+        &pg, &family_key, 2000);
     g_assert_true(request->in_use);
     g_assert_cmpint(request->status, ==,
                     PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF);
@@ -1310,6 +1388,10 @@ int main(int argc, char **argv)
                     test_fallback_family_prewarm_provenance_is_monotonic);
     g_test_add_func("/xbox/vk/ubershader/runtime/alias-priority-owned-source",
                     test_shader_alias_priority_and_owned_retry_source);
+    g_test_add_func("/xbox/vk/ubershader/runtime/pending-pipeline-wakeup",
+                    test_pending_pipeline_waits_for_completion_notification);
+    g_test_add_func("/xbox/vk/ubershader/runtime/failed-completion-wakeup",
+                    test_failed_completion_schedules_backoff);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-tracked",
                     test_fallback_family_tracks_pipeline_until_ready);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-retry",
