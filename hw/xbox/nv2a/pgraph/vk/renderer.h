@@ -40,6 +40,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "descriptor-reuse.h"
 #include "device-selection.h"
 #include "display-output-state.h"
 #include "debug.h"
@@ -722,6 +723,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_prepare_cpu_us;
     uint64_t descriptor_update_calls;
     uint64_t descriptor_reuse_returns;
+    uint64_t descriptor_cache_hits;
+    uint64_t descriptor_cache_misses;
     uint64_t descriptor_set_writes;
     uint64_t descriptor_control_only_reuses;
     uint64_t descriptor_texture_change_requests;
@@ -829,6 +832,10 @@ typedef struct PGRAPHVkState {
     VkDescriptorSetLayout descriptor_set_layout;
     VkDescriptorSet descriptor_sets[1024];
     int descriptor_set_index;
+
+    /* Allocated sets remain immutable until the existing submission fence. */
+    int descriptor_set_selected;
+    PGRAPHVkDescriptorCache descriptor_cache;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
 

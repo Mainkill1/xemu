@@ -2499,6 +2499,7 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     assert(r->descriptor_set_index >= 1);
+    assert(r->descriptor_set_selected < r->descriptor_set_index);
     uint32_t uber_control_offset =
         r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
             r->uber_control_offset : 0;
@@ -2513,7 +2514,7 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
-                            &r->descriptor_sets[r->descriptor_set_index - 1],
+                            &r->descriptor_sets[r->descriptor_set_selected],
                             dynamic_offset_count,
                             dynamic_offset_count ? &uber_control_offset : NULL);
 }
@@ -2770,6 +2771,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset = 0;
 
         r->descriptor_set_index = 0;
+        r->descriptor_set_selected = 0;
+        pgraph_vk_descriptor_cache_reset(&r->descriptor_cache);
         r->in_command_buffer = false;
         if (r->vertex_ram_read_pages) {
             memset(r->vertex_ram_read_pages, 0,

@@ -101,7 +101,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\"]"
+            "\"descriptor_publication\",\"surface_upload\",\"descriptor_reuse\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -448,6 +448,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64
             ",\"descriptor_reuse_returns_per_guest_frame\":%" PRIu64
+            ",\"descriptor_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"descriptor_cache_misses_per_guest_frame\":%" PRIu64
             ",\"descriptor_set_writes_per_guest_frame\":%" PRIu64
             ",\"descriptor_control_only_reuses_per_guest_frame\":%" PRIu64
             ",\"descriptor_texture_change_requests_per_guest_frame\":%" PRIu64
@@ -469,6 +471,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
+            perf->descriptor_cache_hits,
+            perf->descriptor_cache_misses,
             perf->descriptor_set_writes,
             perf->descriptor_control_only_reuses,
             perf->descriptor_texture_change_requests,
@@ -518,6 +522,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_prepare_cpu_us = 0;
     perf->descriptor_update_calls = 0;
     perf->descriptor_reuse_returns = 0;
+    perf->descriptor_cache_hits = 0;
+    perf->descriptor_cache_misses = 0;
     perf->descriptor_set_writes = 0;
     perf->descriptor_control_only_reuses = 0;
     perf->descriptor_texture_change_requests = 0;
