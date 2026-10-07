@@ -4,7 +4,7 @@
 
 #include "jump-cache-probe.h"
 
-#define TCG_SITE_PROFILE_CAPACITY 4096
+#define TCG_SITE_PROFILE_CAPACITY 65536
 #define TCG_SITE_PROFILE_PROBES 8
 
 enum TCGSiteKind {
