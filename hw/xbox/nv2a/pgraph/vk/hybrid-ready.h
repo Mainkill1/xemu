@@ -271,6 +271,19 @@ static inline bool pgraph_vk_fallback_family_retry_due(
            now_us >= request->retry_after_us;
 }
 
+static inline void pgraph_vk_fallback_family_schedule_retry(
+    PGRAPHState *pg, const PGRAPHVkFallbackFamilyRequest *request)
+{
+    /*
+     * Pending pipeline jobs wake PFIFO when their completion is published.
+     * Their zero retry deadline must not create an immediate timer loop.
+     */
+    if (request->status == PGRAPH_VK_FAMILY_PIPELINE_PENDING) {
+        return;
+    }
+    pgraph_vk_hybrid_schedule_service(pg, request->retry_after_us);
+}
+
 static inline bool pgraph_vk_fallback_family_wake_for_module(
     PGRAPHVkFallbackFamilyRequest *request,
     const ShaderModuleCacheKey *requested_key,
