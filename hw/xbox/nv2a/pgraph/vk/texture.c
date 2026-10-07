@@ -1346,7 +1346,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
-    LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
+    LruNode *node = lru_try_lookup(&r->texture_cache, key_hash, &key);
+    if (!node) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        node = lru_lookup(&r->texture_cache, key_hash, &key);
+    }
     TextureBinding *snode = container_of(node, TextureBinding, node);
     bool binding_found = snode->image != VK_NULL_HANDLE;
 
@@ -1839,6 +1843,12 @@ static bool texture_cache_entry_pre_evict(Lru *lru, LruNode *node)
         if (r->texture_bindings[i] == snode) {
             return false;
         }
+    }
+
+    if (r->submission_pending &&
+        (snode->submit_time == r->pending_submit_time ||
+         snode->submit_time == r->submit_count)) {
+        return false;
     }
 
     // Used in command buffer

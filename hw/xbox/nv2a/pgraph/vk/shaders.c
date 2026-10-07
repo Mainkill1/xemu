@@ -93,7 +93,8 @@ static void create_descriptor_pool(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    size_t num_sets = ARRAY_SIZE(r->descriptor_sets);
+    size_t num_sets = ARRAY_SIZE(r->descriptor_sets) *
+                      (r->descriptor_overlap_enabled ? 2 : 1);
 
     VkDescriptorPoolSize pool_sizes[] = {
         {
@@ -116,7 +117,7 @@ static void create_descriptor_pool(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .poolSizeCount = pool_size_count,
         .pPoolSizes = pool_sizes,
-        .maxSets = ARRAY_SIZE(r->descriptor_sets),
+        .maxSets = num_sets,
         .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
     };
     VK_CHECK(vkCreateDescriptorPool(r->device, &pool_info, NULL,
@@ -202,12 +203,21 @@ static void create_descriptor_sets(PGRAPHState *pg)
     };
     VK_CHECK(
         vkAllocateDescriptorSets(r->device, &alloc_info, r->descriptor_sets));
+    if (r->descriptor_overlap_enabled) {
+        VK_CHECK(vkAllocateDescriptorSets(r->device, &alloc_info,
+                                          r->spare_descriptor_sets));
+    }
 }
 
 static void destroy_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    if (r->descriptor_overlap_enabled) {
+        vkFreeDescriptorSets(r->device, r->descriptor_pool,
+                             ARRAY_SIZE(r->spare_descriptor_sets),
+                             r->spare_descriptor_sets);
+    }
     vkFreeDescriptorSets(r->device, r->descriptor_pool,
                          ARRAY_SIZE(r->descriptor_sets), r->descriptor_sets);
     for (int i = 0; i < ARRAY_SIZE(r->descriptor_sets); i++) {
@@ -309,7 +319,25 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
                     uses_uber_controls);
             }
         }
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        /* Deferred rollover retains bytes and uploads both uniform stages. */
+        VkDeviceSize rollover_end =
+            r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
+        for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+            rollover_end = ROUND_UP(rollover_end, alignment);
+            rollover_end += layouts[i]->total_size;
+        }
+        if (uses_uber_controls) {
+            rollover_end = ROUND_UP(rollover_end, alignment);
+            rollover_end += sizeof(r->uber_controls);
+        }
+        if (need_descriptor_write_reset && !need_ubo_staging_buffer_reset &&
+            r->descriptor_overlap_enabled &&
+            rollover_end <=
+                r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size) {
+            pgraph_vk_finish_descriptor_batch(pg);
+        } else {
+            pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        }
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
         any_uniform_write = true;

@@ -446,6 +446,18 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             qatomic_read_u64(&perf->host_copy_uploaded_bytes_total));
 
     fprintf(perf->file,
+            ",\"overlap_submissions_per_guest_frame\":%" PRIu64
+            ",\"overlap_drains_per_guest_frame\":%" PRIu64
+            ",\"overlap_update_epochs_per_guest_frame\":%" PRIu64
+            ",\"overlap_defer_elapsed_us_per_guest_frame\":%" PRIu64
+            ",\"overlap_wait_us_per_guest_frame\":%" PRIu64,
+            perf->overlap_submissions,
+            perf->overlap_drains,
+            perf->overlap_update_epochs,
+            perf->overlap_defer_elapsed_us,
+            perf->overlap_wait_us);
+
+    fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64
             ",\"descriptor_reuse_returns_per_guest_frame\":%" PRIu64
             ",\"descriptor_set_writes_per_guest_frame\":%" PRIu64
@@ -516,6 +528,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    perf->overlap_submissions = 0;
+    perf->overlap_drains = 0;
+    perf->overlap_update_epochs = 0;
+    perf->overlap_defer_elapsed_us = 0;
+    perf->overlap_wait_us = 0;
     perf->descriptor_update_calls = 0;
     perf->descriptor_reuse_returns = 0;
     perf->descriptor_set_writes = 0;

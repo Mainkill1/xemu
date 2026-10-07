@@ -57,6 +57,9 @@ static void create_command_buffers(PGRAPHState *pg)
 
     r->command_buffer = r->command_buffers[0];
     r->aux_command_buffer = r->command_buffers[1];
+    r->recording_bank = 0;
+    r->submission_pending = false;
+    r->submission_retained = false;
 }
 
 static void destroy_command_buffers(PGRAPHState *pg)
@@ -74,6 +77,8 @@ VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    /* Standalone copies observe resources owned by the earlier submission. */
+    pgraph_vk_wait_pending_submission(pg);
     assert(!r->in_aux_command_buffer);
     r->in_aux_command_buffer = true;
 
@@ -123,6 +128,9 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
 
 void pgraph_vk_init_command_buffers(PGRAPHState *pg)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    r->descriptor_overlap_enabled =
+        g_strcmp0(g_getenv("XEMU_VK_DESCRIPTOR_OVERLAP"), "1") == 0;
     create_command_pool(pg);
     create_command_buffers(pg);
 }

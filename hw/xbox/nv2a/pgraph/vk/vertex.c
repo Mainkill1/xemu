@@ -77,6 +77,7 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
      * buffer. Later draws see the write through finish's host-write barrier.
      * Rewritten pages already read in this batch still need an ordered copy. */
     if (!r->in_command_buffer || allow_mapped_write) {
+        pgraph_vk_wait_pending_submission(pg);
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         if (r->in_command_buffer) {
             pgraph_vk_perf_record_vertex_direct_copy(r, size);

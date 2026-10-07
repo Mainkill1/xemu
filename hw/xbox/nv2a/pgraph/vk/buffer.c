@@ -176,6 +176,7 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
 
     assert(!r->in_command_buffer);
     assert(!r->in_aux_command_buffer);
+    pgraph_vk_wait_pending_submission(pg);
 
     if (buffer->mapped) {
         vmaUnmapMemory(r->allocator, buffer->allocation);
