@@ -29,6 +29,12 @@ bool memory_region_take_dirty_pages(MemoryRegion *mr, hwaddr start, hwaddr size,
 }
 
 /* External GPU commands are forbidden in this clean-surface fixture. */
+bool pgraph_vk_convert_depth_alias(PGRAPHState *pg, SurfaceBinding *producer,
+                                   SurfaceBinding *view)
+{
+    g_assert_not_reached();
+}
+
 NV2AStats g_nv2a_stats;
 XemuTweakBits xemu_tweaks_active;
 bool tcg_allowed;

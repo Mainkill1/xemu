@@ -252,6 +252,7 @@ if vulkan.found()
         tests += {
           'test-xbox-vk-surface-ownership': [
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
             surface_ownership_runtime,
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
