@@ -14,6 +14,7 @@
 
 #define TB_JMP_CACHE_BITS 12
 #define TB_JMP_CACHE_SIZE (1 << TB_JMP_CACHE_BITS)
+#define TB_VICTIM_CACHE_SIZE 8
 
 /*
  * Invalidated in parallel; all accesses to 'tb' must be atomic.
@@ -28,6 +29,21 @@ typedef struct CPUJumpCache {
         TranslationBlock *tb;
         vaddr pc;
     } array[TB_JMP_CACHE_SIZE];
+#if defined(CONFIG_XEMU_TCG_VICTIM_CACHE) || defined(TCG_VICTIM_CACHE_UNIT_TEST)
+    /* Keep generated primary lookup offsets unchanged. */
+    struct {
+        /* Foreign invalidators touch only these two atomic fields. */
+        uint64_t generation;
+        unsigned invalidators;
+        /* Everything below is private to the serialized dispatch owner. */
+        uint64_t owner_generation;
+        unsigned count;
+        struct {
+            TranslationBlock *tb;
+            vaddr pc;
+        } entries[TB_VICTIM_CACHE_SIZE];
+    } victim;
+#endif
 } CPUJumpCache;
 
 #endif /* ACCEL_TCG_TB_JMP_CACHE_H */
