@@ -19,6 +19,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/log.h"
+#include "exec/smc-census.h"
 
 NV2AStats g_nv2a_stats;
 
@@ -151,8 +152,46 @@ int64_t nv2a_profile_increment(void)
     return now;
 }
 
+/* Same producer/clock as frame logs; snapshots are monotonic, not atomic
+ * transactions across fields. No I/O is added to invalidation itself. */
+static void nv2a_profile_smc_census(int64_t now)
+{
+    static FILE *file;
+    static bool initialized;
+    static int64_t last_snapshot;
+    static const char *const names[SMC_COUNTER_COUNT] = {
+        "calls", "resolved", "first_page", "second_page", "current_entries",
+        "overlap_entries", "disjoint_entries", "disjoint_restarts", "restarts",
+    };
+    uint64_t values[SMC_COUNTER_COUNT];
+
+    if (!initialized) {
+        const char *path = g_getenv("XEMU_SMC_CENSUS_LOG");
+
+        initialized = true;
+        if (path && path[0]) {
+            file = qemu_fopen(path, "w");
+            if (!file) {
+                fprintf(stderr, "SMC census: cannot open log\n");
+            }
+        }
+    }
+    if (!file || now - last_snapshot < G_USEC_PER_SEC) {
+        return;
+    }
+    last_snapshot = now;
+    xemu_smc_census_snapshot(values);
+    fprintf(file, "{\"timestamp_us\":%" PRId64, now);
+    for (unsigned int i = 0; i < SMC_COUNTER_COUNT; i++) {
+        fprintf(file, ",\"%s\":%" PRIu64, names[i], values[i]);
+    }
+    fputs("}\n", file);
+    fflush(file);
+}
+
 void nv2a_profile_log_increment(int64_t now)
 {
+    nv2a_profile_smc_census(now);
     nv2a_profile_write_flip_log(now);
     nv2a_profile_write_frame_log(now);
 }

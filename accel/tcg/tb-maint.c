@@ -25,6 +25,7 @@
 #include "exec/page-protection.h"
 #include "exec/mmap-lock.h"
 #include "exec/tb-flush.h"
+#include "exec/smc-census.h"
 #include "exec/target_page.h"
 #include "accel/tcg/cpu-ops.h"
 #include "tb-internal.h"
@@ -1120,6 +1121,42 @@ bool tb_invalidate_phys_page_unwind(CPUState *cpu, tb_page_addr_t addr,
  * (@cpu, @retaddr) may be (NULL, 0) outside of a cpu context,
  * in which case precise_smc need not be detected.
  */
+/* Diagnostic branch only: atomic counts, no hot-path clock or logging. */
+static uint64_t smc_census[SMC_COUNTER_COUNT];
+
+void xemu_smc_census_snapshot(uint64_t values[SMC_COUNTER_COUNT])
+{
+    for (unsigned int i = 0; i < SMC_COUNTER_COUNT; i++) {
+        values[i] = qatomic_read(&smc_census[i]);
+    }
+}
+
+static void smc_census_current_entry(TranslationBlock *tb, int n,
+                                     tb_page_addr_t start,
+                                     tb_page_addr_t last)
+{
+    tb_page_addr_t first = tb_page_addr0(tb);
+    tb_page_addr_t end = first + tb->size - 1;
+    bool disjoint;
+
+    if (n == 0) {
+        end = MIN(end, first | ~TARGET_PAGE_MASK);
+    } else {
+        first = tb_page_addr1(tb);
+        end = first + (end & ~TARGET_PAGE_MASK);
+    }
+    disjoint = end < start || first > last;
+    qatomic_inc(&smc_census[SMC_CURRENT_ENTRIES]);
+    qatomic_inc(&smc_census[disjoint ? SMC_DISJOINT_ENTRIES :
+                                     SMC_OVERLAP_ENTRIES]);
+    if ((tb_cflags(tb) & CF_COUNT_MASK) != 1) {
+        qatomic_inc(&smc_census[SMC_RESTARTS]);
+        if (disjoint) {
+            qatomic_inc(&smc_census[SMC_DISJOINT_RESTARTS]);
+        }
+    }
+}
+
 static void
 tb_invalidate_phys_page_range__locked(CPUState *cpu,
                                       struct page_collection *pages,
@@ -1139,11 +1176,28 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
         current_tb = tcg_tb_lookup(retaddr);
     }
 
+    qatomic_inc(&smc_census[SMC_CALLS]);
+    if (current_tb) {
+        tb_page_addr_t page = start & TARGET_PAGE_MASK;
+
+        qatomic_inc(&smc_census[SMC_RESOLVED]);
+        if ((tb_page_addr0(current_tb) & TARGET_PAGE_MASK) == page) {
+            qatomic_inc(&smc_census[SMC_FIRST_PAGE]);
+        }
+        if (tb_page_addr1(current_tb) != -1 &&
+            (tb_page_addr1(current_tb) & TARGET_PAGE_MASK) == page) {
+            qatomic_inc(&smc_census[SMC_SECOND_PAGE]);
+        }
+    }
+
     /*
      * We remove all the TBs in the range [start, last].
      * XXX: see if in some cases it could be faster to invalidate all the code
      */
     PAGE_FOR_EACH_TB(start, last, p, tb, n) {
+        if (current_tb == tb) {
+            smc_census_current_entry(tb, n, start, last);
+        }
 #ifndef XBOX
         tb_page_addr_t tb_start, tb_last;
 
