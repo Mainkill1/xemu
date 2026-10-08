@@ -291,6 +291,46 @@ void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
     }
 }
 
+static void write_draw_array_census(PGRAPHVkPerfTelemetry *perf, int64_t now)
+{
+    fprintf(perf->file,
+            "{\"type\":\"draw_array_census\",\"schema_version\":1"
+            ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64
+            ",\"other_guest_draw_commands\":%" PRIu64
+            ",\"length_bucket_upper_bounds\":[1,2,4,8,16,32,64,null]"
+            ",\"cells\":[",
+            now, perf->frame, perf->other_guest_draw_commands);
+    bool first = true;
+    for (size_t topology = 0; topology < ARRAY_SIZE(perf->draw_arrays);
+         topology++) {
+        for (unsigned int query = 0; query < 2; query++) {
+            PGRAPHVkDrawArrayCensus *stats = &perf->draw_arrays[topology][query];
+            if (!stats->batches) {
+                continue;
+            }
+            fprintf(perf->file,
+                    "%s{\"vk_topology\":%zu,\"query_active\":%s"
+                    ",\"batches\":%" PRIu64 ",\"subdraws\":%" PRIu64
+                    ",\"multi_batches\":%" PRIu64
+                    ",\"geometry_stage_batches\":%" PRIu64
+                    ",\"max_subdraws\":%" PRIu64
+                    ",\"length_histogram\":[",
+                    first ? "" : ",", topology, query ? "true" : "false",
+                    stats->batches, stats->subdraws, stats->multi_batches,
+                    stats->geometry_stage_batches, stats->max_subdraws);
+            first = false;
+            for (size_t i = 0; i < ARRAY_SIZE(stats->length_histogram); i++) {
+                fprintf(perf->file, "%s%" PRIu64, i ? "," : "",
+                        stats->length_histogram[i]);
+            }
+            fputs("]}", perf->file);
+        }
+    }
+    fputs("]}\n", perf->file);
+    memset(perf->draw_arrays, 0, sizeof(perf->draw_arrays));
+    perf->other_guest_draw_commands = 0;
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -487,6 +527,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->surface_upload_guest_write_causes,
             perf->surface_upload_dirty_memory_causes,
             perf->surface_upload_overlap_guest_write_causes);
+
+    write_draw_array_census(perf, now);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);

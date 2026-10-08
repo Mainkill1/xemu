@@ -3897,6 +3897,34 @@ static void publish_prepared_vertex_data(PGRAPHState *pg,
     }
 }
 
+static void record_draw_array_census(PGRAPHVkState *r, unsigned int count)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+
+    VkPrimitiveTopology topology =
+        get_primitive_topology(&r->shader_binding->state);
+    assert(topology < ARRAY_SIZE(r->perf.draw_arrays));
+    assert(count > 0);
+    PGRAPHVkDrawArrayCensus *stats =
+        &r->perf.draw_arrays[topology][r->query_in_flight ? 1 : 0];
+    unsigned int bucket = 0;
+    unsigned int upper = 1;
+    while (bucket < ARRAY_SIZE(stats->length_histogram) - 1 &&
+           count > upper) {
+        bucket++;
+        upper *= 2;
+    }
+    stats->batches++;
+    stats->subdraws += count;
+    stats->multi_batches += count > 1;
+    stats->geometry_stage_batches +=
+        r->shader_binding->geom.module_info != NULL;
+    stats->max_subdraws = MAX(stats->max_subdraws, count);
+    stats->length_histogram[bucket]++;
+}
+
 static bool pgraph_vk_flush_draw_internal(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -3950,6 +3978,7 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, count);
             vkCmdDraw(r->command_buffer, count, 1, start, 0);
         }
+        record_draw_array_census(r, pg->draw_arrays_length);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 
@@ -4000,6 +4029,9 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                              buffer_offset, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1, 0, 0,
                          0);
+        if (r->perf.enabled) {
+            r->perf.other_guest_draw_commands++;
+        }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 
@@ -4040,6 +4072,9 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
+        if (r->perf.enabled) {
+            r->perf.other_guest_draw_commands++;
+        }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 
@@ -4090,6 +4125,9 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
         vkCmdDraw(r->command_buffer, index_count, 1, 0, 0);
+        if (r->perf.enabled) {
+            r->perf.other_guest_draw_commands++;
+        }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
         NV2A_VK_DGROUP_END();

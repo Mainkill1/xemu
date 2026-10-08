@@ -692,6 +692,17 @@ typedef struct PGRAPHVkCpuStats {
     uint64_t cpu_us;
 } PGRAPHVkCpuStats;
 
+/* Renderer-owned counts; no timing or additional geometry traversal. */
+typedef struct PGRAPHVkDrawArrayCensus {
+    uint64_t batches;
+    uint64_t subdraws;
+    uint64_t multi_batches;
+    uint64_t geometry_stage_batches;
+    uint64_t max_subdraws;
+    /* Lengths: 1, 2, 3-4, 5-8, 9-16, 17-32, 33-64, 65+. */
+    uint64_t length_histogram[8];
+} PGRAPHVkDrawArrayCensus;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -703,6 +714,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
+    /* VkPrimitiveTopology 0..10, then active occlusion-query state. */
+    PGRAPHVkDrawArrayCensus draw_arrays[11][2];
+    uint64_t other_guest_draw_commands;
     uint64_t vertex_staged_bytes;
     uint64_t vertex_staging_copy_count;
     uint64_t vertex_direct_bytes;
