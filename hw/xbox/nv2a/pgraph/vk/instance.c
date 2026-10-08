@@ -607,6 +607,10 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
     add_optional_device_extension_names(pg, available_extensions,
                                         enabled_extension_names);
 
+    bool multi_draw_available = add_extension_if_available(
+        available_extensions, enabled_extension_names,
+        VK_EXT_MULTI_DRAW_EXTENSION_NAME);
+
     fprintf(stderr, "Enabled device extensions:\n");
     for (int i = 0; i < enabled_extension_names->len; i++) {
         fprintf(stderr, "- %s\n",
@@ -708,6 +712,33 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         }
     }
 
+    r->cmd_draw_multi = NULL;
+    r->max_multi_draw_count = 0;
+    VkPhysicalDeviceMultiDrawFeaturesEXT multi_draw_features = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT,
+    };
+    if (multi_draw_available) {
+        VkPhysicalDeviceFeatures2 features2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &multi_draw_features,
+        };
+        vkGetPhysicalDeviceFeatures2(r->physical_device, &features2);
+        if (multi_draw_features.multiDraw) {
+            VkPhysicalDeviceMultiDrawPropertiesEXT properties = {
+                .sType =
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT,
+            };
+            VkPhysicalDeviceProperties2 properties2 = {
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+                .pNext = &properties,
+            };
+            vkGetPhysicalDeviceProperties2(r->physical_device, &properties2);
+            r->max_multi_draw_count = properties.maxMultiDrawCount;
+            multi_draw_features.pNext = next_struct;
+            next_struct = &multi_draw_features;
+        }
+    }
+
     VkDeviceCreateInfo device_create_info = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = 1,
@@ -726,6 +757,13 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         return false;
     }
 
+    if (r->max_multi_draw_count > 2) {
+        r->cmd_draw_multi = (PFN_vkCmdDrawMultiEXT)
+            vkGetDeviceProcAddr(r->device, "vkCmdDrawMultiEXT");
+    }
+    fprintf(stderr, "Vulkan multi-draw: %s (exclusive limit %u)\n",
+            r->cmd_draw_multi ? "available" : "disabled",
+            r->max_multi_draw_count);
     vkGetDeviceQueue(r->device, indices.queue_family, 0, &r->queue);
     return true;
 }

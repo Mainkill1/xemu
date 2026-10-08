@@ -3897,6 +3897,40 @@ static void publish_prepared_vertex_data(PGRAPHState *pg,
     }
 }
 
+static void emit_draw_arrays(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    unsigned int count = pg->draw_arrays_length;
+
+    /*
+     * Multi-draw retains each strip's primitive assembly and first vertex.
+     * Generated stages must not consume DrawIndex: it differs from the
+     * separate-draw path. Keep queries on the established path initially.
+     * VUID-vkCmdDrawMultiEXT-drawCount-04934 uses an exclusive device limit.
+     */
+    if (r->cmd_draw_multi && !r->query_in_flight && count > 1 &&
+        count < r->max_multi_draw_count) {
+        assert(count <= ARRAY_SIZE(pg->draw_arrays_start));
+        VkMultiDrawInfoEXT *draws = g_newa(VkMultiDrawInfoEXT, count);
+        for (unsigned int i = 0; i < count; i++) {
+            draws[i] = (VkMultiDrawInfoEXT) {
+                .firstVertex = pg->draw_arrays_start[i],
+                .vertexCount = pg->draw_arrays_count[i],
+            };
+        }
+        r->cmd_draw_multi(r->command_buffer, count, draws, 1, 0,
+                         sizeof(*draws));
+        return;
+    }
+
+    for (unsigned int i = 0; i < count; i++) {
+        uint32_t start = pg->draw_arrays_start[i];
+        uint32_t vertices = pg->draw_arrays_count[i];
+        NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, vertices);
+        vkCmdDraw(r->command_buffer, vertices, 1, start, 0);
+    }
+}
+
 static bool pgraph_vk_flush_draw_internal(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -3944,12 +3978,7 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                                      "Draw Arrays");
         begin_draw(pg);
         bind_vertex_buffer(pg, vertex_data.remap.attributes, 0);
-        for (int i = 0; i < pg->draw_arrays_length; i++) {
-            uint32_t start = pg->draw_arrays_start[i],
-                     count = pg->draw_arrays_count[i];
-            NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, count);
-            vkCmdDraw(r->command_buffer, count, 1, start, 0);
-        }
+        emit_draw_arrays(pg);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 

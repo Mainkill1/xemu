@@ -773,6 +773,8 @@ typedef struct PGRAPHVkState {
     int debug_depth;
 
     bool debug_utils_extension_enabled;
+    PFN_vkCmdDrawMultiEXT cmd_draw_multi;
+    uint32_t max_multi_draw_count;
     bool custom_border_color_extension_enabled;
     bool memory_budget_extension_enabled;
     bool demote_to_helper_extension_enabled;
