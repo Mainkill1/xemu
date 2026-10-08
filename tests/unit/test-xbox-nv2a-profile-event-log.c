@@ -8,7 +8,14 @@
 #include <glib/gstdio.h>
 
 #include "qemu/log.h"
+#include "exec/smc-census.h"
 #include "hw/xbox/nv2a/debug.h"
+
+/* This event-log fixture has no TCG CPU or census consumer. */
+void xemu_smc_census_snapshot(uint64_t values[SMC_COUNTER_COUNT])
+{
+    g_assert_not_reached();
+}
 
 static void assert_occurs_once(const char *contents, const char *needle)
 {
