@@ -144,6 +144,29 @@ typedef struct TextureLruNode {
     bool possibly_dirty;
 } TextureLruNode;
 
+/*
+ * Recycle recently evicted GL texture objects by storage layout. Streaming
+ * titles can otherwise churn glGenTextures/glDeleteTextures and force the
+ * driver to repeatedly allocate equivalent backing storage.
+ */
+#define NV2A_GL_TEX_POOL_SIZE 256
+#define NV2A_GL_TEX_POOL_BUCKETS 512
+#define NV2A_GL_TEX_POOL_BYTES (64ULL * 1024 * 1024)
+typedef struct TexPoolEntry {
+    TexStorageKey key;
+    GLuint gl_texture;
+    size_t bytes;
+    QTAILQ_ENTRY(TexPoolEntry) fifo;
+    QLIST_ENTRY(TexPoolEntry) bucket;
+    QSLIST_ENTRY(TexPoolEntry) free;
+} TexPoolEntry;
+
+typedef struct TexPoolStats {
+    uint64_t get_calls, hits, misses, entries_scanned;
+    uint64_t puts, evictions, high_water_entries, high_water_bytes;
+    uint64_t generations, deletions, outgoing_matches;
+} TexPoolStats;
+
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
     bool clear;
@@ -179,6 +202,14 @@ typedef struct PGRAPHGLState {
     TextureBinding *texture_binding[NV2A_MAX_TEXTURES];
     Lru texture_cache;
     TextureLruNode *texture_cache_entries;
+    TexPoolEntry tex_pool[NV2A_GL_TEX_POOL_SIZE];
+    unsigned int tex_pool_count;
+    size_t tex_pool_bytes;
+    QTAILQ_HEAD(, TexPoolEntry) tex_pool_fifo;
+    QSLIST_HEAD(, TexPoolEntry) tex_pool_free;
+    QLIST_HEAD(, TexPoolEntry) tex_pool_buckets[NV2A_GL_TEX_POOL_BUCKETS];
+    FILE *tex_pool_log;
+    TexPoolStats tex_pool_stats;
 
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
@@ -225,6 +256,7 @@ typedef struct PGRAPHGLState {
     struct supported_extensions {
         GLboolean texture_filter_anisotropic;
     } supported_extensions;
+    int64_t tex_pool_log_last_us;
 } PGRAPHGLState;
 
 extern GloContext *g_nv2a_context_render;

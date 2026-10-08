@@ -19,7 +19,9 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
+#include "qemu/xxhash.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
@@ -31,7 +33,9 @@
 #include "renderer.h"
 #include "texture-source-identity.h"
 
-static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
+static TextureBinding *generate_texture(PGRAPHGLState *r, TextureShape s,
+                                       const uint8_t *texture_data,
+                                       const uint8_t *palette_data);
 
 struct pgraph_texture_possibly_dirty_struct {
     hwaddr addr, end;
@@ -377,12 +381,32 @@ void pgraph_gl_bind_textures(NV2AState *d)
 
         if (key_out->binding == NULL) {
             // Must create the texture
-            key_out->binding = generate_texture(state, texture_data, palette_data);
+            uint64_t generations_before = r->tex_pool_log ?
+                r->tex_pool_stats.generations : 0;
+            key_out->binding =
+                generate_texture(r, state, texture_data, palette_data);
             if (!key_out->binding) {
                 key_out->possibly_dirty = true;
                 pgraph_gl_reset_texture_stage(&r->texture_binding[i]);
                 pg->texture_dirty[i] = true;
                 continue;
+            }
+            NV2A_GL_DLABEL(GL_TEXTURE, key_out->binding->gl_texture,
+                           "offset: 0x%08" PRIx64 ", format: 0x%02X, "
+                           "%u dimensions%s, width: %u, height: %u, depth: %u",
+                           (uint64_t)texture_vram_offset, state.color_format,
+                           state.dimensionality,
+                           state.cubemap ? " (Cubemap)" : "",
+                           state.width, state.height, state.depth);
+
+            TextureBinding *outgoing = r->texture_binding[i];
+            if (r->tex_pool_log &&
+                r->tex_pool_stats.generations != generations_before &&
+                outgoing && outgoing->refcnt == 1 &&
+                !memcmp(&outgoing->storage_key,
+                        &key_out->binding->storage_key,
+                        sizeof(TexStorageKey))) {
+                r->tex_pool_stats.outgoing_matches++;
             }
             key_out->binding->data_hash = tex_data_hash;
             key_out->binding->texture_vram_offset = texture_vram_offset;
@@ -715,15 +739,213 @@ static void upload_gl_texture(GLenum gl_target,
     }
 }
 
-static TextureBinding* generate_texture(const TextureShape s,
+static TexStorageKey tex_storage_key(GLenum target, const TextureShape *s,
+                                     const ColorFormatInfo *f)
+{
+    TexStorageKey key = {
+        .target = target, .internal_format = f->gl_internal_format,
+        .width = s->width, .height = s->height, .depth = s->depth,
+        .levels = f->linear ? 1 : s->levels,
+    };
+    if (!f->linear && s->border && !s->cubemap) {
+        key.width = MAX(16, s->width * 2);
+        key.height = MAX(16, s->height * 2);
+        key.depth = MAX(16, s->depth * 2);
+    }
+    if (target != GL_TEXTURE_3D) {
+        key.depth = 1;
+    }
+    if (!f->gl_format &&
+        (target == GL_TEXTURE_3D || (s->cubemap && s->border) ||
+         !xemu_tweak_enabled(XEMU_TWEAK_GL_NATIVE_S3TC))) {
+        key.internal_format = target == GL_TEXTURE_3D ? GL_RGBA8 : GL_RGBA;
+        /*
+         * The current decompressed bordered cube uploader fixes every level
+         * to the guest base dimensions. Keep that layout distinct.
+         */
+        key.fixed_mip_size = s->cubemap && s->border;
+    }
+    return key;
+}
+
+static size_t tex_storage_bytes(const TexStorageKey *key)
+{
+    size_t bytes = 0;
+    size_t width = key->width, height = key->height, depth = key->depth;
+
+    for (unsigned int level = 0; level < key->levels; level++) {
+        size_t pixels, level_bytes;
+        bool compressed =
+            key->internal_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT ||
+            key->internal_format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT ||
+            key->internal_format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        size_t w = compressed ? (width + 3) / 4 : width;
+        size_t h = compressed ? (height + 3) / 4 : height;
+        size_t unit = compressed ?
+            (key->internal_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT ?
+             8 : 16) :
+            8; /* Conservative uncompressed estimate; not driver allocation. */
+
+        if (!pgraph_texture_size_mul(w, h, &pixels) ||
+            !pgraph_texture_size_mul(pixels, depth, &pixels) ||
+            !pgraph_texture_size_mul(pixels, unit, &level_bytes) ||
+            !pgraph_texture_size_add(bytes, level_bytes, &bytes)) {
+            return SIZE_MAX;
+        }
+        if (!key->fixed_mip_size) {
+            width = MAX(width / 2, 1);
+            height = MAX(height / 2, 1);
+            depth = MAX(depth / 2, 1);
+        }
+    }
+    if (key->target == GL_TEXTURE_CUBE_MAP &&
+        !pgraph_texture_size_mul(bytes, 6, &bytes)) {
+        return SIZE_MAX;
+    }
+    return bytes;
+}
+
+static unsigned int tex_pool_bucket(const TexStorageKey *key)
+{
+    uint32_t hash = qemu_xxhash7(
+        (uint64_t)key->target << 32 | key->internal_format,
+        (uint64_t)key->width << 32 | key->height,
+        (uint64_t)key->depth << 32 | key->levels, key->fixed_mip_size);
+    return hash % NV2A_GL_TEX_POOL_BUCKETS;
+}
+
+static void tex_pool_delete(PGRAPHGLState *r, GLuint texture)
+{
+    glDeleteTextures(1, &texture);
+    if (r->tex_pool_log) {
+        r->tex_pool_stats.deletions++;
+    }
+}
+
+static void tex_pool_remove(PGRAPHGLState *r, TexPoolEntry *entry)
+{
+    QTAILQ_REMOVE(&r->tex_pool_fifo, entry, fifo);
+    QLIST_REMOVE(entry, bucket);
+    r->tex_pool_count--;
+    r->tex_pool_bytes -= entry->bytes;
+    QSLIST_INSERT_HEAD(&r->tex_pool_free, entry, free);
+}
+
+static GLuint tex_pool_get(PGRAPHGLState *r, const TexStorageKey *key)
+{
+    TexPoolEntry *entry;
+
+    if (r->tex_pool_log) {
+        r->tex_pool_stats.get_calls++;
+    }
+    QLIST_FOREACH(entry, &r->tex_pool_buckets[tex_pool_bucket(key)], bucket) {
+        if (r->tex_pool_log) {
+            r->tex_pool_stats.entries_scanned++;
+        }
+        if (!memcmp(&entry->key, key, sizeof(*key))) {
+            GLuint texture = entry->gl_texture;
+            tex_pool_remove(r, entry);
+            if (r->tex_pool_log) {
+                r->tex_pool_stats.hits++;
+            }
+            return texture;
+        }
+    }
+    if (r->tex_pool_log) {
+        r->tex_pool_stats.misses++;
+    }
+    return 0;
+}
+
+static void tex_pool_write_stats(PGRAPHGLState *r, bool final)
+{
+    int64_t now = g_get_monotonic_time();
+    const TexPoolStats *stats = &r->tex_pool_stats;
+
+    if (!final && r->tex_pool_log_last_us &&
+        now - r->tex_pool_log_last_us < G_USEC_PER_SEC) {
+        return;
+    }
+    r->tex_pool_log_last_us = now;
+    int written = fprintf(r->tex_pool_log,
+            "{\"schema\":1,\"event\":\"%s\",\"monotonic_us\":%" PRId64
+            ",\"pool_get_calls\":%" PRIu64
+            ",\"pool_hits\":%" PRIu64 ",\"pool_misses\":%" PRIu64
+            ",\"pool_entries_scanned\":%" PRIu64
+            ",\"pool_puts\":%" PRIu64 ",\"pool_evictions\":%" PRIu64
+            ",\"pool_high_water_entries\":%" PRIu64
+            ",\"pool_high_water_estimated_bytes\":%" PRIu64
+            ",\"gl_texture_generations\":%" PRIu64
+            ",\"gl_texture_deletions\":%" PRIu64
+            ",\"outgoing_matches_after_miss\":%" PRIu64 "}\n",
+            final ? "final" : "snapshot", now,
+            stats->get_calls, stats->hits, stats->misses,
+            stats->entries_scanned, stats->puts, stats->evictions,
+            stats->high_water_entries, stats->high_water_bytes,
+            stats->generations, stats->deletions, stats->outgoing_matches);
+    /* Normal QMP shutdown need not finalize the renderer. Retain snapshots. */
+    if (written < 0 || fflush(r->tex_pool_log)) {
+        error_report("Cannot write GL texture pool log: %s", strerror(errno));
+        fclose(r->tex_pool_log);
+        r->tex_pool_log = NULL;
+    }
+}
+
+static void tex_pool_put(PGRAPHGLState *r, const TexStorageKey *key,
+                          GLuint texture)
+{
+    size_t bytes = tex_storage_bytes(key);
+
+    if (r->tex_pool_log) {
+        r->tex_pool_stats.puts++;
+    }
+    if (!key->levels || bytes > NV2A_GL_TEX_POOL_BYTES) {
+        tex_pool_delete(r, texture);
+        if (r->tex_pool_log) {
+            tex_pool_write_stats(r, false);
+        }
+        return;
+    }
+    while (r->tex_pool_count == NV2A_GL_TEX_POOL_SIZE ||
+           bytes > NV2A_GL_TEX_POOL_BYTES - r->tex_pool_bytes) {
+        TexPoolEntry *oldest = QTAILQ_FIRST(&r->tex_pool_fifo);
+        tex_pool_delete(r, oldest->gl_texture);
+        tex_pool_remove(r, oldest);
+        if (r->tex_pool_log) {
+            r->tex_pool_stats.evictions++;
+        }
+    }
+    TexPoolEntry *entry = QSLIST_FIRST(&r->tex_pool_free);
+    QSLIST_REMOVE_HEAD(&r->tex_pool_free, free);
+    entry->key = *key;
+    entry->gl_texture = texture;
+    entry->bytes = bytes;
+    QTAILQ_INSERT_TAIL(&r->tex_pool_fifo, entry, fifo);
+    QLIST_INSERT_HEAD(&r->tex_pool_buckets[tex_pool_bucket(key)],
+                      entry, bucket);
+    r->tex_pool_count++;
+    r->tex_pool_bytes += bytes;
+    if (r->tex_pool_log) {
+        r->tex_pool_stats.high_water_entries =
+            MAX(r->tex_pool_stats.high_water_entries, r->tex_pool_count);
+        r->tex_pool_stats.high_water_bytes =
+            MAX(r->tex_pool_stats.high_water_bytes, r->tex_pool_bytes);
+        tex_pool_write_stats(r, false);
+    }
+}
+
+static void recycle_texture_binding(TextureBinding *binding)
+{
+    PGRAPHGLState *r = binding->release_opaque;
+
+    tex_pool_put(r, &binding->storage_key, binding->gl_texture);
+}
+
+static TextureBinding *generate_texture(PGRAPHGLState *r, TextureShape s,
                                         const uint8_t *texture_data,
                                         const uint8_t *palette_data)
 {
     ColorFormatInfo f = kelvin_color_format_gl_map[s.color_format];
-
-    /* Create a new opengl texture */
-    GLuint gl_texture;
-    glGenTextures(1, &gl_texture);
 
     GLenum gl_target;
     if (s.cubemap) {
@@ -747,15 +969,16 @@ static TextureBinding* generate_texture(const TextureShape s,
         }
     }
 
-    glBindTexture(gl_target, gl_texture);
+    TexStorageKey storage_key = tex_storage_key(gl_target, &s, &f);
+    GLuint gl_texture = tex_pool_get(r, &storage_key);
+    if (!gl_texture) {
+        glGenTextures(1, &gl_texture);
+        if (r->tex_pool_log) {
+            r->tex_pool_stats.generations++;
+        }
+    }
 
-    NV2A_GL_DLABEL(GL_TEXTURE, gl_texture,
-                   "offset: 0x%08lx, format: 0x%02X%s, %d dimensions%s, "
-                   "width: %d, height: %d, depth: %d",
-                   texture_data - g_nv2a->vram_ptr,
-                   s.color_format, f.linear ? "" : " (SZ)",
-                   s.dimensionality, s.cubemap ? " (Cubemap)" : "",
-                   s.width, s.height, s.depth);
+    glBindTexture(gl_target, gl_texture);
 
     if (gl_target == GL_TEXTURE_CUBE_MAP) {
         size_t length;
@@ -763,7 +986,7 @@ static TextureBinding* generate_texture(const TextureShape s,
                 &s, f.gl_format == 0, f.bytes_per_pixel, &length)) {
             error_report("Invalid cubemap source layout");
             glBindTexture(gl_target, 0);
-            glDeleteTextures(1, &gl_texture);
+            tex_pool_delete(r, gl_texture);
             return NULL;
         }
 
@@ -791,11 +1014,12 @@ static TextureBinding* generate_texture(const TextureShape s,
             s.levels - 1);
     }
 
-    if (f.gl_swizzle_mask[0] != 0 || f.gl_swizzle_mask[1] != 0
-        || f.gl_swizzle_mask[2] != 0 || f.gl_swizzle_mask[3] != 0) {
-        glTexParameteriv(gl_target, GL_TEXTURE_SWIZZLE_RGBA,
-                         (const GLint *)f.gl_swizzle_mask);
-    }
+    const GLint identity_swizzle[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+    bool has_swizzle = f.gl_swizzle_mask[0] || f.gl_swizzle_mask[1] ||
+                       f.gl_swizzle_mask[2] || f.gl_swizzle_mask[3];
+    glTexParameteriv(gl_target, GL_TEXTURE_SWIZZLE_RGBA,
+                     has_swizzle ? (const GLint *)f.gl_swizzle_mask :
+                                   identity_swizzle);
 
     TextureBinding* ret = (TextureBinding *)g_malloc(sizeof(TextureBinding));
     ret->gl_target = gl_target;
@@ -812,6 +1036,12 @@ static TextureBinding* generate_texture(const TextureShape s,
     ret->addrv = 0xFFFFFFFF;
     ret->addrp = 0xFFFFFFFF;
     ret->border_color_set = false;
+    ret->storage_key = storage_key;
+    ret->release_texture = recycle_texture_binding;
+    ret->release_opaque = r;
+    if (r->tex_pool_log) {
+        tex_pool_write_stats(r, false);
+    }
     return ret;
 }
 
@@ -848,6 +1078,23 @@ void pgraph_gl_init_textures(NV2AState *d)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     const size_t texture_cache_size = 512;
+    r->tex_pool_count = 0;
+    r->tex_pool_bytes = 0;
+    QTAILQ_INIT(&r->tex_pool_fifo);
+    QSLIST_INIT(&r->tex_pool_free);
+    for (unsigned int i = 0; i < NV2A_GL_TEX_POOL_SIZE; i++) {
+        QSLIST_INSERT_HEAD(&r->tex_pool_free, &r->tex_pool[i], free);
+    }
+    for (unsigned int i = 0; i < NV2A_GL_TEX_POOL_BUCKETS; i++) {
+        QLIST_INIT(&r->tex_pool_buckets[i]);
+    }
+    memset(&r->tex_pool_stats, 0, sizeof(r->tex_pool_stats));
+    r->tex_pool_log_last_us = 0;
+    const char *log_path = getenv("XEMU_GL_TEXTURE_POOL_LOG");
+    r->tex_pool_log = log_path && *log_path ? fopen(log_path, "a") : NULL;
+    if (log_path && *log_path && !r->tex_pool_log) {
+        error_report("Cannot open GL texture pool log: %s", strerror(errno));
+    }
     lru_init(&r->texture_cache);
     r->texture_cache_entries = malloc(texture_cache_size * sizeof(TextureLruNode));
     assert(r->texture_cache_entries != NULL);
@@ -865,10 +1112,31 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        if (r->texture_binding[i]) {
+            pgraph_gl_texture_binding_destroy(r->texture_binding[i]);
+        }
         r->texture_binding[i] = NULL;
     }
 
     lru_flush(&r->texture_cache);
+
+    /*
+     * Eviction recycles unreferenced texture objects while the renderer is
+     * alive. Drain that pool before the GL context is torn down.
+     */
+    while (!QTAILQ_EMPTY(&r->tex_pool_fifo)) {
+        TexPoolEntry *entry = QTAILQ_FIRST(&r->tex_pool_fifo);
+        tex_pool_delete(r, entry->gl_texture);
+        tex_pool_remove(r, entry);
+    }
+    if (r->tex_pool_log) {
+        tex_pool_write_stats(r, true);
+    }
+    if (r->tex_pool_log) {
+        fclose(r->tex_pool_log);
+        r->tex_pool_log = NULL;
+    }
+
     free(r->texture_cache_entries);
 
     r->texture_cache_entries = NULL;
