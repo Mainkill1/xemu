@@ -275,6 +275,7 @@
 #define NV_PGRAPH_RDI_INDEX                              0x00000750
 #   define NV_PGRAPH_RDI_INDEX_ADDRESS                        0x00001FFC
 #   define NV_PGRAPH_RDI_INDEX_SELECT                         0x01FF0000
+#define NV_PGRAPH_STATUS                                 0x00000700
 #define NV_PGRAPH_RDI_DATA                               0x00000754
 #define NV_PGRAPH_CHANNEL_CTX_TABLE                      0x00000780
 #   define NV_PGRAPH_CHANNEL_CTX_TABLE_INST                   0x0000FFFF

@@ -23,6 +23,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/log.h"
+#include "system/tcg.h"
 #include "ui/xemu-gpu-info.h"
 #include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-notifications.h"
@@ -129,10 +130,119 @@ static bool pgraph_control_write(NV2AState *d, hwaddr addr, uint32_t value)
     return true;
 }
 
+static bool idle_completion_serviceable(void *opaque)
+{
+    NV2AState *d = opaque;
+    PGRAPHState *pg = &d->pgraph;
+
+    /*
+     * A halt prevents new FIFO work, not completion of accepted work. Live
+     * scale changes use halt while the vCPU is still in this MMIO read.
+     */
+    return !d->exiting &&
+           !qatomic_read(&pg->renderer_switch_handoff_pending) &&
+           (pg->renderer_switch_phase == PGRAPH_RENDERER_SWITCH_PHASE_IDLE ||
+            pg->renderer_switch_phase ==
+                PGRAPH_RENDERER_SWITCH_PHASE_STARTED) &&
+           d->pfifo.regs[NV_PFIFO_CACHE1_DMA_GET] ==
+               d->pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] &&
+           pgraph_reg_r(pg, NV_PGRAPH_STATUS) == 0 &&
+           pg->renderer && pg->renderer->ops.cpu_read_completion_needed &&
+           pg->renderer->ops.complete_cpu_read;
+}
+
+static bool idle_completion_eligible(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    /*
+     * STARTED still owns the old backend, but admits no new requests. An
+     * accepted request must drain there before the CPU switch callback.
+     */
+    return !qatomic_read(&d->pfifo.halt) &&
+           d->pgraph.renderer_switch_phase ==
+               PGRAPH_RENDERER_SWITCH_PHASE_IDLE &&
+           idle_completion_serviceable(opaque);
+}
+
+static bool idle_completion_needed(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    return d->pgraph.renderer->ops.cpu_read_completion_needed(d);
+}
+
+static uint64_t idle_completion_frontier(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    return ((uint64_t)d->pfifo.regs[NV_PFIFO_CACHE1_PUSH1] << 32) |
+           d->pfifo.regs[NV_PFIFO_CACHE1_DMA_GET];
+}
+
+static void idle_completion_kick(void *opaque)
+{
+    pfifo_kick(opaque);
+}
+
+static void idle_completion_release_bql(void *opaque)
+{
+    bql_unlock();
+}
+
+static void idle_completion_acquire_bql(void *opaque)
+{
+    bql_lock();
+}
+
+static bool idle_completion_materialize(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    return d->pgraph.renderer->ops.complete_cpu_read(d);
+}
+
+static const PGRAPHIdleCompletionOps idle_completion_ops = {
+    .eligible = idle_completion_eligible,
+    .serviceable = idle_completion_serviceable,
+    .needed = idle_completion_needed,
+    .frontier = idle_completion_frontier,
+    .kick = idle_completion_kick,
+    .release_bql = idle_completion_release_bql,
+    .acquire_bql = idle_completion_acquire_bql,
+    .materialize = idle_completion_materialize,
+};
+
+static PGRAPHIdleCompletionCoordinator idle_completion_coordinator(NV2AState *d)
+{
+    return (PGRAPHIdleCompletionCoordinator) {
+        .pfifo_lock = &d->pfifo.lock,
+        .pgraph_lock = &d->pgraph.lock,
+        .completion = &d->pgraph.idle_completion,
+    };
+}
+
 uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
     PGRAPHState *pg = &d->pgraph;
+
+    /*
+     * KVM RAM reads bypass TCG's surface-access callbacks. At an explicit
+     * drained-FIFO idle poll, finish only consumed work and materialize its
+     * outputs on the renderer owner. Do not wait for future guest commands,
+     * flip interrupts or a context switch, or invent new STATUS busy bits.
+     */
+    if (addr == NV_PGRAPH_STATUS && size == 4 && !tcg_enabled()) {
+        PGRAPHIdleCompletionCoordinator coordinator =
+            idle_completion_coordinator(d);
+        PGRAPHIdleCompletionResult result = pgraph_idle_completion_wait(
+            &coordinator, &idle_completion_ops, d);
+        if (result == PGRAPH_IDLE_FAILED || result == PGRAPH_IDLE_CANCELLED) {
+            error_report("NV2A idle completion failed to materialize GPU data");
+            abort();
+        }
+    }
 
     uint64_t control_value;
     if (pgraph_control_read(pg, addr, &control_value)) {
@@ -308,6 +418,7 @@ void pgraph_init(NV2AState *d)
     qemu_mutex_init(&pg->renderer_lock);
     qemu_event_init(&pg->sync_complete, false);
     qemu_event_init(&pg->flush_complete, false);
+    pgraph_idle_completion_init(&pg->idle_completion);
     qemu_cond_init(&pg->framebuffer_released);
     qemu_event_init(&pg->renderer_switch_progress, false);
     qemu_event_init(&pg->renderer_switch_complete, false);
@@ -469,6 +580,9 @@ void pgraph_init_thread(NV2AState *d)
 void pgraph_destroy(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
+
+    pgraph_idle_completion_cancel(&pg->idle_completion);
+    pgraph_idle_completion_destroy(&pg->idle_completion);
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer->ops.finalize) {
@@ -3547,6 +3661,9 @@ void pgraph_process_pending(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
 
     /* The PFIFO thread enters here with pfifo.lock held. */
+    PGRAPHIdleCompletionCoordinator idle_coordinator =
+        idle_completion_coordinator(d);
+    pgraph_idle_completion_process(&idle_coordinator, &idle_completion_ops, d);
     pg->renderer->ops.process_pending(d);
 
     if (g_config.display.renderer != pg->renderer->type &&
