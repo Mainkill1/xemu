@@ -261,10 +261,11 @@ static bool pgraph_vk_complete_cpu_read(NV2AState *d)
      * The owner holds PGRAPH, without PFIFO or BQL. A completed queue is
      * not sufficient: ordinary KVM RAM reads also need the guest bytes.
      */
-    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         succeeded &= pgraph_vk_surface_download_if_dirty(d, surface);
     }
+    /* Let readbacks share their producer's submission before draining it. */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     return succeeded;
 }
 
