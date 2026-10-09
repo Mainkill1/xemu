@@ -312,6 +312,7 @@ static void nv2a_reset(NV2AState *d)
         qatomic_set(&d->pfifo.halt, false);
     }
 
+    pgraph_idle_completion_cancel(&d->pgraph.idle_completion);
     memset(d->pfifo.regs, 0, sizeof(d->pfifo.regs));
     memset(d->pgraph.regs_, 0, sizeof(d->pgraph.regs_));
     memset(d->pvideo.regs, 0, sizeof(d->pvideo.regs));
@@ -417,6 +418,7 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
     } else if (state == RUN_STATE_RESTORE_VM) {
         nv2a_lock_fifo(d);
         qatomic_set(&d->pfifo.halt, true);
+        pgraph_idle_completion_cancel(&d->pgraph.idle_completion);
         nv2a_unlock_fifo(d);
     } else if (state == RUN_STATE_RUNNING) {
         nv2a_lock_fifo(d);

@@ -231,6 +231,43 @@ static void pgraph_vk_sync(NV2AState *d)
     qemu_event_set(&d->pgraph.sync_complete);
 }
 
+static bool pgraph_vk_cpu_read_completion_needed(NV2AState *d)
+{
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    SurfaceBinding *surface;
+
+    if (r->in_draw || r->debug_depth != 0) {
+        return false;
+    }
+    if (r->in_command_buffer) {
+        return true;
+    }
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface->draw_dirty && !surface->readback_superseded_by_guest) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool pgraph_vk_complete_cpu_read(NV2AState *d)
+{
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    SurfaceBinding *surface;
+    bool succeeded = true;
+
+    /*
+     * The owner holds PGRAPH, without PFIFO or BQL. A completed queue is
+     * not sufficient: ordinary KVM RAM reads also need the guest bytes.
+     */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        succeeded &= pgraph_vk_surface_download_if_dirty(d, surface);
+    }
+    return succeeded;
+}
+
 static void pgraph_vk_process_pending(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
@@ -480,6 +517,8 @@ static PGRAPHRenderer pgraph_vk_renderer = {
         .pre_shutdown_trigger = pgraph_vk_pre_shutdown_trigger,
         .pre_shutdown_wait = pgraph_vk_pre_shutdown_wait,
         .process_pending = pgraph_vk_process_pending,
+        .cpu_read_completion_needed = pgraph_vk_cpu_read_completion_needed,
+        .complete_cpu_read = pgraph_vk_complete_cpu_read,
         .process_pending_reports = pgraph_vk_process_pending_reports,
         .surface_update = pgraph_vk_surface_update,
         .set_surface_scale_factor = pgraph_vk_set_surface_scale_factor,
