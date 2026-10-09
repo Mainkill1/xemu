@@ -385,7 +385,8 @@ static inline bool check_for_breakpoints(CPUState *cpu, vaddr pc,
         check_for_breakpoints_slow(cpu, pc, cflags);
 }
 
-static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
+static inline QEMU_ALWAYS_INLINE
+const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
 {
     TranslationBlock *tb;
 
