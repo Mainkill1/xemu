@@ -1248,66 +1248,26 @@ static uint16_t dsp_sub56(uint32_t *source, uint32_t *dest)
     return (overflow<<DSP_SR_L)|(overflow<<DSP_SR_V)|(carry<<DSP_SR_C);
 }
 
+/*
+ * Inspired by Will Bonnett (Synkronicity), Xemu-Symphony's native multiply:
+ * https://github.com/Synkronicity/Xemu-Symphony/commit/6927121a40ef9df78eeff79ea031f0771e62c516
+ * Independently implemented from the signed 24-bit fractional contract.
+ */
 static void dsp_mul56(uint32_t source1, uint32_t source2, uint32_t *dest, uint8_t signe)
 {
-    uint32_t part[4], zerodest[3], value;
-
-    /* Multiply: D = S1*S2 */
-    if (source1 & (1<<23)) {
-        signe ^= 1;
-        source1 = (1<<24) - source1;
-    }
-    if (source2 & (1<<23)) {
-        signe ^= 1;
-        source2 = (1<<24) - source2;
-    }
-
-    /* bits 0-11 * bits 0-11 */
-    part[0]=(source1 & BITMASK(12))*(source2 & BITMASK(12));
-    /* bits 12-23 * bits 0-11 */
-    part[1]=((source1>>12) & BITMASK(12))*(source2 & BITMASK(12));
-    /* bits 0-11 * bits 12-23 */
-    part[2]=(source1 & BITMASK(12))*((source2>>12)  & BITMASK(12));
-    /* bits 12-23 * bits 12-23 */
-    part[3]=((source1>>12) & BITMASK(12))*((source2>>12) & BITMASK(12));
-
-    /* Calc dest 2 */
-    dest[2] = part[0];
-    dest[2] += (part[1] & BITMASK(12)) << 12;
-    dest[2] += (part[2] & BITMASK(12)) << 12;
-
-    /* Calc dest 1 */
-    dest[1] = (part[1]>>12) & BITMASK(12);
-    dest[1] += (part[2]>>12) & BITMASK(12);
-    dest[1] += part[3];
-
-    /* Calc dest 0 */
-    dest[0] = 0;
-
-    /* Add carries */
-    value = (dest[2]>>24) & BITMASK(8);
-    if (value) {
-        dest[1] += value;
-        dest[2] &= BITMASK(24);
-    }
-    value = (dest[1]>>24) & BITMASK(8);
-    if (value) {
-        dest[0] += value;
-        dest[1] &= BITMASK(24);
-    }
-
-    /* Get rid of extra sign bit */
-    dsp_asl56(dest, 1);
+    int64_t a = (int64_t)(source1 & 0x7fffff) - (source1 & 0x800000);
+    int64_t b = (int64_t)(source2 & 0x7fffff) - (source2 & 0x800000);
+    int64_t product = a * b;
 
     if (signe) {
-        zerodest[0] = zerodest[1] = zerodest[2] = 0;
-
-        dsp_sub56(dest, zerodest);
-
-        dest[0] = zerodest[0];
-        dest[1] = zerodest[1];
-        dest[2] = zerodest[2];
+        product = -product;
     }
+
+    /* A signed left shift of a negative product would be undefined. */
+    uint64_t bits = (uint64_t)product << 1;
+    dest[0] = (bits >> 48) & 0xff;
+    dest[1] = (bits >> 24) & 0xffffff;
+    dest[2] = bits & 0xffffff;
 }
 
 static void dsp_rnd56(dsp_core_t* dsp, uint32_t *dest)
