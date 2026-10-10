@@ -985,7 +985,8 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
         pgraph_vk_finish(pg, VK_FINISH_REASON_PRESENTING);
     }
 
-    if (!pgraph_vk_upload_surface_data(d, surface, !tcg_enabled())) {
+    if (!pgraph_vk_upload_surface_data(
+            d, surface, pgraph_vk_surface_force_display_upload(d, surface))) {
         error_report("Vulkan display surface upload failed");
         abort();
     }
