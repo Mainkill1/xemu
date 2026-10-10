@@ -7,6 +7,9 @@
  */
 
 #include "qemu/osdep.h"
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+#include "tb-jmp-cache.h"
+#endif
 #include "qemu/accel.h"
 #include "qemu/qht.h"
 #include "qapi/error.h"
@@ -204,6 +207,15 @@ static void dump_exec_info(GString *buf)
 
     g_string_append_printf(buf, "\nStatistics:\n");
     tcg_dump_flush_info(buf);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    CPUState *cpu;
+    CPU_FOREACH(cpu) {
+        CPUJumpCache *jc = cpu->tb_jmp_cache;
+        if (jc) {
+            tcg_jump_cache_probe_format(jc->probe, buf, cpu->cpu_index);
+        }
+    }
+#endif
 }
 
 void tcg_get_stats(AccelState *accel, GString *buf)

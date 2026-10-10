@@ -906,7 +906,15 @@ static void tb_jmp_cache_inval_tb(TranslationBlock *tb)
     if (tb_cflags(tb) & CF_PCREL) {
         /* A TB may be at any virtual address */
         CPU_FOREACH(cpu) {
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+            CPUJumpCache *jc = cpu->tb_jmp_cache;
+            if (jc) {
+                tcg_jump_cache_probe_clear(jc->probe, jc->array,
+                                            TB_JMP_CACHE_SIZE, true);
+            }
+#else
             tcg_flush_jmp_cache(cpu);
+#endif
         }
     } else {
         uint32_t h = tb_jmp_cache_hash_func(tb->pc);
@@ -914,9 +922,17 @@ static void tb_jmp_cache_inval_tb(TranslationBlock *tb)
         CPU_FOREACH(cpu) {
             CPUJumpCache *jc = cpu->tb_jmp_cache;
 
-            if (qatomic_read(&jc->array[h].tb) == tb) {
+            bool matched = qatomic_read(&jc->array[h].tb) == tb;
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+            tcg_jump_cache_probe_invalidate_begin(jc->probe);
+            tcg_jump_cache_probe_targeted(jc->probe, matched);
+#endif
+            if (matched) {
                 qatomic_set(&jc->array[h].tb, NULL);
             }
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+            tcg_jump_cache_probe_invalidate_end(jc->probe);
+#endif
         }
     }
 }

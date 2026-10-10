@@ -57,6 +57,9 @@ meson_options_help() {
   printf "%s\n" '                           dtrace/ftrace/log/nop/simple/syslog/ust)'
   printf "%s\n" '  --enable-tsan            enable thread sanitizer'
   printf "%s\n" '  --enable-ubsan           enable undefined behaviour sanitizer'
+  printf "%s\n" '  --enable-xemu-tcg-jump-cache-probe'
+  printf "%s\n" '                           Compile diagnostic jump-cache counters (runtime'
+  printf "%s\n" '                           opt-in)'
   printf "%s\n" '  --firmwarepath=VALUES    search PATH for firmware files [share/qemu-'
   printf "%s\n" '                           firmware]'
   printf "%s\n" '  --gdb=VALUE              Path to GDB'
@@ -587,6 +590,8 @@ _meson_option_parse() {
     --enable-whpx) printf "%s" -Dwhpx=enabled ;;
     --disable-whpx) printf "%s" -Dwhpx=disabled ;;
     --x86-version=*) quote_sh "-Dx86_version=$2" ;;
+    --enable-xemu-tcg-jump-cache-probe) printf "%s" -Dxemu_tcg_jump_cache_probe=true ;;
+    --disable-xemu-tcg-jump-cache-probe) printf "%s" -Dxemu_tcg_jump_cache_probe=false ;;
     --enable-xen) printf "%s" -Dxen=enabled ;;
     --disable-xen) printf "%s" -Dxen=disabled ;;
     --enable-xen-pci-passthrough) printf "%s" -Dxen_pci_passthrough=enabled ;;
