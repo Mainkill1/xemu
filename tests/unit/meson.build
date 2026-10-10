@@ -278,6 +278,11 @@ if vulkan.found()
           xbox_i386_target_headers, volk, libglslang, vma, vulkan,
           spirv_reflect,
         ],
+        'test-xbox-vk-idle-readback': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect, gloffscreen,
+        ],
         'test-xbox-vk-stencil-write': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
