@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S08e0b79ef6b93ea7e205cc2f8fe7c54e
+# Start of pvideo tests
+ok 1 /pvideo/resize
+# End of pvideo tests
+1..1

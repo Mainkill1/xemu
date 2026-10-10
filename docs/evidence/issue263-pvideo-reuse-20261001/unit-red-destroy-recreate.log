@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S6636307c87726b0fb1c36c4b6e925273
+# Start of pvideo tests
+ok 1 /pvideo/destroy-recreate
+# End of pvideo tests
+1..1

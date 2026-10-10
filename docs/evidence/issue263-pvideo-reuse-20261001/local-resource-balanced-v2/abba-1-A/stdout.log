@@ -1,0 +1,9 @@
+# device=llvmpipe (LLVM 19.1.7, 256 bits)
+# driver_version=109056002
+# requests=10001
+# image_creates=10001
+# elapsed_us=3809
+# ns_per_request=380.862
+# live_allocations_after_teardown=0
+1..1
+ok 1 - real Vulkan PVIDEO resource lifecycle

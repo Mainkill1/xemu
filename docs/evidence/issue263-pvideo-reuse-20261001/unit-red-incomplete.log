@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02Se729fa643ef462bb3b4374620a0c3df8
+# Start of pvideo tests
+**
+ERROR:../tests/unit/test-xbox-vk-pvideo.c:230:test_incomplete_resources_are_replaced: assertion failed (freed_images == 1): (0 == 1)
+not ok /pvideo/incomplete - ERROR:../tests/unit/test-xbox-vk-pvideo.c:230:test_incomplete_resources_are_replaced: assertion failed (freed_images == 1): (0 == 1)
+Bail out!

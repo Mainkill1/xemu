@@ -1,0 +1,20 @@
+[
+  {
+    "order": "abba",
+    "metric": "median of per-run CPU means",
+    "unit": "core_pct",
+    "parent": 162.74032812499996,
+    "candidate": 162.14317755681822,
+    "savedPercentagePoints": 0.5971505681817462,
+    "improvementPercent": 0.3669345976266424
+  },
+  {
+    "order": "baab",
+    "metric": "median of per-run CPU means",
+    "unit": "core_pct",
+    "parent": 162.65239062499995,
+    "candidate": 162.324859375,
+    "savedPercentagePoints": 0.3275312499999643,
+    "improvementPercent": 0.20136885092276177
+  }
+]

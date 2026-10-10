@@ -1,0 +1,607 @@
+{
+  "checked": [
+    {
+      "runId": "20261001-225747022-84d5d920f11a4e8a9995739d0e06d21e",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-225838753-b215c9dc28ca4bf0a08916cfeb1a626c",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-225930197-300ee419cad8480eb1b451b70b79749d",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230021590-2cea6b05fd3e4099bae7a9451fbc94ed",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230213503-7d2b7887945a44f7a554a4c330275d05",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230304821-df06e29179f240e9bf7f7a2a4bf31362",
+      "binarySha256": "5dd8d5453574fdad00e2acd9d0dc4aacb1e32ca142334ce87a05226f99e46e5b",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230356169-1fd38677a9e14c6ab35b6a2c006b1e65",
+      "binarySha256": "5dd8d5453574fdad00e2acd9d0dc4aacb1e32ca142334ce87a05226f99e46e5b",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230447465-a6340229a38848c6ba9ae1f98cc46462",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230539323-164a75b7351d49a8b66870e4f84beb62",
+      "binarySha256": "5dd8d5453574fdad00e2acd9d0dc4aacb1e32ca142334ce87a05226f99e46e5b",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230630655-c0b72f7c211d47b9aaf9d81e2c455dbb",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230722335-c2b28329adaa41a8a31ccfc3158910a4",
+      "binarySha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    },
+    {
+      "runId": "20261001-230813925-b57469175c8c414cb6c20d0d5e04ff13",
+      "binarySha256": "5dd8d5453574fdad00e2acd9d0dc4aacb1e32ca142334ce87a05226f99e46e5b",
+      "fixedInputs": [
+        [
+          "state/seed-eeprom.bin",
+          256,
+          "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        ],
+        [
+          "xemu.toml",
+          456,
+          "a0df25b0d4a25e29750e7932efc493b327c73b7db606735ac065e9d68b64077e"
+        ],
+        [
+          "pvideo-source-reference-v2.json",
+          1059,
+          "6f8e5f494d286045b742b1254cdb19e487f5664db6f09f60cdfd1205f39e1a1a"
+        ],
+        [
+          "lib/libslirp.so.0",
+          149336,
+          "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+        ],
+        [
+          "lib/libpcap.so.0.8",
+          317784,
+          "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+        ]
+      ],
+      "runnerVersion": "0.2.0+848dca74e1ff79f9fc886769a785c23a0945a87e",
+      "xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "eca0cee509f33438b72cd14e7ee6b50279213331c5009b651fa5f09bf9e08c28",
+        "IsoSha256": "a1006c77017ab8cb91ec6165ca01fbcebb6636e8eaee27f1deac75c14c70a11d",
+        "CatalogId": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
+        "Tests": [
+          "pvideo.steady_upload",
+          "pvideo.resize_toggle"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    }
+  ],
+  "matchingFixedInputs": true,
+  "matchingRunner": true,
+  "exactGuestSettings": true
+}

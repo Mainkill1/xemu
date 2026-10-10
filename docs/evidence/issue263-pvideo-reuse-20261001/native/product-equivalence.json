@@ -1,0 +1,31 @@
+{
+  "measuredHead": "aeeb9554a87f5e4cb706ff6c58b3825b16f320f1",
+  "delta": "documentation/evidence only; no production or test implementation change",
+  "files": [
+    {
+      "path": "hw/xbox/nv2a/pgraph/vk/display.c",
+      "sha256": "558edeafe57bbce5346c0320b6f351d2cf2cf80c0e3a1ce6e9bbf4218f5c53c0",
+      "identicalToMeasuredHead": true
+    },
+    {
+      "path": "hw/xbox/nv2a/pgraph/vk/renderer.h",
+      "sha256": "de8ce6bb7e796c624a2d8e2ab00510b1d325258e0478ed98cabe972aa5ddb7a1",
+      "identicalToMeasuredHead": true
+    },
+    {
+      "path": "tests/unit/test-xbox-vk-pvideo.c",
+      "sha256": "ae3ad1678159bac72cce4eddf8ee005d30cbedb52d3459e068a6935b8ef27a86",
+      "identicalToMeasuredHead": true
+    },
+    {
+      "path": "tests/unit/test-xbox-vk-pvideo-gpu.c",
+      "sha256": "e5c630c03bc5b449f3c8b24666fa75ddc411494c3c35e2303ff3dfd907d0165b",
+      "identicalToMeasuredHead": true
+    },
+    {
+      "path": "tests/unit/meson.build",
+      "sha256": "9478f2630bc84f4d67e9901dac6fea6923c8351317a3e1bb4322dfdb6f6908e6",
+      "identicalToMeasuredHead": true
+    }
+  ]
+}

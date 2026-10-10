@@ -1,0 +1,18 @@
+{
+  "abba": {
+    "reference_ns_per_request": 369.763,
+    "candidate_ns_per_request": 1.85,
+    "time_saved_ns": 367.91299999999995,
+    "improvement_percent": 99.49967952445215
+  },
+  "baab": {
+    "reference_ns_per_request": 374.01250000000005,
+    "candidate_ns_per_request": 1.8,
+    "time_saved_ns": 372.21250000000003,
+    "improvement_percent": 99.51873266267837
+  },
+  "aa_reference_range_ns": [
+    366.863,
+    380.962
+  ]
+}
