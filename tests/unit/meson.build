@@ -29,6 +29,7 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-mcpx-apu-adpcm-table': [],
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-mcpx-apu-worker-count': [],
   'test-xbox-pgraph-texture-layout': [],
