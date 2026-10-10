@@ -60,11 +60,16 @@ def check(executable, enabled):
                     stream = io.makefile("rwb", buffering=0)
                     control = qmp.makefile("rwb", buffering=0)
                     control.readline()
+                    events = []
+
+                    def require(condition, detail):
+                        if not condition:
+                            raise AssertionError(detail)
 
                     def command(value):
                         stream.write((value + "\n").encode())
                         result = stream.readline().decode().strip()
-                        assert result.startswith("OK"), result
+                        require(result.startswith("OK"), result)
                         return result.split()[1:]
 
                     def rpc(value):
@@ -80,6 +85,8 @@ def check(executable, enabled):
                             if not line and value == "quit":
                                 return {}
                             result = json.loads(line)
+                            if "event" in result:
+                                events.append(result)
                             if "error" in result:
                                 raise AssertionError(result)
                             if "return" in result:
@@ -87,17 +94,30 @@ def check(executable, enabled):
 
                     rpc("qmp_capabilities")
                     expected = 0xe1 if enabled else 0xff
-                    assert int(command("inb 0xf500")[0], 0) == expected
-                    assert int(command("inb 0xf501")[0], 0) == 0xff
+
+                    def read(value, expected_value):
+                        actual = int(command(value)[0], 0)
+                        require(actual == expected_value,
+                                f"{value}: {actual:#x} != {expected_value:#x}")
+
+                    read("inb 0xf500", expected)
+                    read("inb 0xf501", 0xff)
                     command("outb 0xf500 0")
-                    assert int(command("inb 0xf500")[0], 0) == expected
-                    assert int(command("inw 0xf500")[0], 0) == (0xff00 | expected)
-                    assert int(command("inl 0xf500")[0], 0) == (0xffffff00 | expected)
+                    read("inb 0xf500", expected)
+                    read("inw 0xf500", 0xff00 | expected)
+                    read("inl 0xf500", 0xffffff00 | expected)
+                    events.clear()
                     rpc("system_reset")
-                    assert int(command("inb 0xf500")[0], 0) == expected
+                    # A command response only schedules reset. Retain events
+                    # delivered before that response and wait for completion.
+                    while not any(e["event"] == "RESET" for e in events):
+                        result = json.loads(control.readline())
+                        require("event" in result, result)
+                        events.append(result)
+                    read("inb 0xf500", expected)
                     rpc("quit")
                 process.wait(timeout=10)
-                assert process.returncode == 0, process.returncode
+                require(process.returncode == 0, process.returncode)
             except Exception:
                 log.flush()
                 print((root / "host.log").read_text(), file=sys.stderr)
@@ -105,7 +125,11 @@ def check(executable, enabled):
             finally:
                 if process.poll() is None:
                     process.terminate()
-                    process.wait(timeout=10)
+                    try:
+                        process.wait(timeout=10)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait(timeout=10)
     print("PASS: " + ("X3 ID, write protection, widths, adjacent port and reset"
                       if enabled else "default machine remains unchanged"))
 
