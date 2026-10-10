@@ -4647,6 +4647,17 @@ foreach target : target_dirs
     }]
   endif
   if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
+    voice_format_test = executable('test-xbox-mcpx-apu-voice-format-boundaries',
+      files('tests/xbox/mcpx-apu/test-voice-format-boundaries.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-voice-format-boundaries', voice_format_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
     apu_sample_memory_test = executable('test-xbox-mcpx-apu-sample-memory',
       files('tests/xbox/mcpx-apu/test-sample-memory.c'),
       c_args: c_args,
