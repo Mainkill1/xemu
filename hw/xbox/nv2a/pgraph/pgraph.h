@@ -25,6 +25,7 @@
 #include "xemu-config.h"
 #include "qemu/osdep.h"
 #include "qemu/bitmap.h"
+#include "qemu/main-loop.h"
 #include "qemu/units.h"
 #include "qemu/thread.h"
 #include "cpu.h"
@@ -290,6 +291,23 @@ void pgraph_pre_savevm_trigger(NV2AState *d);
 void pgraph_pre_savevm_wait(NV2AState *d);
 void pgraph_pre_shutdown_trigger(NV2AState *d);
 void pgraph_pre_shutdown_wait(NV2AState *d);
+
+/* Surface memory callbacks run both from BQL-owned device I/O and from
+ * lockless MTTCG memory accesses. A queued download can require PFIFO to take
+ * the BQL before it can complete, so never retain the BQL across that wait.
+ * Callers must hold neither pgraph.lock nor pfifo.lock. */
+static inline void pgraph_event_wait_with_bql_released(QemuEvent *event)
+{
+    bool restore_bql = bql_locked();
+
+    if (restore_bql) {
+        bql_unlock();
+    }
+    qemu_event_wait(event);
+    if (restore_bql) {
+        bql_lock();
+    }
+}
 
 int pgraph_method(NV2AState *d, unsigned int subchannel, unsigned int method,
                   uint32_t parameter, uint32_t *parameters,
