@@ -52,6 +52,28 @@ test_pgraph_control = executable(
 test('test-pgraph-control', test_pgraph_control,
      args: ['--tap', '-k'], protocol: 'tap', env: test_env, suite: ['unit', 'xbox'])
 
+if 'i386-softmmu' in target_dirs and vulkan.found()
+  test_pgraph_bql_surface_download = executable(
+    'test-pgraph-bql-surface-download',
+    files('test-pgraph-bql-surface-download.c'),
+    c_args: [
+      '-DCOMPILING_PER_TARGET',
+      '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+      '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
+      '-DXBOX=1',
+      '-ffunction-sections', '-fdata-sections',
+    ],
+    include_directories: [include_directories('../../../target/i386')],
+    dependencies: [qemuutil, nv2a_vsh_cpu, volk, libglslang, vma, vulkan,
+                   spirv_reflect],
+    link_args: host_os == 'darwin' ? ['-Wl,-dead_strip'] : ['-Wl,--gc-sections'],
+    build_by_default: false,
+  )
+  test('test-pgraph-bql-surface-download', test_pgraph_bql_surface_download,
+       args: ['--tap', '-k'], protocol: 'tap', env: test_env,
+       suite: ['unit', 'xbox'], timeout: 15)
+endif
+
 test_pfifo_flip = executable(
   'test-pfifo-flip', files('test-pfifo-flip.c'),
   c_args: [
