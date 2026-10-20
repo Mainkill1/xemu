@@ -2,6 +2,13 @@
 
 This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
 
+## Support Development
+
+If you find this project useful, consider supporting its development.
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Development-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/mainkill1)
+
+
 ## Current measured comparison — 2026-10-02
 
 **A:** upstream v0.8.136 **with matched guest-flip telemetry**. **B:** tested fork main revision `ee5ce48`, Vulkan 1×, ABBA then BAAB: **48 attempts**, four per build/game/host. The full report and raw artifacts live on the separate [evidence branch](https://github.com/Mainkill1/xemu/tree/evidence/fresh-start-performance-20261002); the report links pin its immutable archive commit. Values are descriptive observations from the existing runner, not a universal speedup or isolated PR attribution.
