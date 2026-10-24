@@ -1361,6 +1361,22 @@ bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
     return true;
 }
 
+bool pgraph_vk_surface_force_display_upload(NV2AState *d,
+                                            SurfaceBinding *surface)
+{
+    if (tcg_enabled()) {
+        return false;
+    }
+
+    /*
+     * Accelerated RAM writes bypass the surface callback. Resolve them before
+     * choosing the owner; otherwise presentation can replace newer GPU pixels
+     * with stale RAM before an explicit completion readback observes them.
+     */
+    consume_surface_guest_writes(d, surface->vram_addr, surface->size);
+    return !surface->draw_dirty;
+}
+
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                                    bool force)
 {
