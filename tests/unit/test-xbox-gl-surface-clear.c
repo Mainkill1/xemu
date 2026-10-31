@@ -8,8 +8,10 @@
 
 NV2AStats g_nv2a_stats;
 
-/* Attachment selection is supplied by the fixture; the production clear
- * executes against real GL storage and its pixels are read back below. */
+/*
+ * Attachment selection is supplied by the fixture; the production clear
+ * executes against real GL storage and its pixels are read back below.
+ */
 void pgraph_gl_surface_update(NV2AState *d, bool upload, bool color, bool zeta)
 {
     g_assert_true(upload);
@@ -46,7 +48,8 @@ static void test_depth_clear(unsigned int extent, unsigned int scale,
     SurfaceBinding depth = { .width = extent, .height = extent };
     GLuint framebuffer, images[2];
     unsigned int host_extent = extent * scale;
-    g_autofree float *pixels = g_new(float, host_extent *host_extent);
+    size_t pixel_count = host_extent * host_extent;
+    g_autofree float *pixels = g_new(float, pixel_count);
 
     pg->gl_renderer_state = r;
     pg->surface_scale_factor = scale;
