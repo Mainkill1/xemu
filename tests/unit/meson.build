@@ -233,6 +233,7 @@ if vulkan.found()
       nv2a_vk_runtime_prod = declare_dependency(
         sources: config_target_h['i386-softmmu'],
         compile_args: [
+          '-DXBOX=1',
           '-DCOMPILING_PER_TARGET',
           '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
         ] + nv2a_vk_runtime_section_args,
@@ -256,6 +257,10 @@ if vulkan.found()
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
             spirv_reflect,
           ],
+          'test-xbox-gl-surface-clear': [
+            nv2a_vk_runtime_prod, xbox_i386_target_headers,
+            gloffscreen, sdl, epoxy,
+          ],
         }
       endif
       tests += {
@@ -268,6 +273,19 @@ if vulkan.found()
         ],
         'test-xbox-vk-alias-convert-sequence': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-r6g5b5': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-texture-layout': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/texture.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/s3tc.c',
           nv2a_vk_runtime_prod,
           xbox_i386_target_headers, volk, libglslang, vma, vulkan,
           spirv_reflect,
@@ -526,10 +544,21 @@ test_env = environment()
 test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
 test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 
+if host_os == 'linux' and have_system
+  xbox_chardev_context_test = executable('test-xbox-chardev-context',
+    files('test-xbox-chardev-context.c', '../../util/main-loop.c'),
+    chardev_ss.sources(), genh,
+    dependencies: [qemuutil, qom, io, chardev_ss.dependencies()],
+    c_args: ['-DXBOX=1'])
+  test('test-xbox-chardev-context', xbox_chardev_context_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+endif
+
 # Exercise the private SGE resolver against RAM, MMIO and mapping changes.
 if host_os == 'linux' and have_system
   apu_sge_test = executable('test-xbox-mcpx-apu-sge-cache',
     files('test-xbox-mcpx-apu-sge-cache.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],
@@ -542,6 +571,7 @@ endif
 if host_os == 'linux' and have_system
   voice_wait_test = executable('test-xbox-mcpx-apu-worker-wait',
     files('test-xbox-mcpx-apu-worker-wait.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],

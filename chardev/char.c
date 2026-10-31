@@ -240,14 +240,11 @@ void qemu_chr_be_update_read_handlers(Chardev *s,
            || !context);
 
 #ifdef XBOX
-    if (context != NULL) {
+    /* NULL restores the default, including after an I/O-thread binding. */
+    context = context ? context : qemu_main_context;
 #endif
 
     s->gcontext = context;
-
-#ifdef XBOX
-    }
-#endif
 
     if (cc->chr_update_read_handler) {
         cc->chr_update_read_handler(s);
