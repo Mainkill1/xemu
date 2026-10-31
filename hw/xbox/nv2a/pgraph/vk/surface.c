@@ -1957,29 +1957,55 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             }
 
             if (is_compatible && !color && r->color_binding) {
-                is_compatible &= (surface->width == r->color_binding->width) &&
-                                 (surface->height == r->color_binding->height);
+                bool same_extent =
+                    surface->width == r->color_binding->width &&
+                    surface->height == r->color_binding->height;
+                bool linear_cover =
+                    !surface->swizzle && !r->color_binding->swizzle &&
+                    surface->shape.anti_aliasing ==
+                        r->color_binding->shape.anti_aliasing &&
+                    surface->width >= r->color_binding->width &&
+                    surface->height >= r->color_binding->height;
+                is_compatible &= same_extent || linear_cover;
             }
 
             if (is_compatible) {
-                // FIXME: Refactor
-                if (pg->surface_binding_dim.width != surface->width ||
-                    pg->surface_binding_dim.clip_x != surface->shape.clip_x ||
-                    pg->surface_binding_dim.clip_width !=
-                        surface->shape.clip_width ||
-                    pg->surface_binding_dim.height != surface->height ||
-                    pg->surface_binding_dim.clip_y != surface->shape.clip_y ||
-                    pg->surface_binding_dim.clip_height !=
-                        surface->shape.clip_height) {
-                    pgraph_uniform_input_touch_stages(
-                        pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+                /*
+                 * Reuse retains storage beyond the requested viewport.
+                 * Resolve guest writes there before a new GPU draw owns it.
+                 */
+                if (!color && surface->size > target.size) {
+                    mem_dirty |= consume_surface_guest_writes(
+                        d, surface->vram_addr, surface->size);
                 }
-                pg->surface_binding_dim.width = surface->width;
-                pg->surface_binding_dim.clip_x = surface->shape.clip_x;
-                pg->surface_binding_dim.clip_width = surface->shape.clip_width;
-                pg->surface_binding_dim.height = surface->height;
-                pg->surface_binding_dim.clip_y = surface->shape.clip_y;
-                pg->surface_binding_dim.clip_height = surface->shape.clip_height;
+                /*
+                 * The color target defines the viewport even when depth
+                 * storage covers a larger region.
+                 */
+                if (color || !r->color_binding) {
+                    /* FIXME: Refactor */
+                    if (pg->surface_binding_dim.width != surface->width ||
+                        pg->surface_binding_dim.clip_x !=
+                            surface->shape.clip_x ||
+                        pg->surface_binding_dim.clip_width !=
+                            surface->shape.clip_width ||
+                        pg->surface_binding_dim.height != surface->height ||
+                        pg->surface_binding_dim.clip_y !=
+                            surface->shape.clip_y ||
+                        pg->surface_binding_dim.clip_height !=
+                            surface->shape.clip_height) {
+                        pgraph_uniform_input_touch_stages(
+                            pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+                    }
+                    pg->surface_binding_dim.width = surface->width;
+                    pg->surface_binding_dim.clip_x = surface->shape.clip_x;
+                    pg->surface_binding_dim.clip_width =
+                        surface->shape.clip_width;
+                    pg->surface_binding_dim.height = surface->height;
+                    pg->surface_binding_dim.clip_y = surface->shape.clip_y;
+                    pg->surface_binding_dim.clip_height =
+                        surface->shape.clip_height;
+                }
                 if (mem_dirty) {
                     mark_surface_upload_pending(
                         r, surface, SURFACE_UPLOAD_PENDING_DIRTY_MEMORY);
@@ -2183,10 +2209,10 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
         }
     }
 
-    // Sanity check color and zeta dimensions match
+    /* The depth attachment must cover the color viewport. */
     if (r->color_binding && r->zeta_binding) {
-        assert(r->color_binding->width == r->zeta_binding->width);
-        assert(r->color_binding->height == r->zeta_binding->height);
+        assert(r->color_binding->width <= r->zeta_binding->width);
+        assert(r->color_binding->height <= r->zeta_binding->height);
     }
 
     expire_old_surfaces(d);

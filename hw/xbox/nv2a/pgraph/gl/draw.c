@@ -103,6 +103,15 @@ void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
                       scissor_width >= pg->surface_binding_dim.width &&
                       scissor_height >= pg->surface_binding_dim.height;
 
+    /*
+     * GL clips clears to the intersection of the attachments. A larger
+     * requested clear cannot initialize depth outside the color target.
+     */
+    bool full_zeta_clear = full_clear && r->zeta_binding &&
+        (!r->color_binding ||
+         (r->zeta_binding->width == r->color_binding->width &&
+          r->zeta_binding->height == r->color_binding->height));
+
     pgraph_apply_scaling_factor(pg, &xmin, &ymin);
     pgraph_apply_scaling_factor(pg, &scissor_width, &scissor_height);
 
@@ -128,7 +137,7 @@ void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
         r->color_binding->cleared = full_clear && write_color;
     }
     if (r->zeta_binding) {
-        r->zeta_binding->cleared = full_clear && write_zeta;
+        r->zeta_binding->cleared = full_zeta_clear && write_zeta;
     }
     
     pg->clearing = false;
