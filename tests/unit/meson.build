@@ -537,6 +537,16 @@ test_env = environment()
 test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
 test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 
+if host_os == 'linux' and have_system
+  xbox_chardev_context_test = executable('test-xbox-chardev-context',
+    files('test-xbox-chardev-context.c', '../../util/main-loop.c'),
+    chardev_ss.sources(), genh,
+    dependencies: [qemuutil, qom, io, chardev_ss.dependencies()],
+    c_args: ['-DXBOX=1'])
+  test('test-xbox-chardev-context', xbox_chardev_context_test,
+       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+endif
+
 # Exercise the private SGE resolver against RAM, MMIO and mapping changes.
 if host_os == 'linux' and have_system
   apu_sge_test = executable('test-xbox-mcpx-apu-sge-cache',
