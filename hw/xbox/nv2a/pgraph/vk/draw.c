@@ -2767,6 +2767,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
+        /* Completed writes must precede the next recording boundary. */
+        pg->draw_time++;
         if (r->vertex_ram_read_pages) {
             memset(r->vertex_ram_read_pages, 0,
                    r->num_vertex_ram_read_pages);
@@ -3571,6 +3573,16 @@ void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta_accessed
     bool zeta = pgraph_zeta_surface_dirty_required(pg, zeta_accessed);
     pg->surface_color.draw_dirty |= color;
     pg->surface_zeta.draw_dirty |= zeta;
+
+    /* Clear preparation can finish a batch after attachment timestamping. */
+    if (pg->clearing) {
+        if (color && r->color_binding) {
+            r->color_binding->draw_time = pg->draw_time;
+        }
+        if (zeta && r->zeta_binding) {
+            r->zeta_binding->draw_time = pg->draw_time;
+        }
+    }
 
     if (r->color_binding) {
         r->color_binding->draw_dirty |= color;

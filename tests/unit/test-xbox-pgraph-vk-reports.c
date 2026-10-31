@@ -9,6 +9,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
+#include "hw/xbox/nv2a/pgraph/vk/pipeline-cache-lifetime.h"
 #include "ui/xemu-tweaks.h"
 #include "xbox-pgraph-report-test-support.h"
 
@@ -28,6 +29,7 @@ typedef enum BoundaryEvent {
     BOUNDARY_SUBMIT,
     BOUNDARY_WAIT,
     BOUNDARY_QUERY_RESULTS,
+    BOUNDARY_BEGIN_MAIN,
 } BoundaryEvent;
 
 typedef struct BoundaryTrace {
@@ -125,6 +127,17 @@ static VKAPI_ATTR VkResult VKAPI_CALL test_vk_begin_command_buffer(
     boundary_trace.valid &= command_buffer == aux_command_buffer;
     boundary_trace.valid &= begin_info != NULL;
     record_boundary(BOUNDARY_BEGIN_AUX);
+    return VK_SUCCESS;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL test_vk_begin_main_or_aux(
+    VkCommandBuffer command_buffer, const VkCommandBufferBeginInfo *begin_info)
+{
+    if (command_buffer != main_command_buffer) {
+        return test_vk_begin_command_buffer(command_buffer, begin_info);
+    }
+    boundary_trace.valid &= begin_info != NULL;
+    record_boundary(BOUNDARY_BEGIN_MAIN);
     return VK_SUCCESS;
 }
 
@@ -599,6 +612,113 @@ static bool test_disabled_telemetry_preserves_report_behavior(void)
            no_command_buffer_boundaries_called();
 }
 
+static bool test_completed_surface_precedes_next_recording(void)
+{
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
+    SurfaceBinding completed = { 0 };
+    SurfaceBinding current = { 0 };
+    PGRAPHState *pg = &fixture->d.pgraph;
+    PGRAPHVkState *r = &fixture->renderer;
+    unsigned int pipeline_time;
+
+    fixture_init(fixture);
+    install_vulkan_boundaries();
+    vkBeginCommandBuffer = test_vk_begin_main_or_aux;
+    boundary_trace.watched_report = fixture->vram;
+    pg->draw_time = 37;
+    pgraph_vk_begin_command_buffer(pg);
+    pipeline_time = pg->draw_time;
+    /* Surface writers stamp after advancing the draw generation. */
+    completed.draw_time = ++pg->draw_time;
+    pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
+    pgraph_vk_begin_command_buffer(pg);
+    current.draw_time = pg->draw_time;
+
+    return boundary_trace.valid && r->submit_count == 1 &&
+           completed.draw_time == 38 &&
+           completed.draw_time < r->command_buffer_start_time &&
+           current.draw_time >= r->command_buffer_start_time &&
+           pgraph_vk_graphics_pipeline_can_evict(
+               r->in_command_buffer, pipeline_time,
+               r->command_buffer_start_time) &&
+           !pgraph_vk_graphics_pipeline_can_evict(r->in_command_buffer,
+                                                  current.draw_time,
+                                                  r->command_buffer_start_time);
+}
+
+static bool test_empty_main_recording_has_distinct_successor(void)
+{
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
+    PGRAPHState *pg = &fixture->d.pgraph;
+    PGRAPHVkState *r = &fixture->renderer;
+    unsigned int previous_start;
+
+    fixture_init(fixture);
+    install_vulkan_boundaries();
+    vkBeginCommandBuffer = test_vk_begin_main_or_aux;
+    boundary_trace.watched_report = fixture->vram;
+    pg->draw_time = 64;
+    pgraph_vk_begin_command_buffer(pg);
+    previous_start = r->command_buffer_start_time;
+    pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
+    pgraph_vk_begin_command_buffer(pg);
+
+    return boundary_trace.valid && r->submit_count == 1 &&
+           previous_start < r->command_buffer_start_time;
+}
+
+static bool test_idle_finish_preserves_draw_generation(void)
+{
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
+
+    fixture_init(fixture);
+    fixture->d.pgraph.draw_time = 93;
+    pgraph_vk_finish(&fixture->d.pgraph, VK_FINISH_REASON_STALLED);
+
+    return fixture->d.pgraph.draw_time == 93 &&
+           fixture->renderer.submit_count == 0 &&
+           no_command_buffer_boundaries_called();
+}
+
+static bool test_clear_attribution_after_rollover(bool color, bool zeta)
+{
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
+    SurfaceBinding color_binding = { 0 };
+    SurfaceBinding zeta_binding = { 0 };
+    PGRAPHState *pg = &fixture->d.pgraph;
+    PGRAPHVkState *r = &fixture->renderer;
+    int prepared_time;
+
+    fixture_init(fixture);
+    install_vulkan_boundaries();
+    vkBeginCommandBuffer = test_vk_begin_main_or_aux;
+    boundary_trace.watched_report = fixture->vram;
+    r->color_binding = &color_binding;
+    r->zeta_binding = &zeta_binding;
+    pg->clearing = true;
+    pg->draw_time = 37;
+    pgraph_vk_begin_command_buffer(pg);
+    /* Attachment preparation precedes a capacity-driven completion. */
+    prepared_time = ++pg->draw_time;
+    color_binding.draw_time = prepared_time;
+    zeta_binding.draw_time = prepared_time;
+    pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+    pgraph_vk_begin_command_buffer(pg);
+    /* Clear recording calls this production ownership boundary afterwards. */
+    pgraph_vk_set_surface_dirty(pg, color, zeta);
+
+    return boundary_trace.valid && r->submit_count == 1 &&
+           color_binding.draw_time == (color ? pg->draw_time : prepared_time) &&
+           zeta_binding.draw_time == (zeta ? pg->draw_time : prepared_time) &&
+           color_binding.draw_dirty == color &&
+           zeta_binding.draw_dirty == zeta &&
+           pg->surface_color.draw_dirty == color &&
+           pg->surface_zeta.draw_dirty == zeta &&
+           (!color ||
+            color_binding.draw_time >= r->command_buffer_start_time) &&
+           (!zeta || zeta_binding.draw_time >= r->command_buffer_start_time);
+}
+
 int main(void)
 {
     bool idle = test_idle_no_command_buffer_publishes_accumulated_count();
@@ -610,9 +730,16 @@ int main(void)
     bool telemetry =
         test_report_lifecycle_telemetry_tracks_queue_and_retirement();
     bool disabled = test_disabled_telemetry_preserves_report_behavior();
+    bool completed = test_completed_surface_precedes_next_recording();
+    bool empty = test_empty_main_recording_has_distinct_successor();
+    bool idle_generation = test_idle_finish_preserves_draw_generation();
+    bool clear_color = test_clear_attribution_after_rollover(true, false);
+    bool clear_zeta = test_clear_attribution_after_rollover(false, true);
+    bool clear_both = test_clear_attribution_after_rollover(true, true);
+    bool clear_neither = test_clear_attribution_after_rollover(false, false);
 
     puts("TAP version 13");
-    puts("1..8");
+    puts("1..15");
     printf("%s 1 - idle no-CB queue publishes accumulated count\n",
            idle ? "ok" : "not ok");
     printf("%s 2 - clear then report publishes zero\n",
@@ -629,8 +756,24 @@ int main(void)
            telemetry ? "ok" : "not ok");
     printf("%s 8 - disabled telemetry preserves report behavior\n",
            disabled ? "ok" : "not ok");
+    printf("%s 9 - completed surface precedes next recording\n",
+           completed ? "ok" : "not ok");
+    printf("%s 10 - empty main recording has a distinct successor\n",
+           empty ? "ok" : "not ok");
+    printf("%s 11 - idle finish preserves draw generation\n",
+           idle_generation ? "ok" : "not ok");
+    printf("%s 12 - color clear refreshes its post-rollover stamp\n",
+           clear_color ? "ok" : "not ok");
+    printf("%s 13 - depth/stencil clear refreshes its post-rollover stamp\n",
+           clear_zeta ? "ok" : "not ok");
+    printf("%s 14 - combined clear refreshes both post-rollover stamps\n",
+           clear_both ? "ok" : "not ok");
+    printf("%s 15 - unselected clear attachments preserve their stamps\n",
+           clear_neither ? "ok" : "not ok");
     return idle && clear && reject && nonidle && delayed && active &&
-                   telemetry && disabled ?
+                   telemetry && disabled && completed && empty &&
+                   idle_generation && clear_color && clear_zeta && clear_both &&
+                   clear_neither ?
                0 :
                1;
 }
