@@ -93,8 +93,7 @@ static void check_layout(const FormatCase *f, unsigned int base_log,
         unsigned int stored = MAX(1U, stored_base >> level);
         face_size += stored * stored * f->source_bytes;
     }
-    /* The encoded face alignment is 128 bytes, including unused storage mips.
-     */
+    /* Count storage mips, including those hidden by LOD, before alignment. */
     size_t stride = (face_size + 127) & ~(size_t)127;
     mapped_size = 4096 + 6 * stride;
     g_autofree uint8_t *vram = g_malloc(mapped_size);
