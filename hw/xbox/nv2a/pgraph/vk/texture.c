@@ -407,38 +407,43 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx,
                     texture_data_ptr += source_size;
                 } else {
                     unsigned int pitch = width * f.bytes_per_pixel;
-                    unsigned int tex_width = width, tex_height = height;
+                    PGRAPHTextureMipCrop crop = {
+                        .width = width,
+                        .height = height,
+                    };
+                    if (s.cubemap && s.border) {
+                        crop = pgraph_bordered_texture_mip_crop(
+                            s.width, s.height, width, height, level);
+                    }
 
                     size_t converted_size = height * pitch;
                     uint8_t *unswizzled = (uint8_t*)g_malloc(height * pitch);
                     unswizzle_rect(texture_data_ptr, width, height,
                                    unswizzled, pitch, f.bytes_per_pixel);
 
+                    uint8_t *pixels = unswizzled + crop.skip_rows * pitch +
+                                      crop.skip_pixels * f.bytes_per_pixel;
                     uint8_t *converted = pgraph_convert_texture_data(
-                        s, unswizzled, palette_data_ptr, width, height, 1,
-                        pitch, 0, &converted_size);
+                        s, pixels, palette_data_ptr, crop.width, crop.height,
+                        1, pitch, 0, &converted_size);
 
                     if (converted) {
                         g_free(unswizzled);
                     } else {
+                        unsigned int row_bytes = crop.width * f.bytes_per_pixel;
+                        if (pixels != unswizzled || row_bytes != pitch) {
+                            for (unsigned int y = 0; y < crop.height; y++) {
+                                memmove(unswizzled + y * row_bytes,
+                                        pixels + y * pitch, row_bytes);
+                            }
+                        }
                         converted = unswizzled;
-                    }
-
-                    if (s.cubemap && adjusted_width != s.width) {
-                        // FIXME: Consider preserving the border.
-                        // There does not seem to be a way to reference the border
-                        // texels in a cubemap, so they are discarded.
-                        // glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                        tex_width = s.width;
-                        tex_height = s.height;
-                        // pixel_data += 4 * f.bytes_per_pixel + 4 * pitch;
-
-                        // FIXME: Crop by 4 pixels on each side
+                        converted_size = crop.height * row_bytes;
                     }
 
                     layout->layers[layer].levels[level] = (TextureLevel){
-                        .width = tex_width,
-                        .height = tex_height,
+                        .width = crop.width,
+                        .height = crop.height,
                         .depth = 1,
                         .decoded_size = converted_size,
                         .decoded_data = converted,
