@@ -608,6 +608,9 @@ if build_machine.system() == 'linux'
   test('test-xemu-audio-state', python,
        args: [files('test-xemu-audio-state.py')], suite: ['unit'])
 endif
+test('test-xemu-fnstsw-generation', python,
+     args: files('test-xemu-fnstsw-generation.py'),
+     suite: ['unit'])
 
 # This driver compiles small native API doubles, even during a cross build.
 if build_machine.system() in ['linux', 'darwin']
