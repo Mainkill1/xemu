@@ -21,7 +21,9 @@
 #include "qemu/osdep.h"
 #include "dsp_internal.h"
 #include "dsp-jit-state.h"
+#include "gp-filter-hle.h"
 #include "debug.h"
+#include "trace.h"
 
 #include <dsp56300.h>
 
@@ -39,6 +41,8 @@ typedef struct JitBackend {
     uint32_t *xram;
     uint32_t *yram;
     uint32_t *pram;
+    GPFilterHLE *filter_hle;
+    bool filter_hle_ready;
 } JitBackend;
 
 static JitBackend *jit_be(DSPState *dsp)
@@ -71,17 +75,48 @@ static void jit_write_peripheral(void *opaque, uint32_t address, uint32_t value)
 
 static void dsp_jit_reset(DSPState *dsp)
 {
-    dsp56300_reset(jit_be(dsp)->jit);
+    JitBackend *be = jit_be(dsp);
+    dsp56300_reset(be->jit);
+    gp_filter_hle_reset(be->filter_hle);
+    be->filter_hle_ready = false;
 }
 
 static void dsp_jit_step(DSPState *dsp)
 {
-    dsp56300_step(jit_be(dsp)->jit);
+    JitBackend *be = jit_be(dsp);
+    dsp56300_step(be->jit);
+    be->filter_hle_ready = false;
 }
 
 static void dsp_jit_run(DSPState *dsp, int cycles)
 {
-    dsp56300_run(jit_be(dsp)->jit, cycles);
+    JitBackend *be = jit_be(dsp);
+    if (!be->filter_hle) {
+        dsp56300_run(be->jit, cycles);
+        return;
+    }
+    Dsp56300State cpu;
+    dsp56300_get_state(be->jit, &cpu);
+    uint32_t start_pc = cpu.pc, start_input = cpu.registers[DSP_REG_R2];
+    uint32_t start_cycles = cpu.cycle_count;
+    if (be->filter_hle_ready &&
+        gp_filter_hle_try_run(be->filter_hle, &cpu, be->xram, be->yram,
+                              be->pram, cycles)) {
+        /* The kernel changes no code; retain the compiled JIT cache. */
+        dsp56300_set_state(be->jit, &cpu);
+        trace_mcpx_apu_gp_filter_hle(start_pc,
+            cpu.registers[DSP_REG_R2] - start_input,
+            cpu.cycle_count - start_cycles);
+        return;
+    }
+    /* A real block clears provider control state absent from the FFI image. */
+    bool ready = cpu.pc < DSP_PRAM_SIZE &&
+                 !cpu.halt_requested && !cpu.power_state &&
+                 !cpu.interrupts.state && !cpu.interrupts.pending_bits[0] &&
+                 !cpu.interrupts.pending_bits[1] &&
+                 (int64_t)cpu.cycle_budget + cycles > 0;
+    dsp56300_run(be->jit, cycles);
+    be->filter_hle_ready = ready;
 }
 
 static void dsp_jit_bootstrap(DSPState *dsp)
@@ -98,6 +133,8 @@ static void dsp_jit_bootstrap(DSPState *dsp)
         }
     }
     dsp56300_invalidate_cache(be->jit);
+    gp_filter_hle_reset(be->filter_hle);
+    be->filter_hle_ready = false;
 }
 
 static uint32_t dsp_jit_read_memory(DSPState *dsp, char space, uint32_t addr)
@@ -115,6 +152,9 @@ static void dsp_jit_write_memory(DSPState *dsp, char space, uint32_t addr,
                                 (space == 'Y') ? DSP56300_MEM_SPACE_Y :
                                                  DSP56300_MEM_SPACE_P;
     dsp56300_write_memory(jit_be(dsp)->jit, space_id, addr, value);
+    if (space == 'P') {
+        jit_be(dsp)->filter_hle_ready = false;
+    }
 }
 
 static bool dsp_jit_get_halt_requested(DSPState *dsp)
@@ -125,6 +165,9 @@ static bool dsp_jit_get_halt_requested(DSPState *dsp)
 static void dsp_jit_set_halt_requested(DSPState *dsp, bool idle)
 {
     dsp56300_set_halt_requested(jit_be(dsp)->jit, idle);
+    if (idle) {
+        jit_be(dsp)->filter_hle_ready = false;
+    }
 }
 
 static uint32_t dsp_jit_get_cycle_count(DSPState *dsp)
@@ -139,7 +182,10 @@ static void dsp_jit_set_cycle_count(DSPState *dsp, uint32_t count)
 
 static void dsp_jit_invalidate_opcache(DSPState *dsp)
 {
-    dsp56300_invalidate_cache(jit_be(dsp)->jit);
+    JitBackend *be = jit_be(dsp);
+    dsp56300_invalidate_cache(be->jit);
+    gp_filter_hle_reset(be->filter_hle);
+    be->filter_hle_ready = false;
 }
 
 /*
@@ -258,6 +304,8 @@ static void dsp_jit_sync_from_vm(DSPState *dsp)
     dsp56300_set_state(jit, &ss);
 
     dsp56300_invalidate_cache(jit);
+    gp_filter_hle_reset(jit_be(dsp)->filter_hle);
+    jit_be(dsp)->filter_hle_ready = false;
 }
 
 static JitBackend *dsp_create_jit_backend(DSPState *dsp)
@@ -324,6 +372,11 @@ static JitBackend *dsp_create_jit_backend(DSPState *dsp)
 void dsp_jit_init(DSPState *dsp)
 {
     JitBackend *be = dsp_create_jit_backend(dsp);
+#if XEMU_GP_FILTER_HLE_ABI_0_1_3
+    if (dsp->is_gp && g_strcmp0(g_getenv("XEMU_GP_FILTER_HLE"), "1") == 0) {
+        be->filter_hle = gp_filter_hle_new();
+    }
+#endif
     dsp->backend = be;
     dsp->ops = &jit_dsp_ops;
 
@@ -335,6 +388,7 @@ void dsp_jit_init(DSPState *dsp)
 static void dsp_jit_finalize(DSPState *dsp)
 {
     JitBackend *be = jit_be(dsp);
+    gp_filter_hle_free(be->filter_hle);
     dsp56300_destroy(be->jit);
     g_free(be->xram);
     g_free(be->yram);
@@ -369,6 +423,8 @@ bool dsp_jit_set_native_state(DSPState *dsp, const DSPJitState *state)
     memcpy(be->pram, state->pram, sizeof(state->pram));
     dsp56300_set_state(be->jit, &state->cpu);
     dsp56300_invalidate_cache(be->jit);
+    gp_filter_hle_reset(be->filter_hle);
+    be->filter_hle_ready = false;
     return true;
 }
 
