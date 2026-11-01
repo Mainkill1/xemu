@@ -101,7 +101,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\",\"depth_alias\"]"
+            "\"descriptor_publication\",\"surface_upload\",\"depth_alias\","
+            "\"ordered_color_upload\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -475,6 +476,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"depth_alias_producer_pixels_per_guest_frame\":%" PRIu64
             ",\"depth_alias_view_pixels_per_guest_frame\":%" PRIu64
             ",\"depth_alias_copied_pixels_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_attempts_per_guest_frame\":%" PRIu64
+            ",\"small_color_uploads_recorded_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_bytes_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_ring_finishes_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_capacity_finishes_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_flush_failures_per_guest_frame\":%" PRIu64
+            ",\"small_color_upload_peak_offset_per_guest_frame\":%" PRIu64
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
@@ -504,7 +512,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->depth_alias_bound_drains,
             perf->depth_alias_producer_pixels,
             perf->depth_alias_view_pixels,
-            perf->depth_alias_copied_pixels);
+            perf->depth_alias_copied_pixels,
+            perf->small_color_upload_attempts,
+            perf->small_color_uploads_recorded,
+            perf->small_color_upload_bytes,
+            perf->small_color_upload_ring_finishes,
+            perf->small_color_upload_capacity_finishes,
+            perf->small_color_upload_flush_failures,
+            perf->small_color_upload_peak_offset);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -563,6 +578,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->depth_alias_producer_pixels = 0;
     perf->depth_alias_view_pixels = 0;
     perf->depth_alias_copied_pixels = 0;
+    perf->small_color_upload_attempts = 0;
+    perf->small_color_uploads_recorded = 0;
+    perf->small_color_upload_bytes = 0;
+    perf->small_color_upload_ring_finishes = 0;
+    perf->small_color_upload_capacity_finishes = 0;
+    perf->small_color_upload_flush_failures = 0;
+    perf->small_color_upload_peak_offset = 0;
+
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

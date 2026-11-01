@@ -1650,6 +1650,99 @@ bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
     return true;
 }
 
+#ifdef __linux__
+static bool upload_small_swizzled_color(PGRAPHState *pg,
+                                         SurfaceBinding *surface)
+{
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    StorageBuffer *staging = &r->storage_buffers[BUFFER_TEXTURE_STAGING];
+    const VkDeviceSize size = 32 * 32 * 4;
+    VkDeviceSize alignment = MAX(
+        (VkDeviceSize)4,
+        r->device_props.limits.optimalBufferCopyOffsetAlignment);
+
+    if (r->perf.enabled) {
+        r->perf.small_color_upload_attempts++;
+        if (staging->buffer_size < size && r->in_command_buffer) {
+            r->perf.small_color_upload_capacity_finishes++;
+        }
+    }
+    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_TEXTURE_STAGING, size);
+    if (!pgraph_vk_buffer_has_space_for(pg, BUFFER_TEXTURE_STAGING,
+                                        size, alignment)) {
+        if (r->perf.enabled) {
+            r->perf.small_color_upload_ring_finishes++;
+        }
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+    }
+    assert(pgraph_vk_buffer_has_space_for(pg, BUFFER_TEXTURE_STAGING,
+                                          size, alignment));
+
+    VkDeviceSize offset = ROUND_UP(staging->buffer_offset, alignment);
+    assert(staging->mapped && offset + size <= staging->buffer_size);
+    unswizzle_rect(d->vram_ptr + surface->vram_addr, 32, 32,
+                   staging->mapped + offset, 128, 4);
+    nv2a_profile_inc_counter(NV2A_PROF_SURF_SWIZZLE);
+
+    VkResult result = vmaFlushAllocation(r->allocator, staging->allocation,
+                                          offset, size);
+    if (result != VK_SUCCESS) {
+        if (r->perf.enabled) {
+            r->perf.small_color_upload_flush_failures++;
+        }
+        error_report("Vulkan small color upload flush failed: %d", result);
+        return false;
+    }
+    staging->buffer_offset = offset + size;
+
+    VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
+    VkBufferMemoryBarrier host_barrier = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask = VK_ACCESS_HOST_WRITE_BIT,
+        .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = staging->buffer,
+        .offset = offset,
+        .size = size,
+    };
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_HOST_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 1,
+                         &host_barrier, 0, NULL);
+    pgraph_vk_transition_image_layout(
+        pg, cmd, surface->image, surface->host_fmt.vk_format,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    VkBufferImageCopy region = {
+        .bufferOffset = offset,
+        .imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .imageSubresource.layerCount = 1,
+        .imageExtent = { 32, 32, 1 },
+    };
+    vkCmdCopyBufferToImage(cmd, staging->buffer, surface->image,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    pgraph_vk_transition_image_layout(
+        pg, cmd, surface->image, surface->host_fmt.vk_format,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    pgraph_vk_end_nondraw_commands(pg, cmd);
+
+    pgraph_vk_surface_upload_complete(
+        true, &surface->upload_pending,
+        &surface->readback_superseded_by_guest);
+    surface->draw_time = pg->draw_time;
+    surface->initialized = true;
+    if (r->perf.enabled) {
+        r->perf.small_color_uploads_recorded++;
+        r->perf.small_color_upload_bytes += size;
+        r->perf.small_color_upload_peak_offset = MAX(
+            r->perf.small_color_upload_peak_offset, offset + size);
+    }
+    return true;
+}
+#endif
+
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                                    bool force)
 {
@@ -1683,13 +1776,24 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     nv2a_profile_inc_counter(NV2A_PROF_SURF_UPLOAD);
 
-    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_CREATE); // FIXME: SURFACE_UP
-
     trace_nv2a_pgraph_surface_upload(
                  surface->color ? "COLOR" : "ZETA",
                  surface->swizzle ? "sz" : "lin", surface->vram_addr,
                  surface->width, surface->height, surface->pitch,
                  surface->fmt.bytes_per_pixel);
+
+#ifdef __linux__
+    if (surface->color && surface->swizzle &&
+        pg->surface_scale_factor == 1 && surface->width == 32 &&
+        surface->height == 32 && surface->pitch == 128 &&
+        surface->size == 32 * 32 * 4 &&
+        surface->fmt.bytes_per_pixel == 4 &&
+        surface->host_fmt.aspect == VK_IMAGE_ASPECT_COLOR_BIT) {
+        return upload_small_swizzled_color(pg, surface);
+    }
+#endif
+
+    pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_CREATE); /* FIXME: SURFACE_UP */
 
     if (!surface->width || !surface->height) {
         pgraph_vk_surface_upload_complete(
