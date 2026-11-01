@@ -64,9 +64,12 @@ static Fixture *new_fixture(uint32_t input)
     return f;
 }
 
-static void test_identity(void)
+static void test_identity(gconstpointer opaque)
 {
     Fixture *f = new_fixture(3);
+    unsigned step = GPOINTER_TO_UINT(opaque);
+    f->cpu.registers[DSP_REG_N0 + 3] = step;
+    f->cpu.registers[DSP_REG_N0 + 4] = step;
     g_assert_true(gp_filter_hle_run_verified(&f->cpu, f->x, f->y, 1000));
     /* Ten bodies, nine tails; the last result awaits its original store. */
     g_assert_cmpuint(f->cpu.cycle_count, ==, 1066);
@@ -101,6 +104,8 @@ static void test_identity(void)
     g_assert_cmpint(f->cpu.cycle_budget, ==, -29);
     g_assert_cmpuint(f->cpu.registers[DSP_REG_LC], ==, 14);
     g_assert_cmpuint(f->cpu.pc, ==, 0x1c0);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_N0 + 3], ==, step);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_N0 + 4], ==, step);
     g_free(f);
 }
 
@@ -220,6 +225,16 @@ static void test_reject(gconstpointer opaque)
     case 19:
         f->cpu.registers[DSP_REG_SSH] = 0;
         break;
+    case 20:
+        f->cpu.registers[DSP_REG_N0 + 3] = 1;
+        break;
+    case 21:
+        f->cpu.registers[DSP_REG_N0 + 4] = 1;
+        break;
+    case 22:
+        f->cpu.registers[DSP_REG_N0 + 3] = 0;
+        f->cpu.registers[DSP_REG_N0 + 4] = 0;
+        break;
     default:
         g_assert_not_reached();
     }
@@ -316,7 +331,10 @@ int __wrap_main(int argc, char **argv)
 {
     module_call_init(MODULE_INIT_QOM);
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/mcpx-apu/gp-filter-hle/identity", test_identity);
+    g_test_add_data_func("/mcpx-apu/gp-filter-hle/identity",
+                         GUINT_TO_POINTER(2), test_identity);
+    g_test_add_data_func("/mcpx-apu/gp-filter-hle/unit-steps",
+                         GUINT_TO_POINTER(1), test_identity);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/positive-limit",
                          GUINT_TO_POINTER(0), test_limit);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/negative-limit",
@@ -332,7 +350,7 @@ int __wrap_main(int argc, char **argv)
                     test_backend_fallback);
     g_test_add_func("/mcpx-apu/gp-filter-hle/captured-frame",
                     test_captured_frame);
-    for (unsigned i = 0; i < 20; i++) {
+    for (unsigned i = 0; i < 23; i++) {
         g_autofree char *name =
             g_strdup_printf("/mcpx-apu/gp-filter-hle/reject-%u", i);
         g_test_add_data_func(name, GUINT_TO_POINTER(i), test_reject);

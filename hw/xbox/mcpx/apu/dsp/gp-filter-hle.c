@@ -123,9 +123,12 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         cpu->registers[DSP_REG_LA] != entry + 0x3e) {
         return false;
     }
+    bool unit_steps = cpu->registers[DSP_REG_N0 + 3] == 1 &&
+                      cpu->registers[DSP_REG_N0 + 4] == 1;
     for (unsigned i = 0; i < 8; i++) {
         if (cpu->registers[DSP_REG_M0 + i] != 0xffffff ||
-            cpu->registers[DSP_REG_N0 + i] != offsets[i]) {
+            (cpu->registers[DSP_REG_N0 + i] != offsets[i] &&
+             !(unit_steps && (i == 3 || i == 4)))) {
             return false;
         }
     }
