@@ -137,6 +137,109 @@ static void write_vp_method(MCPXAPUState *d, hwaddr method, uint32_t argument)
     vp_ops.write(d, method, argument, sizeof(argument));
 }
 
+typedef struct CallbackObservation {
+    float pcm[NUM_SAMPLES_PER_FRAME];
+    uint32_t cbo;
+    unsigned ssl_index;
+    unsigned ssl_seg;
+    bool active;
+    uint8_t notify[2];
+    uint8_t notify_phase[2];
+    uint32_t irq;
+    bool set_irq;
+} CallbackObservation;
+
+typedef struct CallbackTrace {
+    MCPXAPUState *d;
+    src_callback_t callback;
+    void *opaque;
+    unsigned count;
+    CallbackObservation observations[32];
+} CallbackTrace;
+
+static CallbackTrace *callback_trace;
+
+static uint8_t *notifier_status(MCPXAPUState *d, unsigned ssl)
+{
+    uint8_t *data = memory_region_get_ram_ptr(&ram);
+    return data + d->regs[NV_PAPU_FENADDR] - ram_base +
+           16 * (MCPX_HW_NOTIFIER_BASE_OFFSET +
+                 first_voice * MCPX_HW_NOTIFIER_COUNT +
+                 MCPX_HW_NOTIFIER_SSLA_DONE + ssl) + 15;
+}
+
+static long observe_sample_callback(void *opaque, float **data)
+{
+    CallbackTrace *trace = opaque;
+    long count = trace->callback(trace->opaque, data);
+    g_assert_cmpint(count, ==, NUM_SAMPLES_PER_FRAME);
+    g_assert_cmpuint(trace->count, <, ARRAY_SIZE(trace->observations));
+    CallbackObservation *observation = &trace->observations[trace->count++];
+    MCPXAPUState *d = trace->d;
+    uint8_t *voice = voice_record(d->regs[NV_PAPU_VPVADDR], first_voice);
+    memcpy(observation->pcm, *data, sizeof(observation->pcm));
+    observation->cbo = ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff;
+    observation->active = ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE) &
+                          NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE;
+    observation->ssl_index = d->vp.ssl[first_voice].ssl_index;
+    observation->ssl_seg = d->vp.ssl[first_voice].ssl_seg;
+    for (unsigned ssl = 0; ssl < 2; ssl++) {
+        observation->notify[ssl] = *notifier_status(d, ssl);
+        observation->notify_phase[ssl] = *(notifier_status(d, ssl) - 1);
+    }
+    observation->irq = d->regs[NV_PAPU_ISTS];
+    observation->set_irq = d->set_irq;
+    return count;
+}
+
+SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
+                                   int channels, int *error, void *opaque)
+{
+    /* Observe mono PCM before sinc buffering; retain the real converter. */
+    if (callback_trace) {
+        g_assert_cmpint(channels, ==, 1);
+        callback_trace->callback = callback;
+        callback_trace->opaque = opaque;
+        return __real_src_callback_new(observe_sample_callback, type, channels,
+                                       error, callback_trace);
+    }
+    return __real_src_callback_new(callback, type, channels, error, opaque);
+}
+
+static void prepare_notifications(MCPXAPUState *d)
+{
+    d->regs[NV_PAPU_FENADDR] = ram_base + 0x6000;
+    d->regs[NV_PAPU_FETFORCE1] = NV_PAPU_FETFORCE1_SE2FE_IDLE_VOICE;
+    for (unsigned ssl = 0; ssl < 2; ssl++) {
+        memset(notifier_status(d, ssl) - 1, 0xa5, 2);
+    }
+}
+
+static void assert_callback(const CallbackObservation *observation, float pcm,
+                            unsigned cbo, unsigned ssl_index, unsigned ssl_seg,
+                            bool active)
+{
+    for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
+        g_assert_cmpfloat(observation->pcm[i], ==, pcm);
+    }
+    g_assert_cmpuint(observation->cbo, ==, cbo);
+    g_assert_cmpuint(observation->ssl_index, ==, ssl_index);
+    g_assert_cmpuint(observation->ssl_seg, ==, ssl_seg);
+    g_assert_cmpuint(observation->active, ==, active);
+}
+
+static void assert_notified(const CallbackObservation *observation,
+                            unsigned ssl)
+{
+    g_assert_cmpuint(observation->notify[ssl], ==,
+                     NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+    g_assert_cmpuint(observation->notify_phase[ssl], ==, 1);
+    g_assert_cmpuint(observation->irq &
+                         (NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS),
+                     ==, NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS);
+    g_assert_true(observation->set_irq);
+}
+
 static FrameObservation observe_one_voice_frame(MCPXAPUState *d)
 {
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
@@ -355,6 +458,163 @@ static void test_method_update_survives_reset(void)
     destroy_voice_frame(d);
 }
 
+static void test_pcm_to_adpcm_continuation(void)
+{
+    MCPXAPUState *d = prepare_boundary_voice(mono_pcm_format());
+    uint8_t *data = memory_region_get_ram_ptr(&ram);
+    for (unsigned i = 0; i < 512; i++) {
+        stw_le_p(data + 0x9000 + i * 2, 4096);
+    }
+    /* Zero index/nibbles leave every decoded sample at the -8192 predictor. */
+    memset(data + 0x9400, 0, 64 * 36);
+    for (unsigned block = 0; block < 64; block++) {
+        stw_le_p(data + 0x9400 + block * 36, (uint16_t)-8192);
+    }
+    prepare_notifications(d);
+    CallbackTrace trace = { .d = d };
+    callback_trace = &trace;
+    observe_one_voice_frame(d);
+    g_assert_cmpuint(trace.count, >, 0);
+    for (unsigned i = 0; i < trace.count; i++) {
+        assert_callback(&trace.observations[i], 0.125f, (i + 1) * 32, 0, 0,
+                         true);
+    }
+    unsigned before = trace.count;
+    unsigned old_cbo = trace.observations[before - 1].cbo;
+    uint32_t format = mono_pcm_format();
+    SET_MASK(format, NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE,
+              NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE_ADPCM);
+    write_vp_method(d, NV1BA0_PIO_SET_CURRENT_VOICE, first_voice);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 1);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_CFG_BUF_BASE, 0x400);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_CFG_FMT, format);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 0);
+    FrameObservation mixed = { 0 };
+    for (unsigned i = 0; i < 4; i++) {
+        mixed = observe_one_voice_frame(d);
+    }
+    g_assert_cmpuint(trace.count, >, before);
+    for (unsigned i = before; i < trace.count; i++) {
+        CallbackObservation *observation = &trace.observations[i];
+        assert_callback(observation, -0.25f, old_cbo + (i - before + 1) * 32,
+                         0, 0, true);
+        g_assert_cmpuint(observation->notify[0], ==, 0xa5);
+        g_assert_cmpuint(observation->notify[1], ==, 0xa5);
+        g_assert_false(observation->set_irq);
+    }
+    g_assert_cmpfloat(mixed.bins[0][NUM_SAMPLES_PER_FRAME - 1], <, 0);
+    g_assert_cmpfloat(mixed.bins[0][NUM_SAMPLES_PER_FRAME - 1], ==,
+                      mixed.bins[1][NUM_SAMPLES_PER_FRAME - 1]);
+    destroy_voice_frame(d);
+    callback_trace = NULL;
+}
+
+static void advance_to_callback(CallbackTrace *trace, unsigned count)
+{
+    for (unsigned frame = 0; frame < 16 && trace->count < count; frame++) {
+        observe_one_voice_frame(trace->d);
+    }
+    g_assert_cmpuint(trace->count, >=, count);
+}
+
+static void test_persistent_stream_release(void)
+{
+    uint32_t format = (mono_pcm_format() & ~NV_PAVS_VOICE_CFG_FMT_LOOP) |
+                      NV_PAVS_VOICE_CFG_FMT_DATA_TYPE |
+                      NV_PAVS_VOICE_CFG_FMT_PERSIST;
+    MCPXAPUState *d = prepare_boundary_voice(format);
+    prepare_notifications(d);
+    uint8_t *data = memory_region_get_ram_ptr(&ram);
+    for (unsigned i = 0; i < 128; i++) {
+        stw_le_p(data + 0x9000 + i * 2, 4096);
+        stw_le_p(data + 0x9400 + i * 2, (uint16_t)-8192);
+    }
+    d->regs[NV_PAPU_VPSSLADDR] = ram_base + 0x5000;
+    write_vp_method(d, NV1BA0_PIO_SET_CURRENT_VOICE, first_voice);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 1);
+    write_vp_method(d, NV1BA0_PIO_SET_CURRENT_SSL, 0);
+    for (unsigned segment = 0; segment < 3; segment++) {
+        unsigned offset = segment == 2 ? 0x9400 : 0x9000 + segment * 128;
+        unsigned samples = segment == 2 ? 128 : 64;
+        write_vp_method(d, NV1BA0_PIO_SET_SSL_SEGMENT_OFFSET + segment * 8,
+                        ram_base + offset);
+        /* Mono PCM, B16 container, one sample per block. */
+        write_vp_method(d, NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH + segment * 8,
+                        samples | (1U << 16));
+    }
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_SSL_A, 2);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_SSL_B, (2U << 8) | 1);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 0);
+    CallbackTrace trace = { .d = d };
+    callback_trace = &trace;
+    advance_to_callback(&trace, 4);
+    g_assert_cmpuint(d->vp.ssl[first_voice].ssl_index, ==, 1);
+    for (unsigned i = 0; i < 4; i++) {
+        assert_callback(&trace.observations[i], 0.125f, (i + 1) * 32 % 64,
+                         i == 3, i == 1 || i == 2, true);
+        if (i < 3) {
+            g_assert_cmpuint(trace.observations[i].notify[0], ==, 0xa5);
+            g_assert_cmpuint(trace.observations[i].notify_phase[0], ==, 0xa5);
+        }
+        g_assert_cmpuint(trace.observations[i].notify[1], ==, 0xa5);
+    }
+    assert_notified(&trace.observations[3], 0);
+    /* Retire consumed A between frames, so B exhausts into an empty A. */
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 1);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_SSL_A, 0);
+    memset(notifier_status(d, 0) - 1, 0xa5, 2);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 0);
+    advance_to_callback(&trace, 9);
+    for (unsigned i = 4; i < 8; i++) {
+        assert_callback(&trace.observations[i], -0.25f, (i + 1) * 32 % 128,
+                         i != 7, 0, true);
+        if (i < 7) {
+            g_assert_cmpuint(trace.observations[i].notify[1], ==, 0xa5);
+            g_assert_cmpuint(trace.observations[i].notify_phase[1], ==, 0xa5);
+        }
+    }
+    assert_notified(&trace.observations[7], 1);
+    g_assert_cmpuint(trace.observations[7].notify[0], ==, 0xa5);
+    for (unsigned i = 8; i < trace.count; i++) {
+        assert_callback(&trace.observations[i], 0, 0, 0, 0, true);
+        assert_notified(&trace.observations[i], 0);
+    }
+    unsigned before_release = trace.count;
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 1);
+    memset(notifier_status(d, 0) - 1, 0xa5, 2);
+    d->regs[NV_PAPU_ISTS] = 0;
+    d->set_irq = false;
+    /*
+     * Keep the envelope in release long enough that only stream exhaustion
+     * can turn the voice off in this bounded observation.
+     */
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_LFO_ENV, 0xfff);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_CFG_MISC, 0xfff);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_CFG_FMT,
+                    format & ~NV_PAVS_VOICE_CFG_FMT_PERSIST);
+    write_vp_method(d, NV1BA0_PIO_VOICE_RELEASE, first_voice);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 0);
+    uint8_t *voice = voice_record(ram_base, first_voice);
+    g_assert_cmpuint(GET_MASK(ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE),
+                              NV_PAVS_VOICE_PAR_STATE_EACUR),
+                     ==, NV_PAVS_VOICE_PAR_STATE_EFCUR_RELEASE);
+    advance_to_callback(&trace, before_release + 1);
+    assert_callback(&trace.observations[before_release], 0, 0, 0, 0, false);
+    assert_notified(&trace.observations[before_release], 0);
+    g_assert_cmpuint(GET_MASK(ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE),
+                              NV_PAVS_VOICE_PAR_STATE_EACUR),
+                     ==, NV_PAVS_VOICE_PAR_STATE_EFCUR_RELEASE);
+    FrameObservation inactive = observe_one_voice_frame(d);
+    g_assert_false(inactive.active);
+    for (unsigned bin = 0; bin < 2; bin++) {
+        for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
+            g_assert_cmpfloat(inactive.bins[bin][i], ==, 0);
+        }
+    }
+    destroy_voice_frame(d);
+    callback_trace = NULL;
+}
+
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
@@ -378,5 +638,9 @@ int __wrap_main(int argc, char **argv)
                     test_direct_ram_and_table_base_boundaries);
     g_test_add_func("/mcpx-apu/voice-format/method-survives-reset",
                     test_method_update_survives_reset);
+    g_test_add_func("/mcpx-apu/voice-format/pcm-to-adpcm-continuation",
+                    test_pcm_to_adpcm_continuation);
+    g_test_add_func("/mcpx-apu/voice-format/persistent-stream-release",
+                    test_persistent_stream_release);
     return g_test_run();
 }
