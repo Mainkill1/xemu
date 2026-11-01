@@ -142,6 +142,11 @@ jobs:
 
         mkdir -p deb
         mv *.deb *.ddeb deb
+    - name: Verify MCPX voice-format update boundaries
+      run: |
+        ninja -C src/build test-xbox-mcpx-apu-voice-format-boundaries
+        src/build/pyvenv/bin/meson test -C src/build --no-rebuild \
+          test-xbox-mcpx-apu-voice-format-boundaries --print-errorlogs
     - name: Report ccache stats
       run: ccache -s
     - name: Generate AppImage

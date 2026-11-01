@@ -237,7 +237,7 @@ const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_eligible(
     const PGRAPHVkFamilyHistoryRecord *selected = NULL;
     for (size_t i = 0; i < history->count; i++) {
         const PGRAPHVkFamilyHistoryRecord *candidate = &history->records[i];
-        if (candidate->attempted ||
+        if (!candidate->loaded_from_disk || candidate->attempted ||
             (!allow_new && !candidate->prewarm_considered) ||
             candidate->prewarm_retry_after_service > service_id) {
             continue;
@@ -464,6 +464,7 @@ PGRAPHVkFamilyHistoryLoadResult pgraph_vk_family_history_load(
                 .cold_misses = cold_misses,
                 .synchronous_create_us = synchronous_create_us,
                 .last_used = last_used,
+                .loaded_from_disk = true,
             };
     }
     if (offset != size) {

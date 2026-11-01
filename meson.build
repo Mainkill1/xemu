@@ -4658,6 +4658,19 @@ foreach target : target_dirs
       build_by_default: false)
     test('test-xbox-mcpx-apu-voice-memory', apu_voice_memory_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    voice_format_test = executable('test-xbox-mcpx-apu-voice-format-boundaries',
+      files('tests/xbox/mcpx-apu/test-voice-format-boundaries.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main',
+                             '-Wl,--wrap=pthread_mutex_lock',
+                             '-Wl,--wrap=src_callback_new'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-voice-format-boundaries', voice_format_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
     apu_sample_memory_test = executable('test-xbox-mcpx-apu-sample-memory',
       files('tests/xbox/mcpx-apu/test-sample-memory.c'),
       c_args: c_args,
@@ -4693,7 +4706,7 @@ foreach target : target_dirs
       link_args: link_args + ['-Wl,--wrap=main',
                              '-Wl,--wrap=src_callback_new',
                              '-Wl,--wrap=SDL_GetNumLogicalCPUCores',
-                             '-Wl,--wrap=qemu_cond_broadcast'],
+                             '-Wl,--wrap=pthread_cond_broadcast'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-resampler-throughput',
       resampler_throughput_test, args: ['--tap', '-k'], protocol: 'tap',
