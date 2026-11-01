@@ -76,8 +76,7 @@ void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
 {
     g_assert_not_reached();
 }
-void __wrap_pgraph_vk_finish(PGRAPHState *pg, FinishReason reason);
-void __wrap_pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
+void pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
 {
     if (expect_depth_rejection && reason == VK_FINISH_REASON_SURFACE_DOWN) {
         g_printerr("incompatible depth storage rejected before reuse\n");
@@ -85,8 +84,7 @@ void __wrap_pgraph_vk_finish(PGRAPHState *pg, FinishReason reason)
     }
     g_assert_not_reached();
 }
-void __wrap_pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg);
-void __wrap_pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg)
+void pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg)
 {
     g_assert_false(pg->vk_renderer_state->in_render_pass);
 }
