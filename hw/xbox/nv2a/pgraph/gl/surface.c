@@ -323,6 +323,7 @@ void pgraph_gl_render_surface_to_texture(NV2AState *d, SurfaceBinding *surface,
         &kelvin_color_format_gl_map[texture_shape->color_format];
     assert(texture_shape->color_format < ARRAY_SIZE(kelvin_color_format_gl_map));
 
+    pgraph_gl_texture_binding_invalidate_storage(texture);
     nv2a_profile_inc_counter(NV2A_PROF_SURF_TO_TEX);
 
     if (!surface_to_texture_can_fastpath(surface, texture_shape)) {

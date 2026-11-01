@@ -12,7 +12,11 @@ void pgraph_gl_texture_binding_destroy(TextureBinding *binding)
     assert(binding->refcnt > 0);
     binding->refcnt--;
     if (binding->refcnt == 0) {
-        glDeleteTextures(1, &binding->gl_texture);
+        if (binding->release_texture) {
+            binding->release_texture(binding);
+        } else {
+            glDeleteTextures(1, &binding->gl_texture);
+        }
         g_free(binding);
     }
 }
