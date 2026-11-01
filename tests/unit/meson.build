@@ -11,6 +11,7 @@ xbox_i386_target_headers = declare_dependency(
 )
 
 tests = {
+  'test-aarch64-tso-mode': [],
   'check-block-qdict': [],
   'check-qdict': [],
   'check-qnum': [],
