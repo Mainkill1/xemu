@@ -8,6 +8,7 @@
 #include "monitor/monitor.h"
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "test-resampler-throughput.h"
 
 /*
  * Drive the production VP API without a timer, device frame thread, GP/EP DSP
@@ -36,12 +37,11 @@ static MCPXAPUState *assignment_probe;
 static unsigned actual_pool, busy_workers;
 static unsigned distribution[MAX_VOICE_WORKERS];
 
-void __real_qemu_cond_broadcast(QemuCond *cond);
-void __wrap_qemu_cond_broadcast(QemuCond *cond);
-void __wrap_qemu_cond_broadcast(QemuCond *cond)
+/* Observe the external wakeup call even when LTO resolves QEMU's wrapper. */
+int __wrap_pthread_cond_broadcast(pthread_cond_t *cond)
 {
     if (assignment_probe &&
-        cond == &assignment_probe->vp.voice_work_dispatch.work_pending) {
+        cond == &assignment_probe->vp.voice_work_dispatch.work_pending.cond) {
         /*
          * Production dispatch owns its mutex; inspect before waking workers.
          * Constant workloads probe once; signed checks probe every
@@ -73,7 +73,7 @@ void __wrap_qemu_cond_broadcast(QemuCond *cond)
                          (UINT64_C(1) << busy_workers) - 1);
         assignment_probe = NULL;
     }
-    __real_qemu_cond_broadcast(cond);
+    return __real_pthread_cond_broadcast(cond);
 }
 
 enum Payload { MONO_ADPCM, STEREO_ADPCM, MONO_PCM };
@@ -282,6 +282,7 @@ static void run_workload(enum Payload payload, unsigned workers,
         /* Sinc startup is outside measurement and output qualification. */
         max_error = 0;
     }
+    g_assert_null(assignment_probe);
     uint64_t checksum = run_voice_frame(d, payload, &max_error);
     g_assert_cmpuint(checksum, ==, 184320);
     g_assert_cmpfloat(max_error * 8388608.0, <=, 32);
@@ -434,6 +435,7 @@ static void test_signed_reduction(gconstpointer opaque)
             /* Untimed, exactly-once membership per batch. */
             assignment_probe = d;
             mcpx_apu_vp_frame(d, bins);
+            g_assert_null(assignment_probe);
             for (unsigned b = 0; b < NUM_MIXBINS; b++) {
                 for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                     g_assert_true(isfinite(bins[b][i]));
