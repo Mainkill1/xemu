@@ -20,6 +20,7 @@
 #include "qemu/main-loop.h"
 
 static AioContext *ctx;
+static GMainContext *main_context;
 
 typedef struct {
     EventNotifier e;
@@ -429,20 +430,19 @@ static void test_timer_schedule(void)
  * replacing aio_poll.  However:
  * - sometimes both the AioContext and the glib main loop wake
  *   themselves up.  Hence, some "g_assert(!aio_poll(ctx, false));"
- *   are replaced by "while (g_main_context_iteration(NULL, false));".
+ *   are replaced by "while (g_main_context_iteration(main_context, false));".
  * - there is no exact replacement for a blocking wait.
- *   "while (g_main_context_iteration(NULL, true)" seems to work,
- *   but it is not documented _why_ it works.  For these tests a
- *   non-blocking loop like "while (g_main_context_iteration(NULL, false)"
- *   works well, and that's what I am using.
+ *   "while (g_main_context_iteration(main_context, true)" seems to work,
+ *   but it is not documented _why_ it works.  For these tests, draining
+ *   the source's context with non-blocking iterations works well.
  */
 
 static void test_source_flush(void)
 {
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     aio_notify(ctx);
-    while (g_main_context_iteration(NULL, false));
-    g_assert(!g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
+    g_assert(!g_main_context_iteration(main_context, false));
 }
 
 static void test_source_bh_schedule(void)
@@ -453,10 +453,10 @@ static void test_source_bh_schedule(void)
     qemu_bh_schedule(data.bh);
     g_assert_cmpint(data.n, ==, 0);
 
-    g_assert(g_main_context_iteration(NULL, true));
+    g_assert(g_main_context_iteration(main_context, true));
     g_assert_cmpint(data.n, ==, 1);
 
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
     qemu_bh_delete(data.bh);
 }
@@ -469,16 +469,16 @@ static void test_source_bh_schedule10(void)
     qemu_bh_schedule(data.bh);
     g_assert_cmpint(data.n, ==, 0);
 
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
 
-    g_assert(g_main_context_iteration(NULL, true));
+    g_assert(g_main_context_iteration(main_context, true));
     g_assert_cmpint(data.n, ==, 2);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 10);
 
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 10);
     qemu_bh_delete(data.bh);
 }
@@ -494,7 +494,7 @@ static void test_source_bh_cancel(void)
     qemu_bh_cancel(data.bh);
     g_assert_cmpint(data.n, ==, 0);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
     qemu_bh_delete(data.bh);
 }
@@ -510,7 +510,7 @@ static void test_source_bh_delete(void)
     qemu_bh_delete(data.bh);
     g_assert_cmpint(data.n, ==, 0);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
 }
 
@@ -523,7 +523,7 @@ static void test_source_bh_delete_from_cb(void)
     qemu_bh_schedule(data1.bh);
     g_assert_cmpint(data1.n, ==, 0);
 
-    g_main_context_iteration(NULL, true);
+    g_main_context_iteration(main_context, true);
     g_assert_cmpint(data1.n, ==, data1.max);
     g_assert(data1.bh == NULL);
 
@@ -531,9 +531,9 @@ static void test_source_bh_delete_from_cb(void)
      * There may be up to one more iteration due to the aio_notify
      * EventNotifier.
      */
-    g_main_context_iteration(NULL, false);
+    g_main_context_iteration(main_context, false);
 
-    assert(!g_main_context_iteration(NULL, false));
+    assert(!g_main_context_iteration(main_context, false));
 }
 
 static void test_source_bh_delete_from_cb_many(void)
@@ -557,14 +557,14 @@ static void test_source_bh_delete_from_cb_many(void)
     g_assert_cmpint(data3.n, ==, 0);
     g_assert_cmpint(data4.n, ==, 0);
 
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data1.n, ==, 1);
     g_assert_cmpint(data2.n, ==, 1);
     g_assert_cmpint(data3.n, ==, 1);
     g_assert_cmpint(data4.n, ==, 1);
     g_assert(data1.bh == NULL);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data1.n, ==, data1.max);
     g_assert_cmpint(data2.n, ==, data2.max);
     g_assert_cmpint(data3.n, ==, data3.max);
@@ -583,10 +583,10 @@ static void test_source_bh_flush(void)
     qemu_bh_schedule(data.bh);
     g_assert_cmpint(data.n, ==, 0);
 
-    g_assert(g_main_context_iteration(NULL, true));
+    g_assert(g_main_context_iteration(main_context, true));
     g_assert_cmpint(data.n, ==, 1);
 
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
     qemu_bh_delete(data.bh);
 }
@@ -596,11 +596,11 @@ static void test_source_set_event_notifier(void)
     EventNotifierTestData data = { .n = 0, .active = 0 };
     event_notifier_init(&data.e, false);
     set_event_notifier(ctx, &data.e, event_ready_cb);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
 
     set_event_notifier(ctx, &data.e, NULL);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
     event_notifier_cleanup(&data.e);
 }
@@ -610,21 +610,21 @@ static void test_source_wait_event_notifier(void)
     EventNotifierTestData data = { .n = 0, .active = 1 };
     event_notifier_init(&data.e, false);
     set_event_notifier(ctx, &data.e, event_ready_cb);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
     g_assert_cmpint(data.active, ==, 1);
 
     event_notifier_set(&data.e);
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
     g_assert_cmpint(data.active, ==, 0);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
     g_assert_cmpint(data.active, ==, 0);
 
     set_event_notifier(ctx, &data.e, NULL);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
 
     event_notifier_cleanup(&data.e);
@@ -635,23 +635,23 @@ static void test_source_flush_event_notifier(void)
     EventNotifierTestData data = { .n = 0, .active = 10, .auto_set = true };
     event_notifier_init(&data.e, false);
     set_event_notifier(ctx, &data.e, event_ready_cb);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
     g_assert_cmpint(data.active, ==, 10);
 
     event_notifier_set(&data.e);
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
     g_assert_cmpint(data.active, ==, 9);
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 10);
     g_assert_cmpint(data.active, ==, 0);
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
 
     set_event_notifier(ctx, &data.e, NULL);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     event_notifier_cleanup(&data.e);
 }
 
@@ -663,13 +663,13 @@ static void test_source_wait_event_notifier_noflush(void)
     event_notifier_init(&data.e, false);
     set_event_notifier(ctx, &data.e, event_ready_cb);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 0);
 
     /* Until there is an active descriptor, glib may or may not call
      * event_ready_cb.  Still, it must not block.  */
     event_notifier_set(&data.e);
-    g_main_context_iteration(NULL, true);
+    g_main_context_iteration(main_context, true);
     data.n = 0;
 
     /* An active event notifier forces aio_poll to look at EventNotifiers.  */
@@ -677,19 +677,19 @@ static void test_source_wait_event_notifier_noflush(void)
     set_event_notifier(ctx, &dummy.e, event_ready_cb);
 
     event_notifier_set(&data.e);
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 1);
 
     event_notifier_set(&data.e);
-    g_assert(g_main_context_iteration(NULL, false));
+    g_assert(g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 2);
-    g_assert(!g_main_context_iteration(NULL, false));
+    g_assert(!g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 2);
 
     event_notifier_set(&dummy.e);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 2);
     g_assert_cmpint(dummy.n, ==, 1);
     g_assert_cmpint(dummy.active, ==, 0);
@@ -698,7 +698,7 @@ static void test_source_wait_event_notifier_noflush(void)
     event_notifier_cleanup(&dummy.e);
 
     set_event_notifier(ctx, &data.e, NULL);
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
     g_assert_cmpint(data.n, ==, 2);
 
     event_notifier_cleanup(&data.e);
@@ -717,7 +717,7 @@ static void test_source_timer_schedule(void)
      */
     event_notifier_init(&e, false);
     set_event_notifier(ctx, &e, dummy_io_handler_read);
-    do {} while (g_main_context_iteration(NULL, false));
+    do {} while (g_main_context_iteration(main_context, false));
 
     aio_timer_init(ctx, &data.timer, data.clock_type,
                    SCALE_NS, timer_test_cb, &data);
@@ -730,12 +730,12 @@ static void test_source_timer_schedule(void)
     g_usleep(1 * G_USEC_PER_SEC);
     g_assert_cmpint(data.n, ==, 0);
 
-    g_assert(g_main_context_iteration(NULL, true));
+    g_assert(g_main_context_iteration(main_context, true));
     g_assert_cmpint(data.n, ==, 1);
     expiry += data.ns;
 
     while (data.n < 2) {
-        g_main_context_iteration(NULL, true);
+        g_main_context_iteration(main_context, true);
     }
 
     g_assert_cmpint(data.n, ==, 2);
@@ -836,8 +836,12 @@ int main(int argc, char **argv)
 {
     qemu_init_main_loop(&error_fatal);
     ctx = qemu_get_aio_context();
+    GSource *source = aio_get_g_source(ctx);
+    main_context = g_source_get_context(source);
+    g_assert_nonnull(main_context);
+    g_source_unref(source);
 
-    while (g_main_context_iteration(NULL, false));
+    while (g_main_context_iteration(main_context, false));
 
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/aio/bh/schedule",             test_bh_schedule);
