@@ -9,6 +9,7 @@
 
 #include "hw/xbox/nv2a/pgraph/neural-present-loader.h"
 #include "neural-present-vk.h"
+#include "hw/xbox/nv2a/pgraph/neural-present-transaction.h"
 #include "ui/xemu-dlss.h"
 
 typedef struct PGRAPHVkNeuralPresent {
@@ -23,6 +24,10 @@ typedef struct PGRAPHVkNeuralPresent {
     bool bootstrap_owned;
     bool proxy_instance_created;
     bool ready;
+    VkImage scratch_image;
+    VkImageView scratch_view;
+    VmaAllocation scratch_allocation;
+    VkImageLayout scratch_layout;
     uint32_t configuration_generation;
     XemuDLSSLaunch launch;
     XemuDLSSRuntime runtime;
@@ -38,11 +43,6 @@ typedef struct PGRAPHVkNeuralPresent {
 static void terminate_status(XemuNeuralPluginStatusV1 *status)
 {
     status->text[sizeof(status->text) - 1] = '\0';
-}
-
-static void terminate_output(XemuNeuralPluginFrameOutputV1 *output)
-{
-    output->text[sizeof(output->text) - 1] = '\0';
 }
 
 /* Called only on the renderer thread. UI readers receive an owned copy.
@@ -488,6 +488,66 @@ void pgraph_vk_neural_present_finalize(PGRAPHState *pg)
     r->neural_present = NULL;
 }
 
+static void destroy_scratch(PGRAPHVkState *r, PGRAPHVkNeuralPresent *neural)
+{
+    if (neural->scratch_view != VK_NULL_HANDLE) {
+        vkDestroyImageView(r->device, neural->scratch_view, NULL);
+        neural->scratch_view = VK_NULL_HANDLE;
+    }
+    if (neural->scratch_image != VK_NULL_HANDLE) {
+        vmaDestroyImage(r->allocator, neural->scratch_image,
+                        neural->scratch_allocation);
+        neural->scratch_image = VK_NULL_HANDLE;
+        neural->scratch_allocation = NULL;
+    }
+    neural->scratch_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+static bool ensure_scratch(PGRAPHVkState *r, PGRAPHVkNeuralPresent *neural)
+{
+    if (neural->scratch_image != VK_NULL_HANDLE) {
+        return true;
+    }
+    VkImageCreateInfo image = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = VK_IMAGE_TYPE_2D,
+        .format = VK_FORMAT_R8G8B8A8_UNORM,
+        .extent = { r->display.width, r->display.height, 1 },
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = VK_SAMPLE_COUNT_1_BIT,
+        .tiling = VK_IMAGE_TILING_OPTIMAL,
+        .usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                 VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                 VK_IMAGE_USAGE_SAMPLED_BIT |
+                 VK_IMAGE_USAGE_STORAGE_BIT |
+                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    };
+    VmaAllocationCreateInfo allocation = {
+        .usage = VMA_MEMORY_USAGE_GPU_ONLY,
+    };
+    if (vmaCreateImage(r->allocator, &image, &allocation,
+                      &neural->scratch_image, &neural->scratch_allocation,
+                      NULL) != VK_SUCCESS) {
+        return false;
+    }
+    VkImageViewCreateInfo view = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = neural->scratch_image,
+        .viewType = VK_IMAGE_VIEW_TYPE_2D,
+        .format = image.format,
+        .subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+    };
+    if (vkCreateImageView(r->device, &view, NULL,
+                          &neural->scratch_view) != VK_SUCCESS) {
+        destroy_scratch(r, neural);
+        return false;
+    }
+    return true;
+}
+
 void pgraph_vk_neural_present_release_display(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -498,6 +558,7 @@ void pgraph_vk_neural_present_release_display(PGRAPHState *pg)
     if (neural->ready && neural->plugin_context != NULL) {
         neural->library.api->release_resources(neural->plugin_context);
     }
+    destroy_scratch(r, neural);
     xemu_neural_present_reset(&neural->state,
                               XEMU_NEURAL_RESET_SOURCE_CHANGED);
     if (neural->ready) {
@@ -603,6 +664,14 @@ void pgraph_vk_neural_present_prepare(
         return;
     }
 
+    if (!ensure_scratch(r, neural)) {
+        frame->completion_pending = true;
+        frame->plugin_result = XEMU_NEURAL_PLUGIN_RESULT_RETRYABLE_ERROR;
+        snprintf(frame->output.text, sizeof(frame->output.text),
+                 "Unable to allocate private adapter image");
+        return;
+    }
+
     frame->plugin_frame = (XemuNeuralPluginFrameV1)
         XEMU_NEURAL_PLUGIN_FRAME_V1_INIT;
     frame->plugin_frame.frame_id = ++neural->next_frame_id;
@@ -621,9 +690,9 @@ void pgraph_vk_neural_present_prepare(
     frame->plugin_frame.active_width = r->display.width;
     frame->plugin_frame.active_height = r->display.height;
     frame->plugin_frame.color_image =
-        (uint64_t)(uintptr_t)r->display.image;
+        (uint64_t)(uintptr_t)neural->scratch_image;
     frame->plugin_frame.color_image_view =
-        (uint64_t)(uintptr_t)r->display.image_view;
+        (uint64_t)(uintptr_t)neural->scratch_view;
     frame->plugin_frame.color_format = VK_FORMAT_R8G8B8A8_UNORM;
     frame->plugin_frame.color_layout =
         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -653,6 +722,42 @@ void pgraph_vk_neural_present_prepare(
     }
 }
 
+typedef struct NeuralPresentCopy {
+    PGRAPHState *pg;
+    VkCommandBuffer cmd;
+} NeuralPresentCopy;
+
+static void copy_adapter_image(void *opaque, bool commit)
+{
+    NeuralPresentCopy *copy = opaque;
+    PGRAPHVkState *r = copy->pg->vk_renderer_state;
+    PGRAPHVkNeuralPresent *neural = r->neural_present;
+    VkImage source = commit ? neural->scratch_image : r->display.image;
+    VkImage target = commit ? r->display.image : neural->scratch_image;
+    VkImageLayout source_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkImageLayout target_layout = commit ? source_layout : neural->scratch_layout;
+    pgraph_vk_transition_image_layout(copy->pg, copy->cmd, source,
+        VK_FORMAT_R8G8B8A8_UNORM, source_layout,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    pgraph_vk_transition_image_layout(copy->pg, copy->cmd, target,
+        VK_FORMAT_R8G8B8A8_UNORM, target_layout,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    VkImageCopy region = {
+        .srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+        .dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+        .extent = { r->display.width, r->display.height, 1 },
+    };
+    vkCmdCopyImage(copy->cmd, source, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   target, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    pgraph_vk_transition_image_layout(copy->pg, copy->cmd, source,
+        VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    pgraph_vk_transition_image_layout(copy->pg, copy->cmd, target,
+        VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    neural->scratch_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+}
+
 void pgraph_vk_neural_present_record(
     PGRAPHState *pg, VkCommandBuffer command_buffer,
     PGRAPHVkNeuralPresentFrame *frame)
@@ -667,27 +772,12 @@ void pgraph_vk_neural_present_record(
         XEMU_NEURAL_PLUGIN_VULKAN_RECORD_V1_INIT;
     record.command_buffer = (uintptr_t)command_buffer;
     record.frame = frame->plugin_frame;
-    frame->output = (XemuNeuralPluginFrameOutputV1)
-        XEMU_NEURAL_PLUGIN_FRAME_OUTPUT_V1_INIT;
-    frame->plugin_result = neural->library.api->record_vulkan(
-        neural->plugin_context, &record, &frame->output);
-    terminate_output(&frame->output);
+    NeuralPresentCopy copy = { pg, command_buffer };
+    frame->plugin_result = xemu_neural_present_record_transaction(
+        neural->library.api->record_vulkan, neural->plugin_context,
+        &record, &frame->output, neural->launch.mode == XEMU_DLSS_VALIDATION,
+        copy_adapter_image, &copy);
     frame->should_record = false;
-
-    XemuNeuralPluginFrameOutputValidation validation =
-        xemu_neural_plugin_frame_output_validate(frame->plugin_result,
-                                                 &frame->output);
-    if (neural->launch.mode == XEMU_DLSS_VALIDATION &&
-        frame->output.feature > XEMU_NEURAL_PLUGIN_FEATURE_PASSTHROUGH) {
-        validation = XEMU_NEURAL_PLUGIN_FRAME_OUTPUT_RESULT_CONFLICT;
-    }
-    if (validation != XEMU_NEURAL_PLUGIN_FRAME_OUTPUT_VALID) {
-        frame->plugin_result = XEMU_NEURAL_PLUGIN_RESULT_RETRYABLE_ERROR;
-        snprintf(frame->output.text, sizeof(frame->output.text),
-                 "invalid adapter output: %s",
-                 xemu_neural_plugin_frame_output_validation_string(
-                     validation));
-    }
 }
 
 void pgraph_vk_neural_present_complete(

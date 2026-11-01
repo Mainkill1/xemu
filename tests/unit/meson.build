@@ -57,6 +57,7 @@ tests = {
   'test-xbox-vk-texture-binding': [],
   'test-xbox-vk-display-output-state': [],
   'test-xbox-neural-present-state': [],
+  'test-xbox-neural-present-transaction': [],
   'test-xbox-neural-present-plugin-abi': [],
   'test-xemu-win32-dxgi-interop': [],
   'test-xbox-vk-device-selection': [
@@ -262,6 +263,11 @@ if vulkan.found()
         }
       endif
       tests += {
+        'test-xbox-neural-present-vk': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-alias-convert-sequence': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
           nv2a_vk_runtime_prod,

@@ -81,16 +81,15 @@ association. PVIDEO and interlaced output bypass the adapter.
 Export `xemu_neural_present_get_api`, accepting ABI version 3. Bootstrap before
 Vulkan creation and retain requirement strings until shutdown. Shut down SDK
 work while the Vulkan device is alive, but retain proxy dispatch modules and
-bootstrap memory until `destroy_bootstrap`, after device and instance teardown. Supply both
-creation proxies when additional extensions, feature bits, or queues are
+bootstrap memory until `destroy_bootstrap`, after device and instance teardown.
+Supply both creation proxies when additional extensions, feature bits, or queues are
 required; the host does not implement a general requirement-merging engine.
 
-Use only the host presentation image. Record into the supplied command buffer,
-return to the specified layout, and retain private resources until all users
-retire. The transactional capability is a promise the adapter must honor, not a
-sandbox or a host rollback mechanism. A broken adapter can still corrupt state.
-The production NR implementation must keep original color and private output
-separate until successful evaluation, then copy the finished result back.
+Use only the private color image supplied by the host. Record into the supplied
+command buffer, return to the specified layout on every result, and retain
+private resources until all users retire. The host validates output metadata
+before copying accepted pixels back to the real display. This does not sandbox
+invalid GPU commands or incorrect layout transitions.
 
 Report pass-through, DLAA, Super Resolution, and NR distinctly. Validation of
 flags can reject inconsistent claims; actual NR execution must additionally be
@@ -169,3 +168,11 @@ Review the manifest before sharing: it contains local paths and computer name.
 Attach evidence to this emulator PR/issue, not evidence-only PRs in the test-suite
 repository. Keep emulator correctness captures before enhancement distinct from
 post-enhancement visual-quality captures.
+
+The host supplies a private color image to `prepare_frame` and `record_vulkan`.
+It copies the original display into that image before recording, validates the
+returned metadata, and copies pixels back only for a valid successful result.
+Rejected, failed, and bypassed output leaves the original display pixels intact.
+The adapter must still issue valid Vulkan commands and return its private image
+to the requested layout on every result; metadata validation cannot sandbox
+invalid GPU commands. The private image is released with display resources.

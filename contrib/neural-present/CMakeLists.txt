@@ -70,6 +70,16 @@ endif()
 
 include(CTest)
 if(BUILD_TESTING)
+    foreach(test_name state plugin-abi transaction)
+        add_executable(xemu-neural-present-${test_name}-test
+            "${XEMU_ROOT}/tests/unit/test-xbox-neural-present-${test_name}.c")
+        target_include_directories(xemu-neural-present-${test_name}-test PRIVATE
+            "${XEMU_ROOT}")
+        xemu_neural_warnings(xemu-neural-present-${test_name}-test)
+        add_test(NAME neural-present-${test_name}
+            COMMAND xemu-neural-present-${test_name}-test)
+    endforeach()
+
     add_executable(xemu-neural-present-loader-smoke
         "${XEMU_ROOT}/tests/unit/test-xbox-neural-present-plugin-loader.c"
         "${XEMU_ROOT}/hw/xbox/nv2a/pgraph/neural-present-loader.c")
