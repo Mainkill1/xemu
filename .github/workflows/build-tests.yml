@@ -66,12 +66,14 @@ jobs:
       working-directory: src
       run: |
         ninja -C build -j$(nproc) \
-          test-xbox-mcpx-apu-sample-memory
+          test-xbox-mcpx-apu-sample-memory \
+          test-xbox-mcpx-apu-voice-memory
     - name: Require production sample-memory tests
       working-directory: src
       run: |
         ./build/pyvenv/bin/meson test -C build --no-rebuild --print-errorlogs \
-          test-xbox-mcpx-apu-sample-memory
+          test-xbox-mcpx-apu-sample-memory \
+          test-xbox-mcpx-apu-voice-memory
 
   resampler:
     name: Run production resampler tests
