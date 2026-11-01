@@ -51,6 +51,8 @@ if(WIN32 AND XEMU_STREAMLINE_SDK_ROOT)
             "XEMU_STREAMLINE_SDK_ROOT does not contain include/sl.h")
     endif()
 
+    # The SDK outline includes Vulkan headers even when the copy adapter is off.
+    find_package(Vulkan REQUIRED)
     add_library(xemu-neural-present-streamline-outline SHARED
         streamline-adapter-outline.cpp)
     target_include_directories(xemu-neural-present-streamline-outline PRIVATE
@@ -61,7 +63,7 @@ if(WIN32 AND XEMU_STREAMLINE_SDK_ROOT)
     target_compile_definitions(xemu-neural-present-streamline-outline PRIVATE
         UNICODE _UNICODE)
     target_link_libraries(xemu-neural-present-streamline-outline PRIVATE
-        wintrust crypt32)
+        Vulkan::Vulkan wintrust crypt32)
     set_target_properties(xemu-neural-present-streamline-outline PROPERTIES
         PREFIX ""
         OUTPUT_NAME "xemu-neural-present-streamline-outline")
