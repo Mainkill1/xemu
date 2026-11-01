@@ -70,6 +70,9 @@ static QemuMutex evlock;
 static bool evstopping;
 static bool evrunning;
 static bool debug;
+#ifdef XBOX
+static GMainContext *test_main_context;
+#endif
 
 /*
  * Main function for a background thread that is
@@ -78,6 +81,10 @@ static bool debug;
 static void *
 qemu_file_monitor_test_event_loop(void *opaque G_GNUC_UNUSED)
 {
+#ifdef XBOX
+    g_main_context_push_thread_default(test_main_context);
+    qemu_mutex_lock_main_loop();
+#endif
     qemu_mutex_lock(&evlock);
 
     while (!evstopping) {
@@ -86,6 +93,10 @@ qemu_file_monitor_test_event_loop(void *opaque G_GNUC_UNUSED)
         qemu_mutex_lock(&evlock);
     }
 
+#ifdef XBOX
+    qemu_mutex_unlock_main_loop();
+    g_main_context_pop_thread_default(test_main_context);
+#endif
     evrunning = false;
     qemu_mutex_unlock(&evlock);
     return NULL;
@@ -715,14 +726,27 @@ test_file_monitor_events(void)
 
 int main(int argc, char **argv)
 {
+    int result;
+
     g_test_init(&argc, &argv, NULL);
 
+#ifdef XBOX
+    qemu_init_main_loop_lock();
+#endif
     qemu_init_main_loop(&error_abort);
+#ifdef XBOX
+    test_main_context = g_main_context_ref_thread_default();
+    g_main_context_pop_thread_default(test_main_context);
+#endif
 
     qemu_mutex_init(&evlock);
 
     debug = getenv("FILEMONITOR_DEBUG") != NULL;
     g_test_add_func("/util/filemonitor", test_file_monitor_events);
 
-    return g_test_run();
+    result = g_test_run();
+#ifdef XBOX
+    g_main_context_unref(test_main_context);
+#endif
+    return result;
 }
