@@ -252,6 +252,28 @@ if vulkan.found()
         }
       endif
       tests += {
+        'test-xbox-vk-texture-submit-native': [
+          'test-xbox-vk-texture-submit-native-draw.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/buffer.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/perf.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-compute.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+        'test-xbox-vk-texture-submit': [
+          'test-xbox-vk-texture-submit-draw.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-alias-convert-sequence': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
           nv2a_vk_runtime_prod,
