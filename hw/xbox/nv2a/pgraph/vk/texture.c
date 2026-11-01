@@ -1064,6 +1064,14 @@ static bool check_surface_to_texture_compatiblity(const SurfaceBinding *surface,
         return false;
     }
 
+    /*
+     * Packed guest color channels must be expanded, even when the source
+     * host image happens to have the expanded texture's byte width.
+     */
+    if (shape->color_format == NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5) {
+        return false;
+    }
+
     if (!surface->color) {
         return true;
     }
