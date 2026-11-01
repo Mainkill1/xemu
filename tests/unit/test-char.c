@@ -690,7 +690,10 @@ static void char_hub_test(void)
         ret = qemu_chr_fe_add_watch(&chr_fe, G_IO_OUT | G_IO_HUP,
                                     NULL, NULL);
         g_assert_cmpint(ret, !=, 0);
-        g_source_remove(ret);
+        GSource *source = g_main_context_find_source_by_id(
+            qemu_chr_fe_get_driver(&chr_fe)->gcontext, ret);
+        g_assert_nonnull(source);
+        g_source_destroy(source);
 
         /* Drain pipe and ring buffers */
         fd = open(out, O_RDWR);
