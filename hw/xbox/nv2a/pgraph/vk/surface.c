@@ -922,7 +922,7 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
         qemu_mutex_unlock(&d->pfifo.lock);
     }
     if (wait_for_downloads) {
-        qemu_event_wait(&r->downloads_complete);
+        pgraph_event_wait_with_bql_released(&r->downloads_complete);
         if (!qatomic_read(&r->downloads_succeeded)) {
             error_report("Vulkan surface readback failed for CPU access");
             abort();
