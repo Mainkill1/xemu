@@ -39,6 +39,37 @@ jobs:
           ./build/pyvenv/bin/meson test -C build --no-rebuild \
             test-xbox-psh-depth-replace --print-errorlogs
 
+  x3-boot-interface:
+    name: Run X3 boot I/O integration tests
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Download source package
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+      with:
+        name: src
+    - name: Extract source package
+      run: |
+        mkdir src
+        tar -xf xemu-*.tar.zst -C src --strip-components=2
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qy update
+        pushd src
+        sudo apt-get -qy build-dep .
+        popd
+        sudo apt-get install -qy xvfb libgl1-mesa-dri
+    - name: Build Xbox runtime
+      working-directory: src
+      run: |
+        ./configure --target-list=i386-softmmu --disable-werror \
+          --extra-cflags=-DXBOX=1
+        ninja -C build -j$(nproc) qemu-system-i386
+    - name: Check optional device and unchanged default machine
+      working-directory: src
+      run: |
+        xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 \
+          python3 tests/xbox/test-x3-boot-interface.py build/qemu-system-i386
+
   sample-memory:
     name: Run production sample-memory tests
     runs-on: ubuntu-22.04
