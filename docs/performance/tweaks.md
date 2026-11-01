@@ -1,5 +1,10 @@
 # Advance performance settings
 
+Reviewed against `b71408480a3a979a9c584663e1d1f400904c8bb7` on
+November 1, 2026. The [current wiki controls guide](https://github.com/Mainkill1/xemu/wiki/Using-Performance-Controls)
+and [release/main guide](https://github.com/Mainkill1/xemu/wiki/Releases-and-Main)
+separate fresh defaults, saved requests, active state and downloadable releases.
+
 **Machine → Settings → Advance** exposes independent performance controls.
 Vulkan ubershader mode defaults to Prewarm; the shader-work shortcut and other
 accepted controls default to On. Explicit saved choices remain after restart.
@@ -13,6 +18,7 @@ accepted controls default to On. Explicit saved choices remain after restart.
 | Skip unchanged shader work | Reuse the current hybrid executable when shader state is unchanged | Repeat hybrid route checks | Next draw |
 | Combine color downloads with rendering | Fold eligible downloads into the active submission | Submit the download separately | Next download |
 | Upload only used vertex ranges | Skip unused leading remapped vertices | Copy from vertex zero | Next repack |
+| Avoid ordered vertex copies | Use direct unread-page writes or bounded private versions | Preserve the ordered copy route | Next eligible write |
 | Grow transient buffers to fit batches | Retain the pre-flush batch requirement while growing | Reuse drained storage; still grow for a large single draw | Restart xemu |
 | Upload compressed textures directly | Native OpenGL S3TC upload where eligible | CPU S3TC decode | Restart xemu |
 
@@ -22,12 +28,18 @@ Vulkan ubershader mode is a restart-latched selection:
 | --- | --- |
 | Off | Use specialized fragment pipelines only. |
 | Fallback | Use an already-ready fragment-combiner fallback while specialization is prepared. Uncovered states can still wait. |
-| Prewarm | Use persisted family history and cached shader artifacts to opportunistically prepare interpreter pipelines before demand. Missing artifacts are skipped; an uncovered draw can still wait. |
+| Prewarm | Use family history loaded at launch to prepare interpreter pipelines before demand. Missing vertex, geometry or fallback-fragment stages can be compiled asynchronously; an uncovered draw can still wait. |
 | Always | Diagnostic mode: force the fragment-combiner interpreter for supported draws without preparing specialized fragment shaders. It also prewarms learned interpreter families when persistent caching is enabled. Missing interpreter executables can still be constructed synchronously; GPU performance may be lower, and unsupported states or rejected interpreter resources use specialization. |
 
-Mode changes require restarting xemu. Prewarm uses at most 32 families per
-launch and only prepares artifacts already available in the shader cache; it
-does not guarantee a prepared pipeline before first use. The menu reports both
+Mode changes require restarting xemu. With persistent shader caching enabled,
+Prewarm uses at most 32 families per launch. Missing stages are prepared through
+the bounded asynchronous compiler; a family is usable only after complete
+binding and pipeline readiness. Compiler completion wakes service pending work,
+while bounded retries remain for queue pressure and failure. New demand is
+learned for future launches; optional speculative admission uses history loaded
+at launch rather than starting new fallback work after an already-served draw.
+Demand-driven and Always behavior retain their distinct required routes.
+Prewarm does not guarantee a prepared pipeline before first use. The menu reports both
 requested and active modes so a saved restart-only change is not presented as
 already active. Runtime status comes from the installed renderer, so an OpenGL
 fallback or live backend switch cannot be mistaken for an active Vulkan
@@ -87,6 +99,13 @@ timer failures, cleanup, and compatibility fallback. These focused tests do not
 replace final game and performance qualification.
 
 ## Requested/effective profile API
+
+The typed Auto/Disabled/Enabled resolver and requested/effective/reason/restart
+machinery are implemented by PR #257. Existing Boolean UI controls still map
+saved On/Off choices to Enabled/Disabled; generic policy support does not expose
+an Auto choice on every control. The process-only `-xemu-tweak` and
+`-xemu-shortcut-evidence` options in PR #314 remain unmerged at this reviewed
+source. Current launch instructions can use `-config_path`.
 
 `xemu_tweaks_format_effective_profile(buffer, size)` provides the low-frequency
 diagnostic profile used by the Advanced-settings evidence work. Call it outside

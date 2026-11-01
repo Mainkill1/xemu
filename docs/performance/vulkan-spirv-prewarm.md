@@ -1,3 +1,22 @@
+# Current implementation and historical record
+
+The implementation and evidence below retain their original tested identities
+and historical acceptance gates. For November 1, 2026 source
+`b71408480a3a979a9c584663e1d1f400904c8bb7`, use the wiki's
+[three cache layers](https://github.com/Mainkill1/xemu/wiki/Hot-Path-Vulkan-Shader-Caching),
+[current readiness](https://github.com/Mainkill1/xemu/wiki/Vulkan-Learned-Fallback-Readiness),
+[controls](https://github.com/Mainkill1/xemu/wiki/Using-Performance-Controls) and
+[overall-game methodology](https://github.com/Mainkill1/xemu/wiki/Performance-Methodology).
+PR #228 asynchronously prepares missing stages; #335 uses completion wakeups;
+#336 learns live demand for future launches and limits optional speculative
+admission to history loaded at launch. Their retained adverse observations and
+qualification limits remain in the current references. No old speedup or
+per-leaf threshold is promoted as new evidence by this pointer.
+
+---
+
+## Historical PR #70 record (original evidence and gates)
+
 # feature/vulkan-spirv-prewarm
 
 **Status:** Draft — repaired-head Windows build and focused native/sanitizer tests pass; gameplay/profiling retest pending; performance HOLD\
