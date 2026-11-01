@@ -2263,6 +2263,19 @@ void memory_region_reset_dirty(MemoryRegion *mr, hwaddr addr,
                                hwaddr size, unsigned client);
 
 /**
+ * memory_region_invalidate_and_set_dirty: Notify observers of a direct RAM write.
+ * @mr: the resolved RAM region
+ * @addr: offset within the RAM region
+ * @size: number of bytes written
+ *
+ * Caller holds the RCU read lock protecting the resolved mapping. Preserve
+ * physical-store dirty-client and translated-code invalidation semantics,
+ * including when a same-value atomic operation leaves RAM bytes unchanged.
+ */
+void memory_region_invalidate_and_set_dirty(MemoryRegion *mr, hwaddr addr,
+                                            hwaddr size);
+
+/**
  * memory_region_flush_rom_device: Mark a range of pages dirty and invalidate
  *                                 TBs (for self-modifying code).
  *

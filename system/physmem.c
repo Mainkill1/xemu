@@ -3439,6 +3439,13 @@ static void invalidate_and_set_dirty(MemoryRegion *mr, hwaddr addr,
     physical_memory_set_dirty_range(addr, length, dirty_log_mask);
 }
 
+void memory_region_invalidate_and_set_dirty(MemoryRegion *mr, hwaddr addr,
+                                            hwaddr size)
+{
+    assert(memory_region_is_ram(mr));
+    invalidate_and_set_dirty(mr, addr, size);
+}
+
 void memory_region_flush_rom_device(MemoryRegion *mr, hwaddr addr, hwaddr size)
 {
     /*
