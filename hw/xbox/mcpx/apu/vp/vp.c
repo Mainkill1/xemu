@@ -24,6 +24,7 @@
 #include "sge.h"
 #include "sample-memory.h"
 #include "resample.h"
+#include "voice_format.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -848,21 +849,19 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                        int num_samples_requested)
 {
     assert(v < MCPX_HW_MAX_VOICES);
-    bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                 NV_PAVS_VOICE_CFG_FMT_STEREO);
-    unsigned int channels = stereo ? 2 : 1;
-    unsigned int sample_size = voice_get_mask(
-        d, v, NV_PAVS_VOICE_CFG_FMT, NV_PAVS_VOICE_CFG_FMT_SAMPLE_SIZE);
+    const uint32_t cfg_fmt = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
+                                           UINT32_MAX);
+    const MCPXAPUVoiceFormat format = mcpx_apu_decode_voice_format(cfg_fmt);
+    bool stereo = format.stereo;
+    unsigned int channels = format.channels;
+    unsigned int sample_size = format.sample_size;
     unsigned int container_sizes[4] = { 1, 2, 0, 4 }; /* B8, B16, ADPCM, B32 */
-    unsigned int container_size_index = voice_get_mask(
-        d, v, NV_PAVS_VOICE_CFG_FMT, NV_PAVS_VOICE_CFG_FMT_CONTAINER_SIZE);
+    unsigned int container_size_index = format.container_size_index;
     unsigned int container_size = container_sizes[container_size_index];
-    bool stream = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                 NV_PAVS_VOICE_CFG_FMT_DATA_TYPE);
+    bool stream = format.stream;
     bool paused = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                  NV_PAVS_VOICE_PAR_STATE_PAUSED);
-    bool loop =
-        voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT, NV_PAVS_VOICE_CFG_FMT_LOOP);
+    bool loop = format.loop;
     uint32_t ebo = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_NEXT,
                                   NV_PAVS_VOICE_PAR_NEXT_EBO);
     uint32_t cbo = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
@@ -871,15 +870,10 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                                   NV_PAVS_VOICE_CUR_PSH_SAMPLE_LBO);
     uint32_t ba = voice_get_mask(d, v, NV_PAVS_VOICE_CUR_PSL_START,
                                  NV_PAVS_VOICE_CUR_PSL_START_BA);
-    unsigned int samples_per_block =
-        1 + voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                           NV_PAVS_VOICE_CFG_FMT_SAMPLES_PER_BLOCK);
-    bool persist = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                  NV_PAVS_VOICE_CFG_FMT_PERSIST);
-    bool multipass = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                    NV_PAVS_VOICE_CFG_FMT_MULTIPASS);
-    bool linked = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                 NV_PAVS_VOICE_CFG_FMT_LINKED); /* FIXME? */
+    unsigned int samples_per_block = format.samples_per_block;
+    bool persist = format.persist;
+    bool multipass = format.multipass;
+    bool linked = format.linked; /* FIXME? */
 
     assert(!multipass); // Multipass is handled before this
 
@@ -1837,8 +1831,10 @@ static void voice_work_init(MCPXAPUState *d)
 {
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
-    int num_workers = g_config.audio.vp.num_workers ?: SDL_GetNumLogicalCPUCores();
-    vwd->num_workers = MAX(1, MIN(num_workers, MAX_VOICE_WORKERS));
+    int configured_workers = g_config.audio.vp.num_workers;
+    int logical_cpus = configured_workers ? 0 : SDL_GetNumLogicalCPUCores();
+    vwd->num_workers = mcpx_apu_voice_worker_count(configured_workers,
+                                                logical_cpus);
     vwd->workers = g_malloc0_n(vwd->num_workers, sizeof(VoiceWorker));
     vwd->workers_should_exit = false;
     vwd->workers_pending = 0;
