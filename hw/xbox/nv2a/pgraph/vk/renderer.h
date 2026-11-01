@@ -50,6 +50,7 @@
 #include "hybrid-pipeline-builder.h"
 #include "hybrid-prewarm.h"
 #include "hybrid-trace.h"
+#include "texture-allocation-trace.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
 #include "ubershader-controls.h"
@@ -801,6 +802,7 @@ typedef struct PGRAPHVkState {
     bool in_aux_command_buffer;
 
     PGRAPHVkPerfTelemetry perf;
+    PGRAPHVkTextureAllocationTrace *texture_allocation_trace;
 
     uint64_t next_surface_lifetime_id;
 
