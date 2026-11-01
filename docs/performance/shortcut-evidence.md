@@ -47,9 +47,18 @@ Evidence mode requires an explicit existing EEPROM and regular input files.
 It resolves the first `-dvd_path` and one ordinary `-drive` HDD using QEMU's
 legacy option parser, including escaped commas, without changing argv or saved
 settings. The supported management arguments are `-qmp`, `-name`, `-msg`,
-`-loadvm`, `-S`, `-no-shutdown` and `-no-reboot`. Other launch options, duplicate
-resource routes and an invalid boot ROM fail before guest startup; they cannot
-produce complete evidence for guessed inputs. Normal launches without evidence
+`-loadvm`, `-S`, `-no-shutdown` and `-no-reboot`. The maintained runner may also
+supply one `-m 64` or `-m 128`, but only when it matches the loaded `sys.mem_limit`;
+this cannot silently change the memory size represented by the configuration
+fingerprint. One exact `-device lpc47m157` and one `-serial file:ABSOLUTE_PATH`
+are supported. The serial file is an output, not a sixth guest input binding.
+Other devices or device properties, non-file serial routes, relative/empty
+serial paths, duplicate memory/device/serial options and other launch options
+remain rejected. The canonical runner launch record must retain and compare
+these actual arguments, including the run-local serial output mapping: the
+configuration fingerprint alone does not attest device/serial arguments.
+Duplicate resource routes and an invalid boot ROM also fail before guest
+startup; they cannot produce complete evidence for guessed inputs. Normal launches without evidence
 retain their existing argument handling and default EEPROM behavior.
 
 ## Schema: `xemu-shortcut-evidence/v1`
