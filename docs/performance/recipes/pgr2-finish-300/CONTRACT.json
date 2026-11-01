@@ -1,0 +1,13 @@
+{
+  "application": "i250-76c23c7d-pgr2-finish-001",
+  "savedTest": "i250-pgr2-finish-300-v1",
+  "requestPrefix": "i250-finish-native-20261003-001",
+  "measurementSeconds": 300,
+  "settlingSeconds": 60,
+  "nonPausing": true,
+  "diagnosticOnly": true,
+  "newOptimization": false,
+  "sceneQualification": "Direct review of all three captures after completion; visibility alone is insufficient",
+  "retainEveryOutcome": true,
+  "comparisonGate": "None: no baseline/candidate comparison; any later candidate requires freshA/A thenABBA/BAAB"
+}

@@ -83,7 +83,8 @@ typedef struct PGRAPHState {
     PGRAPHVkState *vk_renderer_state;
 } PGRAPHState;
 typedef struct NV2AState { int unused; } NV2AState;
-unsigned int xemu_tweaks_active;
+_Static_assert(sizeof(XemuTweakBits) == 8, "Advanced mask must fit 64 bits");
+XemuTweakBits xemu_tweaks_active;
 static bool tracing;
 static unsigned scalar_calls;
 static unsigned drop_calls;
@@ -258,7 +259,8 @@ with tempfile.TemporaryDirectory(prefix="xemu-tweak-paths-") as tmp:
     source = Path(tmp) / "test.c"
     binary = Path(tmp) / "test"
     source.write_text(code)
-    subprocess.run([args.cc, "-std=gnu11", "-fsanitize=address,undefined",
+    subprocess.run([args.cc, "-std=gnu11", "-DCONFIG_ATOMIC64",
+                    "-fsanitize=address,undefined",
                     "-I", str(repo), "-I", str(repo / "include"),
                     str(source), "-o", str(binary)], check=True)
     subprocess.run([str(binary)], check=True)

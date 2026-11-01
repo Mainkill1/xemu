@@ -20,6 +20,7 @@
 #include <functional>
 #include <SDL3/SDL_dialog.h>
 #include "common.hh"
+#include "ui/xemu-tweaks.h"
 
 void Separator();
 void SectionTitle(const char *title);
@@ -52,6 +53,9 @@ bool ChevronCombo(const char *label, int *current_item,
                   const char *items_separated_by_zeros,
                   const char *description = NULL,
                   ChevronComboItemEnabled item_enabled = nullptr);
+void DrawTweakEffectiveStatus(XemuTweak tweak);
+bool PerformancePolicyCombo(const char *label, int *requested, XemuTweak tweak,
+                            const char *help, bool allow_enabled = true);
 void Hyperlink(const char *text, const char *url);
-void HelpMarker(const char* desc);
+void HelpMarker(const char *desc);
 void Logo();

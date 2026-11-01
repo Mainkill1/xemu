@@ -21,6 +21,8 @@
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
+#include "sge.h"
+#include "sample-memory.h"
 #include "resample.h"
 
 static const struct {
@@ -63,6 +65,7 @@ static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
     assert(v < MCPX_HW_MAX_VOICES);
     memset(&d->vp.filters[v].svf, 0, sizeof(d->vp.filters[v].svf));
     hrtf_filter_clear_history(&d->vp.filters[v].hrtf);
+    mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
     /* VOICE_ON starts a new stream, so select its channel layout afresh. */
     voice_destroy_resampler(&d->vp.filters[v]);
 }
@@ -670,12 +673,13 @@ const MemoryRegionOps vp_ops = {
     .write = vp_write,
 };
 
-static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
+static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr,
+                           MCPXAPUSGETranslationCache *cache)
 {
     unsigned int entry = addr / TARGET_PAGE_SIZE;
     assert(entry <= max_sge);
-    uint32_t prd_address =
-        ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2);
+    uint32_t prd_address = mcpx_apu_sge_read_descriptor(
+        cache, sge_base + entry * 4 * 2);
     // uint32_t prd_control =
     //     ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2 + 4);
     DPRINTF("Addr: 0x%08X, control: 0x%08X\n", prd_address, prd_control);
@@ -892,8 +896,17 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     size_t block_size;
 
     int adpcm_block_index = -1;
-    uint32_t adpcm_block[36*2/4];
-    int16_t adpcm_decoded[65*2]; // FIXME: Move out of here
+    uint32_t adpcm_block[MCPX_ADPCM_MAX_BLOCK_BYTES / sizeof(uint32_t)];
+    const int16_t *adpcm_decoded = NULL;
+    int adpcm_decoded_samples = 0;
+    g_auto(MCPXAPUSampleReadCache) sample_cache QEMU_UNINITIALIZED;
+
+    /*
+     * Empty mappings are guarded by mrs.mr; cache_init fills all other fields.
+     * Avoid explicit/implicit payload clearing for PCM/streaming callbacks.
+     */
+    sample_cache.sge.mapping.mrs.mr = NULL;
+    sample_cache.payload.mrs.mr = NULL;
 
     // FIXME: Only update if necessary
     struct McpxApuDebugVoice *dbg = &g_dbg.vp.v[v];
@@ -1012,6 +1025,12 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     DPRINTF("CBO=%d EBO=%d\n", cbo, ebo);
 
     block_size *= samples_per_block;
+    if (adpcm &&
+        (block_size > sizeof(adpcm_block) ||
+         !mcpx_apu_adpcm_fits_cache(block_size, channels))) {
+        mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
+        return -1;
+    }
 
     // FIXME: Restructure this loop
     int sample_count = 0;
@@ -1030,18 +1049,18 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                            block_size); // FIXME: Use idiomatic DMA function
                 } else {
                     linear_addr += ba;
-                    for (unsigned int word_index = 0;
-                         word_index < (9 * samples_per_block); word_index++) {
-                        hwaddr addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR],
-                                                   0xFFFFFFFF, linear_addr);
-                        adpcm_block[word_index] =
-                            ldl_le_phys(&address_space_memory, addr);
-                        linear_addr += 4;
-                    }
+                    mcpx_apu_read_adpcm_block(
+                        &sample_cache, &d->regs[NV_PAPU_VPSGEADDR],
+                        linear_addr, adpcm_block, 9 * samples_per_block);
                 }
-                adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
-                                   block_size, channels);
+                adpcm_decoded = mcpx_apu_adpcm_decode_cached(
+                    &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
+                    block_size, channels, &adpcm_decoded_samples, NULL);
                 adpcm_block_index = block_index;
+            }
+            if (adpcm_decoded == NULL || adpcm_decoded_samples <= 0 ||
+                block_position >= (unsigned int)adpcm_decoded_samples) {
+                goto adpcm_invalid;
             }
 
             samples[sample_count][0] =
@@ -1059,7 +1078,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             } else {
                 uint32_t linear_addr = ba + cbo * block_size;
                 addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR], 0xFFFFFFFF,
-                                    linear_addr);
+                                    linear_addr, &sample_cache.sge);
             }
 
             for (unsigned int channel = 0; channel < channels; channel++) {
@@ -1124,6 +1143,15 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     voice_set_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
                    NV_PAVS_VOICE_PAR_OFFSET_CBO, cbo);
     return sample_count;
+
+adpcm_invalid:
+    mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
+    if (sample_count > 0) {
+        voice_set_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
+                       NV_PAVS_VOICE_PAR_OFFSET_CBO, cbo);
+        return sample_count;
+    }
+    return -1;
 }
 
 static long voice_resample_callback(void *cb_data, float **data)
@@ -1785,7 +1813,9 @@ voice_work_dispatch(MCPXAPUState *d,
         // Signal workers and wait for completion
         voice_work_schedule(d);
         qemu_cond_broadcast(&vwd->work_pending);
-        qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+        while (vwd->workers_pending) {
+            qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+        }
         assert(!vwd->workers_pending);
         vwd->queue_len = 0;
 
@@ -1807,8 +1837,10 @@ static void voice_work_init(MCPXAPUState *d)
 {
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
-    int num_workers = g_config.audio.vp.num_workers ?: SDL_GetNumLogicalCPUCores();
-    vwd->num_workers = MAX(1, MIN(num_workers, MAX_VOICE_WORKERS));
+    int configured_workers = g_config.audio.vp.num_workers;
+    int logical_cpus = configured_workers ? 0 : SDL_GetNumLogicalCPUCores();
+    vwd->num_workers = mcpx_apu_voice_worker_count(configured_workers,
+                                                logical_cpus);
     vwd->workers = g_malloc0_n(vwd->num_workers, sizeof(VoiceWorker));
     vwd->workers_should_exit = false;
     vwd->workers_pending = 0;
@@ -1825,7 +1857,9 @@ static void voice_work_init(MCPXAPUState *d)
         qemu_thread_create(&vwd->workers[i].thread, "mcpx.voice_worker",
                            voice_worker_thread, d, QEMU_THREAD_JOINABLE);
     }
-    qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+    while (vwd->workers_pending) {
+        qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+    }
     assert(!vwd->workers_pending);
     qemu_mutex_unlock(&vwd->lock);
 }
@@ -1920,5 +1954,6 @@ void mcpx_apu_vp_reset(MCPXAPUState *d)
     for (int v = 0; v < ARRAY_SIZE(d->vp.filters); v++) {
         voice_destroy_resampler(&d->vp.filters[v]);
         hrtf_filter_init(&d->vp.filters[v].hrtf);
+        mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
     }
 }
