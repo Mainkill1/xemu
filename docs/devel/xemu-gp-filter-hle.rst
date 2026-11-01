@@ -33,6 +33,8 @@ The kernel preserves the supported dsp56300 0.1.3 accumulator, status,
 register, history, output and cycle-budget contract. It stages a complete call
 before committing any CPU or RAM changes; a rejected call runs on the JIT.
 The final hardware-loop iteration and stack restoration remain on the JIT.
+Verified N3/N4 address-step pairs are 1/1 and 2/2; mixed pairs and other values
+retain JIT execution. Native processing preserves these registers.
 No game program words are embedded in the source.
 
 Enable ``mcpx_apu_gp_filter_hle`` tracing to verify actual native coverage.
