@@ -47,6 +47,8 @@ typedef struct MCPXAPUVoiceFilter {
     float mono_resample_buf[NUM_SAMPLES_PER_FRAME];
     SRC_STATE *resampler;
     int resampler_channels;
+    bool resampler_source_finished;
+    bool resampler_deactivate_after_mix;
     MCPXADPCMBlockCache adpcm_cache;
     sv_filter svf[2];
     HrtfFilter hrtf;
@@ -81,6 +83,7 @@ typedef struct VoiceWorkDispatch {
 typedef struct {
     MemoryRegion mmio;
     VoiceWorkDispatch voice_work_dispatch;
+    int resampler_type;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
 
     // FIXME: Where are these stored?

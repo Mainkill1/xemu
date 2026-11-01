@@ -566,6 +566,47 @@ const VMStateDescription vmstate_vp_ssl_data = {
     }
 };
 
+/*
+ * A finite voice can remain ACTIVE while the host converter drains. Guest
+ * CBO == EBO is ambiguous: the inclusive terminal sample may be unread or
+ * already consumed. Preserve logical EOF across the existing converter reset
+ * on load. This does not preserve pending host output/filter history.
+ */
+static const VMStateDescription vmstate_apu_terminal_voice = {
+    .name = "mcpx-apu/resampler-terminal/voice",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .fields = (VMStateField[]) {
+        VMSTATE_BOOL(resampler_source_finished, MCPXAPUVoiceFilter),
+        VMSTATE_END_OF_LIST()
+    },
+};
+
+static bool apu_terminal_state_needed(void *opaque)
+{
+    MCPXAPUState *d = opaque;
+
+    for (int v = 0; v < MCPX_HW_MAX_VOICES; v++) {
+        if (d->vp.filters[v].resampler_source_finished) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static const VMStateDescription vmstate_apu_terminal_state = {
+    .name = "mcpx-apu/resampler-terminal",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .needed = apu_terminal_state_needed,
+    .fields = (VMStateField[]) {
+        VMSTATE_STRUCT_ARRAY(vp.filters, MCPXAPUState,
+                             MCPX_HW_MAX_VOICES, 1,
+                             vmstate_apu_terminal_voice, MCPXAPUVoiceFilter),
+        VMSTATE_END_OF_LIST()
+    },
+};
+
 static const VMStateDescription vmstate_mcpx_apu = {
     .name = "mcpx-apu",
     .version_id = 1,
@@ -590,6 +631,10 @@ static const VMStateDescription vmstate_mcpx_apu = {
         VMSTATE_UINT8_ARRAY(vp.submix_headroom, MCPXAPUState, NUM_MIXBINS),
         VMSTATE_UINT64_ARRAY(vp.voice_locked, MCPXAPUState, 4),
         VMSTATE_END_OF_LIST()
+    },
+    .subsections = (const VMStateDescription * const []) {
+        &vmstate_apu_terminal_state,
+        NULL
     },
 };
 

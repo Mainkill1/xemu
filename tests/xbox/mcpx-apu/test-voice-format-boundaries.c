@@ -4,6 +4,7 @@
 #include "qemu/main-loop.h"
 #include "qemu/module.h"
 #include "qapi/error.h"
+#include "monitor/monitor.h"
 #include "hw/boards.h"
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
@@ -138,6 +139,7 @@ static void write_vp_method(MCPXAPUState *d, hwaddr method, uint32_t argument)
 }
 
 typedef struct CallbackObservation {
+    long frames;
     float pcm[NUM_SAMPLES_PER_FRAME];
     uint32_t cbo;
     unsigned ssl_index;
@@ -172,12 +174,13 @@ static long observe_sample_callback(void *opaque, float **data)
 {
     CallbackTrace *trace = opaque;
     long count = trace->callback(trace->opaque, data);
-    g_assert_cmpint(count, ==, NUM_SAMPLES_PER_FRAME);
+    g_assert_true(count == 0 || count == NUM_SAMPLES_PER_FRAME);
     g_assert_cmpuint(trace->count, <, ARRAY_SIZE(trace->observations));
     CallbackObservation *observation = &trace->observations[trace->count++];
     MCPXAPUState *d = trace->d;
     uint8_t *voice = voice_record(d->regs[NV_PAPU_VPVADDR], first_voice);
-    memcpy(observation->pcm, *data, sizeof(observation->pcm));
+    observation->frames = count;
+    memcpy(observation->pcm, *data, count * sizeof(float));
     observation->cbo = ldl_le_p(voice + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff;
     observation->active = ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE) &
                           NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE;
@@ -219,6 +222,7 @@ static void assert_callback(const CallbackObservation *observation, float pcm,
                             unsigned cbo, unsigned ssl_index, unsigned ssl_seg,
                             bool active)
 {
+    g_assert_cmpint(observation->frames, ==, NUM_SAMPLES_PER_FRAME);
     for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
         g_assert_cmpfloat(observation->pcm[i], ==, pcm);
     }
@@ -599,8 +603,32 @@ static void test_persistent_stream_release(void)
                               NV_PAVS_VOICE_PAR_STATE_EACUR),
                      ==, NV_PAVS_VOICE_PAR_STATE_EFCUR_RELEASE);
     advance_to_callback(&trace, before_release + 1);
-    assert_callback(&trace.observations[before_release], 0, 0, 0, 0, false);
-    assert_notified(&trace.observations[before_release], 0);
+    /* Finite EOF precedes converter drain and the final mixed frame. */
+    const CallbackObservation *eof = &trace.observations[before_release];
+    g_assert_cmpint(eof->frames, ==, 0);
+    g_assert_true(eof->active);
+    g_assert_cmpuint(eof->cbo, ==, 0);
+    g_assert_cmpuint(eof->ssl_index, ==, 0);
+    g_assert_cmpuint(eof->ssl_seg, ==, 0);
+    g_assert_cmpuint(eof->notify[0], ==, 0xa5);
+    g_assert_cmpuint(eof->notify_phase[0], ==, 0xa5);
+    g_assert_cmpuint(eof->irq, ==, 0);
+    g_assert_false(eof->set_irq);
+    g_assert_true(d->vp.filters[first_voice].resampler_source_finished);
+    for (unsigned frame = 0; frame < 16 &&
+         (ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE) &
+          NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE); frame++) {
+        observe_one_voice_frame(d);
+    }
+    g_assert_cmpuint(ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE) &
+                     NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE, ==, 0);
+    g_assert_cmpuint(*notifier_status(d, 0), ==,
+                     NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+    g_assert_cmpuint(*(notifier_status(d, 0) - 1), ==, 1);
+    g_assert_cmpuint(d->regs[NV_PAPU_ISTS] &
+                     (NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS), ==,
+                     NV_PAPU_ISTS_FEVINTSTS | NV_PAPU_ISTS_FENINTSTS);
+    g_assert_true(d->set_irq);
     g_assert_cmpuint(GET_MASK(ldl_le_p(voice + NV_PAVS_VOICE_PAR_STATE),
                               NV_PAVS_VOICE_PAR_STATE_EACUR),
                      ==, NV_PAVS_VOICE_PAR_STATE_EFCUR_RELEASE);
@@ -620,6 +648,7 @@ int __wrap_main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     qemu_init_cpu_loop();
+    monitor_init_globals();
     bql_lock();
     module_call_init(MODULE_INIT_QOM);
     current_machine = MACHINE(object_new("xbox-machine"));
