@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Validate lifecycle accounting and conservative configuration reuse analysis."""
 import copy
+import hashlib
+import os
+import sys
 import importlib.util
 import io
 import json
@@ -8,6 +11,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/performance/vk-texture-allocation-summary.py'
 
@@ -67,14 +71,39 @@ class AllocationSummaryTests(unittest.TestCase):
         return self.module.summarize(io.StringIO(
             ''.join(json.dumps(row) + '\n' for row in records)))
 
-    def test_sha256_stream_supports_python_39(self):
-        stream = io.BytesIO(b'xemu allocation trace\n')
+    def test_digest_binds_consumed_bytes_after_in_place_rewrite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'trace.jsonl'
+            original = ''.join(json.dumps(row) + '\r\n'
+                               for row in self.records()).encode('utf-8')
+            source.write_bytes(original)
+            before = source.stat()
+            summarize = self.module.summarize
 
-        self.assertEqual(
-            self.module.sha256_stream(stream),
-            '6b374096e24ad7e67a8766bd4e3e8d1c54ce63dd12f7f56ed8bdf7428e0c8f48',
-        )
-        self.assertEqual(stream.tell(), len(stream.getvalue()))
+            def rewrite_after_parse(stream):
+                result = summarize(stream)
+                source.write_bytes(original.replace(b'"width": 4', b'"width": 8'))
+                os.utime(source, ns=(before.st_atime_ns, before.st_mtime_ns))
+                return result
+
+            output = io.StringIO()
+            with patch.object(self.module, 'summarize', rewrite_after_parse), \
+                    patch.object(sys, 'argv', [str(SCRIPT), str(source)]), \
+                    patch.object(sys, 'stdout', output):
+                self.module.main()
+            result = json.loads(output.getvalue())
+            self.assertEqual(result['sourceSha256'], hashlib.sha256(original).hexdigest())
+            self.assertEqual(result['sourceBytes'], len(original))
+
+    def test_consumed_hash_without_python_311_file_digest(self):
+        raw = io.BytesIO(b'xemu allocation trace\n')
+        with patch.object(hashlib, 'file_digest', None, create=True):
+            stream = self.module.HashedUtf8Lines(raw)
+            self.assertEqual(stream.readline(65537), 'xemu allocation trace\n')
+            self.assertEqual(stream.readline(65537), '')
+        self.assertEqual(stream.digest.hexdigest(),
+                         hashlib.sha256(raw.getvalue()).hexdigest())
+        self.assertEqual(stream.bytes_read, len(raw.getvalue()))
 
     def test_actual_calls_duration_bytes_and_handle_generation(self):
         result = self.summarize(self.records())

@@ -219,11 +219,20 @@ def file_identity(stat):
     return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns
 
 
-def sha256_stream(stream):
-    digest = hashlib.sha256()
-    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
-        digest.update(chunk)
-    return digest.hexdigest()
+class HashedUtf8Lines:
+    """Hash exactly the bounded UTF-8 records consumed by the parser."""
+    def __init__(self, raw):
+        self.raw = raw
+        self.digest = hashlib.sha256()
+        self.bytes_read = 0
+
+    def readline(self, limit):
+        data = self.raw.readline(limit)
+        if len(data) > 65536:
+            raise ValueError('Oversized allocation record')
+        self.digest.update(data)
+        self.bytes_read += len(data)
+        return data.decode('utf-8')
 
 
 def main():
@@ -233,17 +242,18 @@ def main():
     parser.add_argument('--out', type=Path)
     args = parser.parse_args()
     try:
-        with args.source.open(encoding='utf-8') as stream:
-            before = os.fstat(stream.fileno())
+        with args.source.open('rb') as raw:
+            before = os.fstat(raw.fileno())
+            stream = HashedUtf8Lines(raw)
             result = read_schema(stream) if args.schema_only else summarize(stream)
             result['sourcePath'] = str(args.source)
             if args.schema_only:
                 result['sourceBytesAtRead'] = before.st_size
             else:
-                stream.seek(0)
-                result['sourceSha256'] = sha256_stream(stream.buffer)
-                if (file_identity(before) != file_identity(os.fstat(stream.fileno()))
-                        or file_identity(before) != file_identity(args.source.stat())):
+                result['sourceSha256'] = stream.digest.hexdigest()
+                if (file_identity(before) != file_identity(os.fstat(raw.fileno()))
+                        or file_identity(before) != file_identity(args.source.stat())
+                        or stream.bytes_read != before.st_size):
                     raise ValueError('Source changed during analysis')
                 result['sourceBytes'] = before.st_size
         text = json.dumps(result, indent=2) + '\n'
