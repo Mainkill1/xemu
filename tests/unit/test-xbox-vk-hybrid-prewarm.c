@@ -30,11 +30,44 @@ static PGRAPHVkHybridPrewarmAttemptResult attempt_one(
     return fixture->result;
 }
 
+static void reload_history(PGRAPHVkFamilyHistory *history)
+{
+    PGRAPHVkFamilyHistoryBlob blob = { 0 };
+    g_assert_true(pgraph_vk_family_history_serialize(history, &blob));
+    g_assert_cmpint(pgraph_vk_family_history_load(
+                        history, blob.data, blob.size),
+                    ==, PGRAPH_VK_FAMILY_HISTORY_LOAD_OK);
+    pgraph_vk_family_history_blob_destroy(&blob);
+}
+
 static void init_history(PGRAPHVkFamilyHistory *history)
 {
     g_assert_true(pgraph_vk_family_history_init(history, 4));
     g_assert_true(pgraph_vk_family_history_note_cold_miss(
         history, "A", 1, 0));
+    reload_history(history);
+}
+
+static void test_live_history_does_not_extend_prewarm(void)
+{
+    PGRAPHVkFamilyHistory history;
+    init_history(&history);
+    PGRAPHVkHybridPrewarmState state = { .enabled = true };
+    AttemptFixture fixture = { .result = PGRAPH_VK_HYBRID_PREWARM_SUBMITTED };
+
+    g_assert_true(pgraph_vk_family_history_note_cold_miss(
+        &history, "B", 1, 1000));
+    g_assert_cmpint(pgraph_vk_hybrid_prewarm_service(
+                        &state, &history, false, attempt_one, &fixture),
+                    ==, PGRAPH_VK_HYBRID_PREWARM_SUBMITTED);
+    g_assert_cmpuint(fixture.a_calls, ==, 1);
+    g_assert_cmpuint(fixture.b_calls, ==, 0);
+    g_assert_cmpint(pgraph_vk_hybrid_prewarm_service(
+                        &state, &history, false, attempt_one, &fixture),
+                    ==, PGRAPH_VK_HYBRID_PREWARM_NO_CANDIDATE);
+    g_assert_false(state.enabled);
+    g_assert_cmpuint(fixture.calls, ==, 1);
+    pgraph_vk_family_history_destroy(&history);
 }
 
 static void test_demand_has_priority(void)
@@ -136,6 +169,7 @@ static void test_deferred_candidate_does_not_starve_next(void)
         &history, "A", 1, 0));
     g_assert_true(pgraph_vk_family_history_note_cold_miss(
         &history, "B", 1, 0));
+    reload_history(&history);
     PGRAPHVkHybridPrewarmState state = { .enabled = true };
     AttemptFixture fixture = {
         .result = PGRAPH_VK_HYBRID_PREWARM_READY,
@@ -519,6 +553,8 @@ static void test_requested_stage_plan_visits_every_required_stage(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/nv2a/vk/hybrid-prewarm/loaded-only",
+                    test_live_history_does_not_extend_prewarm);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/demand-priority",
                     test_demand_has_priority);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/in-flight-window",
