@@ -41,6 +41,7 @@ elif host_os == 'darwin'
 endif
 
 dsp56300_dep = declare_dependency(
+  version: ver,
   link_args: [lib] + link_args,
   include_directories: include_directories(prefix / 'include'),
 )

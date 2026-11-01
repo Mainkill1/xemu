@@ -2,6 +2,8 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/dsp/dsp.h"
 #include "hw/xbox/mcpx/apu/dsp/gp-filter-hle.h"
+#include "qemu/module.h"
+#include "ui/xemu-settings.h"
 
 typedef struct Fixture {
     Dsp56300State cpu;
@@ -17,6 +19,7 @@ static Fixture *new_fixture(uint32_t input)
     f->cpu.registers[DSP_REG_SR] = 0xc083d4;
     f->cpu.registers[DSP_REG_OMR] = 0x300;
     f->cpu.registers[DSP_REG_LA] = 0x1c3;
+    f->cpu.registers[DSP_REG_SSH] = 0x185;
     f->cpu.registers[DSP_REG_LC] = 32;
     /* dsp56300 0.1.3 core::reg::TEMP, reserved provider REP bookkeeping. */
     f->cpu.registers[0x2b] = 33;
@@ -118,6 +121,20 @@ static void test_budget(void)
     g_free(f);
 }
 
+static void test_normalization(gconstpointer opaque)
+{
+    bool negative = GPOINTER_TO_UINT(opaque);
+    Fixture *f = new_fixture(negative ? 0xfa0000 : 0x60000);
+    f->x[0x87] = 0x7fffff;
+    for (unsigned call = 0; call < 2; call++) {
+        g_assert_true(gp_filter_hle_run_verified(&f->cpu, f->x, f->y, 1000));
+        g_assert_cmpuint(f->x[0xd60], ==, negative ? 0xd00000 : 0x2fffff);
+        /* History is normalized even though the final output is half-scale. */
+        g_assert_cmpuint(f->cpu.registers[DSP_REG_SR] & (1 << DSP_SR_U), ==, 0);
+    }
+    g_free(f);
+}
+
 static void test_reject(gconstpointer opaque)
 {
     Fixture *f = new_fixture(3);
@@ -190,6 +207,9 @@ static void test_reject(gconstpointer opaque)
     case 18:
         f->cpu.cycle_budget = 1;
         break;
+    case 19:
+        f->cpu.registers[DSP_REG_SSH] = 0;
+        break;
     default:
         g_assert_not_reached();
     }
@@ -201,9 +221,68 @@ static void test_reject(gconstpointer opaque)
     g_free(f);
 }
 
+static void test_unknown_program(void)
+{
+    Fixture *f = new_fixture(3);
+    Fixture *before = g_memdup2(f, sizeof(*f));
+    uint32_t program[DSP_PRAM_SIZE] = { 0 };
+    GPFilterHLE *hle = gp_filter_hle_new();
+    for (unsigned i = 0; i < 3; i++) {
+        g_assert_false(
+            gp_filter_hle_try_run(hle, &f->cpu, f->x, f->y, program, 1000));
+        g_assert_cmpmem(f, sizeof(*f), before, sizeof(*before));
+        program[DSP_PRAM_SIZE - 1]++;
+    }
+    gp_filter_hle_reset(hle);
+    g_assert_false(
+        gp_filter_hle_try_run(hle, &f->cpu, f->x, f->y, program, 1000));
+    g_assert_cmpmem(f, sizeof(*f), before, sizeof(*before));
+    gp_filter_hle_free(hle);
+    g_free(before);
+    g_free(f);
+}
+
+static void unexpected_scratch(void *opaque, uint8_t *ptr, uint32_t addr,
+                               size_t len, bool dir)
+{
+    g_assert_not_reached();
+}
+
+static void unexpected_fifo(void *opaque, uint8_t *ptr, unsigned index,
+                            size_t len, bool dir)
+{
+    g_assert_not_reached();
+}
+
+static void test_backend_fallback(void)
+{
+    g_setenv("XEMU_GP_FILTER_HLE", "1", true);
+    g_config.audio.use_dsp_jit = true;
+    DSPState *dsp = dsp_init(NULL, unexpected_scratch, unexpected_fifo, true);
+    for (unsigned pass = 0; pass < 3; pass++) {
+        if (pass == 1) {
+            dsp_reset(dsp);
+        } else if (pass == 2) {
+            dsp_set_engine(dsp, false);
+            dsp_set_engine(dsp, true);
+            dsp_reset(dsp);
+        }
+        /* Own assembled control: movep #1,x:<<$ffffc4; nop. */
+        dsp_write_memory(dsp, 'P', 0, 0x08f484);
+        dsp_write_memory(dsp, 'P', 1, 1);
+        dsp_write_memory(dsp, 'P', 2, 0);
+        dsp_set_halt_requested(dsp, false);
+        dsp_run(dsp, 1000);
+        g_assert_true(dsp_get_halt_requested(dsp));
+    }
+    dsp_destroy(dsp);
+    g_unsetenv("XEMU_GP_FILTER_HLE");
+}
+
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
+    module_call_init(MODULE_INIT_QOM);
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/mcpx-apu/gp-filter-hle/identity", test_identity);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/positive-limit",
@@ -211,7 +290,15 @@ int __wrap_main(int argc, char **argv)
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/negative-limit",
                          GUINT_TO_POINTER(1), test_limit);
     g_test_add_func("/mcpx-apu/gp-filter-hle/budget", test_budget);
-    for (unsigned i = 0; i < 19; i++) {
+    g_test_add_data_func("/mcpx-apu/gp-filter-hle/positive-normalization",
+                         GUINT_TO_POINTER(0), test_normalization);
+    g_test_add_data_func("/mcpx-apu/gp-filter-hle/negative-normalization",
+                         GUINT_TO_POINTER(1), test_normalization);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/unknown-program",
+                    test_unknown_program);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/backend-fallback",
+                    test_backend_fallback);
+    for (unsigned i = 0; i < 20; i++) {
         g_autofree char *name =
             g_strdup_printf("/mcpx-apu/gp-filter-hle/reject-%u", i);
         g_test_add_data_func(name, GUINT_TO_POINTER(i), test_reject);

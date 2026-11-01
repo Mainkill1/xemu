@@ -1,5 +1,8 @@
 # See docs/devel/tracing.rst for syntax documentation.
 
+# dsp_jit.c: native coverage, not host elapsed time
+mcpx_apu_gp_filter_hle(uint32_t pc, uint32_t samples, uint32_t cycles) "pc=0x%06x samples=%" PRIu32 " guest_cycles=%" PRIu32
+
 # dsp.c
 dsp_read_peripheral(uint32_t addr, uint32_t val) "addr 0x%"PRIx32" val 0x%"PRIx32
 dsp_write_peripheral(uint32_t addr, uint32_t val) "addr 0x%"PRIx32" val 0x%"PRIx32

@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
+#include "qemu/bswap.h"
 #include "dsp.h"
 #include "gp-filter-hle.h"
 
@@ -7,6 +8,56 @@
 #define NATIVE_REP_TEMP 0x2b
 #define FILTER_BODY_CYCLES 103
 #define FILTER_TAIL_CYCLES 4
+
+struct GPFilterHLE {
+    uint32_t program[DSP_PRAM_SIZE];
+    bool valid, recognized;
+};
+
+GPFilterHLE *gp_filter_hle_new(void)
+{
+    return g_new0(GPFilterHLE, 1);
+}
+
+void gp_filter_hle_free(GPFilterHLE *hle)
+{
+    g_free(hle);
+}
+
+void gp_filter_hle_reset(GPFilterHLE *hle)
+{
+    if (hle) {
+        hle->valid = false;
+        hle->recognized = false;
+    }
+}
+
+bool gp_filter_hle_try_run(GPFilterHLE *hle, Dsp56300State *cpu, uint32_t *xram,
+                           uint32_t *yram, const uint32_t *pram, int cycles)
+{
+    if (!hle || cycles != 1000 || cpu->pc < 0x185 || cpu->pc > 0x413) {
+        return false;
+    }
+    unsigned phase = (cpu->pc - 0x185) % 0x55;
+    if (phase != 0 && phase != 0x3b) {
+        return false;
+    }
+    /* Full comparison also detects writes performed by the DSP itself. */
+    if (!hle->valid || memcmp(hle->program, pram, sizeof(hle->program))) {
+        uint32_t canonical[DSP_PRAM_SIZE];
+        for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+            canonical[i] = cpu_to_le32(pram[i] & 0xffffff);
+        }
+        g_autofree char *digest = g_compute_checksum_for_data(
+            G_CHECKSUM_SHA256, (const uint8_t *)canonical, sizeof(canonical));
+        hle->recognized = strcmp(digest, "f7c1b74d7ff1493a3c52fd2ca032fe744d96f"
+                                         "abf56b6dd93de22114c793e525b") == 0;
+        memcpy(hle->program, pram, sizeof(hle->program));
+        hle->valid = true;
+    }
+    return hle->recognized &&
+           gp_filter_hle_run_verified(cpu, xram, yram, cycles);
+}
 
 static int32_t signed24(uint32_t v)
 {
@@ -67,7 +118,8 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         cpu->interrupts.state || cpu->interrupts.ipl_to_raise ||
         cpu->registers[DSP_REG_OMR] != 0x300 ||
         (cpu->registers[DSP_REG_SR] & ~0x3f) != 0xc083c0 ||
-        (cpu->registers[DSP_REG_SR] & 0x33) != 0x10 ||
+        (cpu->registers[DSP_REG_SR] & 0x23) != 0 ||
+        cpu->registers[DSP_REG_SSH] != entry ||
         cpu->registers[DSP_REG_LA] != entry + 0x3e) {
         return false;
     }
@@ -170,7 +222,11 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
             r[DSP_REG_A0] = word24(accumulator);
             r[DSP_REG_A1] = word24(floor_shift(accumulator, 24));
             r[DSP_REG_A2] = (uint32_t)floor_shift(accumulator, 48) & 0xff;
-            r[DSP_REG_SR] = (r[DSP_REG_SR] & ~0x3f) | (1 << DSP_SR_U) |
+            /* U describes the doubled history value, before output scaling. */
+            uint32_t q2_word = word24(q2);
+            bool unnormalized = !(((q2_word >> 23) ^ (q2_word >> 22)) & 1);
+            r[DSP_REG_SR] = (r[DSP_REG_SR] & ~0x3f) |
+                            (unnormalized ? 1 << DSP_SR_U : 0) |
                             (second < 0 ? 1 << DSP_SR_N : 0) |
                             (second == 0 ? 1 << DSP_SR_Z : 0);
             r[NATIVE_REP_TEMP] = count;

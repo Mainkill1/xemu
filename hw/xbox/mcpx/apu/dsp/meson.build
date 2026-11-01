@@ -7,6 +7,8 @@ libdsp = static_library(
   files(['dsp.c', 'dsp_c.c', 'dsp_jit.c', 'dsp_dma.c', 'dsp-replay.c',
          'gp-filter-hle.c']) + genh,
   dependencies: [dsp56300_emu_ffi],
+  c_args: ['-DXEMU_GP_FILTER_HLE_ABI_0_1_3=' +
+           (dsp56300_emu_ffi.version() == '0.1.3' ? '1' : '0')],
 )
 
 dsp = declare_dependency(
