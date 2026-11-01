@@ -92,18 +92,7 @@ static void PerformanceToggle(const char *label, bool *selected,
         xemu_tweaks_apply(false);
         xemu_settings_save();
     }
-    XemuTweakRuntimeState state = xemu_tweak_runtime_state(tweak);
-    ImGui::TextDisabled("Requested: %s   Effective: %s",
-                        state.requested ? "On" : "Off",
-                        state.effective ? "On" : "Off");
-    if (state.restart_pending) {
-        ImGui::TextDisabled("Restart xemu to apply this change.");
-    } else if (!state.available ||
-               (state.requested && !state.effective)) {
-        ImGui::PushTextWrapPos();
-        ImGui::TextDisabled("%s", state.reason);
-        ImGui::PopTextWrapPos();
-    }
+    DrawTweakEffectiveStatus(tweak);
 }
 
 static const char *VulkanUbershaderModeName(
@@ -1104,7 +1093,7 @@ void MainMenuAudioView::Draw()
     SectionTitle("Advanced");
     if (ChevronCombo(
             "Voice processing workers", &g_config.audio.vp.num_workers,
-            "Auto\0"
+            "Auto (up to 4)\0"
             "1\0"
             "2\0"
             "3\0"
@@ -1121,9 +1110,9 @@ void MainMenuAudioView::Draw()
             "14\0"
             "15\0"
             "16\0",
-            "Set MCPX voice processing worker threads. Auto chooses a "
-            "host-dependent count, capped at 16. Restart xemu to apply "
-            "changes.")) {
+            "Set MCPX voice processing worker threads. Auto uses up to "
+            "four workers; an explicit selection overrides Auto. Restart xemu "
+            "to apply changes.")) {
         xemu_queue_notification(
             "Voice processing worker count changed. Restart xemu to apply it.");
     }

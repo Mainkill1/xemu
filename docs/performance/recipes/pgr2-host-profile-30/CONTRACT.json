@@ -1,0 +1,17 @@
+{
+  "purpose": "Profile slow reached scene; not replacement or qualification of earlier failed measurement",
+  "relatedPreservedRun": "20261003-155542759-ab6ec0c1fba545c3a720fdf81dc8ee15",
+  "application": "i250-76c23c7d-host-profile-001",
+  "savedTest": "i250-pgr2-host-profile-30-v1",
+  "requestPrefix": "i250-host-profile-20261003-001",
+  "newNativeAttempts": 1,
+  "profileSeconds": 30,
+  "profileHz": 99,
+  "pause": false,
+  "runtimeChanges": false,
+  "inputPolicy": "Same frozen main/executable/libraries/configuration and private cold guest/Mesa state",
+  "acceptance": "Original outcome retained; direct review both scenes, verify perf capture/finalization and identity, preserve unknown attribution and all failures",
+  "comparison": "None; explicitly instrumented root-cause diagnostic, no lowered or replaced earlier floor",
+  "toolSource": "Xemu-Test-Runner draft105, ef8c763",
+  "toolSha256": "96e8de0baa215b6c54ff670f24e05b3327f24b7d02b4561c156251fbf97c4696"
+}

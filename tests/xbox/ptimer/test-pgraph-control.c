@@ -2,8 +2,9 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "system/cpus.h"
+#include "ui/xemu-tweaks.h"
 
-unsigned int xemu_tweaks_active;
+XemuTweakBits xemu_tweaks_active;
 const NV2ABlockInfo blocktable[NV_NUM_BLOCKS] = { 0 };
 static unsigned int kicks;
 static unsigned int irq_updates;
