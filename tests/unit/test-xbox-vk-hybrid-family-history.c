@@ -44,6 +44,56 @@ static void fixture_remove(void *opaque, const char *path)
     fixture->removals++;
 }
 
+static void reload_history(PGRAPHVkFamilyHistory *history)
+{
+    PGRAPHVkFamilyHistoryBlob blob = { 0 };
+    g_assert_true(pgraph_vk_family_history_serialize(history, &blob));
+    g_assert_cmpint(pgraph_vk_family_history_load(
+                        history, blob.data, blob.size),
+                    ==, PGRAPH_VK_FAMILY_HISTORY_LOAD_OK);
+    pgraph_vk_family_history_blob_destroy(&blob);
+}
+
+static void test_only_loaded_history_is_prewarm_eligible(void)
+{
+    PGRAPHVkFamilyHistory history;
+    g_assert_true(pgraph_vk_family_history_init(&history, 2));
+    g_assert_true(pgraph_vk_family_history_note(&history, "A", 1));
+    g_assert_null(pgraph_vk_family_history_next_unattempted(&history));
+    reload_history(&history);
+    /* Observing a loaded family again must preserve its eligibility. */
+    g_assert_true(pgraph_vk_family_history_note(&history, "A", 1));
+    g_assert_true(pgraph_vk_family_history_note_cold_miss(
+        &history, "B", 1, 1000));
+    const PGRAPHVkFamilyHistoryRecord *record =
+        pgraph_vk_family_history_next_unattempted(&history);
+    g_assert_nonnull(record);
+    g_assert_cmpmem(record->payload, record->payload_size, "A", 1);
+    pgraph_vk_family_history_mark_attempted(&history, record);
+    g_assert_null(pgraph_vk_family_history_next_unattempted(&history));
+    pgraph_vk_family_history_reset_attempts(&history);
+    record = pgraph_vk_family_history_next_unattempted(&history);
+    g_assert_nonnull(record);
+    g_assert_cmpmem(record->payload, record->payload_size, "A", 1);
+    pgraph_vk_family_history_mark_attempted(&history, record);
+    g_assert_null(pgraph_vk_family_history_next_unattempted(&history));
+    /* Persisted live observations become candidates on the next load. */
+    reload_history(&history);
+    record = pgraph_vk_family_history_next_unattempted(&history);
+    g_assert_nonnull(record);
+    g_assert_cmpmem(record->payload, record->payload_size, "B", 1);
+    pgraph_vk_family_history_destroy(&history);
+
+    /* Replacing a loaded slot must not pass its eligibility to live data. */
+    g_assert_true(pgraph_vk_family_history_init(&history, 1));
+    g_assert_true(pgraph_vk_family_history_note(&history, "A", 1));
+    reload_history(&history);
+    g_assert_nonnull(pgraph_vk_family_history_next_unattempted(&history));
+    g_assert_true(pgraph_vk_family_history_note(&history, "B", 1));
+    g_assert_null(pgraph_vk_family_history_next_unattempted(&history));
+    pgraph_vk_family_history_destroy(&history);
+}
+
 static void test_rank_and_session_attempts(void)
 {
     static const uint8_t family_a[] = { 1, 2, 3 };
@@ -59,6 +109,7 @@ static void test_rank_and_session_attempts(void)
         &history, family_a, sizeof(family_a)));
     g_assert_true(pgraph_vk_family_history_note_cold_miss(
         &history, family_b, sizeof(family_b), 250));
+    reload_history(&history);
 
     const PGRAPHVkFamilyHistoryRecord *record =
         pgraph_vk_family_history_next_unattempted(&history);
@@ -233,6 +284,8 @@ static void test_publish_is_atomic_and_clears_dirty(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/nv2a/vk/family-history/loaded-only",
+                    test_only_loaded_history_is_prewarm_eligible);
     g_test_add_func("/nv2a/vk/family-history/rank-attempts",
                     test_rank_and_session_attempts);
     g_test_add_func("/nv2a/vk/family-history/bounded-eviction",

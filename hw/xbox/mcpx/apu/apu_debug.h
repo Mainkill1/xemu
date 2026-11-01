@@ -23,7 +23,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define MAX_VOICE_WORKERS 16
+#include "hw/xbox/mcpx/apu/vp/worker-count.h"
+
+#define MAX_VOICE_WORKERS MCPX_APU_MAX_VOICE_WORKERS
 
 typedef enum McpxApuDebugMonitorPoint {
     MCPX_APU_DEBUG_MON_AC97,

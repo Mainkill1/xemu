@@ -137,6 +137,7 @@ static void publish_profile_locked(void)
     }
     next.ubershader.overridden = mode_overridden;
     next.cache.overridden = cache_overridden;
+    /* The poll setter also supports atomic renderer-thread publication. */
     qemu_poll_set_cpu_saving(next.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
     qatomic_set_u64(&xemu_tweaks_active, next.effective_bits);
     published_profile = next;
