@@ -377,6 +377,10 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         pgraph_apply_scaling_factor(pg, &output_width, &output_height);
     }
 
+    if (!output_width || !output_height) {
+        return;
+    }
+
     size_t depth_bytes_per_pixel = 4;
     size_t depth_size = input_width * input_height * depth_bytes_per_pixel;
 
@@ -455,6 +459,10 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 
     unsigned int output_width = surface->width, output_height = surface->height;
     pgraph_apply_scaling_factor(pg, &output_width, &output_height);
+
+    if (!output_width || !output_height) {
+        return;
+    }
 
     size_t depth_bytes_per_pixel = 4;
     size_t depth_size = output_width * output_height * depth_bytes_per_pixel;
