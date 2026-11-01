@@ -241,19 +241,11 @@ if vulkan.found()
         include_directories: include_directories('../../target/i386'),
       )
       if host_os == 'linux'
-        surface_ownership_runtime = declare_dependency(
-          compile_args: ['-DXBOX=1'],
-          dependencies: [nv2a_vk_runtime_prod],
-          link_args: [
-            '-Wl,--wrap=pgraph_vk_finish',
-            '-Wl,--wrap=pgraph_vk_ensure_not_in_render_pass',
-          ],
-        )
         tests += {
           'test-xbox-vk-surface-ownership': [
-            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            'test-xbox-vk-surface-ownership-draw.c',
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
-            surface_ownership_runtime,
+            nv2a_vk_runtime_prod,
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
             spirv_reflect,
           ],
@@ -645,6 +637,7 @@ xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   dependencies: [qemuutil])
 test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
 
+tests += {'test-xbox-mcpx-apu-voice-format': []}
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])

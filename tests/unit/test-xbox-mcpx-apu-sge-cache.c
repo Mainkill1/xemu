@@ -277,6 +277,8 @@ static hwaddr scoped_translation(void)
 static void test_early_return_cleanup(void)
 {
     stl_le_phys(&address_space_memory, 0x2000, 0x4000);
+    /* Retired overlay views can otherwise drop owner references mid-check. */
+    drain_call_rcu();
     unsigned int refs = ram.owner->ref;
     for (int i = 0; i < 64; i++) {
         g_assert_cmphex(scoped_translation(), ==, 0x4000);
