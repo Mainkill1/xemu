@@ -95,8 +95,21 @@ static void PerformanceToggle(const char *label, bool *selected,
     DrawTweakEffectiveStatus(tweak);
 }
 
-static const char *VulkanUbershaderModeName(
-    XemuVulkanUbershaderMode mode)
+static void VulkanCleanTextureStagePolicyCombo(void)
+{
+    PerformancePolicyCombo(
+        "Skip clean texture stages",
+        &g_config.tweaks.vk_skip_clean_texture_stages,
+        XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES,
+        "Auto skips eligible clean stages while another stage requires a slow "
+        "bind. Disabled sends those eligible stages through normal texture "
+        "preparation. Whole-bind clean returns and all dirty, surface, "
+        "palette, "
+        "and DMA guards remain active. Applies live.",
+        false);
+}
+
+static const char *VulkanUbershaderModeName(XemuVulkanUbershaderMode mode)
 {
     switch (mode) {
     case XEMU_VK_UBERSHADER_OFF:
@@ -212,6 +225,7 @@ void MainMenuAdvanceView::Draw()
     }
     DrawTweakRuntimeStatus(xemu_tweaks_snapshot().cache);
     SectionTitle("Vulkan");
+    VulkanCleanTextureStagePolicyCombo();
     XemuVulkanUbershaderRuntimeState ubershader_state =
         VulkanUbershaderModeCombo();
     ImGui::BeginDisabled(

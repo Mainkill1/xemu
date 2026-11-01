@@ -6,6 +6,7 @@
  */
 
 #include "renderer.h"
+#include "ui/xemu-vk-texture-stage-evidence.h"
 
 /*
  * Morrowind issues about 102 VERTEX_BUFFER_DIRTY submissions per guest frame.
@@ -99,12 +100,14 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":8"
+            "{\"type\":\"schema\",\"schema_version\":9"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\"]"
+            "\"descriptor_publication\",\"surface_upload\","
+            "\"texture_stage_policy\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
-            ",\"presentation_counters\":\"cumulative_totals\"",
+            ",\"presentation_counters\":\"cumulative_totals\""
+            ",\"frame_boundary\":\"nv097_set_flip_stall_method\"",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
@@ -291,10 +294,77 @@ void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
     }
 }
 
+static void write_texture_stage_counters(
+    FILE *file, const PGRAPHVkTextureStageCounters *counters)
+{
+    static const char *const names[VK_TEXTURE_COUNTER_COUNT] = {
+        [VK_TEXTURE_WHOLE_CLEAN_RETURNS] = "texture_whole_clean_returns",
+        [VK_TEXTURE_SLOW_BIND_CALLS] = "texture_slow_bind_calls",
+        [VK_TEXTURE_STAGE_CHECKS] = "texture_stage_checks",
+        [VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] = "texture_clean_stage_eligible",
+        [VK_TEXTURE_CLEAN_STAGE_SKIPS] = "texture_clean_stage_skips",
+        [VK_TEXTURE_CLEAN_STAGE_FORCED_REFERENCE] =
+            "texture_clean_stage_forced_reference",
+        [VK_TEXTURE_DIRTY_RANGE_CHECKS] = "texture_dirty_range_checks",
+        [VK_TEXTURE_CACHE_WALKS] = "texture_cache_walks",
+        [VK_TEXTURE_SURFACE_OVERLAP_QUERIES] = "texture_surface_overlap_queries",
+        [VK_TEXTURE_DMA_RESOLVES] = "texture_dma_resolves",
+        [VK_TEXTURE_PALETTE_DMA_RESOLVES] = "texture_palette_dma_resolves",
+        [VK_TEXTURE_POLICY_ENABLED_BIND_CALLS] = "texture_policy_enabled_bind_calls",
+        [VK_TEXTURE_POLICY_REFERENCE_BIND_CALLS] = "texture_policy_reference_bind_calls",
+        [VK_TEXTURE_PERF_ENABLED_BIND_CALLS] = "texture_perf_enabled_bind_calls",
+        [VK_TEXTURE_PERF_DISABLED_BIND_CALLS] = "texture_perf_disabled_bind_calls",
+        [VK_TEXTURE_MIXED_POLICY_INTERVALS] = "texture_mixed_policy_intervals",
+        [VK_TEXTURE_MIXED_PERF_INTERVALS] = "texture_mixed_perf_intervals",
+        [VK_TEXTURE_FLIP_STALL_INTERVALS] = "texture_flip_stall_intervals",
+    };
+    for (size_t i = 0; i < ARRAY_SIZE(names); i++) {
+        fprintf(file, ",\"%s_per_flip_stall_interval\":%" PRIu64,
+                names[i], counters->values[i]);
+    }
+    uint64_t eligible = counters->values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE];
+    uint64_t skips = counters->values[VK_TEXTURE_CLEAN_STAGE_SKIPS];
+    bool accounting_valid = skips <= eligible &&
+        counters->values[VK_TEXTURE_CLEAN_STAGE_FORCED_REFERENCE] ==
+            eligible - skips;
+    fprintf(file,
+            ",\"texture_stage_policy_key\":\"vk_skip_clean_texture_stages\""
+            ",\"texture_stage_policy\":\"%s\""
+            ",\"texture_stage_perf_state\":\"%s\""
+            ",\"texture_stage_eligible_accounting_valid\":%s"
+            ",\"texture_stage_overflowed\":%s",
+            counters->observed_policy == 3 ? "mixed" :
+                counters->observed_policy == 2 ? "enabled" : "reference",
+            counters->observed_perf == 3 ? "mixed" :
+                counters->observed_perf == 2 ? "enabled" : "disabled",
+            accounting_valid ? "true" : "false",
+            counters->overflowed || counters->frame_overflowed ?
+                "true" : "false");
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
+    PGRAPHVkTextureStageCounters *texture = &r->texture_stage_counters;
+    if (!perf->enabled &&
+        (!r->texture_stage_evidence || r->texture_stage_evidence->finished)) {
+        return;
+    }
+    bool skip_clean = xemu_tweak_enabled(XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    pgraph_vk_texture_stage_counter_finish_interval(texture, perf->enabled,
+                                                   skip_clean);
+    perf->frame = texture->frame;
+    if (r->texture_stage_evidence) {
+        XemuTweakResolution profile = xemu_tweaks_snapshot();
+        int64_t monotonic_us = g_get_monotonic_time();
+        uint64_t ns = monotonic_us > 0 &&
+                      (uint64_t)monotonic_us <= UINT64_MAX / 1000 ?
+                          (uint64_t)monotonic_us * 1000 : 0;
+        xemu_vk_texture_stage_evidence_boundary(r->texture_stage_evidence,
+                                               texture, ns, &profile);
+    }
     if (!perf->enabled) {
+        pgraph_vk_texture_stage_counter_reset_interval(texture);
         return;
     }
 
@@ -314,9 +384,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":8"
+            "{\"type\":\"frame\",\"schema_version\":9"
+            ",\"frame_boundary\":\"nv097_set_flip_stall_method\""
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
-            now, ++perf->frame);
+            now, perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
                      ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, call_count));
@@ -465,8 +536,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"surface_upload_new_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
-            "}\n",
+            ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64,
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
             perf->descriptor_set_writes,
@@ -487,6 +557,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->surface_upload_guest_write_causes,
             perf->surface_upload_dirty_memory_causes,
             perf->surface_upload_overlap_guest_write_causes);
+    write_texture_stage_counters(perf->file, texture);
+    fprintf(perf->file, "}\n");
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -553,4 +625,5 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->report_cpu_only_retirements = 0;
     perf->report_enqueue_to_retire_frames_total = 0;
     perf->report_enqueue_to_retire_frames_max = 0;
+    pgraph_vk_texture_stage_counter_reset_interval(texture);
 }

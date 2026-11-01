@@ -86,7 +86,8 @@ bool xemu_shortcut_evidence_publish_execution(const char *component,
     if (!component ||
         (strcmp(component, "cpu") && strcmp(component, "voice") &&
          strcmp(component, "dsp") && strcmp(component, "presentation") &&
-         strcmp(component, "perturbations") && strcmp(component, "renderer")) ||
+         strcmp(component, "perturbations") && strcmp(component, "renderer") &&
+         strcmp(component, "vulkan_texture_stage")) ||
         !fields) {
         error_setg(errp, "Unknown execution profile component");
         return false;

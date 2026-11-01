@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "hw/xbox/nv2a/pgraph/vk/texture-binding-state.h"
+#include "hw/xbox/nv2a/pgraph/vk/texture-stage-counters.h"
 
 static bool test_disabled_stage_keeps_dirty_for_reenable(void)
 {
@@ -52,6 +53,14 @@ static bool test_failed_active_bind_remains_retryable(void)
     /* A failed bind selects the dummy and retains dirtiness. */
     return pgraph_vk_texture_stage_needs_rebind(true, true, true, true) &&
            pgraph_vk_texture_stage_needs_rebind(true, false, true, true);
+}
+
+static bool test_clean_stage_policy_gate(void)
+{
+    return pgraph_vk_should_skip_clean_texture_stage(true, true) &&
+           !pgraph_vk_should_skip_clean_texture_stage(false, true) &&
+           !pgraph_vk_should_skip_clean_texture_stage(true, false) &&
+           !pgraph_vk_should_skip_clean_texture_stage(false, false);
 }
 
 static bool test_texture_source_identity(void)
@@ -194,6 +203,72 @@ static bool test_failed_bind_retains_unpublished_descriptor_change(void)
     return !publication_pending;
 }
 
+static bool test_texture_stage_counter_accounting(void)
+{
+    PGRAPHVkTextureStageCounters counters = {0};
+    pgraph_vk_texture_stage_counter_begin(&counters, false, true);
+    pgraph_vk_texture_stage_counter_add(&counters, VK_TEXTURE_DIRTY_RANGE_CHECKS);
+    pgraph_vk_texture_stage_counter_eligible(&counters, true);
+    pgraph_vk_texture_stage_counter_end(&counters);
+    if (counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] ||
+        counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE]) {
+        return false;
+    }
+    counters.collect_evidence = true;
+    pgraph_vk_texture_stage_counter_begin(&counters, false, true);
+    pgraph_vk_texture_stage_counter_add(&counters, VK_TEXTURE_DIRTY_RANGE_CHECKS);
+    pgraph_vk_texture_stage_counter_eligible(&counters, true);
+    pgraph_vk_texture_stage_counter_end(&counters);
+    /* An external cache invalidation is not texture-bind work. */
+    pgraph_vk_texture_stage_counter_add(&counters, VK_TEXTURE_CACHE_WALKS);
+    pgraph_vk_texture_stage_counter_begin(&counters, true, false);
+    pgraph_vk_texture_stage_counter_eligible(&counters, false);
+    pgraph_vk_texture_stage_counter_end(&counters);
+    pgraph_vk_texture_stage_counter_finish_interval(&counters, true, false);
+    return counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] == 1 &&
+           counters.values[VK_TEXTURE_CACHE_WALKS] == 0 &&
+           counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] == 2 &&
+           counters.values[VK_TEXTURE_CLEAN_STAGE_SKIPS] == 1 &&
+           counters.values[VK_TEXTURE_CLEAN_STAGE_FORCED_REFERENCE] == 1 &&
+           counters.values[VK_TEXTURE_PERF_ENABLED_BIND_CALLS] == 1 &&
+           counters.values[VK_TEXTURE_PERF_DISABLED_BIND_CALLS] == 1 &&
+           counters.values[VK_TEXTURE_MIXED_PERF_INTERVALS] == 1 &&
+           counters.values[VK_TEXTURE_MIXED_POLICY_INTERVALS] == 1 &&
+           counters.values[VK_TEXTURE_FLIP_STALL_INTERVALS] == 1 &&
+           counters.frame == 1 && !counters.overflowed;
+}
+
+static bool test_texture_stage_counter_overflow_and_reset(void)
+{
+    PGRAPHVkTextureStageCounters counters = {
+        .frame = UINT64_MAX,
+        .collect_evidence = true,
+    };
+    counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] = UINT64_MAX;
+    counters.values[VK_TEXTURE_CLEAN_STAGE_SKIPS] = UINT64_MAX;
+    counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] = UINT64_MAX;
+    pgraph_vk_texture_stage_counter_begin(&counters, true, true);
+    pgraph_vk_texture_stage_counter_eligible(&counters, false);
+    pgraph_vk_texture_stage_counter_add(&counters, VK_TEXTURE_DIRTY_RANGE_CHECKS);
+    pgraph_vk_texture_stage_counter_end(&counters);
+    pgraph_vk_texture_stage_counter_finish_interval(&counters, true, true);
+    if (!counters.overflowed || !counters.frame_overflowed ||
+        counters.frame != UINT64_MAX ||
+        counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] != UINT64_MAX ||
+        counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] != UINT64_MAX ||
+        counters.values[VK_TEXTURE_CLEAN_STAGE_SKIPS] != UINT64_MAX ||
+        counters.values[VK_TEXTURE_CLEAN_STAGE_FORCED_REFERENCE] != 0) {
+        return false;
+    }
+    pgraph_vk_texture_stage_counter_reset_interval(&counters);
+    return counters.frame == UINT64_MAX && counters.frame_overflowed &&
+           counters.collect_evidence && !counters.overflowed &&
+           !counters.values[VK_TEXTURE_DIRTY_RANGE_CHECKS] &&
+           !counters.values[VK_TEXTURE_CLEAN_STAGE_ELIGIBLE] &&
+           !counters.observed_policy && !counters.observed_perf &&
+           !counters.in_bind && !counters.collecting;
+}
+
 int main(void)
 {
     bool disabled = test_disabled_stage_keeps_dirty_for_reenable();
@@ -205,9 +280,13 @@ int main(void)
         test_failed_multistage_bind_detects_recovery_changes();
     bool retained_publication =
         test_failed_bind_retains_unpublished_descriptor_change();
+    bool policy_gate = test_clean_stage_policy_gate();
+
+    bool counters = test_texture_stage_counter_accounting();
+    bool overflow = test_texture_stage_counter_overflow_and_reset();
 
     puts("TAP version 13");
-    puts("1..6");
+    puts("1..9");
     printf("%s 1 - disabled dirty state waits for re-enable\n",
            disabled ? "ok" : "not ok");
     printf("%s 2 - failed active bind remains retryable\n",
@@ -220,6 +299,12 @@ int main(void)
            recovery_changes ? "ok" : "not ok");
     printf("%s 6 - failed bind retains unpublished descriptor change\n",
            retained_publication ? "ok" : "not ok");
-    return (disabled && retry && identity && descriptor_identity &&
-            recovery_changes && retained_publication) ? 0 : 1;
+    printf("%s 7 - clean-stage policy gates only an eligible skip\n",
+           policy_gate ? "ok" : "not ok");
+    printf("%s 8 - texture counters preserve eligibility and observed policy/perf\n",
+           counters ? "ok" : "not ok");
+    printf("%s 9 - texture counters and progress cannot wrap across interval reset\n",
+           overflow ? "ok" : "not ok");
+    return (counters && overflow && disabled && retry && identity && descriptor_identity &&
+            recovery_changes && retained_publication && policy_gate) ? 0 : 1;
 }

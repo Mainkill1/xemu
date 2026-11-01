@@ -11,6 +11,10 @@ tweaks:
   vk_color_download_folding:
     type: bool
     default: true
+  vk_skip_clean_texture_stages:
+    type: enum
+    values: [auto, disabled]
+    default: auto
   vk_bounded_vertex_uploads:
     type: bool
     default: true
