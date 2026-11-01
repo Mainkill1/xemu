@@ -343,6 +343,10 @@ if 'i386-softmmu' in target_dirs and vulkan.found()
       spirv_reflect,
     ]
     tests += {
+      'test-xbox-vk-surface-compute': [
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-compute.c',
+        nv2a_vk_report_test, volk,
+      ] + nv2a_vk_report_test_headers,
       'test-xbox-pgraph-vk-reports': [
         'xbox-pgraph-report-test-support.c',
         meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
