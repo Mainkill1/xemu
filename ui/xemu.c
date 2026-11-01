@@ -48,6 +48,8 @@
 #include "xemu-gpu-launch.h"
 #include "xemu-settings.h"
 #include "xemu-tweaks.h"
+#include "xemu-shortcut-evidence.h"
+#include "xemu-shortcut-config.h"
 #include "xemu-snapshots.h"
 #include "xemu-version.h"
 #include "xemu-os-utils.h"
@@ -1156,6 +1158,10 @@ static void display_early_init(DisplayOptions *o)
 
     SDL_GL_MakeCurrent(m_window, m_context);
     SDL_GL_SetSwapInterval(g_config.display.window.vsync ? 1 : 0);
+    int interval;
+    if (SDL_GL_GetSwapInterval(&interval)) {
+        xemu_shortcut_evidence_publish_vsync(interval);
+    }
     xemu_hud_init(m_window, m_context);
 }
 
@@ -1396,6 +1402,18 @@ static int run_gpu_inventory_only(const XemuGpuLaunchRequest *request)
 #endif
 }
 
+/* Also retain incomplete evidence on an early QEMU exit. Normal shutdown emits
+ * after the worker joins; the service makes this fallback idempotent. */
+static void finish_shortcut_evidence_at_exit(void)
+{
+    Error *error = NULL;
+    if (!xemu_shortcut_evidence_shutdown(&error)) {
+        fprintf(stderr, "%s\n", error_get_pretty(error));
+        error_free(error);
+        _Exit(EXIT_FAILURE);
+    }
+}
+
 int main(int argc, char **argv)
 {
     QemuThread thread;
@@ -1433,6 +1451,26 @@ int main(int argc, char **argv)
     gArgc = argc;
     gArgv = argv;
 
+    XemuShortcutEvidenceOptions evidence_options = { 0 };
+    GArray *overrides = NULL;
+    Error *evidence_error = NULL;
+    if (!xemu_shortcut_evidence_parse_early(argc, argv, &evidence_options,
+                                          &overrides, &evidence_error)) {
+        fprintf(stderr, "Invalid shortcut option: %s\n",
+                error_get_pretty(evidence_error));
+        error_free(evidence_error);
+        return 2;
+    }
+    if (!xemu_tweaks_set_overrides((XemuTweakOverride *)overrides->data,
+                                  overrides->len, &evidence_error)) {
+        fprintf(stderr, "%s\n", error_get_pretty(evidence_error));
+        error_free(evidence_error);
+        g_array_unref(overrides);
+        xemu_shortcut_evidence_options_clear(&evidence_options);
+        return 2;
+    }
+    g_array_unref(overrides);
+
     XemuGpuLaunchRequest gpu_request;
     xemu_gpu_launch_request_init(&gpu_request);
     XemuGpuLaunchParseStatus gpu_parse_status =
@@ -1440,10 +1478,18 @@ int main(int argc, char **argv)
     if (gpu_parse_status != XEMU_GPU_LAUNCH_PARSE_OK) {
         fprintf(stderr, "Invalid GPU option: %s\n",
                 xemu_gpu_launch_parse_status_string(gpu_parse_status));
+        xemu_shortcut_evidence_options_clear(&evidence_options);
         return 2;
     }
     xemu_gpu_launch_request_set_current(&gpu_request);
     if (gpu_request.list_gpus) {
+        if (evidence_options.output_path) {
+            fprintf(stderr, "Shortcut run evidence requires guest execution, "
+                            "not GPU inventory\n");
+            xemu_shortcut_evidence_options_clear(&evidence_options);
+            return 2;
+        }
+        xemu_shortcut_evidence_options_clear(&evidence_options);
         return run_gpu_inventory_only(&gpu_request);
     }
 
@@ -1481,6 +1527,54 @@ int main(int argc, char **argv)
     }
     xemu_gpu_launch_request_set_current(&gpu_request);
     xemu_tweaks_apply(true);
+    if (evidence_options.output_path) {
+        g_autoptr(QDict) input_paths =
+            xemu_shortcut_input_paths(argc, argv, &evidence_error);
+        if (!input_paths) {
+            fprintf(stderr, "%s\n", error_get_pretty(evidence_error));
+            error_free(evidence_error);
+            xemu_shortcut_evidence_options_clear(&evidence_options);
+            SDL_Quit();
+            return 2;
+        }
+        g_autofree char *base_hash = xemu_shortcut_base_config_sha256();
+        g_autofree char *comparison_hash =
+            xemu_shortcut_comparison_config_sha256(input_paths);
+        char uuid[PGRAPH_VK_DEVICE_UUID_STRING_SIZE];
+        g_autofree char *requested_gpu = NULL;
+        if (gpu_request.selection.kind == PGRAPH_VK_SELECTION_UUID) {
+            pgraph_vk_device_uuid_format(gpu_request.selection.device_uuid, uuid);
+            requested_gpu = g_strdup_printf("uuid:%s", uuid);
+        } else if (gpu_request.selection.kind == PGRAPH_VK_SELECTION_LEGACY_NAME) {
+            requested_gpu = g_strdup_printf(
+                "legacy:%s", gpu_request.selection.legacy_name);
+        } else {
+            requested_gpu = g_strdup("auto");
+        }
+        XemuShortcutSessionIdentity identity = {
+            .commit = xemu_commit, .version = xemu_version,
+            .build_type = XEMU_BUILD_TYPE, .platform = XEMU_BUILD_PLATFORM,
+            .requested_backend =
+                g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
+                "vulkan" :
+                g_config.display.renderer == CONFIG_DISPLAY_RENDERER_OPENGL ?
+                "opengl" : "none",
+            .requested_gpu = requested_gpu, .base_config_sha256 = base_hash,
+            .comparison_config_sha256 = comparison_hash,
+            .input_paths = input_paths,
+            .screenshot_directory = g_config.general.screenshot_dir ?: "",
+            .initial_profile = xemu_tweaks_snapshot(),
+        };
+        if (!xemu_shortcut_evidence_init(&evidence_options, &identity, &evidence_error)) {
+            fprintf(stderr, "%s\n", error_get_pretty(evidence_error));
+            error_free(evidence_error);
+            xemu_shortcut_evidence_options_clear(&evidence_options);
+            SDL_Quit();
+            return 2;
+        }
+        atexit(finish_shortcut_evidence_at_exit);
+    }
+    xemu_shortcut_evidence_options_clear(&evidence_options);
     atexit(xemu_settings_save);
 
 #ifdef _WIN32
@@ -1522,6 +1616,11 @@ int main(int argc, char **argv)
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
     display_finalize();
+    if (!xemu_shortcut_evidence_shutdown(&evidence_error)) {
+        fprintf(stderr, "%s\n", error_get_pretty(evidence_error));
+        error_free(evidence_error);
+        return 1;
+    }
     return exit_status;
 }
 

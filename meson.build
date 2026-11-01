@@ -2783,6 +2783,8 @@ if xen.found()
   config_host_data.set('CONFIG_XEN_CTRL_INTERFACE_VERSION', xen_ctrl_version)
 endif
 config_host_data.set('QEMU_VERSION', '"@0@"'.format(meson.project_version()))
+config_host_data.set_quoted('XEMU_BUILD_TYPE', get_option('buildtype'))
+config_host_data.set_quoted('XEMU_BUILD_PLATFORM', host_os + '/' + host_machine.cpu_family())
 config_host_data.set('QEMU_VERSION_MAJOR', meson.project_version().split('.')[0])
 config_host_data.set('QEMU_VERSION_MINOR', meson.project_version().split('.')[1])
 config_host_data.set('QEMU_VERSION_MICRO', meson.project_version().split('.')[2])

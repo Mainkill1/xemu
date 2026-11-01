@@ -54,6 +54,7 @@ bool ChevronCombo(const char *label, int *current_item,
                   const char *description = NULL,
                   ChevronComboItemEnabled item_enabled = nullptr);
 void DrawTweakEffectiveStatus(XemuTweak tweak);
+void DrawTweakRuntimeStatus(const XemuTweakRuntimeState &state);
 bool PerformancePolicyCombo(const char *label, int *requested, XemuTweak tweak,
                             const char *help, bool allow_enabled = true);
 void Hyperlink(const char *text, const char *url);

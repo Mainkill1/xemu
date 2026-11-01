@@ -92,6 +92,8 @@ typedef struct MCPXAPUState {
     MCPXAPUVPState vp;
     MCPXAPUGPState gp;
     MCPXAPUEPState ep;
+    /* Owner-only evidence latch; not guest state or a migrated DSP setting. */
+    uint8_t shortcut_dsp_state;
 
     uint32_t regs[0x20000];
 

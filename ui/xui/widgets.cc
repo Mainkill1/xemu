@@ -507,7 +507,11 @@ bool ChevronCombo(const char *label, int *current_item,
 
 void DrawTweakEffectiveStatus(XemuTweak tweak)
 {
-    XemuTweakRuntimeState state = xemu_tweak_runtime_state(tweak);
+    DrawTweakRuntimeStatus(xemu_tweak_runtime_state(tweak));
+}
+
+void DrawTweakRuntimeStatus(const XemuTweakRuntimeState &state)
+{
     const char *requested =
         state.policy_requested == XEMU_TWEAK_POLICY_AUTO     ? "Auto" :
         state.policy_requested == XEMU_TWEAK_POLICY_ENABLED  ? "Enabled" :
@@ -515,6 +519,12 @@ void DrawTweakEffectiveStatus(XemuTweak tweak)
                                                                "Unknown";
     ImGui::TextDisabled("Requested: %s   Effective: %s", requested,
                         state.effective ? "Enabled" : "Disabled");
+    if (state.overridden) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled("Command-line override active. Changes here are "
+                            "saved for runs without the override.");
+        ImGui::PopTextWrapPos();
+    }
     if (!state.available || state.policy_requested == XEMU_TWEAK_POLICY_AUTO ||
         state.policy_requested == XEMU_TWEAK_POLICY_DISABLED ||
         (!state.effective && !state.restart_pending)) {

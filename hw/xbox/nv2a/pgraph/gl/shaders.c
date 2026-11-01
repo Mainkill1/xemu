@@ -25,6 +25,7 @@
 
 #include "xemu-version.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "hw/xbox/nv2a/pgraph/util.h"
 #include "debug.h"
 #include "renderer.h"
@@ -281,7 +282,7 @@ void pgraph_gl_shader_write_cache_reload_list(PGRAPHState *pg)
 {
     PGRAPHGLState *r = pg->gl_renderer_state;
 
-    if (!g_config.perf.cache_shaders) {
+    if (!xemu_tweaks_cache_requested_enabled()) {
         qatomic_set(&r->shader_cache_writeback_pending, false);
         qemu_event_set(&r->shader_cache_writeback_complete);
         return;
@@ -491,7 +492,7 @@ error:
 
 static void *shader_reload_lru_from_disk(void *arg)
 {
-    if (!g_config.perf.cache_shaders) {
+    if (!xemu_tweaks_cache_requested_enabled()) {
         return NULL;
     }
 
@@ -593,6 +594,7 @@ void pgraph_gl_init_shaders(PGRAPHState *pg)
     r->shader_module_cache.init_node = shader_module_cache_entry_init;
     r->shader_module_cache.compare_nodes = shader_module_cache_entry_compare;
     r->shader_module_cache.post_node_evict = shader_module_cache_entry_post_evict;
+    xemu_tweaks_publish_cache(XEMU_TWEAK_RENDERER_OPENGL, true, true);
 }
 
 void pgraph_gl_finalize_shaders(PGRAPHState *pg)
@@ -609,6 +611,7 @@ void pgraph_gl_finalize_shaders(PGRAPHState *pg)
     r->shader_module_cache_entries = NULL;
 
     qemu_mutex_destroy(&r->shader_cache_lock);
+    xemu_tweaks_publish_cache(XEMU_TWEAK_RENDERER_OPENGL, false, false);
 }
 
 static void *shader_write_to_disk(void *arg)
@@ -818,7 +821,7 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
     if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
         generate_shaders(r, binding);
-        if (g_config.perf.cache_shaders) {
+        if (xemu_tweaks_cache_requested_enabled()) {
             pgraph_gl_shader_cache_to_disk(binding);
         }
     }

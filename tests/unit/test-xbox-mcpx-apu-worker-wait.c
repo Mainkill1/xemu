@@ -46,6 +46,18 @@ bool mcpx_apu_debug_is_muted(uint16_t voice)
 
 struct McpxApuDebug g_dbg, g_dbg_cache;
 
+/* Evidence collection is outside this worker-completion fixture. */
+bool xemu_shortcut_evidence_enabled(void)
+{
+    return false;
+}
+
+bool xemu_shortcut_evidence_publish_execution(const char *component,
+                                            const QDict *fields, Error **errp)
+{
+    g_assert_not_reached();
+}
+
 /* The memory engine is real; these target/CPU hooks are outside this test. */
 __thread CPUState *current_cpu;
 bool tcg_allowed;

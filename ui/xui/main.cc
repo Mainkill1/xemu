@@ -33,6 +33,7 @@
 
 #include "actions.hh"
 #include "common.hh"
+#include "ui/xemu-shortcut-evidence.h"
 #include "xemu-hud.h"
 #include "misc.hh"
 #include "gl-helpers.hh"
@@ -330,6 +331,10 @@ void xemu_hud_render()
     if (g_vsync != g_config.display.window.vsync) {
         g_vsync = g_config.display.window.vsync;
         SDL_GL_SetSwapInterval(g_vsync ? 1 : 0);
+        int interval;
+        if (SDL_GL_GetSwapInterval(&interval)) {
+            xemu_shortcut_evidence_publish_vsync(interval);
+        }
     }
 
     if (g_screenshot_pending) {

@@ -24,6 +24,7 @@
 #include "ui/xemu-tweaks.h"
 #include "failpoint.h"
 #include "renderer.h"
+#include "ui/xemu-shortcut-evidence.h"
 #include "hybrid-ready.h"
 
 #include "gloffscreen.h"
@@ -325,7 +326,7 @@ static void pgraph_vk_pre_shutdown_trigger(NV2AState *d)
 
     if (!r->spirv_cache_writeback_complete_initialized ||
         !r->spirv_cache_session_eligible ||
-        !g_config.perf.cache_shaders ||
+        !xemu_tweaks_cache_requested_enabled() ||
         r->spirv_cache_writeback_requested ||
         qatomic_read(&r->spirv_cache_writeback_pending)) {
         return;
@@ -447,6 +448,9 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
         xemu_gpu_info_record_presentation(
             XEMU_GPU_PRESENTATION_HOST_COPY,
             (const char *)glGetString(GL_VENDOR),
+            (const char *)glGetString(GL_RENDERER));
+        xemu_shortcut_evidence_publish_presentation(
+            "host-copy", (const char *)glGetString(GL_VENDOR),
             (const char *)glGetString(GL_RENDERER));
         r->display.presentation_reported = true;
     }

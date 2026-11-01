@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "ui/xemu-gpu-info.h"
 #include "renderer.h"
+#include "ui/xemu-shortcut-evidence.h"
 #include <math.h>
 
 static uint8_t *convert_texture_data__CR8YB8CB8YA8(uint8_t *data_out,
@@ -780,6 +781,9 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
     xemu_gpu_info_record_presentation(
         XEMU_GPU_PRESENTATION_SHARED,
         (const char *)glGetString(GL_VENDOR),
+        (const char *)glGetString(GL_RENDERER));
+    xemu_shortcut_evidence_publish_presentation(
+        "shared", (const char *)glGetString(GL_VENDOR),
         (const char *)glGetString(GL_RENDERER));
     d->presentation_reported = true;
     } else {
