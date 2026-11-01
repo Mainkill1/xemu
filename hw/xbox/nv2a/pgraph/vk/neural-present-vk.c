@@ -838,6 +838,8 @@ void pgraph_vk_neural_present_complete(
         if (neural->ready) {
             shutdown_adapter(neural);
         }
+        /* The frame has completed and the adapter no longer retains images. */
+        destroy_scratch(pg->vk_renderer_state, neural);
     }
     if (neural->last_logged_feature != neural->state.active_feature) {
         neural->last_logged_feature = neural->state.active_feature;

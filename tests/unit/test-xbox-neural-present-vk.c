@@ -4,13 +4,18 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "qemu/osdep.h"
+#define vmaDestroyImage test_destroy_scratch_image
 #include "hw/xbox/nv2a/pgraph/vk/neural-present-vk.c"
 #include "hw/xbox/nv2a/pgraph/vk/instance.c"
+#undef vmaDestroyImage
 
 static bool sdk_alive, instance_alive, device_alive, module_alive;
 static unsigned int shutdown_count, destroy_count, raw_create_count;
 static bool reject_output;
 static uint32_t display_pixel, scratch_pixel;
+static bool check_scratch_cleanup, frame_completed, adapter_references_scratch;
+static unsigned int release_count, scratch_view_destroy_count;
+static unsigned int scratch_image_destroy_count;
 
 void xemu_dlss_publish_runtime(uint64_t token, const XemuDLSSRuntime *runtime)
 {
@@ -32,6 +37,33 @@ static void release_runtime(void *context)
 {
     g_assert_true(sdk_alive);
     g_assert_true(device_alive);
+    if (check_scratch_cleanup) {
+        g_assert_true(frame_completed);
+        adapter_references_scratch = false;
+        release_count++;
+    }
+}
+static VKAPI_ATTR void VKAPI_CALL destroy_scratch_view(
+    VkDevice device, VkImageView view, const VkAllocationCallbacks *callbacks)
+{
+    g_assert_true(frame_completed);
+    g_assert_false(adapter_references_scratch);
+    g_assert_true(device_alive);
+    g_assert_true(module_alive);
+    g_assert_false(sdk_alive);
+    g_assert_cmpuint(release_count, ==, 2);
+    scratch_view_destroy_count++;
+}
+
+void test_destroy_scratch_image(VmaAllocator allocator, VkImage image,
+                                VmaAllocation allocation)
+{
+    g_assert_true(frame_completed);
+    g_assert_false(adapter_references_scratch);
+    g_assert_true(device_alive);
+    g_assert_true(module_alive);
+    g_assert_cmpuint(scratch_view_destroy_count, ==, 1);
+    scratch_image_destroy_count++;
 }
 static void stop_sdk(void *context)
 {
@@ -187,6 +219,83 @@ int main(void)
         g_free(r);
         g_free(pg);
     }
-    puts("4 production lifecycle and 2 recording scenarios passed");
+    for (unsigned int scenario = 0; scenario < 2; scenario++) {
+        PGRAPHState *pg = g_new0(PGRAPHState, 1);
+        PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+        PGRAPHVkNeuralPresent *neural = g_new0(PGRAPHVkNeuralPresent, 1);
+        pg->vk_renderer_state = r;
+        r->neural_present = neural;
+        r->instance = (VkInstance)(uintptr_t)1;
+        r->device = (VkDevice)(uintptr_t)2;
+        instance_alive = device_alive = sdk_alive = module_alive = true;
+        shutdown_count = destroy_count = release_count = 0;
+        scratch_view_destroy_count = scratch_image_destroy_count = 0;
+        check_scratch_cleanup = adapter_references_scratch = true;
+        frame_completed = false;
+        neural->library.api = &api;
+        neural->bootstrapped = neural->bootstrap_owned = neural->ready = true;
+        neural->plugin_context = neural;
+        neural->scratch_image = (VkImage)(uintptr_t)&scratch_pixel;
+        neural->scratch_view = (VkImageView)(uintptr_t)4;
+        neural->scratch_allocation = (VmaAllocation)(uintptr_t)5;
+        neural->scratch_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        vkDestroyImageView = destroy_scratch_view;
+        vkDestroyDevice = destroy_device;
+        vkDestroyInstance = destroy_instance;
+        unsigned int failures =
+            scenario == 0 ? 1 : XEMU_NEURAL_MAX_CONSECUTIVE_FAILURES;
+        for (unsigned int failure = 0; failure < failures; failure++) {
+            PGRAPHVkNeuralPresentFrame frame = {
+                .initialized = true,
+                .decision.kind = XEMU_NEURAL_DECISION_PROCESS,
+                .plugin_result = scenario == 0 ?
+                                     XEMU_NEURAL_PLUGIN_RESULT_FATAL_ERROR :
+                                     XEMU_NEURAL_PLUGIN_RESULT_RETRYABLE_ERROR,
+            };
+            /*
+             * No completed frame means no cleanup. Production calls complete
+             * after render_display's synchronous queue completion boundary.
+             */
+            pgraph_vk_neural_present_complete(pg, &frame);
+            g_assert_cmpuint(scratch_image_destroy_count, ==, 0);
+            frame.completion_pending = true;
+            frame_completed = true;
+            pgraph_vk_neural_present_complete(pg, &frame);
+            bool disabled = failure + 1 == failures;
+            g_assert_cmpint(neural->state.failure_latched, ==, disabled);
+            g_assert_cmpuint(scratch_image_destroy_count, ==, disabled);
+            g_assert_cmpuint(scratch_view_destroy_count, ==, disabled);
+            g_assert_cmpint(neural->ready, ==, !disabled);
+            g_assert_true(module_alive);
+            g_assert_cmpuint(destroy_count, ==, 0);
+            if (disabled) {
+                g_assert_null(neural->scratch_image);
+                g_assert_null(neural->scratch_view);
+                g_assert_null(neural->scratch_allocation);
+                g_assert_cmpint(neural->scratch_layout, ==,
+                                VK_IMAGE_LAYOUT_UNDEFINED);
+                g_assert_cmpuint(release_count, ==, 2);
+                g_assert_cmpuint(shutdown_count, ==, 1);
+            } else {
+                g_assert_true(adapter_references_scratch);
+                g_assert_cmpuint(release_count, ==, 0);
+            }
+            /* A duplicate completion must not release anything twice. */
+            pgraph_vk_neural_present_complete(pg, &frame);
+            g_assert_cmpuint(scratch_image_destroy_count, ==, disabled);
+        }
+        pgraph_vk_neural_present_release_display(pg);
+        g_assert_cmpuint(scratch_image_destroy_count, ==, 1);
+        pgraph_vk_finalize_instance(pg);
+        g_assert_null(r->neural_present);
+        g_assert_cmpuint(shutdown_count, ==, 1);
+        g_assert_cmpuint(destroy_count, ==, 1);
+        g_assert_false(module_alive);
+        check_scratch_cleanup = false;
+        g_free(r);
+        g_free(pg);
+    }
+    puts("4 production lifecycle, 2 recording and 2 disable-cleanup scenarios "
+         "passed");
     return 0;
 }
