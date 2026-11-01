@@ -385,7 +385,8 @@ static inline bool check_for_breakpoints(CPUState *cpu, vaddr pc,
         check_for_breakpoints_slow(cpu, pc, cflags);
 }
 
-static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
+static inline QEMU_ALWAYS_INLINE
+const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
 {
     TranslationBlock *tb;
 
@@ -431,6 +432,21 @@ const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
     return lookup_tb_ptr_common(cpu, s);
 }
 
+/* Scalar arguments keep the slow-path state object off the hit path. */
+static const void *QEMU_SKIP_ZERO_CALL_USED_REGS __attribute__((noinline))
+lookup_tb_ptr_i32_slow(CPUState *cpu, vaddr pc, uint64_t cs_base,
+                       uint32_t flags, uint32_t cflags)
+{
+    TCGTBCPUState s = {
+        .pc = pc,
+        .flags = flags,
+        .cflags = cflags,
+        .cs_base = cs_base,
+    };
+
+    return lookup_tb_ptr_common(cpu, s);
+}
+
 /*
  * State-preserving target jumps already know the destination PC and the TB
  * state which remains valid across the jump.  Avoid reconstructing those
@@ -447,8 +463,31 @@ HELPER(lookup_tb_ptr_i32)(CPUArchState *env, uint32_t eip,
         .cflags = curr_cflags(cpu),
         .cs_base = cs_base,
     };
+    CPUJumpCache *jc;
+    TranslationBlock *tb;
+    uint32_t hash;
 
-    return lookup_tb_ptr_common(cpu, s);
+    cpu->neg.can_do_io = true;
+    if (unlikely(!QTAILQ_EMPTY(&cpu->breakpoints))) {
+        return lookup_tb_ptr_i32_slow(cpu, s.pc, s.cs_base, s.flags, s.cflags);
+    }
+
+    tcg_debug_assert(!(s.cflags & CF_INVALID));
+    hash = tb_jmp_cache_hash_func(s.pc);
+    jc = cpu->tb_jmp_cache;
+    tb = qatomic_read(&jc->array[hash].tb);
+    if (likely(tb &&
+               jc->array[hash].pc == s.pc &&
+               tb->cs_base == s.cs_base &&
+               tb->flags == s.flags &&
+               tb_cflags(tb) == s.cflags)) {
+        assert((tb_cflags(tb) & CF_PCREL) || tb->pc == s.pc);
+        if (likely(!qemu_loglevel_mask(CPU_LOG_TB_CPU | CPU_LOG_EXEC))) {
+            return tb->tc.ptr;
+        }
+    }
+
+    return lookup_tb_ptr_i32_slow(cpu, s.pc, s.cs_base, s.flags, s.cflags);
 }
 
 /* Return the current PC from CPU, which may be cached in TB. */
