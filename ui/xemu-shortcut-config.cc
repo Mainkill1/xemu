@@ -68,6 +68,9 @@ QDict *xemu_shortcut_input_paths(int argc, char **argv, Error **errp)
         return nullptr;
     }
     bool dvd_override = false;
+    bool memory_override = false;
+    bool serial_device = false;
+    bool serial_output = false;
     for (int i = 1; i < argc; i++) {
         if (!argv[i]) {
             continue;
@@ -85,6 +88,29 @@ QDict *xemu_shortcut_input_paths(int argc, char **argv, Error **errp)
         const char *value = argv[++i];
         if (!strcmp(option, "-qmp") || !strcmp(option, "-name") ||
             !strcmp(option, "-msg") || !strcmp(option, "-loadvm")) {
+            continue;
+        }
+        /* These are the maintained runner's explicit launch controls.
+         * Memory must already agree with the configuration fingerprint.
+         * Device and serial output arguments remain bound by the runner's
+         * canonical launch record; neither introduces a guest input file. */
+        if (!strcmp(option, "-m") && !memory_override &&
+            ((!strcmp(value, "64") &&
+              g_config.sys.mem_limit == CONFIG_SYS_MEM_LIMIT_64) ||
+             (!strcmp(value, "128") &&
+              g_config.sys.mem_limit == CONFIG_SYS_MEM_LIMIT_128))) {
+            memory_override = true;
+            continue;
+        }
+        if (!strcmp(option, "-device") && !serial_device &&
+            !strcmp(value, "lpc47m157")) {
+            serial_device = true;
+            continue;
+        }
+        if (!strcmp(option, "-serial") && !serial_output &&
+            g_str_has_prefix(value, "file:") &&
+            g_path_is_absolute(value + strlen("file:"))) {
+            serial_output = true;
             continue;
         }
         if (!strcmp(option, "-dvd_path") && !dvd_override) {

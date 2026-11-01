@@ -185,6 +185,87 @@ static void test_launch_routes()
     g_unlink(hdd);
 }
 
+static void test_runner_launch_routes()
+{
+    if (!child()) {
+        return;
+    }
+    g_autofree char *eeprom = input_file(256);
+    g_config.sys.files.eeprom_path = eeprom;
+    char memory[] = "64";
+    char device[] = "lpc47m157";
+    char serial[] = "file:/tmp/xemu-shortcut-serial.log";
+    char *args[] = { nullptr, const_cast<char *>("-m"),
+                     memory,  const_cast<char *>("-device"),
+                     device,  const_cast<char *>("-serial"),
+                     serial,  const_cast<char *>("-no-shutdown") };
+    g_autofree char *before = xemu_shortcut_base_config_sha256();
+    g_autoptr(QDict) paths =
+        xemu_shortcut_input_paths(G_N_ELEMENTS(args), args, &error_abort);
+    g_assert_cmpstr(qdict_get_str(paths, "eeprom"), ==, eeprom);
+    g_assert_cmpint(qdict_size(paths), ==, 5);
+    g_assert_cmpstr(args[2], ==, "64");
+    g_assert_cmpstr(args[4], ==, "lpc47m157");
+    g_assert_cmpstr(args[6], ==, "file:/tmp/xemu-shortcut-serial.log");
+    g_autofree char *after = xemu_shortcut_base_config_sha256();
+    g_assert_cmpstr(before, ==, after);
+    g_assert_cmpint(g_config.sys.mem_limit, ==, CONFIG_SYS_MEM_LIMIT_64);
+    g_config.sys.mem_limit = CONFIG_SYS_MEM_LIMIT_128;
+    args[2] = const_cast<char *>("128");
+    g_autoptr(QDict) larger =
+        xemu_shortcut_input_paths(G_N_ELEMENTS(args), args, &error_abort);
+    g_assert_nonnull(larger);
+    g_unlink(eeprom);
+}
+
+static void test_runner_launch_rejections()
+{
+    if (!child()) {
+        return;
+    }
+    g_autofree char *eeprom = input_file(256);
+    g_config.sys.files.eeprom_path = eeprom;
+    const char *invalid[][4] = {
+        { "-m", "128" },
+        { "-m", "64M" },
+        { "-m", "0" },
+        { "-m", "64,slots=1" },
+        { "-m", "64", "-m", "64" },
+        { "-device", "lpc47m157,id=serial" },
+        { "-device", "virtio-blk-pci,drive=hidden" },
+        { "-device", "lpc47m157", "-device", "lpc47m157" },
+        { "-serial", "file:" },
+        { "-serial", "file:relative.log" },
+        { "-serial", "tcp:127.0.0.1:1234" },
+        { "-serial", "stdio" },
+        { "-serial", "pipe:/tmp/input" },
+        { "-serial", "file:/tmp/out", "-serial", "file:/tmp/out2" },
+        { "-chardev", "file,id=x,path=/tmp/out,input-path=/tmp/in" },
+        { "-m", nullptr },
+        { "-device", nullptr },
+        { "-serial", nullptr },
+    };
+    for (const auto &row : invalid) {
+        char *args[] = { nullptr, const_cast<char *>(row[0]),
+                         const_cast<char *>(row[1]), const_cast<char *>(row[2]),
+                         const_cast<char *>(row[3]) };
+        int count = row[3] ? 5 : row[1] ? 3 : 2;
+        g_autoptr(Error) error = nullptr;
+        g_autoptr(QDict) paths = xemu_shortcut_input_paths(count, args, &error);
+        g_assert_null(paths);
+        g_assert_nonnull(error);
+    }
+    g_config.sys.mem_limit = CONFIG_SYS_MEM_LIMIT_128;
+    char *mismatch[] = { nullptr, const_cast<char *>("-m"),
+                         const_cast<char *>("64") };
+    g_autoptr(Error) error = nullptr;
+    g_autoptr(QDict) paths =
+        xemu_shortcut_input_paths(G_N_ELEMENTS(mismatch), mismatch, &error);
+    g_assert_null(paths);
+    g_assert_nonnull(error);
+    g_unlink(eeprom);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
@@ -198,5 +279,9 @@ int main(int argc, char **argv)
     g_test_add_func("/xemu/shortcut-config/cli-dvd-selection",
                     test_cli_dvd_selection);
     g_test_add_func("/xemu/shortcut-config/launch-routes", test_launch_routes);
+    g_test_add_func("/xemu/shortcut-config/runner-launch-routes",
+                    test_runner_launch_routes);
+    g_test_add_func("/xemu/shortcut-config/runner-launch-rejections",
+                    test_runner_launch_rejections);
     return g_test_run();
 }
