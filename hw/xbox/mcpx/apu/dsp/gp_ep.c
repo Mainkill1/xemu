@@ -20,7 +20,9 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "qemu/error-report.h"
 #include "qemu/timer.h"
+#include "dsp-replay.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -467,8 +469,14 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
         dsp_start_frame(d->gp.dsp);
         dsp_set_halt_requested(d->gp.dsp, false);
         dsp_set_cycle_count(d->gp.dsp, 0);
+        DSPReplay *capture = dsp_replay_begin(d->gp.dsp, d->gp.realtime);
+        uint64_t calls = 0;
+
         do {
             dsp_run(d->gp.dsp, 1000);
+            if (capture) {
+                calls++;
+            }
         } while (!dsp_get_halt_requested(d->gp.dsp) && d->gp.realtime);
         g_dbg.gp.cycles = dsp_get_cycle_count(d->gp.dsp);
         if (profile) {
@@ -477,6 +485,14 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
 
             trace_mcpx_apu_dsp_frame(true, d->gp.realtime, g_dbg.gp.cycles,
                                     elapsed_ns);
+        }
+        if (capture) {
+            Error *err = NULL;
+
+            if (!dsp_replay_end(capture, calls, &err)) {
+                error_prepend(&err, "GP replay capture: ");
+                error_report_err(err);
+            }
         }
 
         if ((d->monitor.point == MCPX_APU_DEBUG_MON_GP) ||
@@ -520,6 +536,7 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
 void mcpx_apu_dsp_init(MCPXAPUState *d)
 {
     d->gp.dsp = dsp_init(d, gp_scratch_rw, gp_fifo_rw, true);
+    dsp_replay_init(d->gp.dsp);
     dsp_set_halt_requested(d->gp.dsp, false);
     dsp_set_cycle_count(d->gp.dsp, 0);
 

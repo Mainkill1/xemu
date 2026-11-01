@@ -1,0 +1,570 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "qemu/osdep.h"
+#include "qemu/cutils.h"
+#include "qemu/error-report.h"
+#include "io/channel-buffer.h"
+#include "io/channel-file.h"
+#include "migration/qemu-file.h"
+#include "migration/vmstate.h"
+#include "dsp_internal.h"
+#include "dsp-replay.h"
+
+#define REPLAY_MAGIC UINT64_C(0x58475046524d3031) /* XGPFRM01 */
+#define REPLAY_VERSION 1
+#define REPLAY_PROVIDER 0x103 /* dsp56300 0.1.3 */
+#define REPLAY_END 0x4750454e
+#define REPLAY_MAX_FILE (4 * 1024 * 1024)
+#define REPLAY_MAX_DELAY_MS 86400000
+
+/*
+ * Flat fields avoid nested subsection lookahead into another native field.
+ * Each snapshot is followed by a zero byte before the next format element.
+ */
+static const VMStateDescription snapshot_vmstate = {
+    .name = "xemu-gp-replay-native",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .fields =
+        (const VMStateField[]){
+            VMSTATE_UINT32(jit.cpu.pc, DSPReplaySnapshot),
+            VMSTATE_UINT32(jit.cpu.pc_advance, DSPReplaySnapshot),
+            VMSTATE_BOOL(jit.cpu.pc_on_rep, DSPReplaySnapshot),
+            VMSTATE_UINT32(jit.cpu.cycle_count, DSPReplaySnapshot),
+            VMSTATE_INT32(jit.cpu.cycle_budget, DSPReplaySnapshot),
+            VMSTATE_UINT64_ARRAY(jit.cpu.interrupts.pending_bits,
+                                 DSPReplaySnapshot, 2),
+            VMSTATE_UINT8(jit.cpu.interrupts.pipeline_stage, DSPReplaySnapshot),
+            VMSTATE_UINT32(jit.cpu.interrupts.vector_addr, DSPReplaySnapshot),
+            VMSTATE_UINT32(jit.cpu.interrupts.saved_pc, DSPReplaySnapshot),
+            VMSTATE_UINT8(jit.cpu.interrupts.state, DSPReplaySnapshot),
+            VMSTATE_ARRAY(jit.cpu.interrupts.ipl, DSPReplaySnapshot, 128, 0,
+                          vmstate_info_int8, int8_t),
+            VMSTATE_UINT8(jit.cpu.interrupts.ipl_to_raise, DSPReplaySnapshot),
+            VMSTATE_BOOL(jit.cpu.loop_rep, DSPReplaySnapshot),
+            VMSTATE_BOOL(jit.cpu.halt_requested, DSPReplaySnapshot),
+            VMSTATE_UINT8(jit.cpu.power_state, DSPReplaySnapshot),
+            VMSTATE_UINT32_ARRAY(jit.cpu.registers, DSPReplaySnapshot, 64),
+            VMSTATE_UINT32_2DARRAY(jit.cpu.stack, DSPReplaySnapshot, 2, 16),
+            VMSTATE_UINT32_ARRAY(jit.xram, DSPReplaySnapshot, DSP_XRAM_SIZE),
+            VMSTATE_UINT32_ARRAY(jit.yram, DSPReplaySnapshot, DSP_YRAM_SIZE),
+            VMSTATE_UINT32_ARRAY(jit.pram, DSPReplaySnapshot, DSP_PRAM_SIZE),
+            VMSTATE_UINT32(dma.configuration, DSPReplaySnapshot),
+            VMSTATE_UINT32(dma.control, DSPReplaySnapshot),
+            VMSTATE_UINT32(dma.start_block, DSPReplaySnapshot),
+            VMSTATE_UINT32(dma.next_block, DSPReplaySnapshot),
+            VMSTATE_UINT32(dma.dma_read_count, DSPReplaySnapshot),
+            VMSTATE_BOOL(dma.error, DSPReplaySnapshot),
+            VMSTATE_BOOL(dma.eol, DSPReplaySnapshot),
+            VMSTATE_UINT32(interrupts, DSPReplaySnapshot),
+            VMSTATE_INT32(save_cycles, DSPReplaySnapshot),
+            VMSTATE_END_OF_LIST() },
+};
+
+static void free_io(gpointer opaque)
+{
+    DSPReplayIO *io = opaque;
+    g_bytes_unref(io->bytes);
+    g_free(io);
+}
+
+DSPReplayCase *dsp_replay_case_new(void)
+{
+    DSPReplayCase *data = g_new0(DSPReplayCase, 1);
+    data->io = g_ptr_array_new_with_free_func(free_io);
+    return data;
+}
+
+void dsp_replay_case_free(DSPReplayCase *data)
+{
+    if (data) {
+        g_ptr_array_unref(data->io);
+        g_free(data);
+    }
+}
+
+static bool valid_case(DSPReplayCase *data, Error **errp)
+{
+    size_t bytes = 0;
+    if (!data || !data->io || !data->calls ||
+        data->calls > DSP_REPLAY_MAX_CALLS ||
+        data->io->len > DSP_REPLAY_MAX_IO) {
+        error_setg(errp, "Invalid GP replay case bounds");
+        return false;
+    }
+    for (unsigned i = 0; i < data->io->len; i++) {
+        DSPReplayIO *io = g_ptr_array_index(data->io, i);
+        size_t len = g_bytes_get_size(io->bytes);
+        if (len > DSP_REPLAY_MAX_BYTES - bytes) {
+            error_setg(errp, "GP replay payload exceeds limit");
+            return false;
+        }
+        bytes += len;
+    }
+    return true;
+}
+
+static GBytes *encode_case(DSPReplayCase *data, Error **errp)
+{
+    if (!valid_case(data, errp)) {
+        return NULL;
+    }
+    QIOChannelBuffer *buffer = qio_channel_buffer_new(128 * 1024);
+    g_autoptr(QEMUFile) f = qemu_file_new_output(QIO_CHANNEL(buffer));
+    qemu_put_be64(f, REPLAY_MAGIC);
+    qemu_put_be32(f, REPLAY_VERSION);
+    qemu_put_be32(f, REPLAY_PROVIDER);
+    qemu_put_be32(f, data->calls);
+    qemu_put_byte(f, data->realtime);
+    if (vmstate_save_state(f, &snapshot_vmstate, &data->before, NULL, errp) <
+        0) {
+        object_unref(buffer);
+        return NULL;
+    }
+    qemu_put_byte(f, 0);
+    if (vmstate_save_state(f, &snapshot_vmstate, &data->after, NULL, errp) <
+        0) {
+        object_unref(buffer);
+        return NULL;
+    }
+    qemu_put_byte(f, 0);
+    qemu_put_be32(f, data->io->len);
+    for (unsigned i = 0; i < data->io->len; i++) {
+        DSPReplayIO *io = g_ptr_array_index(data->io, i);
+        gsize len;
+        const uint8_t *bytes = g_bytes_get_data(io->bytes, &len);
+        qemu_put_byte(f, io->fifo);
+        qemu_put_byte(f, io->dir);
+        qemu_put_be32(f, io->address);
+        qemu_put_be32(f, len);
+        if (len) {
+            qemu_put_buffer(f, bytes, len);
+        }
+    }
+    qemu_put_be32(f, REPLAY_END);
+    if (qemu_fflush(f) < 0) {
+        qemu_file_get_error_obj(f, errp);
+        object_unref(buffer);
+        return NULL;
+    }
+    GBytes *encoded = g_bytes_new(buffer->data, buffer->usage);
+    object_unref(buffer);
+    return encoded;
+}
+
+bool dsp_replay_save_case(const char *path, DSPReplayCase *data, Error **errp)
+{
+    g_autoptr(GBytes) buffer = encode_case(data, errp);
+    if (!buffer) {
+        return false;
+    }
+    g_autoptr(QIOChannelFile) output = qio_channel_file_new_path(
+        path, O_WRONLY | O_CREAT | O_EXCL | O_BINARY, 0600, errp);
+    if (!output) {
+        return false;
+    }
+    gsize length;
+    const uint8_t *bytes = g_bytes_get_data(buffer, &length);
+    if (qio_channel_write_all(QIO_CHANNEL(output), bytes, length, errp) < 0) {
+        qio_channel_close(QIO_CHANNEL(output), NULL);
+        return false;
+    }
+    return qio_channel_close(QIO_CHANNEL(output), errp) == 0;
+}
+
+DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp)
+{
+    g_autoptr(QIOChannelFile) input = qio_channel_file_new_path(
+        path, O_RDONLY | O_BINARY | O_NONBLOCK, 0, errp);
+    if (!input) {
+        return NULL;
+    }
+    struct stat st;
+    if (fstat(input->fd, &st) < 0 || !S_ISREG(st.st_mode) || st.st_size < 0 ||
+        st.st_size > REPLAY_MAX_FILE) {
+        error_setg(errp, "GP replay input must be a bounded regular file");
+        qio_channel_close(QIO_CHANNEL(input), NULL);
+        return NULL;
+    }
+    g_autoptr(QIOChannelBuffer) buffer = qio_channel_buffer_new(st.st_size);
+    if (qio_channel_read_all(QIO_CHANNEL(input), buffer->data, st.st_size,
+                             errp) < 0) {
+        qio_channel_close(QIO_CHANNEL(input), NULL);
+        return NULL;
+    }
+    uint8_t extra;
+    ssize_t remaining = qio_channel_read(QIO_CHANNEL(input), &extra, 1, errp);
+    qio_channel_close(QIO_CHANNEL(input), NULL);
+    if (remaining != 0) {
+        if (remaining > 0) {
+            error_setg(errp, "GP replay input changed while reading");
+        }
+        return NULL;
+    }
+    buffer->usage = st.st_size;
+    g_autoptr(QEMUFile) f = qemu_file_new_input(QIO_CHANNEL(buffer));
+    g_autoptr(GBytes) canonical = NULL;
+    DSPReplayCase *data = dsp_replay_case_new();
+    if (qemu_get_be64(f) != REPLAY_MAGIC ||
+        qemu_get_be32(f) != REPLAY_VERSION ||
+        qemu_get_be32(f) != REPLAY_PROVIDER) {
+        error_setg(errp, "Unsupported GP replay format/provider");
+        goto fail;
+    }
+    data->calls = qemu_get_be32(f);
+    unsigned realtime = qemu_get_byte(f);
+    if (!data->calls || data->calls > DSP_REPLAY_MAX_CALLS || realtime > 1) {
+        error_setg(errp, "Invalid GP replay call count/flags");
+        goto fail;
+    }
+    data->realtime = realtime;
+    if (vmstate_load_state(f, &snapshot_vmstate, &data->before, 1, errp) < 0) {
+        goto fail;
+    }
+    if (qemu_get_byte(f) != 0) {
+        error_setg(errp, "Invalid GP replay snapshot separator");
+        goto fail;
+    }
+    if (vmstate_load_state(f, &snapshot_vmstate, &data->after, 1, errp) < 0) {
+        goto fail;
+    }
+    if (qemu_get_byte(f) != 0) {
+        error_setg(errp, "Invalid GP replay snapshot separator");
+        goto fail;
+    }
+    unsigned count = qemu_get_be32(f);
+    if (count > DSP_REPLAY_MAX_IO) {
+        error_setg(errp, "GP replay transaction count exceeds limit");
+        goto fail;
+    }
+    size_t total = 0;
+    for (unsigned i = 0; i < count; i++) {
+        unsigned fifo = qemu_get_byte(f), dir = qemu_get_byte(f);
+        uint32_t address = qemu_get_be32(f), len = qemu_get_be32(f);
+        if (fifo > 1 || dir > 1 || len > DSP_REPLAY_MAX_BYTES - total) {
+            error_setg(errp, "Invalid GP replay transaction bounds/flags");
+            goto fail;
+        }
+        total += len;
+        uint8_t *bytes = g_malloc(len);
+        if (len && qemu_get_buffer(f, bytes, len) != len) {
+            g_free(bytes);
+            error_setg(errp, "Truncated GP replay transaction");
+            goto fail;
+        }
+        DSPReplayIO *io = g_new0(DSPReplayIO, 1);
+        *io = (DSPReplayIO){ .fifo = fifo,
+                             .dir = dir,
+                             .address = address,
+                             .bytes = g_bytes_new_take(bytes, len) };
+        g_ptr_array_add(data->io, io);
+    }
+    if (qemu_get_be32(f) != REPLAY_END || qemu_file_get_error_obj(f, NULL)) {
+        error_setg(errp, "Incomplete GP replay input");
+        goto fail;
+    }
+    /*
+     * Canonical re-encoding detects trailing bytes and noncanonical bools,
+     * without probing EOF through VMState's subsection lookahead.
+     */
+    canonical = encode_case(data, errp);
+    if (!canonical) {
+        goto fail;
+    }
+    if (g_bytes_get_size(canonical) != buffer->usage ||
+        memcmp(g_bytes_get_data(canonical, NULL), buffer->data,
+               buffer->usage)) {
+        error_setg(errp, "Noncanonical/trailing GP replay input");
+        goto fail;
+    }
+    return data;
+fail:
+    dsp_replay_case_free(data);
+    return NULL;
+}
+
+static bool take_snapshot(DSPState *dsp, DSPReplaySnapshot *s)
+{
+    memset(s, 0, sizeof(*s));
+    if (!dsp_jit_get_native_state(dsp, &s->jit)) {
+        return false;
+    }
+    s->interrupts = dsp->interrupts;
+    s->save_cycles = dsp->save_cycles;
+    s->dma = (DSPReplayDMA){
+        .configuration = dsp->dma.configuration,
+        .control = dsp->dma.control,
+        .start_block = dsp->dma.start_block,
+        .next_block = dsp->dma.next_block,
+        .dma_read_count = dsp->dma.dma_read_count,
+        .error = dsp->dma.error,
+        .eol = dsp->dma.eol,
+    };
+    return true;
+}
+
+static void restore_snapshot(DSPState *dsp, const DSPReplaySnapshot *s)
+{
+    bool restored = dsp_jit_set_native_state(dsp, &s->jit);
+    assert(restored);
+    dsp->interrupts = s->interrupts;
+    dsp->save_cycles = s->save_cycles;
+    dsp->dma.configuration = s->dma.configuration;
+    dsp->dma.control = s->dma.control;
+    dsp->dma.start_block = s->dma.start_block;
+    dsp->dma.next_block = s->dma.next_block;
+    dsp->dma.dma_read_count = s->dma.dma_read_count;
+    dsp->dma.error = s->dma.error;
+    dsp->dma.eol = s->dma.eol;
+}
+
+struct DSPReplay {
+    DSPState *dsp;
+    char *path;
+    int64_t deadline_us;
+    DSPReplayCase *data;
+    void *original_opaque;
+    dsp_scratch_rw_func scratch;
+    dsp_fifo_rw_func fifo;
+    size_t bytes;
+    bool active, failed;
+};
+
+bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,
+                          Error **errp)
+{
+    if (!dsp->is_gp || dsp->ops != &jit_dsp_ops || dsp->replay || !path ||
+        !*path || delay_ms > REPLAY_MAX_DELAY_MS) {
+        error_setg(errp,
+                   "GP replay requires an unarmed GP JIT and valid path/delay");
+        return false;
+    }
+    DSPReplay *r = g_new0(DSPReplay, 1);
+    r->dsp = dsp;
+    r->path = g_strdup(path);
+    r->deadline_us = g_get_monotonic_time() + (int64_t)delay_ms * 1000;
+    dsp->replay = r;
+    return true;
+}
+
+void dsp_replay_init(DSPState *dsp)
+{
+    const char *path = g_getenv("XEMU_GP_REPLAY_PATH");
+    const char *delay = g_getenv("XEMU_GP_REPLAY_DELAY_MS");
+    uint64_t ms = 0;
+    Error *err = NULL;
+    if (!path || !*path) {
+        return;
+    }
+    if (delay &&
+        (qemu_strtou64(delay, NULL, 10, &ms) < 0 || ms > REPLAY_MAX_DELAY_MS)) {
+        error_report("Invalid XEMU_GP_REPLAY_DELAY_MS");
+        return;
+    }
+    if (!dsp_replay_configure(dsp, path, ms, &err)) {
+        error_report_err(err);
+    }
+}
+
+static void restore_callbacks(DSPReplay *r)
+{
+    if (r->active) {
+        r->dsp->dma.rw_opaque = r->original_opaque;
+        r->dsp->dma.scratch_rw = r->scratch;
+        r->dsp->dma.fifo_rw = r->fifo;
+        r->active = false;
+    }
+}
+
+void dsp_replay_cleanup(DSPState *dsp)
+{
+    DSPReplay *r = dsp->replay;
+    if (r) {
+        restore_callbacks(r);
+        dsp->replay = NULL;
+        dsp_replay_case_free(r->data);
+        g_free(r->path);
+        g_free(r);
+    }
+}
+
+static void record_io(DSPReplay *r, bool fifo, bool dir, uint32_t address,
+                      const uint8_t *ptr, size_t len)
+{
+    if (r->failed) {
+        return;
+    }
+    if (r->data->io->len >= DSP_REPLAY_MAX_IO ||
+        len > DSP_REPLAY_MAX_BYTES - r->bytes) {
+        r->failed = true;
+        return;
+    }
+    DSPReplayIO *io = g_new0(DSPReplayIO, 1);
+    *io = (DSPReplayIO){ .fifo = fifo,
+                         .dir = dir,
+                         .address = address,
+                         .bytes = g_bytes_new(ptr, len) };
+    g_ptr_array_add(r->data->io, io);
+    r->bytes += len;
+}
+
+static void capture_scratch(void *opaque, uint8_t *ptr, uint32_t addr,
+                            size_t len, bool dir)
+{
+    DSPReplay *r = opaque;
+    if (dir) {
+        record_io(r, false, dir, addr, ptr, len);
+    }
+    r->scratch(r->original_opaque, ptr, addr, len, dir);
+    if (!dir) {
+        record_io(r, false, dir, addr, ptr, len);
+    }
+}
+
+static void capture_fifo(void *opaque, uint8_t *ptr, unsigned index, size_t len,
+                         bool dir)
+{
+    DSPReplay *r = opaque;
+    if (dir) {
+        record_io(r, true, dir, index, ptr, len);
+    }
+    r->fifo(r->original_opaque, ptr, index, len, dir);
+    if (!dir) {
+        record_io(r, true, dir, index, ptr, len);
+    }
+}
+
+DSPReplay *dsp_replay_begin(DSPState *dsp, bool realtime)
+{
+    DSPReplay *r = dsp->replay;
+    if (!r || r->active || g_get_monotonic_time() < r->deadline_us) {
+        return NULL;
+    }
+    r->data = dsp_replay_case_new();
+    if (!take_snapshot(dsp, &r->data->before)) {
+        error_report("GP replay capture no longer has a JIT backend");
+        dsp_replay_cleanup(dsp);
+        return NULL;
+    }
+    r->data->realtime = realtime;
+    r->original_opaque = dsp->dma.rw_opaque;
+    r->scratch = dsp->dma.scratch_rw;
+    r->fifo = dsp->dma.fifo_rw;
+    dsp->dma.rw_opaque = r;
+    dsp->dma.scratch_rw = capture_scratch;
+    dsp->dma.fifo_rw = capture_fifo;
+    r->active = true;
+    return r;
+}
+
+bool dsp_replay_end(DSPReplay *r, uint64_t calls, Error **errp)
+{
+    DSPState *dsp = r->dsp;
+    bool ok = false;
+    restore_callbacks(r);
+    if (r->failed || !calls || calls > DSP_REPLAY_MAX_CALLS ||
+        !take_snapshot(dsp, &r->data->after)) {
+        error_setg(errp, "GP replay capture incomplete or exceeds limits");
+    } else {
+        r->data->calls = calls;
+        ok = dsp_replay_save_case(r->path, r->data, errp);
+    }
+    dsp_replay_cleanup(dsp);
+    return ok;
+}
+
+typedef struct ReplayCursor {
+    DSPReplayCase *data;
+    unsigned position;
+    Error *error;
+} ReplayCursor;
+
+static void replay_io(ReplayCursor *cursor, bool fifo, bool dir,
+                      uint32_t address, uint8_t *ptr, size_t len)
+{
+    if (!dir && len) {
+        memset(ptr, 0, len);
+    }
+    if (cursor->error) {
+        return;
+    }
+    if (cursor->position >= cursor->data->io->len) {
+        error_setg(&cursor->error, "Unexpected GP replay transaction %u",
+                   cursor->position);
+        return;
+    }
+    DSPReplayIO *io = g_ptr_array_index(cursor->data->io, cursor->position++);
+    gsize recorded_len;
+    const uint8_t *bytes = g_bytes_get_data(io->bytes, &recorded_len);
+    if (io->fifo != fifo || io->dir != dir || io->address != address ||
+        recorded_len != len || (dir && len && memcmp(bytes, ptr, len))) {
+        error_setg(&cursor->error, "GP replay transaction %u differs",
+                   cursor->position - 1);
+        return;
+    }
+    if (!dir && len) {
+        memcpy(ptr, bytes, len);
+    }
+}
+
+static void replay_scratch(void *opaque, uint8_t *ptr, uint32_t address,
+                           size_t len, bool dir)
+{
+    replay_io(opaque, false, dir, address, ptr, len);
+}
+
+static void replay_fifo(void *opaque, uint8_t *ptr, unsigned index, size_t len,
+                        bool dir)
+{
+    replay_io(opaque, true, dir, index, ptr, len);
+}
+
+bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
+{
+    if (!valid_case(data, errp)) {
+        return false;
+    }
+    ReplayCursor cursor = { .data = data };
+    DSPState *dsp = dsp_init(&cursor, replay_scratch, replay_fifo, true);
+    dsp_set_engine(dsp, true);
+    restore_snapshot(dsp, &data->before);
+    for (unsigned i = 0; i < data->calls; i++) {
+        dsp_run(dsp, 1000);
+        if (cursor.error) {
+            break;
+        }
+        if (i + 1 < data->calls && dsp_get_halt_requested(dsp)) {
+            error_setg(&cursor.error,
+                       "GP replay halted before recorded call count");
+            break;
+        }
+    }
+    if (!cursor.error && cursor.position != data->io->len) {
+        error_setg(&cursor.error, "GP replay did not consume all transactions");
+    }
+    DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
+    take_snapshot(dsp, actual);
+    dsp_destroy(dsp);
+    if (cursor.error) {
+        error_propagate(errp, cursor.error);
+        g_free(actual);
+        return false;
+    }
+    /*
+     * The codec contains only fixed scalar/array fields. Compare those
+     * same semantic ranges, excluding all native ABI padding.
+     */
+    bool matched = true;
+    for (const VMStateField *field = snapshot_vmstate.fields; field->name;
+         field++) {
+        size_t count = field->flags & VMS_ARRAY ? field->num : 1;
+        size_t length = field->size * count;
+        if (memcmp((uint8_t *)actual + field->offset,
+                   (uint8_t *)&data->after + field->offset, length)) {
+            error_setg(errp, "GP replay post-state differs at %s", field->name);
+            matched = false;
+            break;
+        }
+    }
+    g_free(actual);
+    return matched;
+}

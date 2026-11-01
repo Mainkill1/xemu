@@ -4,7 +4,7 @@ subdir('interp')
 
 libdsp = static_library(
   'dsp',
-  files(['dsp.c', 'dsp_c.c', 'dsp_jit.c', 'dsp_dma.c']) + genh,
+  files(['dsp.c', 'dsp_c.c', 'dsp_jit.c', 'dsp_dma.c', 'dsp-replay.c']) + genh,
   dependencies: [dsp56300_emu_ffi],
 )
 

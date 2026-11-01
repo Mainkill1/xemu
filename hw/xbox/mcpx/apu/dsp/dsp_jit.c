@@ -20,6 +20,7 @@
 
 #include "qemu/osdep.h"
 #include "dsp_internal.h"
+#include "dsp-jit-state.h"
 #include "debug.h"
 
 #include <dsp56300.h>
@@ -340,6 +341,35 @@ static void dsp_jit_finalize(DSPState *dsp)
     g_free(be->pram);
     g_free(be);
     dsp->backend = NULL;
+}
+
+bool dsp_jit_get_native_state(DSPState *dsp, DSPJitState *state)
+{
+    if (dsp->ops != &jit_dsp_ops) {
+        return false;
+    }
+    JitBackend *be = jit_be(dsp);
+
+    dsp56300_get_state(be->jit, &state->cpu);
+    memcpy(state->xram, be->xram, sizeof(state->xram));
+    memcpy(state->yram, be->yram, sizeof(state->yram));
+    memcpy(state->pram, be->pram, sizeof(state->pram));
+    return true;
+}
+
+bool dsp_jit_set_native_state(DSPState *dsp, const DSPJitState *state)
+{
+    if (dsp->ops != &jit_dsp_ops) {
+        return false;
+    }
+    JitBackend *be = jit_be(dsp);
+
+    memcpy(be->xram, state->xram, sizeof(state->xram));
+    memcpy(be->yram, state->yram, sizeof(state->yram));
+    memcpy(be->pram, state->pram, sizeof(state->pram));
+    dsp56300_set_state(be->jit, &state->cpu);
+    dsp56300_invalidate_cache(be->jit);
+    return true;
 }
 
 const DSPOps jit_dsp_ops = {
