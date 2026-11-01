@@ -40,8 +40,15 @@ Events report starting PC, samples and emulated cycles processed, not host time
 or speedup. Capture/replay can also compare complete state and ordered external
 transfers; see ``xemu-gp-replay.rst``. A matching replay by itself does not prove
 that native processing occurred: unknown inputs may fall back throughout.
+The ``test-xbox-mcpx-apu-gp-filter-hle`` fixture also accepts
+``XEMU_GP_FILTER_HLE_TEST_CAPTURE=/private/gp-frame.bin``. Its optional captured
+frame test requires both complete replay agreement and fewer provider run calls;
+the test is skipped when no capture is supplied. Use a recognized capture and
+the supported provider for this positive-path check.
 
 Native processing and replay agreement do not establish hardware accuracy,
 audible parity, whole-APU scheduling parity or an overall game benefit. Keep
 captures private and bind evidence to exact executable, program, settings and
 workload identities before drawing correctness or performance conclusions.
+Hardware parity still needs an independently authored DSP test XBE for signed
+impulses, history, saturation and loop-tail behavior on Xbox and xemu.

@@ -4654,7 +4654,7 @@ foreach target : target_dirs
       objects: lib.extract_all_objects(recursive: true),
       include_directories: target_inc,
       link_depends: [block_syms, qemu_syms],
-      link_args: link_args + ['-Wl,--wrap=main'],
+      link_args: link_args + ['-Wl,--wrap=main', '-Wl,--wrap=dsp56300_run'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-gp-filter-hle', gp_filter_hle_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])

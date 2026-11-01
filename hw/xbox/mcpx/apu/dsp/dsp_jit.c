@@ -110,7 +110,8 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
         return;
     }
     /* A real block clears provider control state absent from the FFI image. */
-    bool ready = !cpu.halt_requested && !cpu.power_state &&
+    bool ready = cpu.pc < DSP_PRAM_SIZE &&
+                 !cpu.halt_requested && !cpu.power_state &&
                  !cpu.interrupts.state && !cpu.interrupts.pending_bits[0] &&
                  !cpu.interrupts.pending_bits[1] &&
                  (int64_t)cpu.cycle_budget + cycles > 0;

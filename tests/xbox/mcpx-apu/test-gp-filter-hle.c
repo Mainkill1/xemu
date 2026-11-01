@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/dsp/dsp.h"
+#include "hw/xbox/mcpx/apu/dsp/dsp-replay.h"
 #include "hw/xbox/mcpx/apu/dsp/gp-filter-hle.h"
 #include "qemu/module.h"
 #include "ui/xemu-settings.h"
@@ -10,6 +11,15 @@ typedef struct Fixture {
     uint32_t x[DSP_XRAM_SIZE];
     uint32_t y[DSP_YRAM_SIZE];
 } Fixture;
+
+static unsigned ffi_runs;
+void __real_dsp56300_run(Dsp56300Jit *dsp, int32_t cycles);
+void __wrap_dsp56300_run(Dsp56300Jit *dsp, int32_t cycles);
+void __wrap_dsp56300_run(Dsp56300Jit *dsp, int32_t cycles)
+{
+    ffi_runs++;
+    __real_dsp56300_run(dsp, cycles);
+}
 
 static Fixture *new_fixture(uint32_t input)
 {
@@ -279,6 +289,28 @@ static void test_backend_fallback(void)
     g_unsetenv("XEMU_GP_FILTER_HLE");
 }
 
+static void test_captured_frame(void)
+{
+    const char *path = g_getenv("XEMU_GP_FILTER_HLE_TEST_CAPTURE");
+    if (!path) {
+        g_test_skip("A private recognized GP frame is required");
+        return;
+    }
+    g_setenv("XEMU_GP_FILTER_HLE", "1", true);
+    g_config.audio.use_dsp_jit = true;
+    Error *err = NULL;
+    DSPReplayCase *data = dsp_replay_load_case(path, &err);
+    g_assert_null(err);
+    g_assert_nonnull(data);
+    ffi_runs = 0;
+    g_assert_true(dsp_replay_verify_case(data, &err));
+    g_assert_null(err);
+    /* Agreement alone could pass with every call falling back to the JIT. */
+    g_assert_cmpuint(ffi_runs, <, data->calls);
+    dsp_replay_case_free(data);
+    g_unsetenv("XEMU_GP_FILTER_HLE");
+}
+
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
@@ -298,6 +330,8 @@ int __wrap_main(int argc, char **argv)
                     test_unknown_program);
     g_test_add_func("/mcpx-apu/gp-filter-hle/backend-fallback",
                     test_backend_fallback);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/captured-frame",
+                    test_captured_frame);
     for (unsigned i = 0; i < 20; i++) {
         g_autofree char *name =
             g_strdup_printf("/mcpx-apu/gp-filter-hle/reject-%u", i);
