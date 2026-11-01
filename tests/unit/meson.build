@@ -233,6 +233,7 @@ if vulkan.found()
       nv2a_vk_runtime_prod = declare_dependency(
         sources: config_target_h['i386-softmmu'],
         compile_args: [
+          '-DXBOX=1',
           '-DCOMPILING_PER_TARGET',
           '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
         ] + nv2a_vk_runtime_section_args,
@@ -240,19 +241,11 @@ if vulkan.found()
         include_directories: include_directories('../../target/i386'),
       )
       if host_os == 'linux'
-        surface_ownership_runtime = declare_dependency(
-          compile_args: ['-DXBOX=1'],
-          dependencies: [nv2a_vk_runtime_prod],
-          link_args: [
-            '-Wl,--wrap=pgraph_vk_finish',
-            '-Wl,--wrap=pgraph_vk_ensure_not_in_render_pass',
-          ],
-        )
         tests += {
           'test-xbox-vk-surface-ownership': [
-            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+            'test-xbox-vk-surface-ownership-draw.c',
             meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
-            surface_ownership_runtime,
+            nv2a_vk_runtime_prod,
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
             spirv_reflect,
           ],
@@ -523,6 +516,7 @@ test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 if host_os == 'linux' and have_system
   apu_sge_test = executable('test-xbox-mcpx-apu-sge-cache',
     files('test-xbox-mcpx-apu-sge-cache.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],
@@ -535,6 +529,7 @@ endif
 if host_os == 'linux' and have_system
   voice_wait_test = executable('test-xbox-mcpx-apu-worker-wait',
     files('test-xbox-mcpx-apu-worker-wait.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],
@@ -598,6 +593,7 @@ xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   dependencies: [qemuutil])
 test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
 
+tests += {'test-xbox-mcpx-apu-voice-format': []}
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])
