@@ -524,6 +524,7 @@ test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 if host_os == 'linux' and have_system
   apu_sge_test = executable('test-xbox-mcpx-apu-sge-cache',
     files('test-xbox-mcpx-apu-sge-cache.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],
@@ -536,6 +537,7 @@ endif
 if host_os == 'linux' and have_system
   voice_wait_test = executable('test-xbox-mcpx-apu-worker-wait',
     files('test-xbox-mcpx-apu-worker-wait.c',
+          '../../accel/stubs/kvm-stub.c',
           '../../system/memory.c', '../../system/physmem.c'), genh,
     dependencies: [qemuutil, qom, xbox_i386_target_headers, sdl, libsamplerate],
     c_args: ['-ffunction-sections', '-fdata-sections'],
