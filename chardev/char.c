@@ -236,6 +236,13 @@ void qemu_chr_be_update_read_handlers(Chardev *s,
 {
     ChardevClass *cc = CHARDEV_GET_CLASS(s);
 
+#ifdef XBOX
+    /* Muxes and hubs forward the explicit Xbox default context. */
+    if (context == qemu_main_context) {
+        context = NULL;
+    }
+#endif
+
     assert(qemu_chr_has_feature(s, QEMU_CHAR_FEATURE_GCONTEXT)
            || !context);
 
