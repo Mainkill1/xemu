@@ -118,6 +118,7 @@ static XemuNeuralPluginApiV1 valid_api(void)
         .version = "1.0",
         .bootstrap = fake_bootstrap,
         .shutdown = fake_shutdown,
+        .destroy_bootstrap = fake_shutdown,
         .create = fake_create,
         .destroy = fake_destroy,
         .prepare_frame = fake_prepare,
@@ -184,6 +185,12 @@ static bool missing_callback_is_rejected(void)
     }
     api = valid_api();
     api.shutdown = NULL;
+    if (xemu_neural_plugin_api_validate(&api) !=
+        XEMU_NEURAL_PLUGIN_API_MISSING_CALLBACK) {
+        return false;
+    }
+    api = valid_api();
+    api.destroy_bootstrap = NULL;
     if (xemu_neural_plugin_api_validate(&api) !=
         XEMU_NEURAL_PLUGIN_API_MISSING_CALLBACK) {
         return false;

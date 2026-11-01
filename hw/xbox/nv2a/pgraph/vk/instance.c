@@ -805,6 +805,8 @@ void pgraph_vk_finalize_instance(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    pgraph_vk_neural_present_shutdown(pg);
+
     if (r->allocator != VK_NULL_HANDLE) {
         vmaDestroyAllocator(r->allocator);
         r->allocator = VK_NULL_HANDLE;
@@ -826,4 +828,5 @@ void pgraph_vk_finalize_instance(PGRAPHState *pg)
     }
 
     volkFinalize();
+    pgraph_vk_neural_present_finalize(pg);
 }

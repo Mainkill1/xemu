@@ -52,6 +52,7 @@ static bool run_smoke(const char *path)
             XEMU_NEURAL_PLUGIN_RESULT_OK ||
         context == NULL) {
         api->shutdown(bootstrap_context);
+        api->destroy_bootstrap(bootstrap_context);
         xemu_neural_plugin_library_close(&library);
         return false;
     }
@@ -73,6 +74,7 @@ static bool run_smoke(const char *path)
         XEMU_NEURAL_PLUGIN_RESULT_OK) {
         api->destroy(context);
         api->shutdown(bootstrap_context);
+        api->destroy_bootstrap(bootstrap_context);
         xemu_neural_plugin_library_close(&library);
         return false;
     }
@@ -92,6 +94,7 @@ static bool run_smoke(const char *path)
     api->reset_history(context, 1);
     api->destroy(context);
     api->shutdown(bootstrap_context);
+    api->destroy_bootstrap(bootstrap_context);
     xemu_neural_plugin_library_close(&library);
     return ok && library.handle == NULL && library.api == NULL;
 }

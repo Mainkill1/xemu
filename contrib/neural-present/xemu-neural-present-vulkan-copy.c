@@ -436,6 +436,7 @@ static const XemuNeuralPluginApiV1 api = {
     .version = "1.0.0",
     .bootstrap = copy_bootstrap,
     .shutdown = copy_shutdown,
+    .destroy_bootstrap = copy_shutdown,
     .create = copy_create,
     .destroy = copy_destroy,
     .prepare_frame = copy_prepare,

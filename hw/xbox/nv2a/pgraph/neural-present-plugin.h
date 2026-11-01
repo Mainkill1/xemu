@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define XEMU_NEURAL_PLUGIN_ABI_VERSION 2U
+#define XEMU_NEURAL_PLUGIN_ABI_VERSION 3U
 #define XEMU_NEURAL_PLUGIN_ENTRYPOINT "xemu_neural_present_get_api"
 #define XEMU_NEURAL_PLUGIN_STATUS_TEXT_SIZE 192U
 #define XEMU_NEURAL_PLUGIN_MAX_REQUIREMENT_COUNT 64U
@@ -364,7 +364,10 @@ typedef struct XemuNeuralPluginApiV1 {
     const char *name;
     const char *version;
     XemuNeuralPluginBootstrapFn bootstrap;
+    /* Shutdown SDK work with the Vulkan device alive. Keep proxy code loaded. */
     XemuNeuralPluginShutdownFn shutdown;
+    /* Release bootstrap memory/modules only after all Vulkan objects die. */
+    XemuNeuralPluginShutdownFn destroy_bootstrap;
     XemuNeuralPluginCreateVulkanInstanceFn create_vulkan_instance;
     XemuNeuralPluginCreateVulkanDeviceFn create_vulkan_device;
     XemuNeuralPluginCreateFn create;
@@ -547,6 +550,7 @@ xemu_neural_plugin_api_validate(const XemuNeuralPluginApiV1 *api)
         return XEMU_NEURAL_PLUGIN_API_CONFLICTING_CAPABILITY;
     }
     if (api->bootstrap == NULL || api->shutdown == NULL ||
+        api->destroy_bootstrap == NULL ||
         api->create == NULL || api->destroy == NULL ||
         api->prepare_frame == NULL || api->record_vulkan == NULL ||
         api->reset_history == NULL || api->release_resources == NULL ||

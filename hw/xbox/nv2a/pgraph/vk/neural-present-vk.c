@@ -20,6 +20,8 @@ typedef struct PGRAPHVkNeuralPresent {
     void *bootstrap_context;
     void *plugin_context;
     bool bootstrapped;
+    bool bootstrap_owned;
+    bool proxy_instance_created;
     bool ready;
     uint32_t configuration_generation;
     XemuDLSSLaunch launch;
@@ -177,9 +179,7 @@ static void shutdown_adapter(PGRAPHVkNeuralPresent *neural)
     if (neural->bootstrapped && neural->library.api != NULL) {
         neural->library.api->shutdown(neural->bootstrap_context);
     }
-    neural->bootstrap_context = NULL;
     neural->bootstrapped = false;
-    xemu_neural_plugin_library_close(&neural->library);
 }
 
 void pgraph_vk_neural_present_reject(PGRAPHState *pg, const char *reason)
@@ -231,6 +231,7 @@ VkResult pgraph_vk_neural_present_create_instance(
         neural->bootstrap_context, create_info, allocation_callbacks,
         &instance);
     if (result == VK_SUCCESS && instance != 0) {
+        neural->proxy_instance_created = true;
         *instance_out = (VkInstance)instance;
         return VK_SUCCESS;
     }
@@ -250,6 +251,11 @@ VkResult pgraph_vk_neural_present_create_device(
     VkDevice *device_out)
 {
     PGRAPHVkNeuralPresent *neural = pg->vk_renderer_state->neural_present;
+    if (neural != NULL && neural->proxy_instance_created &&
+        !neural->bootstrapped) {
+        *device_out = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
     if (neural == NULL || !neural->bootstrapped ||
         neural->library.api == NULL ||
         !(neural->library.api->capabilities &
@@ -272,8 +278,7 @@ VkResult pgraph_vk_neural_present_create_device(
              "Vulkan device proxy failed (%d)", result);
     pgraph_vk_neural_present_reject(pg, message);
     *device_out = VK_NULL_HANDLE;
-    return vkCreateDevice(physical_device, create_info,
-                          allocation_callbacks, device_out);
+    return result == VK_SUCCESS ? VK_ERROR_INITIALIZATION_FAILED : result;
 }
 
 void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg)
@@ -347,6 +352,7 @@ void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg)
                          validation));
         }
         /* bootstrap may have created global SDK state even on failure. */
+        neural->bootstrap_owned = true;
         neural->bootstrapped = true;
         pgraph_vk_neural_present_reject(pg, message);
         return;
@@ -364,6 +370,7 @@ void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg)
         neural->library.api->capabilities &
         XEMU_NEURAL_PLUGIN_CAP_VULKAN_CREATE_PROXY;
     if (needs_create_proxy && !has_create_proxy) {
+        neural->bootstrap_owned = true;
         neural->bootstrapped = true;
         pgraph_vk_neural_present_reject(
             pg, "adapter declares pre-device Vulkan requirements without "
@@ -371,6 +378,7 @@ void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg)
         return;
     }
 
+    neural->bootstrap_owned = true;
     neural->bootstrapped = true;
     fprintf(stderr,
             "nv2a/vk/neural: bootstrapped %s %s before Vulkan creation\n",
@@ -455,6 +463,14 @@ void pgraph_vk_neural_present_init(PGRAPHState *pg)
             neural->library.api->name, neural->library.api->version);
 }
 
+void pgraph_vk_neural_present_shutdown(PGRAPHState *pg)
+{
+    PGRAPHVkNeuralPresent *neural = pg->vk_renderer_state->neural_present;
+    if (neural != NULL) {
+        shutdown_adapter(neural);
+    }
+}
+
 void pgraph_vk_neural_present_finalize(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -462,7 +478,11 @@ void pgraph_vk_neural_present_finalize(PGRAPHState *pg)
     if (neural == NULL) {
         return;
     }
-    shutdown_adapter(neural);
+    assert(!neural->bootstrapped && !neural->ready);
+    if (neural->bootstrap_owned) {
+        neural->library.api->destroy_bootstrap(neural->bootstrap_context);
+    }
+    xemu_neural_plugin_library_close(&neural->library);
     xemu_dlss_end_runtime(neural->status_token);
     g_free(neural);
     r->neural_present = NULL;

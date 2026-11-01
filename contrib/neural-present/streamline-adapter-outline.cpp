@@ -372,6 +372,14 @@ void shutdown_adapter(void *opaque)
     if (context->sl.shutdown != nullptr) {
         context->sl.shutdown();
     }
+}
+
+void destroy_bootstrap(void *opaque)
+{
+    auto context = static_cast<BootstrapContext *>(opaque);
+    if (context == nullptr) {
+        return;
+    }
     if (context->sl.module != nullptr) {
         FreeLibrary(context->sl.module);
     }
@@ -612,6 +620,7 @@ const XemuNeuralPluginApiV1 kApi = {
     "0.2.0",
     bootstrap_adapter,
     shutdown_adapter,
+    destroy_bootstrap,
     create_instance_proxy,
     create_device_proxy,
     create_runtime,

@@ -78,8 +78,10 @@ association. PVIDEO and interlaced output bypass the adapter.
 
 ## Adapter contract
 
-Export `xemu_neural_present_get_api`, accepting ABI version 2. Bootstrap before
-Vulkan creation and retain requirement strings until shutdown. Supply both
+Export `xemu_neural_present_get_api`, accepting ABI version 3. Bootstrap before
+Vulkan creation and retain requirement strings until shutdown. Shut down SDK
+work while the Vulkan device is alive, but retain proxy dispatch modules and
+bootstrap memory until `destroy_bootstrap`, after device and instance teardown. Supply both
 creation proxies when additional extensions, feature bits, or queues are
 required; the host does not implement a general requirement-merging engine.
 

@@ -24,6 +24,7 @@ typedef struct PGRAPHVkNeuralPresentFrame {
 
 void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg);
 void pgraph_vk_neural_present_init(PGRAPHState *pg);
+void pgraph_vk_neural_present_shutdown(PGRAPHState *pg);
 void pgraph_vk_neural_present_finalize(PGRAPHState *pg);
 const XemuNeuralPluginVulkanRequirementsV1 *
 pgraph_vk_neural_present_requirements(PGRAPHState *pg);
