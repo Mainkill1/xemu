@@ -2501,6 +2501,12 @@ static void bind_descriptor_sets(PGRAPHState *pg)
     uint32_t dynamic_offset_count = pgraph_vk_descriptor_dynamic_offset_count(
         r->ubershader_runtime_enabled);
 
+    /*
+     * Preparation can finish a batch after texture binding. Protect these
+     * resources for the submission that actually records their use.
+     */
+    pgraph_vk_pin_bound_textures(r);
+
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
                             &r->descriptor_sets[r->descriptor_set_index - 1],
