@@ -16,6 +16,8 @@
 #include "dsp.h"
 
 uint32_t read_peripheral(DSPState *dsp, uint32_t address);
+/* State export must not advance guest DMA completion polls. */
+uint32_t peek_peripheral(DSPState *dsp, uint32_t address);
 void write_peripheral(DSPState *dsp, uint32_t address, uint32_t value);
 void dsp_start_frame_impl(DSPState *dsp);
 
