@@ -28,6 +28,7 @@ xemu_ss.add(files(
   'xemu-settings.cc',
   'xemu-settings-migration.cc',
   'xemu-tweaks.c',
+  'xemu-tweak-resolver.c',
   'xemu-controllers.cc',
   'xemu-gpu-launch.c',
   'xemu-gpu-info.c',

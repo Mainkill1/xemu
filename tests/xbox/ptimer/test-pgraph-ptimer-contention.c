@@ -52,7 +52,7 @@ static QemuEvent fifo_boundary, fifo_resume, fifo_waiting, fifo_sleeping;
 static int fifo_scenario;
 static bool fifo_pause_once;
 static bool shutdown_actors;
-unsigned int xemu_tweaks_active;
+XemuTweakBits xemu_tweaks_active;
 const NV2ABlockInfo blocktable[NV_NUM_BLOCKS] = { 0 };
 
 bool bql_locked(void)

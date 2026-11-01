@@ -9,6 +9,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
+#include "ui/xemu-tweaks.h"
 #include "xbox-pgraph-report-test-support.h"
 
 #define VRAM_SIZE 64
@@ -61,7 +62,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(ReportFixture, fixture_free)
 
 int nv2a_vk_dgroup_indent;
 bool nv2a_vk_text_debug_enabled;
-unsigned int xemu_tweaks_active;
+XemuTweakBits xemu_tweaks_active;
 
 void pgraph_vk_text_debug_printf(const char *format, ...)
 {
