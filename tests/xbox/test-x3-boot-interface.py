@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-or-later
 """Exercise the actual optional device through QEMU's I/O address space.
 
 No BIOS, MCPX, games, or HDD downloads are needed. Run under xvfb on Linux.
@@ -34,7 +35,8 @@ def check(executable, enabled):
         for listener in listeners:
             listener.close()
         args = [str(executable), "-config_path", str(root / "xemu.toml"),
-                "-S", "-accel", "qtest", "-qtest", f"tcp:127.0.0.1:{ports[0]},server=on,wait=off",
+                "-S", "-accel", "qtest", "-qtest",
+                f"tcp:127.0.0.1:{ports[0]},server=on,wait=off",
                 "-qmp", f"tcp:127.0.0.1:{ports[1]},server=on,wait=off"]
         if enabled:
             args += ["-device", "x3-boot-interface"]
