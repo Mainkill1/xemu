@@ -41,7 +41,8 @@ static int g_gp_frame_count = 0;
  * Shared peripheral I/O helpers, used by both backends via callbacks.
  */
 
-uint32_t read_peripheral(DSPState *dsp, uint32_t address)
+static uint32_t read_peripheral_internal(DSPState *dsp, uint32_t address,
+                                         bool side_effects)
 {
     uint32_t v = 0xababa;
     switch (address) {
@@ -61,15 +62,28 @@ uint32_t read_peripheral(DSPState *dsp, uint32_t address)
         v = dsp_dma_read(&dsp->dma, DMA_START_BLOCK);
         break;
     case 0xFFFFD6:
-        v = dsp_dma_read(&dsp->dma, DMA_CONTROL);
+        v = side_effects ? dsp_dma_read(&dsp->dma, DMA_CONTROL) :
+                           dsp->dma.control;
         break;
     case 0xFFFFD7:
         v = dsp_dma_read(&dsp->dma, DMA_CONFIGURATION);
         break;
     }
 
+    return v;
+}
+
+uint32_t read_peripheral(DSPState *dsp, uint32_t address)
+{
+    uint32_t v = read_peripheral_internal(dsp, address, true);
+
     trace_dsp_read_peripheral(address, v);
     return v;
+}
+
+uint32_t peek_peripheral(DSPState *dsp, uint32_t address)
+{
+    return read_peripheral_internal(dsp, address, false);
 }
 
 void write_peripheral(DSPState *dsp, uint32_t address, uint32_t value)

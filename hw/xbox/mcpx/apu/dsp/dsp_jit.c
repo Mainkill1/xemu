@@ -185,10 +185,9 @@ static void dsp_jit_sync_to_vm(DSPState *dsp)
     /* Mixbuffer is aliased at xram[0xC00] */
     memcpy(vm->mixbuffer, be->xram + 0xC00,
            DSP_MIXBUFFER_SIZE * sizeof(uint32_t));
-    /* Peripheral state: read current values via callbacks */
+    /* Snapshot 24-bit bus values without consuming guest DMA status reads. */
     for (int i = 0; i < DSP_PERIPH_SIZE; i++) {
-        vm->periph[i] =
-            dsp56300_read_memory(jit, DSP56300_MEM_SPACE_X, 0xFFFF80 + i);
+        vm->periph[i] = peek_peripheral(dsp, 0xFFFF80 + i) & 0x00ffffff;
     }
 }
 
