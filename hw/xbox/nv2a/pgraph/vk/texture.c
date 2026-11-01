@@ -1248,6 +1248,24 @@ static bool is_linear_filter_supported_for_format(PGRAPHVkState *r,
            VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 }
 
+static TextureBinding *texture_cache_get_or_create(
+    PGRAPHState *pg, uint64_t hash, const TextureKey *key)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    LruNode *node = lru_try_lookup(&r->texture_cache, hash, key);
+
+    if (!node) {
+        /*
+         * Pending uploads and draws may pin the entire cache before another
+         * resource limit completes the batch. Bound stages stay protected.
+         */
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        node = lru_lookup(&r->texture_cache, hash, key);
+    }
+
+    return container_of(node, TextureBinding, node);
+}
+
 static bool create_texture(PGRAPHState *pg, int texture_idx)
 {
     NV2A_VK_DGROUP_BEGIN("Creating texture %d", texture_idx);
@@ -1346,8 +1364,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
-    LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
-    TextureBinding *snode = container_of(node, TextureBinding, node);
+    TextureBinding *snode = texture_cache_get_or_create(pg, key_hash, &key);
     bool binding_found = snode->image != VK_NULL_HANDLE;
 
     if (binding_found) {
