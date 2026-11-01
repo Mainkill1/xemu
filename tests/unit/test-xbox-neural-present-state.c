@@ -125,7 +125,7 @@ static bool new_generation_processes_without_reset(void)
            decision.reset_reason == XEMU_NEURAL_RESET_NONE;
 }
 
-static bool source_and_extent_changes_reset_history(void)
+static bool surface_rotation_preserves_history_and_extent_resets(void)
 {
     XemuNeuralPresentState state = { 0 };
     XemuNeuralPresentFrameInfo first = valid_frame(1);
@@ -139,8 +139,8 @@ static bool source_and_extent_changes_reset_history(void)
 
     next.key.surface_lifetime_id++;
     xemu_neural_present_begin_frame(&state, &next, &decision);
-    if (decision.kind != XEMU_NEURAL_DECISION_PROCESS_RESET ||
-        decision.reset_reason != XEMU_NEURAL_RESET_SOURCE_CHANGED) {
+    if (decision.kind != XEMU_NEURAL_DECISION_PROCESS ||
+        decision.reset_reason != XEMU_NEURAL_RESET_NONE) {
         return false;
     }
 
@@ -209,10 +209,10 @@ static bool temporal_reset_epochs_advance(void)
         &state, &first, &decision, XEMU_NEURAL_RESULT_RECORDED,
         XEMU_NEURAL_FEATURE_DLSS_NR, true);
 
-    next.key.surface_lifetime_id++;
+    next.key.configuration_generation++;
     xemu_neural_present_begin_frame(&state, &next, &decision);
     return decision.kind == XEMU_NEURAL_DECISION_PROCESS_RESET &&
-           decision.reset_reason == XEMU_NEURAL_RESET_SOURCE_CHANGED &&
+           decision.reset_reason == XEMU_NEURAL_RESET_CONFIGURATION_CHANGED &&
            decision.reset_epoch > first_epoch;
 }
 
@@ -299,6 +299,35 @@ static bool pass_through_is_not_reported_as_neural_rendering(void)
            state.active_feature != XEMU_NEURAL_FEATURE_DLSS_NR;
 }
 
+static bool successful_warmup_preserves_temporal_epoch(void)
+{
+    XemuNeuralPresentState state = { 0 };
+    XemuNeuralPresentDecision decision;
+    uint64_t epoch = 0;
+
+    for (uint64_t i = 1; i <= 4; i++) {
+        XemuNeuralPresentFrameInfo frame = valid_frame(i);
+        frame.key.surface_lifetime_id += i % 2;
+        xemu_neural_present_begin_frame(&state, &frame, &decision);
+        if (i == 1) {
+            if (decision.kind != XEMU_NEURAL_DECISION_PROCESS_RESET) {
+                return false;
+            }
+            epoch = decision.reset_epoch;
+        } else if (decision.kind != XEMU_NEURAL_DECISION_PROCESS ||
+                   decision.reset_epoch != epoch) {
+            return false;
+        }
+        xemu_neural_present_complete_frame(
+            &state, &frame, &decision, XEMU_NEURAL_RESULT_PASSTHROUGH,
+            XEMU_NEURAL_FEATURE_PASSTHROUGH, false);
+        if (!state.have_success || state.history_valid) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(void)
 {
     static const struct {
@@ -312,8 +341,10 @@ int main(void)
           first_frame_resets_then_duplicate_reuses },
         { "new output generation keeps history",
           new_generation_processes_without_reset },
-        { "source and extent changes reset history",
-          source_and_extent_changes_reset_history },
+        { "surface rotation keeps history; extent changes reset",
+          surface_rotation_preserves_history_and_extent_resets },
+        { "warmup preserves temporal epoch",
+          successful_warmup_preserves_temporal_epoch },
         { "configuration changes reset history",
           configuration_change_resets_history },
         { "backwards guest time resets history",

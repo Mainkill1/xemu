@@ -91,6 +91,7 @@ typedef struct XemuNeuralPresentDecision {
 } XemuNeuralPresentDecision;
 
 typedef struct XemuNeuralPresentState {
+    /* An accepted input can advance temporal warmup without usable output. */
     bool have_success;
     bool history_valid;
     bool failure_latched;
@@ -137,12 +138,10 @@ xemu_neural_present_required_reset(const XemuNeuralPresentState *state,
     if (state->pending_reset_reason != XEMU_NEURAL_RESET_NONE) {
         return state->pending_reset_reason;
     }
-    if (!state->have_success || !state->history_valid) {
+    if (!state->have_success) {
         return XEMU_NEURAL_RESET_INITIAL_FRAME;
     }
-    if (next->surface_lifetime_id != last->surface_lifetime_id) {
-        return XEMU_NEURAL_RESET_SOURCE_CHANGED;
-    }
+    /* Backing surfaces rotate within one logical presentation stream. */
     if (next->display_width != last->display_width ||
         next->display_height != last->display_height ||
         next->processing_width != last->processing_width ||
