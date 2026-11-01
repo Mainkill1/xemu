@@ -7,6 +7,7 @@
 #include "hw/boards.h"
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "test-voice-format-boundaries.h"
 
 /*
  * Drive the production VP API without a timer, device frame thread, GP/EP
@@ -106,8 +107,24 @@ typedef struct BoundaryFrameThread {
 typedef struct BoundaryWriterThread {
     MCPXAPUState *d;
     uint32_t format;
-    QemuEvent requested;
+    QemuSemaphore attempted;
+    bool completed;
 } BoundaryWriterThread;
+
+static __thread BoundaryWriterThread *observed_writer;
+
+int __wrap_pthread_mutex_lock(pthread_mutex_t *mutex)
+{
+    BoundaryWriterThread *writer = observed_writer;
+    if (writer && mutex == &writer->d->lock.lock) {
+        /* Observe the actual external lock call, including under LTO. */
+        observed_writer = NULL;
+        int result = pthread_mutex_trylock(mutex);
+        g_assert_cmpint(result, ==, EBUSY);
+        qemu_sem_post(&writer->attempted);
+    }
+    return __real_pthread_mutex_lock(mutex);
+}
 
 static uint8_t *voice_record(unsigned base, unsigned voice)
 {
@@ -162,12 +179,20 @@ static uint32_t mono_pcm_format(void)
 
 static uint32_t stereo_pcm_format(void)
 {
-    return mono_pcm_format() | NV_PAVS_VOICE_CFG_FMT_STEREO;
+    uint32_t format = mono_pcm_format() | NV_PAVS_VOICE_CFG_FMT_STEREO;
+    SET_MASK(format, NV_PAVS_VOICE_CFG_FMT_SAMPLES_PER_BLOCK, 1);
+    return format;
 }
 
 static MCPXAPUState *prepare_boundary_voice(uint32_t format)
 {
     MCPXAPUState *d = prepare_voice_frame();
+    uint8_t *data = memory_region_get_ram_ptr(&ram);
+    /* Mono alternates signs; stereo has positive left and negative right. */
+    for (unsigned i = 0; i < 8192; i += 2) {
+        stw_le_p(data + 0x9000 + (i / 4096) * 8192 + i % 4096,
+                 i % 4 ? (uint16_t)-8192 : 4096);
+    }
     uint8_t *voice = voice_record(ram_base, first_voice);
     stl_le_p(voice + NV_PAVS_VOICE_CFG_FMT, format);
     stl_le_p(voice + NV_PAVS_VOICE_TAR_PITCH_LINK, 0xffff);
@@ -180,6 +205,26 @@ static FrameObservation reference_observation(uint32_t format)
     FrameObservation observation = observe_one_voice_frame(d);
     destroy_voice_frame(d);
     return observation;
+}
+
+static void reference_continuation(FrameObservation observations[2])
+{
+    MCPXAPUState *d = prepare_boundary_voice(mono_pcm_format());
+    observations[0] = observe_one_voice_frame(d);
+    stl_le_p(voice_record(ram_base, first_voice) + NV_PAVS_VOICE_CFG_FMT,
+             stereo_pcm_format());
+    observations[1] = observe_one_voice_frame(d);
+    g_assert_true(observations[0].active);
+    g_assert_true(observations[1].active);
+    g_assert_cmpuint(observations[0].cbo, >, 0);
+    g_assert_cmpuint(observations[1].cbo, >, observations[0].cbo);
+    /*
+     * Independent oracle: retaining mono until reset must not pass by
+     * producing the same incorrect result in both matched sequences.
+     */
+    g_assert_cmpfloat(observations[1].bins[0][NUM_SAMPLES_PER_FRAME - 1], >, 0);
+    g_assert_cmpfloat(observations[1].bins[1][NUM_SAMPLES_PER_FRAME - 1], <, 0);
+    destroy_voice_frame(d);
 }
 
 static void *boundary_frame_thread(void *opaque)
@@ -195,10 +240,11 @@ static void *boundary_frame_thread(void *opaque)
 static void *boundary_writer_thread(void *opaque)
 {
     BoundaryWriterThread *thread = opaque;
-    qemu_event_set(&thread->requested);
+    observed_writer = thread;
     write_vp_method(thread->d, NV1BA0_PIO_VOICE_LOCK, 1);
     write_vp_method(thread->d, NV1BA0_PIO_SET_VOICE_CFG_FMT, thread->format);
     write_vp_method(thread->d, NV1BA0_PIO_VOICE_LOCK, 0);
+    qatomic_set(&thread->completed, true);
     return NULL;
 }
 
@@ -219,8 +265,8 @@ static void test_method_update_before_frame(void)
 
 static void test_method_update_waits_for_active_frame(void)
 {
-    FrameObservation old_expected = reference_observation(mono_pcm_format());
-    FrameObservation new_expected = reference_observation(stereo_pcm_format());
+    FrameObservation expected[2];
+    reference_continuation(expected);
     MCPXAPUState *d = prepare_boundary_voice(mono_pcm_format());
     VoiceWorkDispatch *dispatch = &d->vp.voice_work_dispatch;
     BoundaryFrameThread *frame = g_new0(BoundaryFrameThread, 1);
@@ -233,31 +279,33 @@ static void test_method_update_waits_for_active_frame(void)
     writer->format = stereo_pcm_format();
     write_vp_method(d, NV1BA0_PIO_SET_CURRENT_VOICE, first_voice);
     qemu_event_init(&frame->locked, false);
-    qemu_event_init(&writer->requested, false);
+    qemu_sem_init(&writer->attempted, 0);
     qemu_mutex_lock(&dispatch->lock);
     qemu_thread_create(&frame_thread, "voice-boundary-frame",
                        boundary_frame_thread, frame, QEMU_THREAD_JOINABLE);
     qemu_event_wait(&frame->locked);
     qemu_thread_create(&writer_thread, "voice-boundary-writer",
                        boundary_writer_thread, writer, QEMU_THREAD_JOINABLE);
-    qemu_event_wait(&writer->requested);
+    g_assert_cmpint(qemu_sem_timedwait(&writer->attempted, 5000), ==, 0);
+    g_assert_false(qatomic_read(&writer->completed));
+    g_assert_cmphex(
+        ldl_le_p(voice_record(ram_base, first_voice) + NV_PAVS_VOICE_CFG_FMT),
+        ==, mono_pcm_format());
     qemu_mutex_unlock(&dispatch->lock);
     qemu_thread_join(&frame_thread);
     qemu_thread_join(&writer_thread);
 
-    assert_observation_equal(&frame->observation, &old_expected);
+    g_assert_true(qatomic_read(&writer->completed));
+    assert_observation_equal(&frame->observation, &expected[0]);
     g_assert_cmphex(
         ldl_le_p(voice_record(ram_base, first_voice) + NV_PAVS_VOICE_CFG_FMT),
         ==, stereo_pcm_format());
 
-    mcpx_apu_vp_reset(d);
-    d->vp.submix_headroom[0] = d->vp.submix_headroom[1] = 6;
-    stl_le_p(voice_record(ram_base, first_voice) + NV_PAVS_VOICE_PAR_OFFSET,
-             0xff000000);
+    /* Continue the active voice at its existing cursor, without VP reset. */
     FrameObservation next = observe_one_voice_frame(d);
-    assert_observation_equal(&next, &new_expected);
+    assert_observation_equal(&next, &expected[1]);
 
-    qemu_event_destroy(&writer->requested);
+    qemu_sem_destroy(&writer->attempted);
     qemu_event_destroy(&frame->locked);
     g_free(writer);
     g_free(frame);
@@ -266,23 +314,43 @@ static void test_method_update_waits_for_active_frame(void)
 
 static void test_direct_ram_and_table_base_boundaries(void)
 {
-    FrameObservation expected = reference_observation(stereo_pcm_format());
+    FrameObservation expected[2];
+    reference_continuation(expected);
     MCPXAPUState *d = prepare_boundary_voice(mono_pcm_format());
     uint8_t *voice = voice_record(ram_base, first_voice);
 
-    stl_le_p(voice + NV_PAVS_VOICE_CFG_FMT, stereo_pcm_format());
     FrameObservation direct = observe_one_voice_frame(d);
-    assert_observation_equal(&direct, &expected);
+    assert_observation_equal(&direct, &expected[0]);
 
     const unsigned alternate_base = ram_base + 0x4000;
     uint8_t *alternate = voice_record(alternate_base, first_voice);
     memcpy(alternate, voice, NV_PAVS_SIZE);
-    stl_le_p(alternate + NV_PAVS_VOICE_PAR_OFFSET, 0xff000000);
-    mcpx_apu_vp_reset(d);
-    d->vp.submix_headroom[0] = d->vp.submix_headroom[1] = 6;
+    stl_le_p(alternate + NV_PAVS_VOICE_CFG_FMT, stereo_pcm_format());
     qatomic_set(&d->regs[NV_PAPU_VPVADDR], alternate_base);
     FrameObservation rebased = observe_one_voice_frame(d);
-    assert_observation_equal(&rebased, &expected);
+    assert_observation_equal(&rebased, &expected[1]);
+
+    destroy_voice_frame(d);
+}
+
+static void test_method_update_survives_reset(void)
+{
+    FrameObservation expected = reference_observation(stereo_pcm_format());
+    MCPXAPUState *d = prepare_boundary_voice(mono_pcm_format());
+    FrameObservation old = observe_one_voice_frame(d);
+    g_assert_true(old.active);
+    g_assert_cmpuint(old.cbo, >, 0);
+
+    write_vp_method(d, NV1BA0_PIO_SET_CURRENT_VOICE, first_voice);
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 1);
+    write_vp_method(d, NV1BA0_PIO_SET_VOICE_CFG_FMT, stereo_pcm_format());
+    write_vp_method(d, NV1BA0_PIO_VOICE_LOCK, 0);
+    mcpx_apu_vp_reset(d);
+    d->vp.submix_headroom[0] = d->vp.submix_headroom[1] = 6;
+    stl_le_p(voice_record(ram_base, first_voice) + NV_PAVS_VOICE_PAR_OFFSET,
+             0xff000000);
+    FrameObservation reset = observe_one_voice_frame(d);
+    assert_observation_equal(&reset, &expected);
 
     destroy_voice_frame(d);
 }
@@ -308,5 +376,7 @@ int __wrap_main(int argc, char **argv)
                     test_method_update_waits_for_active_frame);
     g_test_add_func("/mcpx-apu/voice-format/direct-and-table-boundaries",
                     test_direct_ram_and_table_base_boundaries);
+    g_test_add_func("/mcpx-apu/voice-format/method-survives-reset",
+                    test_method_update_survives_reset);
     return g_test_run();
 }

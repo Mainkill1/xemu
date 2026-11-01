@@ -4654,7 +4654,8 @@ foreach target : target_dirs
       objects: lib.extract_all_objects(recursive: true),
       include_directories: target_inc,
       link_depends: [block_syms, qemu_syms],
-      link_args: link_args + ['-Wl,--wrap=main'],
+      link_args: link_args + ['-Wl,--wrap=main',
+                             '-Wl,--wrap=pthread_mutex_lock'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-voice-format-boundaries', voice_format_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
