@@ -4647,6 +4647,17 @@ foreach target : target_dirs
     }]
   endif
   if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
+    gp_filter_hle_test = executable('test-xbox-mcpx-apu-gp-filter-hle',
+      files('tests/xbox/mcpx-apu/test-gp-filter-hle.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-gp-filter-hle', gp_filter_hle_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
     dsp_replay_test = executable('test-xbox-mcpx-apu-dsp-replay',
       files('tests/xbox/mcpx-apu/test-dsp-replay.c'),
       c_args: c_args,
