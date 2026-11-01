@@ -20,6 +20,8 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "qemu/timer.h"
+#include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
 
@@ -442,6 +444,8 @@ const MemoryRegionOps ep_ops = {
 
 void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME])
 {
+    bool profile = trace_event_get_state_backends(TRACE_MCPX_APU_DSP_FRAME);
+
     /* Write VP results to the GP DSP MIXBUF */
     for (int mixbin = 0; mixbin < NUM_MIXBINS; mixbin++) {
         uint32_t base = GP_DSP_MIXBUF_BASE + mixbin * NUM_SAMPLES_PER_FRAME;
@@ -457,6 +461,9 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
     /* Run GP */
     if ((d->gp.regs[NV_PAPU_GPRST] & NV_PAPU_GPRST_GPRST) &&
         (d->gp.regs[NV_PAPU_GPRST] & NV_PAPU_GPRST_GPDSPRST)) {
+        int64_t start_ns = profile ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+
         dsp_start_frame(d->gp.dsp);
         dsp_set_halt_requested(d->gp.dsp, false);
         dsp_set_cycle_count(d->gp.dsp, 0);
@@ -464,6 +471,13 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
             dsp_run(d->gp.dsp, 1000);
         } while (!dsp_get_halt_requested(d->gp.dsp) && d->gp.realtime);
         g_dbg.gp.cycles = dsp_get_cycle_count(d->gp.dsp);
+        if (profile) {
+            int64_t elapsed_ns =
+                qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - start_ns;
+
+            trace_mcpx_apu_dsp_frame(true, d->gp.realtime, g_dbg.gp.cycles,
+                                    elapsed_ns);
+        }
 
         if ((d->monitor.point == MCPX_APU_DEBUG_MON_GP) ||
             (d->monitor.point == MCPX_APU_DEBUG_MON_GP_OR_EP && !ep_enabled)) {
@@ -482,6 +496,9 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
     if ((d->ep.regs[NV_PAPU_EPRST] & NV_PAPU_GPRST_GPRST) &&
         (d->ep.regs[NV_PAPU_EPRST] & NV_PAPU_GPRST_GPDSPRST)) {
         if (d->ep_frame_div % 8 == 0) {
+            int64_t start_ns = profile ?
+                qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+
             dsp_start_frame(d->ep.dsp);
             dsp_set_halt_requested(d->ep.dsp, false);
             dsp_set_cycle_count(d->ep.dsp, 0);
@@ -489,6 +506,13 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
                 dsp_run(d->ep.dsp, 1000);
             } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
             g_dbg.ep.cycles = dsp_get_cycle_count(d->ep.dsp);
+            if (profile) {
+                int64_t elapsed_ns =
+                    qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - start_ns;
+
+                trace_mcpx_apu_dsp_frame(false, d->ep.realtime, g_dbg.ep.cycles,
+                                        elapsed_ns);
+            }
         }
     }
 }

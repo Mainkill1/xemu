@@ -4,6 +4,9 @@
 dsp_read_peripheral(uint32_t addr, uint32_t val) "addr 0x%"PRIx32" val 0x%"PRIx32
 dsp_write_peripheral(uint32_t addr, uint32_t val) "addr 0x%"PRIx32" val 0x%"PRIx32
 
+# gp_ep.c: host wall time around DSP execution, excluding mix stores/output reads
+mcpx_apu_dsp_frame(bool gp, bool realtime, uint32_t cycles, int64_t host_ns) "gp=%d realtime=%d cycles=%"PRIu32" host_ns=%"PRId64
+
 # dsp_cpu.c
 dsp56k_execute_instruction(uint32_t id, uint32_t pc) "[gp=%d]: pc=0x%"PRIx32
 dsp56k_execute_instruction_disasm(const char *disasm) "%s"
