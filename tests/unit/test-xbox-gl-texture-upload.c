@@ -410,6 +410,147 @@ static void test_dxt1_fallback(void)
     run_compressed(false);
 }
 
+/* Compile the real border-coordinate adjustment, not a copied expression. */
+#include "hw/xbox/nv2a/pgraph/glsl/psh.c"
+
+static GLuint border_test_shader(GLenum type, const char *source)
+{
+    GLuint shader = glCreateShader(type);
+    GLint status;
+
+    glShaderSource(shader, 1, &source, NULL);
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    g_assert_cmpint(status, ==, GL_TRUE);
+    return shader;
+}
+
+static void sample_bordered_texture(uint8_t outside[4], uint8_t inside[4])
+{
+    PshState state = { 0 };
+    struct PixelShader ps = { .state = &state };
+    const char *vertex =
+        "#version 330\n"
+        "void main() { vec2 p = vec2((gl_VertexID << 1) & 2, "
+        "gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0, 1); }\n";
+    MString *fragment = mstring_from_str(
+        "#version 330\n"
+        "uniform sampler2D tex; uniform vec2 uv; out vec4 color;\n"
+        "void main() { vec4 coord0 = vec4(uv, 0, 1);\n");
+    /* pgraph_glsl_get_psh_state maps an 8x8 bordered texture to 16x16. */
+    for (int i = 0; i < 3; i++) {
+        state.border_logical_size[0][i] = 8.0f;
+        state.border_inv_real_size[0][i] = 1.0f / 16.0f;
+    }
+    apply_border_adjustment(&ps, fragment, 0, "coord%d");
+    mstring_append(fragment, "color = texture(tex, coord0.xy); }\n");
+    GLuint vs = border_test_shader(GL_VERTEX_SHADER, vertex);
+    GLuint fs = border_test_shader(GL_FRAGMENT_SHADER,
+                                   mstring_get_str(fragment));
+    GLuint program = glCreateProgram(), framebuffer, renderbuffer, vao;
+    GLint status;
+
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    g_assert_cmpint(status, ==, GL_TRUE);
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glGenRenderbuffers(1, &renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 1, 1);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                              GL_RENDERBUFFER, renderbuffer);
+    g_assert_cmpint(glCheckFramebufferStatus(GL_FRAMEBUFFER), ==,
+                    GL_FRAMEBUFFER_COMPLETE);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glUseProgram(program);
+    glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    glViewport(0, 0, 1, 1);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    glUniform2f(glGetUniformLocation(program, "uv"), -1.0f, -1.0f);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, outside);
+    glUniform2f(glGetUniformLocation(program, "uv"), 0.5f, 0.5f);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, inside);
+    glUseProgram(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteRenderbuffers(1, &renderbuffer);
+    glDeleteFramebuffers(1, &framebuffer);
+    glDeleteProgram(program);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    mstring_unref(fragment);
+}
+
+static void test_recycled_texture_border_color(void)
+{
+    if (context == EGL_NO_CONTEXT) {
+        g_test_skip("No desktop GL context");
+        return;
+    }
+    TextureShape shape = {
+        .dimensionality = 2, .width = 16, .height = 16, .depth = 1,
+        .levels = 1,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8,
+    };
+    uint32_t input[16 * 16];
+    uint8_t fresh_outside[4], fresh_inside[4], reused_outside[4], reused_inside[4];
+    const uint8_t black[4] = { 0, 0, 0, 0 };
+    const uint8_t white[4] = { 255, 255, 255, 255 };
+    unsigned int filter =
+        NV_PGRAPH_TEXFILTER0_MIN_BOX_LOD0 << ctz32(NV_PGRAPH_TEXFILTER0_MIN) |
+        NV_PGRAPH_TEXFILTER0_MIN_BOX_LOD0 << ctz32(NV_PGRAPH_TEXFILTER0_MAG);
+    unsigned int address =
+        NV_PGRAPH_TEXADDRESS0_ADDRU_BORDER << ctz32(NV_PGRAPH_TEXADDRESS0_ADDRU) |
+        NV_PGRAPH_TEXADDRESS0_ADDRU_BORDER << ctz32(NV_PGRAPH_TEXADDRESS0_ADDRV);
+    const BasicColorFormatInfo *f =
+        &kelvin_color_format_info_map[shape.color_format];
+
+    memset(input, 0xff, sizeof(input));
+    glActiveTexture(GL_TEXTURE0);
+    pgraph_gl_init_textures(&test_device);
+    TextureBinding *colored =
+        generate_texture(&test_renderer, shape, (uint8_t *)input, NULL);
+    apply_texture_parameters(&test_renderer, colored, f, 2, filter, address,
+                             false, 0xffff0000, 1);
+    GLuint old_name = colored->gl_texture;
+    /* While colored is retained, establish the fresh-object parent behavior. */
+    shape.width = shape.height = 8;
+    shape.border = true;
+    TextureBinding *fresh =
+        generate_texture(&test_renderer, shape, (uint8_t *)input, NULL);
+    apply_texture_parameters(&test_renderer, fresh, f, 2, filter, address,
+                             true, 0, 1);
+    sample_bordered_texture(fresh_outside, fresh_inside);
+    g_assert_cmpmem(fresh_outside, 4, black, 4);
+    g_assert_cmpmem(fresh_inside, 4, white, 4);
+    /* Only colored is released: its 16x16 storage matches bordered 8x8. */
+    pgraph_gl_texture_binding_destroy(colored);
+    TextureBinding *reused =
+        generate_texture(&test_renderer, shape, (uint8_t *)input, NULL);
+    g_assert_cmpuint(reused->gl_texture, ==, old_name);
+    apply_texture_parameters(&test_renderer, reused, f, 2, filter, address,
+                             true, 0, 1);
+    sample_bordered_texture(reused_outside, reused_inside);
+    g_test_message("Fresh outside RGBA=%u,%u,%u,%u; reused=%u,%u,%u,%u",
+                   fresh_outside[0], fresh_outside[1], fresh_outside[2],
+                   fresh_outside[3], reused_outside[0], reused_outside[1],
+                   reused_outside[2], reused_outside[3]);
+    g_assert_cmpmem(reused_outside, 4, fresh_outside, 4);
+    g_assert_cmpmem(reused_inside, 4, fresh_inside, 4);
+    pgraph_gl_texture_binding_destroy(fresh);
+    pgraph_gl_texture_binding_destroy(reused);
+    pgraph_gl_finalize_textures(&test_device.pgraph);
+    g_assert_cmpint(glGetError(), ==, GL_NO_ERROR);
+}
+
 static void test_recycled_texture_contents(void)
 {
     if (context == EGL_NO_CONTEXT) {
@@ -814,6 +955,8 @@ int main(int argc, char **argv)
                     test_dxt1_native);
     g_test_add_func("/xbox/gl/texture-upload/unbordered/dxt1-fallback",
                     test_dxt1_fallback);
+    g_test_add_func("/xbox/gl/texture-upload/recycled/border-color",
+                    test_recycled_texture_border_color);
     g_test_add_func("/xbox/gl/texture-upload/recycled/contents",
                     test_recycled_texture_contents);
     g_test_add_func("/xbox/gl/texture-upload/recycled/limit",

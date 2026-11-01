@@ -971,6 +971,7 @@ static TextureBinding *generate_texture(PGRAPHGLState *r, TextureShape s,
 
     TexStorageKey storage_key = tex_storage_key(gl_target, &s, &f);
     GLuint gl_texture = tex_pool_get(r, &storage_key);
+    bool recycled = gl_texture != 0;
     if (!gl_texture) {
         glGenTextures(1, &gl_texture);
         if (r->tex_pool_log) {
@@ -979,6 +980,11 @@ static TextureBinding *generate_texture(PGRAPHGLState *r, TextureShape s,
     }
 
     glBindTexture(gl_target, gl_texture);
+    if (recycled && s.border) {
+        /* Bordered textures rely on the fresh-object transparent border. */
+        const GLfloat border_color[4] = { 0, 0, 0, 0 };
+        glTexParameterfv(gl_target, GL_TEXTURE_BORDER_COLOR, border_color);
+    }
 
     if (gl_target == GL_TEXTURE_CUBE_MAP) {
         size_t length;
