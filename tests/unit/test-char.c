@@ -1888,7 +1888,12 @@ static SocketAddress unixaddr = {
 int main(int argc, char **argv)
 {
     bool has_ipv4, has_ipv6;
+    int result;
 
+#ifdef XBOX
+    qemu_init_main_loop_lock();
+    qemu_mutex_lock_main_loop();
+#endif
     qemu_init_main_loop(&error_abort);
     socket_init();
 
@@ -1996,5 +2001,9 @@ int main(int argc, char **argv)
     g_test_add_func("/char/websocket", char_websock_test);
 
 end:
-    return g_test_run();
+    result = g_test_run();
+#ifdef XBOX
+    qemu_mutex_unlock_main_loop();
+#endif
+    return result;
 }
