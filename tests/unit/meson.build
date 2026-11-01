@@ -38,6 +38,9 @@ tests = {
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
   ],
+  'test-xbox-pgraph-idle-completion': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/idle-completion.c',
+  ],
   'test-xbox-vk-debug-macros': [],
   'test-xbox-nv2a-profile-event-log': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',

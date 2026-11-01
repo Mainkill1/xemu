@@ -1,5 +1,6 @@
 specific_ss.add(files(
 	'pgraph.c',
+	'idle-completion.c',
 	'profile.c',
 	'renderer-switch.c',
 	'reports.c',

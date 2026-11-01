@@ -33,6 +33,7 @@
 #include "texture.h"
 #include "uniform-dirty.h"
 #include "uniform-source.h"
+#include "idle-completion.h"
 #include "util.h"
 #include "vsh_regs.h"
 
@@ -127,6 +128,8 @@ typedef struct PGRAPHRenderer {
         void (*pre_shutdown_trigger)(NV2AState *d);
         void (*pre_shutdown_wait)(NV2AState *d);
         void (*process_pending)(NV2AState *d);
+        bool (*cpu_read_completion_needed)(NV2AState *d);
+        bool (*complete_cpu_read)(NV2AState *d);
         void (*process_pending_reports)(NV2AState *d);
         void (*surface_flush)(NV2AState *d);
         void (*surface_update)(NV2AState *d, bool upload, bool color_write, bool zeta_write);
@@ -256,6 +259,8 @@ typedef struct PGRAPHState {
 
     bool sync_pending;
     QemuEvent sync_complete;
+
+    PGRAPHIdleCompletion idle_completion;
 
     bool framebuffer_in_use;
     QemuCond framebuffer_released;
