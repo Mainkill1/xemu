@@ -32,6 +32,7 @@
 #include "dsp_dma.h"
 
 typedef struct DSPState DSPState;
+typedef struct DSPReplay DSPReplay;
 
 typedef struct DSPOps {
     void (*finalize)(DSPState *dsp);
@@ -105,6 +106,7 @@ struct DSPState {
     bool is_gp;
 
     void *backend;
+    DSPReplay *replay; /* Optional, host-owned debug recorder; not VM state. */
 };
 
 DSPState *dsp_init(void *rw_opaque, dsp_scratch_rw_func scratch_rw,

@@ -25,6 +25,7 @@
 
 #include "qemu/osdep.h"
 #include "dsp_internal.h"
+#include "dsp-replay.h"
 #include "trace.h"
 #include "ui/xemu-settings.h"
 
@@ -146,6 +147,7 @@ DSPState *dsp_init(void *rw_opaque, dsp_scratch_rw_func scratch_rw,
 
 void dsp_destroy(DSPState *dsp)
 {
+    dsp_replay_cleanup(dsp);
     dsp->ops->finalize(dsp);
     g_free(dsp);
 }
