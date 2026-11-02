@@ -258,6 +258,11 @@ if vulkan.found()
           xbox_i386_target_headers, volk, libglslang, vma, vulkan,
           spirv_reflect,
         ],
+        'test-xbox-vk-r6g5b5': [
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-alias-dispatch-limits': [
           nv2a_vk_runtime_prod,
           xbox_i386_target_headers, volk, libglslang, vma, vulkan,

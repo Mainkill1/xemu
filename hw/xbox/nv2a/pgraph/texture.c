@@ -387,19 +387,21 @@ uint8_t *pgraph_convert_texture_data(const TextureShape s, const uint8_t *data,
         }
     } else if (s.color_format == NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5) {
         assert(depth == 1); /* FIXME */
-        size = width * height * 3;
+        size = width * height * 4;
         converted_data = g_malloc(size);
+        uint8_t *pixel = converted_data;
         for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                uint16_t rgb655 = *(uint16_t *)(data + y * row_pitch + x * 2);
-                int8_t *pixel = (int8_t *)&converted_data[(y * width + x) * 3];
-                /* Maps 5 bit G and B signed value range to 8 bit
-                 * signed values. R is probably unsigned.
-                 */
-                rgb655 ^= (1 << 9) | (1 << 4);
-                pixel[0] = ((rgb655 & 0xFC00) >> 10) * 0x7F / 0x3F;
-                pixel[1] = ((rgb655 & 0x03E0) >> 5) * 0xFF / 0x1F - 0x80;
-                pixel[2] = (rgb655 & 0x001F) * 0xFF / 0x1F - 0x80;
+            const uint8_t *row = data + y * row_pitch;
+            for (int x = 0; x < width; x++, pixel += 4) {
+                uint16_t packed = lduw_le_p(row + x * 2);
+                /* Align each unsigned component, then repeat its high bits. */
+                pixel[0] = (packed >> 8) & 0xfc;
+                pixel[0] |= pixel[0] >> 6;
+                pixel[1] = (packed >> 2) & 0xf8;
+                pixel[1] |= pixel[1] >> 5;
+                pixel[2] = (packed << 3) & 0xf8;
+                pixel[2] |= pixel[2] >> 5;
+                pixel[3] = 255;
             }
         }
     } else {

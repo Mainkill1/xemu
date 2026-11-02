@@ -51,7 +51,8 @@ static void GLAPIENTRY checked_tex_image(GLenum target, GLint level,
         bytes = 2;
     } else {
         g_assert_true(type == GL_UNSIGNED_BYTE || type == GL_BYTE);
-        bytes = format == GL_RED ? 1 : format == GL_RG ? 2 : 3;
+        bytes = format == GL_RED ? 1 : format == GL_RG ? 2 :
+                format == GL_RGB ? 3 : 4;
     }
     GLint row_length = 0, alignment = 0, skip_rows = 0, skip_pixels = 0;
     glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row_length);
@@ -103,19 +104,22 @@ static const FormatCase formats[] = {
       GL_UNSIGNED_BYTE },
     { INPUT_PALETTE, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8, 1, 4,
       GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV },
-    { INPUT_R6G5B5, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5, 2, 3, GL_RGB,
-      GL_BYTE },
+    { INPUT_R6G5B5, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5, 2, 4, GL_RGBA,
+      GL_UNSIGNED_BYTE },
 };
 
-/* Literal source/output pairs: independent conversion KATs. Positive signed
- * components avoid driver-dependent -128/-127 SNORM endpoint normalization. */
+/* Independently chosen packed colors, including both component endpoints. */
 static const struct {
     uint16_t source;
-    int8_t rgb[3];
+    uint8_t rgba[4];
 } rgb655_kats[] = {
-    { 0x0000, { 0, 3, 3 } },    { 0xfc00, { 127, 3, 3 } },
-    { 0x01e0, { 0, 127, 3 } },  { 0x000f, { 0, 3, 127 } },
-    { 0x7ceb, { 62, 61, 94 } },
+    { 0x0000, { 0, 0, 0, 255 } },
+    { 0xffff, { 255, 255, 255, 255 } },
+    { 0xfc00, { 255, 0, 0, 255 } },
+    { 0x03e0, { 0, 255, 0, 255 } },
+    { 0x001f, { 0, 0, 255, 255 } },
+    { 0x8210, { 130, 132, 132, 255 } },
+    { 0x7ceb, { 125, 57, 90, 255 } },
 };
 
 static unsigned int pattern(unsigned int face, unsigned int level,
@@ -157,8 +161,8 @@ static void make_pixel(const FormatCase *f, unsigned int face,
         break;
     case INPUT_R6G5B5:
         seed %= ARRAY_SIZE(rgb655_kats);
-        memcpy(source, &rgb655_kats[seed].source, 2);
-        memcpy(output, rgb655_kats[seed].rgb, 3);
+        stw_le_p(source, rgb655_kats[seed].source);
+        memcpy(output, rgb655_kats[seed].rgba, 4);
         break;
     }
 }
@@ -405,6 +409,31 @@ static void test_dxt1_fallback(void)
     run_compressed(false);
 }
 
+static void test_rgb655_strided_input(void)
+{
+    /*
+     * Two rows of two little-endian texels; neither alignment nor padding
+     * may change the decoded colors.
+     */
+    const uint8_t source[] = {
+        0xcc, 0x00, 0xfc, 0xff, 0xff, 0x55, 0xaa,
+        0xe0, 0x03, 0x1f, 0x00, 0x55, 0xaa,
+    };
+    const uint8_t expected[] = {
+        255, 0, 0, 255, 255, 255, 255, 255,
+        0, 255, 0, 255, 0, 0, 255, 255,
+    };
+    TextureShape shape = {
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5,
+    };
+    size_t size = 0;
+    g_autofree uint8_t *decoded = pgraph_convert_texture_data(
+        shape, source + 1, NULL, 2, 2, 1, 6, 0, &size);
+
+    g_assert_cmpuint(size, ==, sizeof(expected));
+    g_assert_cmpmem(decoded, size, expected, sizeof(expected));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -459,6 +488,8 @@ int main(int argc, char **argv)
                     test_direct_formats);
     g_test_add_func("/xbox/gl/texture-upload/bordered/palette", test_palette);
     g_test_add_func("/xbox/gl/texture-upload/bordered/r6g5b5", test_rgb655);
+    g_test_add_func("/xbox/texture/r6g5b5/strided-input",
+                    test_rgb655_strided_input);
     g_test_add_func("/xbox/gl/texture-upload/unbordered/rgba8", test_ordinary);
     g_test_add_func("/xbox/gl/texture-upload/bordered/terminal-bounds",
                     test_terminal_bounds);
