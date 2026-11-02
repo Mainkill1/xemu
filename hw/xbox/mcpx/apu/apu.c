@@ -20,6 +20,7 @@
  */
 
 #include "apu_int.h"
+#include "audio-engine-policy.h"
 
 MCPXAPUState *g_state; // Used via debug handlers
 
@@ -245,7 +246,9 @@ static void se_frame(MCPXAPUState *d)
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
 
     mcpx_apu_vp_frame(d, mixbins);
-    mcpx_apu_dsp_frame(d, mixbins);
+    if (d->audio_engine != AUDIO_ENGINE_HLE) {
+        mcpx_apu_dsp_frame(d, mixbins);
+    }
     mcpx_apu_monitor_frame(d);
 
     d->ep_frame_div++;
@@ -405,6 +408,12 @@ static int mcpx_apu_pre_load(void *opaque)
 static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
 {
     MCPXAPUState *d = MCPX_APU_DEVICE(dev);
+
+    d->audio_engine = g_config.audio.engine;
+    if (d->audio_engine < AUDIO_ENGINE_DEFAULT ||
+        d->audio_engine > AUDIO_ENGINE_HLE) {
+        d->audio_engine = AUDIO_ENGINE_DEFAULT;
+    }
 
     dev->config[PCI_INTERRUPT_PIN] = 0x01;
 

@@ -363,6 +363,9 @@ display:
     default: true
 
 audio:
+  engine:
+    type: integer
+    default: 0 # legacy settings, full DSP JIT, experimental DSP bypass
   vp:
     num_workers:
       type: integer

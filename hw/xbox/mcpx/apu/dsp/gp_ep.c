@@ -20,6 +20,7 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "hw/xbox/mcpx/apu/audio-engine-policy.h"
 #include "qemu/error-report.h"
 #include "qemu/timer.h"
 #include "dsp-replay.h"
@@ -29,11 +30,12 @@ static const int16_t ep_silence[256][2] = { 0 };
 
 void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
 {
-    static int last_known_dsp_pref = -1;
-    static int last_known_jit_pref = -1;
+    AudioEnginePolicy policy = audio_engine_policy(d->audio_engine,
+                                                   g_config.audio.use_dsp,
+                                                   g_config.audio.use_dsp_jit);
 
-    if (last_known_dsp_pref != (int)g_config.audio.use_dsp) {
-        if (g_config.audio.use_dsp) {
+    if (d->last_dsp_preference != (int)policy.realtime_dsp) {
+        if (policy.realtime_dsp) {
             d->monitor.point = MCPX_APU_DEBUG_MON_GP_OR_EP;
             d->gp.realtime = true;
             d->ep.realtime = true;
@@ -42,13 +44,13 @@ void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
             d->gp.realtime = false;
             d->ep.realtime = false;
         }
-        last_known_dsp_pref = g_config.audio.use_dsp;
+        d->last_dsp_preference = policy.realtime_dsp;
     }
 
-    if (last_known_jit_pref != (int)g_config.audio.use_dsp_jit) {
-        dsp_set_engine(d->gp.dsp, g_config.audio.use_dsp_jit);
-        dsp_set_engine(d->ep.dsp, g_config.audio.use_dsp_jit);
-        last_known_jit_pref = g_config.audio.use_dsp_jit;
+    if (d->last_jit_preference != (int)policy.jit) {
+        dsp_set_engine(d->gp.dsp, policy.jit);
+        dsp_set_engine(d->ep.dsp, policy.jit);
+        d->last_jit_preference = policy.jit;
     }
 }
 
@@ -535,6 +537,8 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
 
 void mcpx_apu_dsp_init(MCPXAPUState *d)
 {
+    d->last_dsp_preference = -1;
+    d->last_jit_preference = -1;
     d->gp.dsp = dsp_init(d, gp_scratch_rw, gp_fifo_rw, true);
     dsp_replay_init(d->gp.dsp);
     dsp_set_halt_requested(d->gp.dsp, false);

@@ -75,6 +75,10 @@ typedef struct MCPXAPUState {
     PCIDevice parent_obj;
     /*< public >*/
 
+    int audio_engine; /* Latched on realization; changing it requires restart. */
+    int last_dsp_preference;
+    int last_jit_preference;
+
     bool exiting;
     bool set_irq;
 

@@ -4647,6 +4647,17 @@ foreach target : target_dirs
     }]
   endif
   if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
+    audio_engine_policy_test = executable('test-xbox-audio-engine-policy',
+      files('tests/xbox/mcpx-apu/test-audio-engine-policy.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-audio-engine-policy', audio_engine_policy_test, suite: ['unit'])
+    audio_engine_instance_test = executable('test-xbox-audio-engine-instance',
+      files('tests/xbox/mcpx-apu/test-audio-engine-instance.c'),
+      c_args: c_args, dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc, link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'], build_by_default: false)
+    test('test-xbox-audio-engine-instance', audio_engine_instance_test, suite: ['unit'])
     gp_filter_hle_test = executable('test-xbox-mcpx-apu-gp-filter-hle',
       files('tests/xbox/mcpx-apu/test-gp-filter-hle.c'),
       c_args: c_args,
