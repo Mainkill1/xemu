@@ -46,6 +46,7 @@
 typedef struct DspCaptureFrame DspCaptureFrame;
 typedef struct DspCaptureRing DspCaptureRing;
 typedef struct DspCaptureSession DspCaptureSession;
+typedef struct DspGainShadow DspGainShadow;
 #endif
 
 #define GET_MASK(v, mask) (((v) & (mask)) >> ctz32(mask))
@@ -95,6 +96,7 @@ typedef struct MCPXAPUState {
     DspCaptureSession *capture_session;
     DspCaptureFrame *capture_active_frame;
     uint64_t capture_frame_id;
+    DspGainShadow *gain_shadow;
 #endif
 
     MemoryRegion *ram;

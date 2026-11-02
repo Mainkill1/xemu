@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Production DSP/DMA integration: independent memory and ordered effects. */
 #include "qemu/osdep.h"
+#include "hw/xbox/mcpx/apu/dsp/gain_shadow.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "hw/xbox/mcpx/apu/dsp/dsp.h"
 #include "hw/xbox/mcpx/apu/dsp/dsp_capture.h"
@@ -1665,6 +1666,74 @@ static void test_capture_session_gp_program_trigger(void)
     g_assert_cmpint(g_rmdir(directory), ==, 0);
 }
 
+static void test_gain_shadow(gconstpointer opaque)
+{
+    unsigned scenario = GPOINTER_TO_UINT(opaque);
+    unsigned mask = scenario == 1 ? 5 : scenario == 2 ? 0 : 7;
+    int fault = scenario == 3 ? 65 : -1;
+    const uint32_t input_table[8] = { 0,        1, 0xffffff, 0x7fffff,
+                                      0x800000, 3, 0xfffffd, 5 };
+    const uint32_t reference_table[3][8] = {
+        { 0, 0, 0xffffff, 0x3fffff, 0xc00000, 1, 0xfffffe, 2 },
+        { 0, 0xffffff, 0, 0xc00000, 0x400000, 0xfffffe, 1, 0xfffffd },
+        { 0, 0, 0xffffff, 0x1fffff, 0xe00000, 0, 0xffffff, 1 },
+    };
+    uint32_t input[64], reference[192];
+    for (unsigned i = 0; i < 64; i++) {
+        input[i] = input_table[i % 8];
+        for (unsigned route = 0; route < 3; route++) {
+            reference[route * 64 + i] = reference_table[route][i % 8];
+        }
+    }
+    DspGainShadow *s = dsp_gain_shadow_new(mask, fault);
+    g_assert_nonnull(s);
+    input[0] = 0x1000000;
+    g_assert_false(dsp_gain_shadow_submit(s, input));
+    input[0] = 0;
+    for (unsigned repetition = 0; repetition < 3; repetition++) {
+        g_assert_true(dsp_gain_shadow_submit(s, input));
+        g_assert_false(dsp_gain_shadow_submit(s, input));
+        dsp_gain_shadow_finish(s, reference, 123);
+    }
+    const DspGainShadowStats *stats = dsp_gain_shadow_stats(s);
+    g_assert_cmpuint(stats->admitted_jobs, ==, 3);
+    g_assert_cmpuint(stats->reference_frame_wall_ns, ==, 369);
+    for (unsigned route = 0; route < 3; route++) {
+        const DspGainRouteStats *r = &stats->route[route];
+        bool selected = mask & (1u << route);
+        bool different = scenario == 3 && route == 1;
+        g_assert_cmpuint(r->native_calls, ==, selected ? 3 : 0);
+        g_assert_cmpuint(r->fallback_calls, ==, selected ? 0 : 3);
+        g_assert_cmpuint(r->compared_words, ==, selected ? 192 : 0);
+        g_assert_cmpuint(r->differing_words, ==, different ? 3 : 0);
+        g_assert_cmpuint(r->matching_words, ==,
+                         selected ? different ? 189 : 192 : 0);
+        g_assert_cmpuint(r->matched_calls, ==, selected && !different ? 3 : 0);
+        g_assert_cmpuint(r->mismatched_calls, ==, different ? 3 : 0);
+        if (different) {
+            g_assert_cmpuint(r->first_sample, ==, 1);
+            g_assert_cmphex(r->first_expected, ==, 0xffffff);
+            g_assert_cmphex(r->first_actual, ==, 0xfffffe);
+        }
+    }
+    for (unsigned i = 0; i < 64; i++) {
+        g_assert_cmpuint(input[i], ==, input_table[i % 8]);
+    }
+    FILE *report = tmpfile();
+    g_assert_nonnull(report);
+    dsp_gain_shadow_report(s, report);
+    rewind(report);
+    char json[2048] = { 0 };
+    g_assert_cmpuint(fread(json, 1, sizeof(json) - 1, report), >, 0);
+    g_assert_nonnull(strstr(json, scenario == 2 ? "NO_COMPARISONS" :
+                                  scenario == 3 ? "MISMATCH" :
+                                                  "BASELINE_MATCH"));
+    fclose(report);
+    dsp_gain_shadow_free(s);
+    g_assert_null(dsp_gain_shadow_new(8, -1));
+    g_assert_null(dsp_gain_shadow_new(7, 192));
+}
+
 static void test_c_checkpoint_hidden_state_comparison(void)
 {
     DspCCapture *a = g_new0(DspCCapture, 1);
@@ -1776,5 +1845,11 @@ int __wrap_main(int argc, char **argv)
                     test_capture_session_finishes_while_apu_continues);
     g_test_add_func("/dsp/capture/gp-program-trigger",
                     test_capture_session_gp_program_trigger);
+    for (unsigned scenario = 0; scenario < 4; scenario++) {
+        g_autofree char *name =
+            g_strdup_printf("/dsp/shadow/gains-%u", scenario);
+        g_test_add_data_func(name, GUINT_TO_POINTER(scenario),
+                             test_gain_shadow);
+    }
     return g_test_run();
 }
