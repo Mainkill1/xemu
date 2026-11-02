@@ -31,6 +31,11 @@ DspCaptureSession *dsp_capture_session_start(const char *path, unsigned frames);
 /* Configure before the first frame; delays capture without skipping execution.
  */
 bool dsp_capture_session_set_skip(DspCaptureSession *session, unsigned frames);
+/* Load exactly 4096 little-endian 24-bit P words before execution starts.
+ * Wait for enabled GP + full image equality, then capture the contiguous N
+ * frames normally. This selects a boundary, not hardware authority. */
+bool dsp_capture_session_set_gp_program(DspCaptureSession *session,
+                                        const char *path);
 bool dsp_capture_session_active(const DspCaptureSession *session);
 DspCaptureRing *dsp_capture_session_ring(DspCaptureSession *session);
 void mcpx_apu_capture_session_frame(

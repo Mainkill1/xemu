@@ -1600,6 +1600,71 @@ static void test_capture_session_finishes_while_apu_continues(void)
     g_free(directory);
 }
 
+static void test_capture_session_gp_program_trigger(void)
+{
+    g_autofree char *directory =
+        g_dir_make_tmp("xemu-dsp-program-XXXXXX", NULL);
+    g_autofree char *path = g_build_filename(directory, "capture.xcr", NULL);
+    g_autofree char *program_path =
+        g_build_filename(directory, "program.bin", NULL);
+    uint8_t bytes[DSP_PRAM_SIZE * 4] = { 0 };
+    stl_le_p(bytes, 0x08f484);
+    stl_le_p(bytes + 4, 1);
+    stl_le_p(bytes + 8, 0x0c0000);
+    stl_le_p(bytes + sizeof(bytes) - 4, 1);
+    DspCaptureSession *session = dsp_capture_session_start(path, 1);
+    g_assert_nonnull(session);
+    g_assert_true(g_file_set_contents(program_path, (char *)bytes,
+                                      sizeof(bytes) - 1, NULL));
+    g_assert_false(dsp_capture_session_set_gp_program(session, program_path));
+    bytes[3] = 1;
+    g_assert_true(
+        g_file_set_contents(program_path, (char *)bytes, sizeof(bytes), NULL));
+    g_assert_false(dsp_capture_session_set_gp_program(session, program_path));
+    bytes[3] = 0;
+    g_assert_true(
+        g_file_set_contents(program_path, (char *)bytes, sizeof(bytes), NULL));
+    g_assert_true(dsp_capture_session_set_gp_program(session, program_path));
+    ReplayMemory gp_memory = { 0 }, ep_memory = { 0 };
+    MCPXAPUState *apu = g_new0(MCPXAPUState, 1);
+    g_config.audio.use_dsp_jit = true;
+    apu->gp.dsp = dsp_init(&gp_memory, scratch, fifo, true);
+    apu->ep.dsp = dsp_init(&ep_memory, scratch, fifo, false);
+    float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    /* A full image mismatch at the final word must keep waiting. */
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        dsp_write_memory(apu->gp.dsp, 'P', i,
+                         i == DSP_PRAM_SIZE - 1 ? 0 : ldl_le_p(bytes + i * 4));
+    }
+    apu->gp.regs[NV_PAPU_GPRST] = 3;
+    mcpx_apu_capture_session_frame(apu, session, mixbins);
+    g_assert_true(dsp_capture_session_active(session));
+    dsp_write_memory(apu->gp.dsp, 'P', DSP_PRAM_SIZE - 1, 1);
+    apu->gp.regs[NV_PAPU_GPRST] = 0;
+    mcpx_apu_capture_session_frame(apu, session, mixbins);
+    g_assert_true(dsp_capture_session_active(session));
+    g_assert_false(dsp_capture_session_set_gp_program(session, program_path));
+    apu->gp.regs[NV_PAPU_GPRST] = 3;
+    mcpx_apu_capture_session_frame(apu, session, mixbins);
+    g_assert_false(dsp_capture_session_active(session));
+    DspCaptureWriterResult result;
+    dsp_capture_session_stop(session, &result);
+    g_assert_false(result.failed);
+    g_assert_cmpuint(result.written, ==, 1);
+    gchar *contents = NULL;
+    gsize size;
+    g_assert_true(g_file_get_contents(path, &contents, &size, NULL));
+    uint32_t header_size = ldl_le_p(contents + 8);
+    g_assert_cmpuint(ldq_le_p(contents + header_size + 44), ==, 2);
+    g_free(contents);
+    dsp_destroy(apu->gp.dsp);
+    dsp_destroy(apu->ep.dsp);
+    g_free(apu);
+    g_assert_cmpint(g_unlink(program_path), ==, 0);
+    g_assert_cmpint(g_unlink(path), ==, 0);
+    g_assert_cmpint(g_rmdir(directory), ==, 0);
+}
+
 static void test_c_checkpoint_hidden_state_comparison(void)
 {
     DspCCapture *a = g_new0(DspCCapture, 1);
@@ -1709,5 +1774,7 @@ int __wrap_main(int argc, char **argv)
                     test_capture_rejects_interpreter_without_skipping_frame);
     g_test_add_func("/dsp/capture/session-finish",
                     test_capture_session_finishes_while_apu_continues);
+    g_test_add_func("/dsp/capture/gp-program-trigger",
+                    test_capture_session_gp_program_trigger);
     return g_test_run();
 }
