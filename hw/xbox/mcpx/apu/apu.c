@@ -488,8 +488,15 @@ static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
                 bool configured = dsp_capture_session_set_skip(d->capture_session, skip);
                 g_assert(configured);
                 (void)configured;
-                mcpx_apu_capture_set_ring_locked(
-                    d, dsp_capture_session_ring(d->capture_session));
+                const char *program = g_getenv("XEMU_DSP_CAPTURE_GP_PROGRAM");
+                if (program && !dsp_capture_session_set_gp_program(d->capture_session, program)) {
+                    warn_report("Invalid experimental DSP capture GP program image");
+                    dsp_capture_session_stop(d->capture_session, NULL);
+                    d->capture_session = NULL;
+                } else {
+                    mcpx_apu_capture_set_ring_locked(
+                        d, dsp_capture_session_ring(d->capture_session));
+                }
             } else {
                 warn_report("Unable to start experimental DSP capture");
             }

@@ -99,6 +99,20 @@ tests do not establish equivalence for all devices or concurrent CPU activity.
 These tests do not establish that enabling capture has no game-level timing or
 audio effect.
 
+To select a specific public workload rather than the first BIOS frame, set
+`XEMU_DSP_CAPTURE_GP_PROGRAM` to a regular file containing exactly 4,096
+little-endian 32-bit P words with zero high bytes. The image is read and
+validated during initialization, before the APU worker starts. After the
+global skip interval, the APU owner compares all GP P words while GP reset
+bits enable execution; mismatching/disabled frames run normally without
+consuming the capture limit. Once matched, the ordinary contiguous first-N
+session proceeds, including its existing program-change/discontinuity flags.
+The frame-time check reads ordinary P RAM only; it adds no allocation,
+serialization or I/O to the frame path. Failed configuration disables the
+session instead of silently capturing a different workload. An image that
+never appears produces no captured frames. This is a trigger, not complete
+program-history or hardware verification. The default build has no trigger.
+
 The experimental XCR1 version 3 stream uses fixed little-endian fields and
 per-record SHA-256 digests. Its checksummed 304-byte header records the capture
 time in Unix microseconds, xemu commit/version, and the linked DSP library's

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
 #include "qemu/atomic.h"
+#include "qemu/bswap.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "capture_ring.h"
 #include "capture_stream.h"
@@ -13,6 +14,8 @@ struct DspCaptureSession {
     unsigned skip;
     unsigned limit;
     bool active;
+    bool waiting_gp_program;
+    uint32_t gp_program[DSP_PRAM_SIZE];
 };
 
 typedef struct FrameCaptureIo {
@@ -213,6 +216,37 @@ bool dsp_capture_session_set_skip(DspCaptureSession *session, unsigned frames)
     return true;
 }
 
+bool dsp_capture_session_set_gp_program(DspCaptureSession *session,
+                                        const char *path)
+{
+    if (!session || !session->active || session->elapsed || !path) {
+        return false;
+    }
+    FILE *file = fopen(path, "rb");
+    uint8_t bytes[DSP_PRAM_SIZE * 4];
+    struct stat info;
+    bool valid = file && !fstat(fileno(file), &info) && S_ISREG(info.st_mode) &&
+                 info.st_size == sizeof(bytes) &&
+                 fread(bytes, 1, sizeof(bytes), file) == sizeof(bytes) &&
+                 fgetc(file) == EOF && !ferror(file);
+    if (file) {
+        fclose(file);
+    }
+    if (!valid) {
+        return false;
+    }
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        if (ldl_le_p(bytes + i * 4) & 0xff000000) {
+            return false;
+        }
+    }
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        session->gp_program[i] = ldl_le_p(bytes + i * 4);
+    }
+    session->waiting_gp_program = true;
+    return true;
+}
+
 DspCaptureRing *dsp_capture_session_ring(DspCaptureSession *session)
 {
     return session ? session->ring : NULL;
@@ -236,6 +270,19 @@ void mcpx_apu_capture_session_frame(
         session->elapsed++;
         mcpx_apu_dsp_frame(apu, mixbins);
         return;
+    }
+    if (session->waiting_gp_program) {
+        bool matches = (apu->gp.regs[NV_PAPU_GPRST] & 3) == 3;
+        for (unsigned i = 0; matches && i < DSP_PRAM_SIZE; i++) {
+            matches =
+                dsp_read_memory(apu->gp.dsp, 'P', i) == session->gp_program[i];
+        }
+        if (!matches) {
+            session->elapsed++;
+            mcpx_apu_dsp_frame(apu, mixbins);
+            return;
+        }
+        session->waiting_gp_program = false;
     }
     mcpx_apu_capture_dsp_frame(apu, session->ring, session->elapsed++, mixbins);
     session->attempts++;
