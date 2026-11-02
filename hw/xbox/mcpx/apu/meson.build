@@ -26,6 +26,7 @@ endif
 
 if get_option('xemu_dsp_capture')
   mcpx_ss.add(files('dsp/capture_frame.c', 'dsp/capture_ring.c',
-                    'dsp/capture_stream.c', 'dsp/capture_wire.c') +
+                    'dsp/capture_stream.c', 'dsp/capture_wire.c',
+                    'dsp/gain_shadow.c') +
               [dsp_replay_identity])
 endif

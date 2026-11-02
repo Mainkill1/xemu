@@ -4695,6 +4695,7 @@ foreach target : target_dirs
     if not get_option('xemu_dsp_capture')
       dsp_capture_test_sources = files('hw/xbox/mcpx/apu/dsp/capture_frame.c',
                                        'hw/xbox/mcpx/apu/dsp/capture_ring.c',
+                                       'hw/xbox/mcpx/apu/dsp/gain_shadow.c',
                                        'hw/xbox/mcpx/apu/dsp/capture_stream.c')
       dsp_capture_test_sources += [dsp_replay_identity, xemu_version]
       dsp_capture_wire_sources = files('hw/xbox/mcpx/apu/dsp/capture_wire.c')

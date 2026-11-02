@@ -23,6 +23,7 @@
 #ifdef CONFIG_XEMU_DSP_CAPTURE
 #include "dsp/capture_ring.h"
 #include "dsp/capture_stream.h"
+#include "dsp/gain_shadow.h"
 #include "qemu/error-report.h"
 #endif
 
@@ -251,6 +252,9 @@ static void se_frame(MCPXAPUState *d)
 
     mcpx_apu_vp_frame(d, mixbins);
 #ifdef CONFIG_XEMU_DSP_CAPTURE
+    bool shadow_submitted = d->gain_shadow && dsp_gain_shadow_begin(
+        d->gain_shadow, d->gp.dsp, (d->gp.regs[NV_PAPU_GPRST] & 3) == 3);
+    int64_t shadow_start = shadow_submitted ? qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
     if (d->capture_session && dsp_capture_session_active(d->capture_session)) {
         mcpx_apu_capture_session_frame(d, d->capture_session, mixbins);
         if (!dsp_capture_session_active(d->capture_session)) {
@@ -261,6 +265,16 @@ static void se_frame(MCPXAPUState *d)
     } else
 #endif
     mcpx_apu_dsp_frame(d, mixbins);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    if (shadow_submitted) {
+        uint64_t elapsed = qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - shadow_start;
+        uint32_t reference[192];
+        for (unsigned i = 0; i < G_N_ELEMENTS(reference); i++) {
+            reference[i] = dsp_read_memory(d->gp.dsp, 'X', 0x200 + i);
+        }
+        dsp_gain_shadow_finish(d->gain_shadow, reference, elapsed);
+    }
+#endif
     mcpx_apu_monitor_frame(d);
 
     d->ep_frame_div++;
@@ -462,6 +476,30 @@ static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
     mcpx_apu_dsp_init(d);
 
 #ifdef CONFIG_XEMU_DSP_CAPTURE
+    if (!g_strcmp0(g_getenv("XEMU_DSP_GAIN_SHADOW"), "1")) {
+        const char *mask_setting = g_getenv("XEMU_DSP_GAIN_SHADOW_ROUTES");
+        const char *fault_setting = g_getenv("XEMU_DSP_GAIN_SHADOW_FAULT");
+        unsigned long mask = 7;
+        long fault = -1;
+        bool valid = true;
+        char *end;
+        if (mask_setting) {
+            errno = 0;
+            mask = strtoul(mask_setting, &end, 10);
+            valid = !errno && end != mask_setting && !*end && mask <= 7;
+        }
+        if (fault_setting) {
+            errno = 0;
+            fault = strtol(fault_setting, &end, 10);
+            valid = valid && !errno && end != fault_setting && !*end && fault >= 0 && fault < 192;
+        }
+        if (valid) {
+            d->gain_shadow = dsp_gain_shadow_new(mask, fault);
+        }
+        if (!valid || !d->gain_shadow) {
+            warn_report("Unable to enable experimental DSP gain shadow");
+        }
+    }
     const char *capture_path = g_getenv("XEMU_DSP_CAPTURE_PATH");
     if (capture_path && *capture_path) {
         const char *setting = g_getenv("XEMU_DSP_CAPTURE_FRAMES");
@@ -533,6 +571,12 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
 
     qemu_thread_join(&d->apu_thread);
 #ifdef CONFIG_XEMU_DSP_CAPTURE
+    if (d->gain_shadow) {
+        fprintf(stderr, "DSP_GAIN_SHADOW ");
+        dsp_gain_shadow_report(d->gain_shadow, stderr);
+        dsp_gain_shadow_free(d->gain_shadow);
+        d->gain_shadow = NULL;
+    }
     if (d->capture_session) {
         DspCaptureWriterResult result;
         DspCaptureSession *session = d->capture_session;
