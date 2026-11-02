@@ -54,6 +54,7 @@ bool pgraph_vk_depth_alias_read_only_eligible(
     if (!producer || !view || depth_or_stencil_writes || clearing ||
         scale != 1 || antialiasing || producer->color || view->color ||
         producer->swizzled || !view->swizzled || !producer->initialized ||
+        !producer->draw_dirty ||
         producer->upload_pending || producer->download_pending ||
         producer->superseded_by_guest || !producer->guest_z24s8 ||
         !view->guest_z24s8 || !producer->host_supported ||

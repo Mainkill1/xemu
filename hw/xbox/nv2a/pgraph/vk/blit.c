@@ -26,6 +26,7 @@
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/error-report.h"
 #include "renderer.h"
+#include "surface-coherence.h"
 
 static void perform_blit(int operation, uint8_t *source, uint8_t *dest,
                          size_t width, size_t height, size_t width_bytes,
@@ -120,14 +121,6 @@ void pgraph_vk_image_blit(NV2AState *d)
     dest += context_surfaces->dest_offset;
     hwaddr dest_addr = dest - d->vram_ptr;
 
-    SurfaceBinding *surf_src = pgraph_vk_surface_get(d, source_addr);
-    if (surf_src) {
-        if (!pgraph_vk_surface_download_if_dirty(d, surf_src)) {
-            error_report("Vulkan surface readback failed before blit source read");
-            abort();
-        }
-    }
-
     hwaddr source_offset = image_blit->in_y * context_surfaces->source_pitch +
                            image_blit->in_x * bytes_per_pixel;
     hwaddr dest_offset = image_blit->out_y * context_surfaces->dest_pitch +
@@ -158,23 +151,57 @@ void pgraph_vk_image_blit(NV2AState *d)
         leftover_bytes = clipped_dest_size - consumed_bytes;
     }
 
-    SurfaceBinding *surf_dest = pgraph_vk_surface_get(d, dest_addr);
-    if (surf_dest) {
-        if (adjusted_height < surf_dest->height ||
-            row_pixels < surf_dest->width) {
-            if (!pgraph_vk_surface_download_if_dirty(d, surf_dest)) {
-                error_report("Vulkan surface readback failed before partial blit");
-                abort();
-            }
-        } else {
-            // The blit will completely replace the surface so any pending
-            // download should be discarded.
-            surf_dest->download_pending = false;
-            surf_dest->draw_dirty = false;
-        }
-        surf_dest->upload_pending = true;
-        pg->draw_time++;
+    hwaddr source_size =
+        adjusted_height ?
+            (adjusted_height - 1) * context_surfaces->source_pitch + row_bytes :
+            0;
+    if (leftover_bytes) {
+        source_size =
+            adjusted_height * context_surfaces->source_pitch + leftover_bytes;
     }
+    if (!pgraph_vk_download_surfaces_in_range_if_dirty(
+            pg, source_addr + source_offset, source_size)) {
+        error_report("Vulkan surface readback failed before blit source read");
+        abort();
+    }
+
+    /*
+     * A clean first-match alias does not imply that RAM is current. Check
+     * every overlapping owner before preserving any destination bytes.
+     */
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    SurfaceBinding *surface;
+    bool replaces_all = image_blit->operation == NV09F_SET_OPERATION_SRCCOPY;
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (pgraph_vk_surface_range_overlaps(surface->vram_addr, surface->size,
+                                             dest_addr + dest_offset,
+                                             clipped_dest_size) &&
+            (surface->swizzle ||
+             surface->vram_addr != dest_addr + dest_offset ||
+             surface->pitch != context_surfaces->dest_pitch ||
+             adjusted_height < surface->height ||
+             row_bytes < surface->width * surface->fmt.bytes_per_pixel)) {
+            replaces_all = false;
+            break;
+        }
+    }
+    if (!replaces_all && !pgraph_vk_download_surfaces_in_range_if_dirty(
+                             pg, dest_addr + dest_offset, clipped_dest_size)) {
+        error_report("Vulkan surface readback failed before partial blit");
+        abort();
+    }
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (!pgraph_vk_surface_range_overlaps(surface->vram_addr, surface->size,
+                                              dest_addr + dest_offset,
+                                              clipped_dest_size)) {
+            continue;
+        }
+        surface->download_pending = false;
+        surface->draw_dirty = false;
+        surface->upload_pending = true;
+        surface->readback_superseded_by_guest = true;
+    }
+    pg->draw_time++;
 
     NV2A_DPRINTF("  blit 0x%tx -> 0x%tx (Size: %llu, Clipped Height: %zu)\n",
                  source_addr, dest_addr, dest_size, adjusted_height);
@@ -188,10 +215,10 @@ void pgraph_vk_image_blit(NV2AState *d)
     if (leftover_bytes > 0) {
         uint8_t *src =
             source_row + adjusted_height * context_surfaces->source_pitch;
-        uint8_t *dest =
+        uint8_t *dest_tail =
             dest_row + adjusted_height * context_surfaces->dest_pitch;
 
-        perform_blit(image_blit->operation, src, dest,
+        perform_blit(image_blit->operation, src, dest_tail,
                      leftover_bytes / bytes_per_pixel, 1, leftover_bytes,
                      context_surfaces->source_pitch,
                      context_surfaces->dest_pitch, beta);
@@ -220,9 +247,9 @@ void pgraph_vk_image_blit(NV2AState *d)
         }
 
         if (leftover_bytes > 0) {
-            uint8_t *dest =
+            uint8_t *dest_tail =
                 dest_row + adjusted_height * context_surfaces->dest_pitch;
-            patch_alpha(dest, leftover_bytes / 4, 1, 0, alpha_override);
+            patch_alpha(dest_tail, leftover_bytes / 4, 1, 0, alpha_override);
         }
     }
 

@@ -33,6 +33,7 @@ typedef struct PGRAPHVkDepthAliasView {
     bool color;
     bool swizzled;
     bool initialized;
+    bool draw_dirty;
     bool upload_pending;
     bool download_pending;
     bool superseded_by_guest;

@@ -204,5 +204,8 @@ bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     pgraph_vk_end_nondraw_commands(pg, cmd);
+    if (r->perf.enabled) {
+        r->perf.depth_alias_copied_pixels += plan.producer_pixels;
+    }
     return true;
 }

@@ -271,6 +271,14 @@ void vmaSetCurrentFrameIndex(VmaAllocator allocator, uint32_t frame_index)
     boundary_trace.valid = false;
 }
 
+/* This report fixture owns no surfaces; their lifecycle has separate tests. */
+void pgraph_vk_surface_retirements_complete(PGRAPHVkState *r)
+{
+    g_assert_false(r->in_command_buffer);
+    g_assert_cmpuint(r->framebuffer_index, ==, 0);
+    g_assert_cmpuint(r->pending_alias_retirements, ==, 0);
+}
+
 void pgraph_vk_check_memory_budget(PGRAPHState *pg)
 {
     /*
