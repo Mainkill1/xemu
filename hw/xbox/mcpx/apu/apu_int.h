@@ -42,6 +42,11 @@
 #include "fpconv.h"
 #include "vp/vp.h"
 #include "dsp/gp_ep.h"
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+typedef struct DspCaptureFrame DspCaptureFrame;
+typedef struct DspCaptureRing DspCaptureRing;
+typedef struct DspCaptureSession DspCaptureSession;
+#endif
 
 #define GET_MASK(v, mask) (((v) & (mask)) >> ctz32(mask))
 
@@ -84,6 +89,13 @@ typedef struct MCPXAPUState {
     QemuCond idle_cond;
     bool pause_requested;
     bool is_idle;
+
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    DspCaptureRing *capture_ring;
+    DspCaptureSession *capture_session;
+    DspCaptureFrame *capture_active_frame;
+    uint64_t capture_frame_id;
+#endif
 
     MemoryRegion *ram;
     uint8_t *ram_ptr;

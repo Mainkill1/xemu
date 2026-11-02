@@ -20,8 +20,50 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+#include "capture_ring.h"
+#include "system/address-spaces.h"
+#endif
 
 static const int16_t ep_silence[256][2] = { 0 };
+
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+static void capture_physical(MCPXAPUState *d, uint32_t kind, hwaddr address,
+                             bool write, const uint8_t *bytes, size_t length)
+{
+    DspCaptureFrame *frame = d->capture_active_frame;
+    if (!frame) {
+        return;
+    }
+    if (address > UINT32_MAX) {
+        frame->flags |= DSP_CAPTURE_TRUNCATED;
+        return;
+    }
+    dsp_capture_frame_event(frame, kind, 0, address, write,
+                            frame->frame_id * NUM_SAMPLES_PER_FRAME, bytes, length);
+}
+
+/* Metadata lookup only: do not issue another descriptor read. A mapping
+ * observed here is not proof that it stayed fixed during the access. */
+static void capture_descriptor_mapping(MCPXAPUState *d, hwaddr address)
+{
+    if (!d->capture_active_frame) {
+        return;
+    }
+    MemoryRegionSection section = memory_region_find(get_system_memory(), address,
+                                                     sizeof(uint32_t));
+    bool plain_ram = section.mr == d->ram &&
+                     section.offset_within_address_space == address &&
+                     section.offset_within_region == address &&
+                     int128_eq(section.size, int128_make64(sizeof(uint32_t)));
+    if (section.mr) {
+        memory_region_unref(section.mr);
+    }
+    if (!plain_ram) {
+        d->capture_active_frame->flags |= DSP_CAPTURE_NONRAM_DESCRIPTOR;
+    }
+}
+#endif
 
 void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
 {
@@ -29,6 +71,9 @@ void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
     static int last_known_jit_pref = -1;
 
     if (last_known_dsp_pref != (int)g_config.audio.use_dsp) {
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
         if (g_config.audio.use_dsp) {
             d->monitor.point = MCPX_APU_DEBUG_MON_GP_OR_EP;
             d->gp.realtime = true;
@@ -42,6 +87,9 @@ void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
     }
 
     if (last_known_jit_pref != (int)g_config.audio.use_dsp_jit) {
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
         dsp_set_engine(d->gp.dsp, g_config.audio.use_dsp_jit);
         dsp_set_engine(d->ep.dsp, g_config.audio.use_dsp_jit);
         last_known_jit_pref = g_config.audio.use_dsp_jit;
@@ -59,8 +107,18 @@ static void scatter_gather_rw(MCPXAPUState *d, hwaddr sge_base,
     while (len > 0) {
         assert(page_entry <= max_sge);
 
-        uint32_t prd_address = ldl_le_phys(&address_space_memory,
-                                           sge_base + page_entry * 8 + 0);
+        hwaddr descriptor = sge_base + page_entry * 8;
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        capture_descriptor_mapping(d, descriptor);
+#endif
+        uint32_t prd_address = ldl_le_phys(&address_space_memory, descriptor);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        capture_descriptor_mapping(d, descriptor);
+        uint8_t descriptor_bytes[4];
+        stl_le_p(descriptor_bytes, prd_address);
+        capture_physical(d, DSP_CAPTURE_SGE_READ, descriptor, false,
+                         descriptor_bytes, sizeof(descriptor_bytes));
+#endif
         // uint32_t prd_control = ldl_le_phys(&address_space_memory,
         //                                     sge_base + page_entry * 8 + 4);
 
@@ -73,10 +131,20 @@ static void scatter_gather_rw(MCPXAPUState *d, hwaddr sge_base,
         assert(paddr + bytes_to_copy < memory_region_size(d->ram));
 
         if (dir) {
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+            capture_physical(d, DSP_CAPTURE_RAM_PREWRITE, paddr, false,
+                             &d->ram_ptr[paddr], bytes_to_copy);
+            capture_physical(d, DSP_CAPTURE_RAM_WRITE, paddr, true,
+                             ptr, bytes_to_copy);
+#endif
             memcpy(&d->ram_ptr[paddr], ptr, bytes_to_copy);
             memory_region_set_dirty(d->ram, paddr, bytes_to_copy);
         } else {
             memcpy(ptr, &d->ram_ptr[paddr], bytes_to_copy);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+            capture_physical(d, DSP_CAPTURE_RAM_READ, paddr, false,
+                             ptr, bytes_to_copy);
+#endif
         }
 
         ptr += bytes_to_copy;
@@ -307,6 +375,9 @@ static void gp_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
     MCPXAPUState *d = opaque;
 
     qemu_mutex_lock(&d->lock);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
 
     assert(size == 4);
     assert(addr % 4 == 0);
@@ -397,6 +468,9 @@ static void ep_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
     MCPXAPUState *d = opaque;
 
     qemu_mutex_lock(&d->lock);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
 
     assert(size == 4);
     assert(addr % 4 == 0);

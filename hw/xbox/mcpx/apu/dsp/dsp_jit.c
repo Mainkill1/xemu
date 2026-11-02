@@ -20,6 +20,7 @@
 
 #include "qemu/osdep.h"
 #include "dsp_internal.h"
+#include "dsp_capture.h"
 #include "debug.h"
 
 #include <dsp56300.h>
@@ -43,6 +44,51 @@ typedef struct JitBackend {
 static JitBackend *jit_be(DSPState *dsp)
 {
     return (JitBackend *)dsp->backend;
+}
+
+bool dsp_jit_capture(DSPState *dsp, DspJitCapture *capture)
+{
+    if (!dsp || !capture || dsp->ops != &jit_dsp_ops || !dsp->backend) {
+        return false;
+    }
+    JitBackend *be = jit_be(dsp);
+    dsp56300_get_state(be->jit, &capture->state);
+    memcpy(capture->xram, be->xram, sizeof(capture->xram));
+    memcpy(capture->yram, be->yram, sizeof(capture->yram));
+    memcpy(capture->pram, be->pram, sizeof(capture->pram));
+    capture->configuration = dsp->dma.configuration;
+    capture->control = dsp->dma.control;
+    capture->start_block = dsp->dma.start_block;
+    capture->next_block = dsp->dma.next_block;
+    capture->dma_read_count = dsp->dma.dma_read_count;
+    capture->error = dsp->dma.error;
+    capture->eol = dsp->dma.eol;
+    capture->interrupts = dsp->interrupts;
+    capture->is_gp = dsp->is_gp;
+    return true;
+}
+
+bool dsp_jit_restore(DSPState *dsp, const DspJitCapture *capture)
+{
+    if (!dsp || !capture || dsp->ops != &jit_dsp_ops || !dsp->backend ||
+        dsp->is_gp != capture->is_gp) {
+        return false;
+    }
+    JitBackend *be = jit_be(dsp);
+    memcpy(be->xram, capture->xram, sizeof(capture->xram));
+    memcpy(be->yram, capture->yram, sizeof(capture->yram));
+    memcpy(be->pram, capture->pram, sizeof(capture->pram));
+    dsp->dma.configuration = capture->configuration;
+    dsp->dma.control = capture->control;
+    dsp->dma.start_block = capture->start_block;
+    dsp->dma.next_block = capture->next_block;
+    dsp->dma.dma_read_count = capture->dma_read_count;
+    dsp->dma.error = capture->error;
+    dsp->dma.eol = capture->eol;
+    dsp->interrupts = capture->interrupts;
+    dsp56300_set_state(be->jit, &capture->state);
+    dsp56300_invalidate_cache(be->jit);
+    return true;
 }
 
 static uint32_t jit_dma_mem_read(void *opaque, int space, uint32_t addr)

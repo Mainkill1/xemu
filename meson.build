@@ -2636,6 +2636,7 @@ if get_option('module_upgrades') and not enable_modules
   error('Cannot enable module-upgrades as modules are not enabled')
 endif
 config_host_data.set('CONFIG_MODULE_UPGRADES', get_option('module_upgrades'))
+config_host_data.set('CONFIG_XEMU_DSP_CAPTURE', get_option('xemu_dsp_capture'))
 
 config_host_data.set('CONFIG_ATTR', libattr.found())
 config_host_data.set('CONFIG_BDRV_WHITELIST_TOOLS', get_option('block_drv_whitelist_in_tools'))
@@ -4647,6 +4648,94 @@ foreach target : target_dirs
     }]
   endif
   if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
+    dsp_capture_ring_test = executable('test-xbox-dsp-capture-ring',
+      files('tests/xbox/mcpx-apu/test-dsp-capture-ring.c',
+            'hw/xbox/mcpx/apu/dsp/capture_ring.c'),
+      c_args: c_args,
+      dependencies: [glib, dsp56300_emu_ffi],
+      include_directories: target_inc,
+      build_by_default: false)
+    test('test-xbox-dsp-capture-ring', dsp_capture_ring_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    dsp_capture_stream_test = executable('test-xbox-dsp-capture-stream',
+      files('tests/xbox/mcpx-apu/test-dsp-capture-stream.c',
+            'hw/xbox/mcpx/apu/dsp/capture_ring.c',
+            'hw/xbox/mcpx/apu/dsp/capture_wire.c',
+            'hw/xbox/mcpx/apu/dsp/capture_stream.c') +
+        [dsp_replay_identity, xemu_version],
+      c_args: c_args,
+      dependencies: [glib, dsp56300_emu_ffi],
+      include_directories: target_inc,
+      build_by_default: false)
+    test('test-xbox-dsp-capture-stream', dsp_capture_stream_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    test('test-dsp-capture-inspect', python,
+      args: [files('tests/xbox/mcpx-apu/test-dsp-capture-inspect.py'),
+             dsp_capture_stream_test], suite: ['unit'])
+    test('test-dsp-capture-memory', python,
+      args: [files('tests/xbox/mcpx-apu/test-dsp-capture-memory.py')], suite: ['unit'])
+    test('test-dsp-capture-reconstruct', python,
+      args: [files('tests/xbox/mcpx-apu/test-dsp-capture-reconstruct.py'),
+             dsp_capture_stream_test], suite: ['unit'])
+    dsp_jit_capture_test = executable('test-xbox-dsp-jit-capture',
+      files('tests/xbox/mcpx-apu/test-dsp-jit-capture.c',
+            'tests/xbox/mcpx-apu/dsp-capture-compare.c',
+            'hw/xbox/mcpx/apu/dsp/capture_wire.c',
+            'tests/xbox/mcpx-apu/dsp-replay-io.c',
+            'tests/xbox/mcpx-apu/dsp-replay-transcript.c',
+            'hw/xbox/mcpx/apu/dsp/dsp_jit.c'),
+      c_args: c_args,
+      dependencies: [glib, dsp56300_emu_ffi],
+      include_directories: target_inc,
+      build_by_default: false)
+    test('test-xbox-dsp-jit-capture', dsp_jit_capture_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    dsp_capture_test_sources = []
+    dsp_capture_wire_sources = []
+    if not get_option('xemu_dsp_capture')
+      dsp_capture_test_sources = files('hw/xbox/mcpx/apu/dsp/capture_frame.c',
+                                       'hw/xbox/mcpx/apu/dsp/capture_ring.c',
+                                       'hw/xbox/mcpx/apu/dsp/capture_stream.c')
+      dsp_capture_test_sources += [dsp_replay_identity, xemu_version]
+      dsp_capture_wire_sources = files('hw/xbox/mcpx/apu/dsp/capture_wire.c')
+    endif
+    dsp_replay_dma_test = executable('test-xbox-dsp-replay-dma',
+      files('tests/xbox/mcpx-apu/test-dsp-replay-dma.c',
+            'tests/xbox/mcpx-apu/dsp-capture-compare.c',
+            'tests/xbox/mcpx-apu/dsp-replay-core.c',
+            'tests/xbox/mcpx-apu/dsp-replay-frame.c',
+            'tests/xbox/mcpx-apu/dsp-replay-io.c') + dsp_capture_test_sources + dsp_capture_wire_sources,
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-dsp-replay-dma', dsp_replay_dma_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    dsp_replay_worker = executable('dsp-replay-worker',
+      files('tests/xbox/mcpx-apu/dsp-replay-worker.c',
+            'tests/xbox/mcpx-apu/dsp-capture-compare.c',
+            'tests/xbox/mcpx-apu/dsp-replay-core.c',
+            'tests/xbox/mcpx-apu/dsp-replay-dual.c',
+            'tests/xbox/mcpx-apu/dsp-replay-frame.c',
+            'tests/xbox/mcpx-apu/dsp-replay-transcript.c',
+            'tests/xbox/mcpx-apu/dsp-replay-io.c') + dsp_capture_wire_sources + [dsp_replay_identity],
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-dsp-replay-cli', python,
+      args: [files('tests/xbox/mcpx-apu/test-dsp-replay-cli.py'),
+             dsp_replay_worker, dsp_replay_archive],
+      suite: ['unit'])
+    test('test-dsp-boundary-fuzz', python,
+      args: [files('tests/xbox/mcpx-apu/test-dsp-boundary-fuzz.py'),
+             dsp_replay_worker], suite: ['unit'])
     voice_format_test = executable('test-xbox-mcpx-apu-voice-format-boundaries',
       files('tests/xbox/mcpx-apu/test-voice-format-boundaries.c'),
       c_args: c_args,
