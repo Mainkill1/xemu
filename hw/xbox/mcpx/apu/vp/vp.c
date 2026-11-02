@@ -20,6 +20,8 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "hw/xbox/mcpx/apu/audio-engine-policy.h"
+#include "hw/xbox/mcpx/apu/audio-hle-mix.h"
 #include "adpcm.h"
 #include "sge.h"
 #include "sample-memory.h"
@@ -1547,7 +1549,8 @@ static void voice_process(MCPXAPUState *d,
         }
     }
 
-    if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
+    if (d->monitor.point == MCPX_APU_DEBUG_MON_VP &&
+        d->audio_engine != AUDIO_ENGINE_HLE) {
         /* For VP mon, simply mix all voices together here, selecting the
          * maximal volume used for any given mixbin as the overall volume for
          * this voice.
@@ -1669,7 +1672,8 @@ static void *voice_worker_thread(void *arg)
 
             // Process queued voices
             memset(self->mixbins, 0, sizeof(self->mixbins));
-            if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
+            if (d->monitor.point == MCPX_APU_DEBUG_MON_VP &&
+                d->audio_engine != AUDIO_ENGINE_HLE) {
                 memset(self->sample_buf, 0, sizeof(self->sample_buf));
             }
             for (int i = 0; i < self->queue_len; i++) {
@@ -1685,7 +1689,8 @@ static void *voice_worker_thread(void *arg)
                     vwd->mixbins[b][s] += self->mixbins[b][s];
                 }
             }
-            if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
+            if (d->monitor.point == MCPX_APU_DEBUG_MON_VP &&
+                d->audio_engine != AUDIO_ENGINE_HLE) {
                 for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                     d->vp.sample_buf[i][0] += self->sample_buf[i][0];
                     d->vp.sample_buf[i][1] += self->sample_buf[i][1];
@@ -1915,10 +1920,21 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
     voice_work_dispatch(d, mixbins);
 
     if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
-        /* Mix all voices together to hear any audible voice */
         int16_t isamp[NUM_SAMPLES_PER_FRAME * 2];
-        src_float_to_short_array((float *)d->vp.sample_buf, isamp,
-                                 NUM_SAMPLES_PER_FRAME * 2);
+        if (d->audio_engine == AUDIO_ENGINE_HLE) {
+            /* The direct HLE path honors the VP's front-left/right bins,
+             * including per-voice gain, instead of the debug monitor's
+             * maximum-voice-gain downmix. DSP effects are not yet modeled. */
+            float stereo[NUM_SAMPLES_PER_FRAME][2];
+            audio_hle_front_stereo(mixbins[0], mixbins[1], &stereo[0][0],
+                                   NUM_SAMPLES_PER_FRAME);
+            src_float_to_short_array(&stereo[0][0], isamp,
+                                     NUM_SAMPLES_PER_FRAME * 2);
+        } else {
+            /* Legacy VP monitor mixes all voices to hear any audible voice. */
+            src_float_to_short_array((float *)d->vp.sample_buf, isamp,
+                                     NUM_SAMPLES_PER_FRAME * 2);
+        }
         int off = (d->ep_frame_div % 8) * NUM_SAMPLES_PER_FRAME;
         for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
             d->monitor.frame_buf[off + i][0] += isamp[2*i];

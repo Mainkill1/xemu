@@ -4651,6 +4651,10 @@ foreach target : target_dirs
       files('tests/xbox/mcpx-apu/test-audio-engine-policy.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
     test('test-xbox-audio-engine-policy', audio_engine_policy_test, suite: ['unit'])
+    audio_hle_mix_test = executable('test-xbox-audio-hle-mix',
+      files('tests/xbox/mcpx-apu/test-audio-hle-mix.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-audio-hle-mix', audio_hle_mix_test, suite: ['unit'])
     audio_engine_instance_test = executable('test-xbox-audio-engine-instance',
       files('tests/xbox/mcpx-apu/test-audio-engine-instance.c'),
       c_args: c_args, dependencies: arch_deps + [sdl],

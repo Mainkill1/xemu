@@ -1095,8 +1095,9 @@ void MainMenuAudioView::Draw()
                      "Default\0JIT\0HLE (experimental)\0",
                      "Default uses the existing DSP settings. JIT runs the "
                      "DSP engines. Experimental HLE bypasses both DSPs and "
-                     "plays voices without DSP effects; guest DSP side effects "
-                     "are not implemented. Restart xemu to apply.")) {
+                     "plays front stereo mixbins. DSP effects, other output "
+                     "channels and guest DSP side effects are not implemented. "
+                     "Restart xemu to apply.")) {
         xemu_settings_save();
         xemu_queue_notification("Audio engine changed. Restart xemu to apply it.");
     }
