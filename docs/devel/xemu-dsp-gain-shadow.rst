@@ -47,7 +47,10 @@ exercises all-fallback coverage and reports ``NO_COMPARISONS``.
 ``XEMU_DSP_GAIN_SHADOW_FAULT`` is an optional flattened word index 0..191;
 it flips one candidate bit for detection testing and never changes live data.
 
-On normal shutdown, one ``DSP_GAIN_SHADOW`` JSON record is written to stderr.
+At each paused, idle APU boundary a ``DSP_GAIN_SHADOW`` JSON snapshot is
+written to stderr. Device teardown also emits a snapshot when invoked;
+QMP quit does not necessarily unrealize the APU. The host uses the final
+quiescent snapshot and checks that counters never decrease between snapshots.
 It reports the fixed DSP authority, zero live native commits, admitted jobs,
 unrecognized/LLE-only frames and per-route native/fallback calls, compared
 and matching/differing words, matching/mismatching calls, diagnostic native

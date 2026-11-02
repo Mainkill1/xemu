@@ -388,6 +388,12 @@ static void mcpx_apu_vm_state_change(void *opaque, bool running, RunState state)
         dsp_capture_ring_mark_discontinuity(d->capture_ring);
 #endif
         mcpx_apu_wait_for_idle(d);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        if (d->gain_shadow) {
+            fprintf(stderr, "DSP_GAIN_SHADOW ");
+            dsp_gain_shadow_report(d->gain_shadow, stderr);
+        }
+#endif
         if (d->gp.dsp) {
             dsp_sync_to_vm(d->gp.dsp);
         }
