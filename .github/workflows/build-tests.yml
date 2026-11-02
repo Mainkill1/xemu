@@ -4,6 +4,114 @@ on:
   workflow_call:
 
 jobs:
+  dsp-xemu-replay:
+    name: Check xemu DSP capture and replay
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Download source package
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v4
+      with:
+        name: src
+    - name: Extract source package
+      run: |
+        mkdir src evidence
+        tar -xf xemu-*.tar.zst -C src --strip-components=2
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qy update
+        cd src
+        sudo apt-get -qy build-dep .
+    - name: Configure experimental recorder
+      working-directory: src
+      run: |
+        ./configure --target-list=i386-softmmu --disable-werror --extra-cflags=-DXBOX=1
+        ./build/pyvenv/bin/meson configure build -Dxemu_dsp_capture=true
+    - name: Run focused DSP tests
+      working-directory: src
+      run: ./build/pyvenv/bin/meson test -C build '*dsp*' --print-errorlogs
+    - name: Run seeded DMA boundary campaign
+      working-directory: src
+      run: |
+        python3 tests/xbox/mcpx-apu/dsp-boundary-fuzz.py run \
+          --worker build/dsp-replay-worker --seed 47 --count 24 \
+          --output ../evidence/boundary-campaign
+    - name: Compare synthetic DSP workloads across production engines
+      working-directory: src
+      run: |
+        for fixture in scratch fifo ep-sink; do
+          python3 tests/xbox/mcpx-apu/dsp-replay.py verify-engines \
+            --worker build/dsp-replay-worker --fixture "$fixture" \
+            --frames 9 --value 0x800000 --repeat 2 \
+            > "../evidence/engines-$fixture.json"
+        done
+    - name: Run seeded DSP engine comparisons
+      working-directory: src
+      run: |
+        python3 tests/xbox/mcpx-apu/dsp-engine-fuzz.py run \
+          --worker build/dsp-replay-worker --seed 89 --count 24 \
+          --output ../evidence/engine-campaign
+    - name: Record linked backend identity
+      working-directory: src
+      run: |
+        python3 - > ../evidence/xemu-dsp-replay.json <<'PY'
+        import pathlib, subprocess, sys, tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            state = pathlib.Path(tmp) / 'state.bin'
+            data = bytearray(41554)
+            data[:4] = b'XDJT'
+            data[4] = data[26] = data[-1] = 1
+            state.write_bytes(data)
+            result = subprocess.run([
+                sys.executable, 'tests/xbox/mcpx-apu/dsp-replay.py', 'verify-core',
+                '--worker', 'build/dsp-replay-worker', '--initial', str(state),
+                '--expected', str(state), '--steps', '5', '--repeat', '2'])
+            sys.exit(result.returncode)
+        PY
+    - name: Preserve replay evidence
+      if: always()
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+      with:
+        name: xemu-dsp-replay
+        path: evidence/
+        if-no-files-found: warn
+
+  dsp-upstream-goldens:
+    name: Check pinned upstream DSP hardware goldens
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Download source package
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v4
+      with:
+        name: src
+    - name: Extract source package
+      run: |
+        mkdir src evidence
+        tar -xf xemu-*.tar.zst -C src --strip-components=2
+    - name: Check out pinned upstream DSP
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      with:
+        repository: xemu-project/dsp56300
+        ref: b36db2c23ee2dd6e643f48e4dc6288074030e1a0
+        path: upstream-dsp
+        persist-credentials: false
+    - name: Build upstream golden harness
+      working-directory: upstream-dsp
+      run: |
+        rustup toolchain install 1.99.1 --profile minimal
+        cargo +1.99.1 build --locked --release -p dsp56300-emu --bin difftest
+    - name: Check step and block modes
+      run: |
+        python3 src/tests/xbox/mcpx-apu/dsp_upstream_goldens.py \
+          --checkout upstream-dsp --difftest upstream-dsp/target/release/difftest \
+          --report evidence/upstream-dsp-goldens.json
+    - name: Preserve baseline evidence
+      if: always()
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+      with:
+        name: upstream-dsp-goldens
+        path: evidence/
+        if-no-files-found: warn
+
   test:
     name: Run unit tests
     runs-on: ubuntu-22.04

@@ -43,6 +43,7 @@ endif
 dsp56300_dep = declare_dependency(
   link_args: [lib] + link_args,
   include_directories: include_directories(prefix / 'include'),
+  variables: {'xemu_fallback_archive': lib, 'xemu_fallback_version': ver},
 )
 
 meson.override_dependency('dsp56300-emu-ffi', dsp56300_dep)

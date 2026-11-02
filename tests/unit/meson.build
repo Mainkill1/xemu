@@ -600,6 +600,10 @@ test('test-xemu-version', find_program('test-xemu-version.sh'),
 
 test('test-vk-perf-summary', python,
      args: [files('test-vk-perf-summary.py')], suite: ['unit'])
+test('test-dsp-corpus', python,
+     args: [files('../xbox/mcpx-apu/test_dsp_corpus.py')], suite: ['unit'])
+test('test-dsp-upstream-goldens', python,
+     args: [files('../xbox/mcpx-apu/test_dsp_upstream_goldens.py')], suite: ['unit'])
 if build_machine.system() == 'linux'
   test('test-xemu-audio-state', python,
        args: [files('test-xemu-audio-state.py')], suite: ['unit'])

@@ -20,6 +20,11 @@
  */
 
 #include "apu_int.h"
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+#include "dsp/capture_ring.h"
+#include "dsp/capture_stream.h"
+#include "qemu/error-report.h"
+#endif
 
 MCPXAPUState *g_state; // Used via debug handlers
 
@@ -245,6 +250,16 @@ static void se_frame(MCPXAPUState *d)
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
 
     mcpx_apu_vp_frame(d, mixbins);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    if (d->capture_session && dsp_capture_session_active(d->capture_session)) {
+        mcpx_apu_capture_session_frame(d, d->capture_session, mixbins);
+        if (!dsp_capture_session_active(d->capture_session)) {
+            d->capture_ring = NULL;
+        }
+    } else if (d->capture_ring) {
+        mcpx_apu_capture_dsp_frame(d, d->capture_ring, d->capture_frame_id++, mixbins);
+    } else
+#endif
     mcpx_apu_dsp_frame(d, mixbins);
     mcpx_apu_monitor_frame(d);
 
@@ -319,6 +334,9 @@ static void mcpx_apu_resume(MCPXAPUState *d)
 
 static void mcpx_apu_reset_locked(MCPXAPUState *d)
 {
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
     memset(d->regs, 0, sizeof(d->regs));
 
     mcpx_apu_vp_reset(d);
@@ -352,6 +370,9 @@ static void mcpx_apu_vm_state_change(void *opaque, bool running, RunState state)
     if (!running) {
         bql_unlock();
         qemu_mutex_lock(&d->lock);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
         mcpx_apu_wait_for_idle(d);
         if (d->gp.dsp) {
             dsp_sync_to_vm(d->gp.dsp);
@@ -363,6 +384,9 @@ static void mcpx_apu_vm_state_change(void *opaque, bool running, RunState state)
         bql_lock();
     } else {
         qemu_mutex_lock(&d->lock);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+        dsp_capture_ring_mark_discontinuity(d->capture_ring);
+#endif
         if (d->gp.dsp) {
             dsp_sync_from_vm(d->gp.dsp);
         }
@@ -437,6 +461,44 @@ static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
     mcpx_apu_vp_init(d);
     mcpx_apu_dsp_init(d);
 
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    const char *capture_path = g_getenv("XEMU_DSP_CAPTURE_PATH");
+    if (capture_path && *capture_path) {
+        const char *setting = g_getenv("XEMU_DSP_CAPTURE_FRAMES");
+        const char *skip_setting = g_getenv("XEMU_DSP_CAPTURE_SKIP_FRAMES");
+        unsigned long count = 32;
+        unsigned long skip = 0;
+        bool valid = true;
+        if (setting) {
+            char *end;
+            errno = 0;
+            count = strtoul(setting, &end, 10);
+            valid = !errno && end != setting && !*end && count >= 1 && count <= 1024;
+        }
+        if (skip_setting) {
+            char *end;
+            errno = 0;
+            skip = strtoul(skip_setting, &end, 10);
+            valid = valid && !errno && end != skip_setting && !*end &&
+                    skip_setting[0] != '-' && skip <= 1000000;
+        }
+        if (valid) {
+            d->capture_session = dsp_capture_session_start(capture_path, count);
+            if (d->capture_session) {
+                bool configured = dsp_capture_session_set_skip(d->capture_session, skip);
+                g_assert(configured);
+                (void)configured;
+                mcpx_apu_capture_set_ring_locked(
+                    d, dsp_capture_session_ring(d->capture_session));
+            } else {
+                warn_report("Unable to start experimental DSP capture");
+            }
+        } else {
+            warn_report("Invalid experimental DSP capture frame or skip count");
+        }
+    }
+#endif
+
     Error *local_err = NULL;
     mcpx_apu_monitor_init(d, &local_err);
     if (local_err) {
@@ -463,6 +525,20 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
     bql_lock();
 
     qemu_thread_join(&d->apu_thread);
+#ifdef CONFIG_XEMU_DSP_CAPTURE
+    if (d->capture_session) {
+        DspCaptureWriterResult result;
+        DspCaptureSession *session = d->capture_session;
+        d->capture_session = NULL;
+        d->capture_ring = NULL;
+        bql_unlock();
+        dsp_capture_session_stop(session, &result);
+        bql_lock();
+        if (result.failed) {
+            warn_report("Experimental DSP capture writer failed; output is incomplete");
+        }
+    }
+#endif
     mcpx_apu_vp_finalize(d);
     mcpx_apu_monitor_finalize(d);
 }

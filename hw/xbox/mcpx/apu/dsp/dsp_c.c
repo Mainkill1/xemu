@@ -25,6 +25,7 @@
 
 #include "qemu/osdep.h"
 #include "dsp_internal.h"
+#include "dsp_capture.h"
 #include "interp/dsp_cpu.h"
 #include "debug.h"
 
@@ -175,10 +176,9 @@ static void dsp_c_invalidate_opcache(DSPState *dsp)
 /*
  * Sync: C interpreter -> DspCoreState (before VM save / debug)
  */
-static void dsp_c_sync_to_vm(DSPState *dsp)
+static void dsp_c_copy_to(DSPState *dsp, DspCoreState *vm)
 {
     dsp_core_t *core = c_core(dsp);
-    DspCoreState *vm = &dsp->core;
 
     vm->pc = core->pc;
     vm->cycle_count = core->cycle_count;
@@ -209,13 +209,17 @@ static void dsp_c_sync_to_vm(DSPState *dsp)
            sizeof(core->interrupt_is_pending));
 }
 
+static void dsp_c_sync_to_vm(DSPState *dsp)
+{
+    dsp_c_copy_to(dsp, &dsp->core);
+}
+
 /*
  * Sync: DspCoreState -> C interpreter (after VM load / engine switch)
  */
-static void dsp_c_sync_from_vm(DSPState *dsp)
+static void dsp_c_copy_from(DSPState *dsp, const DspCoreState *vm)
 {
     dsp_core_t *core = c_core(dsp);
-    DspCoreState *vm = &dsp->core;
 
     core->pc = vm->pc;
     core->cycle_count = vm->cycle_count;
@@ -246,6 +250,52 @@ static void dsp_c_sync_from_vm(DSPState *dsp)
            sizeof(core->interrupt_is_pending));
 
     memset(core->pram_opcache, 0, sizeof(core->pram_opcache));
+}
+
+static void dsp_c_sync_from_vm(DSPState *dsp)
+{
+    dsp_c_copy_from(dsp, &dsp->core);
+}
+
+bool dsp_c_capture(DSPState *dsp, DspCCapture *capture)
+{
+    if (!dsp || !capture || dsp->ops != &c_dsp_ops || !dsp->backend) {
+        return false;
+    }
+    memset(&capture->core, 0, sizeof(capture->core));
+    dsp_c_copy_to(dsp, &capture->core);
+    capture->save_cycles = dsp->save_cycles;
+    capture->configuration = dsp->dma.configuration;
+    capture->control = dsp->dma.control;
+    capture->start_block = dsp->dma.start_block;
+    capture->next_block = dsp->dma.next_block;
+    capture->dma_read_count = dsp->dma.dma_read_count;
+    capture->error = dsp->dma.error;
+    capture->eol = dsp->dma.eol;
+    capture->interrupts = dsp->interrupts;
+    capture->is_gp = dsp->is_gp;
+    capture->exception_debugging = c_core(dsp)->exception_debugging;
+    return true;
+}
+
+bool dsp_c_restore(DSPState *dsp, const DspCCapture *capture)
+{
+    if (!dsp || !capture || dsp->ops != &c_dsp_ops || !dsp->backend ||
+        dsp->is_gp != capture->is_gp) {
+        return false;
+    }
+    dsp_c_copy_from(dsp, &capture->core);
+    c_core(dsp)->exception_debugging = capture->exception_debugging;
+    dsp->save_cycles = capture->save_cycles;
+    dsp->dma.configuration = capture->configuration;
+    dsp->dma.control = capture->control;
+    dsp->dma.start_block = capture->start_block;
+    dsp->dma.next_block = capture->next_block;
+    dsp->dma.dma_read_count = capture->dma_read_count;
+    dsp->dma.error = capture->error;
+    dsp->dma.eol = capture->eol;
+    dsp->interrupts = capture->interrupts;
+    return true;
 }
 
 void dsp_c_init(DSPState *dsp)
