@@ -2,6 +2,15 @@
 
 This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
 
+For the November 1 implementation inventory, release availability, actual
+controls and retained performance limitations, start with the
+[current wiki status](https://github.com/Mainkill1/xemu/wiki/Current-Status),
+[stable versus main](https://github.com/Mainkill1/xemu/wiki/Releases-and-Main),
+[change register](https://github.com/Mainkill1/xemu/wiki/Current-Change-Register)
+and [measured results](https://github.com/Mainkill1/xemu/wiki/Measured-Results).
+The October comparison below describes its tested builds; the historical
+Full-Speed report remains preserved under its dated section.
+
 ## Support Development
 
 If you find this project useful, consider supporting its development.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Cycle 01 starts from the owner-accepted complete main foundation. Historical changes are included in the baseline; missing individual performance attribution remains unknown, not unaccepted.",
+  "scope": "Historical Cycle 01 foundation/#53 acceptance and #62 normalization record, not a complete current feature inventory. Historical changes are included in the baseline; missing individual performance attribution remains unknown, not unaccepted. Current post-September changes, source presence and stable/main availability are maintained at https://github.com/Mainkill1/xemu/wiki/Current-Change-Register.",
   "changes": [
     {
       "pr": "https://github.com/Mainkill1/xemu/pull/53",
