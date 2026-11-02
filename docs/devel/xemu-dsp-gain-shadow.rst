@@ -65,3 +65,49 @@ scheduling determines overlap; this is neither a CPU-parallelism benchmark
 nor an accelerated gameplay path. Candidate code uses only private words and
 does not call APU, DMA, FIFO or guest-memory APIs. Program/state ineligibility
 continues through ordinary DSP execution without a candidate submission.
+
+Fixed-work performance comparison
+---------------------------------
+
+On Linux, ``ninja -C build dsp-gain-bench`` builds an isolated benchmark
+linked to the production DSP/JIT and the exact ``dsp_gain_compute_route``
+kernel used by the worker. It accepts ``dsp|native program.bin input.bin
+expected.bin iterations warmup``. Inputs are 4096/64/192 little-endian
+24-bit words; the full original program identity is required.
+
+The DSP first executes the original program and validates every result and
+scratch export. For warm repetition, only the post-halt idle backedge at
+P:1238 changes from 1235 to zero. This branch did not execute before the
+original halt. No gain instructions change; the patched image is a separate
+benchmark artifact, not the original XISO program. An untimed instruction
+trace counts 588 guest instructions per repeated block, 193 in each route.
+Measured DSP execution uses the production block JIT, not single stepping.
+While halted, unused run-budget credit is drained to prevent accumulation.
+
+Each timed block feeds the 64 inputs, computes all 192 outputs, materializes
+one 768-byte scratch export and checks all 192 output and export words.
+Native uses the shared arithmetic kernel plus an explicit modeled export;
+it does not implement DSP registers, interrupts, scheduling or emulated
+DMA. This is an output/export projection comparison, not full-state HLE
+qualification. Both paths retain their real data transport costs. Validation
+and budget-management costs are included; startup and warmup are excluded.
+
+JSON reports process CPU ns, monotonic wall ns, cold setup/first block,
+warmup, blocks, checked words, exports/bytes, semantic gain results and the
+untimed guest instruction count. Semantic operations and guest instructions
+are not host machine instructions. Hardware ``perf`` counts, when available,
+need their own scope (for example the full worker process including setup).
+
+Current RSS and executable high water come from Linux ``/proc/self/status``
+``VmRSS``/``VmHWM``. ``getrusage`` high water is retained separately because
+it can include pre-exec launcher memory. These are isolated process costs;
+they do not predict memory savings when live DSP contexts remain allocated.
+
+The companion public fixture's ``bench_gain.py`` performs balanced ABBA/BAAB
+runs and validates work/counter contracts before computing CPU and wall cost
+per block. Its p95/p99 values describe batch-average cost per block, not
+individual block or game-frame tails. Raw CPU utilization may be near one
+full core for both routes; CPU time per equal completed work shows efficiency.
+The fixture's separate ``run_guest.py --resources`` records whole emulator
+launch/quit CPU and sampled memory for shadow on/off overhead. It includes
+boot and polling and cannot establish game cadence or audio performance.

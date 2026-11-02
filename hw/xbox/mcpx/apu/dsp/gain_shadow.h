@@ -5,6 +5,9 @@
 #include "dsp.h"
 
 typedef struct DspGainShadow DspGainShadow;
+/* Shared candidate kernel. Caller admits route 0..2 and 64 24-bit inputs. */
+void dsp_gain_compute_route(unsigned route, const uint32_t input[64],
+                            uint32_t output[64]);
 typedef struct DspGainRouteStats {
     uint64_t native_calls, fallback_calls, compared_words, matching_words;
     uint64_t differing_words, matched_calls, mismatched_calls, native_wall_ns;

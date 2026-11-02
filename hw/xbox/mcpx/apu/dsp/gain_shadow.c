@@ -20,6 +20,25 @@ struct DspGainShadow {
     DspGainShadowStats stats;
 };
 
+void dsp_gain_compute_route(unsigned route, const uint32_t input[64],
+                            uint32_t output[64])
+{
+    g_assert(route < 3);
+    for (unsigned i = 0; i < 64; i++) {
+        uint32_t word = input[i];
+        int64_t value = word & 0x800000 ? (int64_t)word - 0x1000000 : word;
+        if (route == 1) {
+            value = -value;
+        }
+        int64_t divisor = route == 2 ? 4 : 2;
+        int64_t result = value / divisor;
+        if (value < 0 && value % divisor) {
+            result--;
+        }
+        output[i] = (uint32_t)result & 0xffffff;
+    }
+}
+
 static void *gain_worker(void *opaque)
 {
     DspGainShadow *s = opaque;
@@ -38,20 +57,7 @@ static void *gain_worker(void *opaque)
                 continue;
             }
             int64_t start = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
-            for (unsigned i = 0; i < 64; i++) {
-                uint32_t word = s->input[i];
-                int64_t value =
-                    word & 0x800000 ? (int64_t)word - 0x1000000 : word;
-                if (route == 1) {
-                    value = -value;
-                }
-                int64_t divisor = route == 2 ? 4 : 2;
-                int64_t result = value / divisor;
-                if (value < 0 && value % divisor) {
-                    result--;
-                }
-                s->output[route * 64 + i] = (uint32_t)result & 0xffffff;
-            }
+            dsp_gain_compute_route(route, s->input, s->output + route * 64);
             s->elapsed[route] = qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - start;
         }
         if (s->fault >= 0 && (s->mask & (1u << (s->fault / 64)))) {

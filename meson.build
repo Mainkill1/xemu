@@ -4715,6 +4715,15 @@ foreach target : target_dirs
       build_by_default: false)
     test('test-xbox-dsp-replay-dma', dsp_replay_dma_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    executable('dsp-gain-bench',
+      files('tests/xbox/mcpx-apu/dsp-gain-bench.c') + dsp_capture_test_sources,
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
     dsp_replay_worker = executable('dsp-replay-worker',
       files('tests/xbox/mcpx-apu/dsp-replay-worker.c',
             'tests/xbox/mcpx-apu/dsp-capture-compare.c',
