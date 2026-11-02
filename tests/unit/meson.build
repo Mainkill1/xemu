@@ -249,6 +249,15 @@ if vulkan.found()
             xbox_i386_target_headers, volk, libglslang, vma, vulkan,
             spirv_reflect,
           ],
+          'test-xbox-gl-surface-dirty': [
+            meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+            nv2a_vk_runtime_prod, xbox_i386_target_headers,
+            gloffscreen, sdl, epoxy,
+          ],
+          'test-xbox-gl-surface-clear': [
+            nv2a_vk_runtime_prod, xbox_i386_target_headers,
+            gloffscreen, sdl, epoxy,
+          ],
         }
       endif
       tests += {

@@ -1133,8 +1133,20 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
     Surface *surface = color ? &pg->surface_color : &pg->surface_zeta;
 
+    SurfaceBinding *current_binding = color ? r->color_binding
+                                            : r->zeta_binding;
+    hwaddr dirty_size = entry.size;
+    /* A retained depth tail remains guest-visible between smaller draws. */
+    if (upload && !color && current_binding &&
+        current_binding->vram_addr == entry.vram_addr &&
+        current_binding->size > entry.size &&
+        !current_binding->swizzle && !entry.swizzle &&
+        current_binding->shape.anti_aliasing == entry.shape.anti_aliasing &&
+        check_surface_compatibility(current_binding, &entry, false)) {
+        dirty_size = current_binding->size;
+    }
     bool mem_dirty = !tcg_enabled() && memory_region_test_and_clear_dirty(
-                                           d->vram, entry.vram_addr, entry.size,
+                                           d->vram, entry.vram_addr, dirty_size,
                                            DIRTY_MEMORY_NV2A);
 
     if (upload && (surface->buffer_dirty || mem_dirty)) {
@@ -1209,18 +1221,43 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             }
 
             if (is_compatible && !color && r->color_binding) {
-                is_compatible &= (found->width == r->color_binding->width) &&
-                                 (found->height == r->color_binding->height);
+                bool same_extent =
+                    found->width == r->color_binding->width &&
+                    found->height == r->color_binding->height;
+                bool linear_cover =
+                    !found->swizzle && !r->color_binding->swizzle &&
+                    found->shape.anti_aliasing ==
+                        r->color_binding->shape.anti_aliasing &&
+                    found->width >= r->color_binding->width &&
+                    found->height >= r->color_binding->height;
+                is_compatible &= same_extent || linear_cover;
             }
 
             if (is_compatible) {
-                /* FIXME: Refactor */
-                pg->surface_binding_dim.width = found->width;
-                pg->surface_binding_dim.clip_x = found->shape.clip_x;
-                pg->surface_binding_dim.clip_width = found->shape.clip_width;
-                pg->surface_binding_dim.height = found->height;
-                pg->surface_binding_dim.clip_y = found->shape.clip_y;
-                pg->surface_binding_dim.clip_height = found->shape.clip_height;
+                /*
+                 * Reuse retains storage beyond the requested viewport.
+                 * Resolve guest writes there before a new GPU draw owns it.
+                 */
+                if (!color && found->size > dirty_size && !tcg_enabled()) {
+                    mem_dirty |= memory_region_test_and_clear_dirty(
+                        d->vram, found->vram_addr, found->size,
+                        DIRTY_MEMORY_NV2A);
+                }
+                /*
+                 * The color target defines the viewport even when depth
+                 * storage covers a larger region.
+                 */
+                if (color || !r->color_binding) {
+                    /* FIXME: Refactor */
+                    pg->surface_binding_dim.width = found->width;
+                    pg->surface_binding_dim.clip_x = found->shape.clip_x;
+                    pg->surface_binding_dim.clip_width =
+                        found->shape.clip_width;
+                    pg->surface_binding_dim.height = found->height;
+                    pg->surface_binding_dim.clip_y = found->shape.clip_y;
+                    pg->surface_binding_dim.clip_height =
+                        found->shape.clip_height;
+                }
                 found->upload_pending |= mem_dirty;
                 pg->surface_zeta.buffer_dirty |= color;
                 should_create = false;
@@ -1410,10 +1447,10 @@ void pgraph_gl_surface_update(NV2AState *d, bool upload, bool color_write,
         }
     }
 
-    // Sanity check color and zeta dimensions match
+    /* The depth attachment must cover the color viewport. */
     if (r->color_binding && r->zeta_binding) {
-        assert((r->color_binding->width == r->zeta_binding->width)
-               && (r->color_binding->height == r->zeta_binding->height));
+        assert(r->color_binding->width <= r->zeta_binding->width);
+        assert(r->color_binding->height <= r->zeta_binding->height);
     }
 
     surface_evict_old(d);
