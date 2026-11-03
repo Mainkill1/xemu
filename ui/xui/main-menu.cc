@@ -1095,8 +1095,10 @@ void MainMenuAudioView::Draw()
                      "Default\0JIT\0HLE (experimental)\0",
                      "Default uses the existing DSP settings. JIT runs the "
                      "DSP engines. Experimental HLE uses a native EP mixer for "
-                     "supported programs and falls back to DSP execution for "
-                     "other work. Full DSP replacement is not implemented. "
+                     "supported programs, accelerates an identified GP filter "
+                     "where supported, "
+                     "and falls back to DSP execution for other work. "
+                     "Full DSP replacement is not implemented. "
                      "Restart xemu to apply.")) {
         xemu_settings_save();
         xemu_queue_notification("Audio engine changed. Restart xemu to apply it.");

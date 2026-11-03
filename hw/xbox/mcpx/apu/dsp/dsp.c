@@ -145,6 +145,17 @@ DSPState *dsp_init(void *rw_opaque, dsp_scratch_rw_func scratch_rw,
     return dsp;
 }
 
+void dsp_request_gp_filter_hle(DSPState *dsp)
+{
+    if (!dsp->is_gp) {
+        return;
+    }
+    dsp->gp_filter_hle_requested = true;
+    if (dsp->ops == &jit_dsp_ops) {
+        dsp_jit_enable_gp_filter_hle(dsp);
+    }
+}
+
 void dsp_destroy(DSPState *dsp)
 {
     dsp_replay_cleanup(dsp);

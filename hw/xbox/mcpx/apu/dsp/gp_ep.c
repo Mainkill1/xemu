@@ -1029,6 +1029,9 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;
     d->gp.dsp = dsp_init(d, gp_scratch_rw, gp_fifo_rw, true);
+    if (d->audio_engine == AUDIO_ENGINE_HLE) {
+        dsp_request_gp_filter_hle(d->gp.dsp);
+    }
     dsp_set_halt_requested(d->gp.dsp, false);
     dsp_set_cycle_count(d->gp.dsp, 0);
 

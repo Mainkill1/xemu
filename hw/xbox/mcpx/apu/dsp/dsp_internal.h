@@ -26,5 +26,6 @@ void dsp_c_init(DSPState *dsp);
 
 extern const DSPOps jit_dsp_ops;
 void dsp_jit_init(DSPState *dsp);
+void dsp_jit_enable_gp_filter_hle(DSPState *dsp);
 
 #endif /* DSP_INTERNAL_H */

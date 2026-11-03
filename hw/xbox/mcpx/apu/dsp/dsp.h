@@ -96,6 +96,7 @@ typedef struct DspCoreState {
 
 struct DSPState {
     const DSPOps *ops;
+    bool gp_filter_hle_requested;
 
     DspCoreState core;
     DSPDMAState dma;
@@ -137,5 +138,6 @@ void dsp_sync_from_vm(DSPState *dsp);
 
 /* Engine switching */
 void dsp_set_engine(DSPState *dsp, bool use_jit);
+void dsp_request_gp_filter_hle(DSPState *dsp);
 
 #endif /* DSP_H */

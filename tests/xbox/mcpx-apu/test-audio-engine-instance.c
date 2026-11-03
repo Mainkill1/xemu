@@ -10,6 +10,8 @@ static void check_new_hle_instance(void)
     mcpx_apu_dsp_init(d);
     g_assert_cmpint(d->monitor.point, ==, MCPX_APU_DEBUG_MON_GP_OR_EP);
     g_assert_true(d->gp.realtime);
+    g_assert_true(d->gp.dsp->gp_filter_hle_requested);
+    g_assert_false(d->ep.dsp->gp_filter_hle_requested);
     g_assert_true(d->ep.realtime);
     g_assert_nonnull(d->ep.mix_observer);
     mcpx_apu_dsp_finalize(d);
@@ -24,6 +26,7 @@ static void check_jit_instance(void)
     d->audio_engine = AUDIO_ENGINE_JIT;
     mcpx_apu_dsp_init(d);
     g_assert_true(d->gp.realtime);
+    g_assert_false(d->gp.dsp->gp_filter_hle_requested);
     g_assert_true(d->ep.realtime);
     g_assert_null(d->ep.mix_observer);
     mcpx_apu_dsp_finalize(d);

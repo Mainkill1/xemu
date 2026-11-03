@@ -43,6 +43,9 @@ typedef struct JitBackend {
     uint32_t *pram;
     GPFilterHLE *filter_hle;
     bool filter_hle_ready;
+    bool filter_hle_stats;
+    uint64_t filter_hle_calls;
+    uint64_t filter_hle_samples;
 } JitBackend;
 
 static JitBackend *jit_be(DSPState *dsp)
@@ -102,6 +105,10 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
     if (be->filter_hle_ready &&
         gp_filter_hle_try_run(be->filter_hle, &cpu, be->xram, be->yram,
                               be->pram, cycles)) {
+        if (be->filter_hle_stats) {
+            be->filter_hle_calls++;
+            be->filter_hle_samples += cpu.registers[DSP_REG_R2] - start_input;
+        }
         /* The kernel changes no code; retain the compiled JIT cache. */
         dsp56300_set_state(be->jit, &cpu);
         trace_mcpx_apu_gp_filter_hle(start_pc,
@@ -365,6 +372,8 @@ static JitBackend *dsp_create_jit_backend(DSPState *dsp)
         },
     };
 
+    be->filter_hle_stats =
+        g_strcmp0(g_getenv("XEMU_GP_FILTER_HLE_STATS"), "1") == 0;
     be->jit = dsp56300_create(&info);
     return be;
 }
@@ -373,7 +382,8 @@ void dsp_jit_init(DSPState *dsp)
 {
     JitBackend *be = dsp_create_jit_backend(dsp);
 #if XEMU_GP_FILTER_HLE_ABI_0_1_3
-    if (dsp->is_gp && g_strcmp0(g_getenv("XEMU_GP_FILTER_HLE"), "1") == 0) {
+    if (dsp->is_gp && (dsp->gp_filter_hle_requested ||
+                       g_strcmp0(g_getenv("XEMU_GP_FILTER_HLE"), "1") == 0)) {
         be->filter_hle = gp_filter_hle_new();
     }
 #endif
@@ -385,9 +395,28 @@ void dsp_jit_init(DSPState *dsp)
     dsp->dma.mem_write = jit_dma_mem_write;
 }
 
+void dsp_jit_enable_gp_filter_hle(DSPState *dsp)
+{
+#if XEMU_GP_FILTER_HLE_ABI_0_1_3
+    JitBackend *be = jit_be(dsp);
+    if (dsp->is_gp && !be->filter_hle) {
+        be->filter_hle = gp_filter_hle_new();
+    }
+#else
+    (void)dsp;
+#endif
+}
+
 static void dsp_jit_finalize(DSPState *dsp)
 {
     JitBackend *be = jit_be(dsp);
+    if (dsp->is_gp && be->filter_hle_stats) {
+        fprintf(stderr,
+                "GP filter HLE: enabled=%d calls=%" PRIu64 " samples=%" PRIu64
+                "\n",
+                be->filter_hle != NULL, be->filter_hle_calls,
+                be->filter_hle_samples);
+    }
     gp_filter_hle_free(be->filter_hle);
     dsp56300_destroy(be->jit);
     g_free(be->xram);
