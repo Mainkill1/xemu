@@ -79,6 +79,40 @@ int main(void)
     failed |= check(ep_mix_shadow_status(0xc00390, &frame) == 0xc003d0,
                     "negative clipping status differs from JIT");
 
+    uint32_t before_stack[2][16], predicted_stack[2][16];
+    for (unsigned bank = 0; bank < 2; bank++) {
+        for (unsigned i = 0; i < 16; i++) {
+            before_stack[bank][i] = 0x510000 + bank * 0x100 + i;
+        }
+    }
+    ep_mix_shadow_stack(before_stack, 5, 0xc003d0, predicted_stack);
+    failed |=
+        check(predicted_stack[0][1] == 182 && predicted_stack[0][5] == 750 &&
+                  predicted_stack[1][1] == 0xc003d4 &&
+                  predicted_stack[1][5] == 0xc003d0 &&
+                  predicted_stack[1][6] == before_stack[1][6],
+              "phase 5 stack prediction differs from JIT");
+    ep_mix_shadow_stack(before_stack, 0, 0xc00390, predicted_stack);
+    failed |= check(predicted_stack[1][1] == 0xc00399 &&
+                        predicted_stack[1][2] == 0xc00394 &&
+                        predicted_stack[1][3] == 0,
+                    "phase 0 stack prediction differs from JIT");
+    for (unsigned phase = 0; phase < 6; phase++) {
+        ep_mix_shadow_stack(before_stack, phase, 0xc00390, predicted_stack);
+        for (unsigned bank = 0; bank < 2; bank++) {
+            for (unsigned i = 0; i < 16; i++) {
+                if (i == 0 || i >= 6) {
+                    failed |=
+                        check(predicted_stack[bank][i] == before_stack[bank][i],
+                              "unwritten stack entry changed");
+                }
+            }
+        }
+        failed |=
+            check(predicted_stack[1][1] == (phase == 5 ? 0xc00394 : 0xc00399),
+                  "stack phase prediction differs from JIT");
+    }
+
     /* Each channel sum lands exactly halfway between two 24-bit values. */
     for (unsigned i = 0; i < 256; i++) {
         uint32_t seed = 1 ^ (i * UINT32_C(0x9e3779b9));

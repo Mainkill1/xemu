@@ -102,6 +102,21 @@ static inline uint32_t ep_mix_shadow_status(uint32_t before,
            (frame->negative_clip ? 0x40 : 0);
 }
 
+/* Stack projection for the identified EP program, used only by the shadow. */
+static inline void ep_mix_shadow_stack(const uint32_t before[2][16],
+                                       unsigned phase, uint32_t status,
+                                       uint32_t after[2][16])
+{
+    static const uint32_t addresses[5] = { 182, 968, 0, 485, 750 };
+    uint32_t flags[5] = { status | (phase == 5 ? 4 : 9), status | 4, 0,
+                          status | 4, status };
+    memcpy(after, before, sizeof(uint32_t) * 2 * 16);
+    for (unsigned i = 0; i < 5; i++) {
+        after[0][i + 1] = addresses[i];
+        after[1][i + 1] = flags[i];
+    }
+}
+
 static inline bool ep_mix_hle(const uint32_t input[5][256],
                               uint8_t output[1024])
 {

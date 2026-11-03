@@ -39,6 +39,7 @@ typedef struct EPMixObserver {
     uint64_t frames, backend_skips, unknown_program, bad_overlay;
     uint64_t unexpected_scratch, unexpected_fifo, incomplete;
     uint64_t status_matched, status_mismatched;
+    uint64_t stack_matched, stack_mismatched;
     char last_program_digest[65];
 } EPMixObserver;
 
@@ -68,6 +69,7 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " matched_words=%" PRIu64 " mismatched_words=%" PRIu64
             " matched_pram_words=%" PRIu64 " mismatched_pram_words=%" PRIu64
             " status_matched=%" PRIu64 " status_mismatched=%" PRIu64
+            " stack_matched=%" PRIu64 " stack_mismatched=%" PRIu64
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
             " unexpected_fifo=%" PRIu64 " incomplete=%" PRIu64
@@ -77,6 +79,7 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             s->mismatched_samples, s->matched_words, s->mismatched_words,
             s->matched_pram_words, s->mismatched_pram_words,
             o->status_matched, o->status_mismatched,
+            o->stack_matched, o->stack_mismatched,
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
             o->last_program_digest);
@@ -120,6 +123,15 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
                 o->status_matched++;
             } else {
                 o->status_mismatched++;
+            }
+            uint32_t expected_stack[2][16];
+            ep_mix_shadow_stack(o->before.cpu.stack, o->shadow.before_phase,
+                                expected, expected_stack);
+            if (!memcmp(expected_stack, o->after.cpu.stack,
+                        sizeof(expected_stack))) {
+                o->stack_matched++;
+            } else {
+                o->stack_mismatched++;
             }
         }
     }
