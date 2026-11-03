@@ -1,7 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/dsp/dsp.h"
+#include "hw/xbox/mcpx/apu/dsp/dsp-jit-state.h"
 #include "ui/xemu-settings.h"
+
+static unsigned invalidate_count;
+void __real_dsp56300_invalidate_cache(Dsp56300Jit *dsp);
+void __wrap_dsp56300_invalidate_cache(Dsp56300Jit *dsp)
+{
+    invalidate_count++;
+    __real_dsp56300_invalidate_cache(dsp);
+}
 
 static void unexpected_scratch(void *opaque, uint8_t *ptr, uint32_t addr,
                                size_t len, bool dir)
@@ -60,10 +69,36 @@ static void test_export(gconstpointer opaque)
     dsp_destroy(dsp);
 }
 
+static void test_native_data_restore(void)
+{
+    g_config.audio.use_dsp_jit = true;
+    DSPState *dsp = dsp_init(NULL, unexpected_scratch, unexpected_fifo, true);
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *actual = g_new0(DSPJitState, 1);
+    g_assert_true(dsp_jit_get_native_state(dsp, state));
+    unsigned before = invalidate_count;
+    state->xram[5] = 0x123456;
+    g_assert_true(dsp_jit_set_native_data_state(dsp, state));
+    g_assert_cmpuint(invalidate_count, ==, before);
+    g_assert_true(dsp_jit_get_native_state(dsp, actual));
+    g_assert_cmphex(actual->xram[5], ==, 0x123456);
+    state->pram[2] ^= 1;
+    state->xram[5] = 0xabcdef;
+    g_assert_false(dsp_jit_set_native_data_state(dsp, state));
+    g_assert_cmpuint(invalidate_count, ==, before);
+    g_assert_true(dsp_jit_get_native_state(dsp, actual));
+    g_assert_cmphex(actual->xram[5], ==, 0x123456);
+    g_assert_true(dsp_jit_set_native_state(dsp, state));
+    g_assert_cmpuint(invalidate_count, ==, before + 1);
+    dsp_destroy(dsp);
+}
+
 int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/mcpx-apu/dsp-export/native-data-restore",
+                    test_native_data_restore);
     for (unsigned i = 0; i < 6; i++) {
         g_autofree char *name = g_strdup_printf(
             "/mcpx-apu/dsp-export/%s-polls-%u", i >= 3 ? "jit" : "c", i % 3);

@@ -26,7 +26,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     data->is_gp = true;
     data->realtime = true;
     data->calls = 1;
-    g_assert_false(dsp_replay_verify_gp_hle(data, true, &stats, &err));
+    g_assert_false(dsp_replay_verify_gp_hle(data, true, true, &stats, &err));
     g_assert_nonnull(err);
     g_assert_cmpuint(stats.feedback_calls, ==, 0);
     g_assert_cmpuint(stats.mix2_calls, ==, 0);
@@ -35,7 +35,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.native_cycles, ==, 0);
     error_free(err);
     err = NULL;
-    g_assert_false(dsp_replay_verify_gp_hle(data, false, &stats, &err));
+    g_assert_false(dsp_replay_verify_gp_hle(data, false, true, &stats, &err));
     g_assert_nonnull(err);
     error_free(err);
     dsp_replay_case_free(data);
@@ -953,6 +953,7 @@ int __wrap_main(int argc, char **argv)
     if (argc == 3 &&
         (!strcmp(argv[1], "--replay") || !strcmp(argv[1], "--replay-gp-step") ||
          !strcmp(argv[1], "--replay-gp-hle") ||
+         !strcmp(argv[1], "--replay-gp-hle-clear") ||
          !strcmp(argv[1], "--replay-gp-feedback") ||
          !strcmp(argv[1], "--replay-native-ep") ||
          !strcmp(argv[1], "--native-ep-guard"))) {
@@ -960,18 +961,19 @@ int __wrap_main(int argc, char **argv)
         DSPReplayCase *data = dsp_replay_load_case(argv[2], &err);
         bool native = !strcmp(argv[1], "--replay-native-ep");
         bool stepped = !strcmp(argv[1], "--replay-gp-step");
+        bool clear_cache = !strcmp(argv[1], "--replay-gp-hle-clear");
         bool feedback = !strcmp(argv[1], "--replay-gp-feedback") ||
-                        !strcmp(argv[1], "--replay-gp-hle");
+                        !strcmp(argv[1], "--replay-gp-hle") || clear_cache;
         bool guard = !strcmp(argv[1], "--native-ep-guard");
         DSPGPReplayStats stats = { 0 };
         bool matched =
-            data &&
-            (guard ? (!data->is_gp && data->realtime &&
-                      ep_native_entry_guard(&data->before)) :
-             (feedback || stepped) ?
-                     dsp_replay_verify_gp_hle(data, feedback, &stats, &err) :
-             native ? dsp_replay_verify_native_ep(data, &err) :
-                      dsp_replay_verify_case(data, &err));
+            data && (guard ? (!data->is_gp && data->realtime &&
+                              ep_native_entry_guard(&data->before)) :
+                     (feedback || stepped) ?
+                             dsp_replay_verify_gp_hle(
+                                 data, feedback, !clear_cache, &stats, &err) :
+                     native ? dsp_replay_verify_native_ep(data, &err) :
+                              dsp_replay_verify_case(data, &err));
         g_autofree char *program = NULL;
         uint64_t payload = 0;
         if (data) {

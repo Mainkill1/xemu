@@ -45,7 +45,8 @@ typedef struct DSPGPReplayStats {
 } DSPGPReplayStats;
 /* Offline stepped replay; excludes run-loop cycle budget from comparison. */
 bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
-                              DSPGPReplayStats *stats, Error **errp);
+                              bool preserve_cache, DSPGPReplayStats *stats,
+                              Error **errp);
 /* Offline comparison only; this does not authorize serving native output. */
 bool dsp_replay_verify_native_ep(DSPReplayCase *data, Error **errp);
 bool dsp_replay_take_snapshot(DSPState *dsp, DSPReplaySnapshot *snapshot);

@@ -4742,7 +4742,7 @@ foreach target : target_dirs
       objects: lib.extract_all_objects(recursive: true),
       include_directories: target_inc,
       link_depends: [block_syms, qemu_syms],
-      link_args: link_args + ['-Wl,--wrap=main'],
+      link_args: link_args + ['-Wl,--wrap=main', '-Wl,--wrap=dsp56300_invalidate_cache'],
       build_by_default: false)
     test('test-xbox-mcpx-apu-dsp-snapshot', dsp_snapshot_test,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])

@@ -428,6 +428,22 @@ bool dsp_jit_set_native_state(DSPState *dsp, const DSPJitState *state)
     return true;
 }
 
+bool dsp_jit_set_native_data_state(DSPState *dsp, const DSPJitState *state)
+{
+    if (dsp->ops != &jit_dsp_ops) {
+        return false;
+    }
+    JitBackend *be = jit_be(dsp);
+    if (memcmp(be->pram, state->pram, sizeof(state->pram))) {
+        return false;
+    }
+    memcpy(be->xram, state->xram, sizeof(state->xram));
+    memcpy(be->yram, state->yram, sizeof(state->yram));
+    dsp56300_set_state(be->jit, &state->cpu);
+    be->filter_hle_ready = false;
+    return true;
+}
+
 const DSPOps jit_dsp_ops = {
     .finalize = dsp_jit_finalize,
     .reset = dsp_jit_reset,

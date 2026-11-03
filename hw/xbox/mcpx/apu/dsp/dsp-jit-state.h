@@ -18,5 +18,7 @@ typedef struct DSPJitState {
  */
 bool dsp_jit_get_native_state(DSPState *dsp, DSPJitState *state);
 bool dsp_jit_set_native_state(DSPState *dsp, const DSPJitState *state);
+/* Reject program changes before writing anything; retain compiled code. */
+bool dsp_jit_set_native_data_state(DSPState *dsp, const DSPJitState *state);
 
 #endif

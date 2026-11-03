@@ -671,7 +671,8 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
 }
 
 bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
-                              DSPGPReplayStats *stats, Error **errp)
+                              bool preserve_cache, DSPGPReplayStats *stats,
+                              Error **errp)
 {
     if (stats) {
         *stats = (DSPGPReplayStats){ 0 };
@@ -721,7 +722,10 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         bool add =
             stable && state->cpu.pc == 0x4a0 && gp_add_project(state, next);
         if (feedback || mix2 || add) {
-            if (!dsp_jit_set_native_state(dsp, next)) {
+            bool restored = preserve_cache ?
+                                dsp_jit_set_native_data_state(dsp, next) :
+                                dsp_jit_set_native_state(dsp, next);
+            if (!restored) {
                 error_setg(&cursor.error, "GP replay state restore failed");
                 break;
             }
