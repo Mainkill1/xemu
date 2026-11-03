@@ -108,6 +108,13 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
         if (be->filter_hle_stats) {
             be->filter_hle_calls++;
             be->filter_hle_samples += cpu.registers[DSP_REG_R2] - start_input;
+            if (be->filter_hle_calls == 1 ||
+                be->filter_hle_calls % 10000 == 0) {
+                fprintf(stderr,
+                        "GP filter HLE: calls=%" PRIu64 " samples=%" PRIu64
+                        "\n",
+                        be->filter_hle_calls, be->filter_hle_samples);
+            }
         }
         /* The kernel changes no code; retain the compiled JIT cache. */
         dsp56300_set_state(be->jit, &cpu);
