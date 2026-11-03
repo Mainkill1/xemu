@@ -37,6 +37,58 @@ int main(void)
     }
     failed |= check(hash == UINT64_C(0xaca2d1270610fbb9),
                     "EP mix differs from synthetic JIT output");
+    EPMixFrame frame;
+    failed |= check(ep_mix_frame_hle(input, &frame), "EP frame mix rejected");
+    hash = UINT64_C(14695981039346656037);
+    for (unsigned ch = 0; ch < 2; ch++) {
+        for (unsigned i = 0; i < 256; i++) {
+            uint32_t word = frame.mixed[ch][i];
+            for (unsigned b = 0; b < 4; b++) {
+                hash = (hash ^ ((word >> (8 * b)) & 0xff)) *
+                       UINT64_C(1099511628211);
+            }
+        }
+    }
+    failed |= check(hash == UINT64_C(0xf1289de92c1dc857),
+                    "EP mixed XRAM differs from synthetic JIT output");
+
+    /* Each channel sum lands exactly halfway between two 24-bit values. */
+    for (unsigned i = 0; i < 256; i++) {
+        uint32_t seed = 1 ^ (i * UINT32_C(0x9e3779b9));
+        int32_t sources[3];
+        for (unsigned j = 0; j < 3; j++) {
+            seed ^= seed << 13;
+            seed ^= seed >> 17;
+            seed ^= seed << 5;
+            sources[j] = (int32_t)(seed % 500001) - 250000;
+        }
+        int32_t fronts[2];
+        for (unsigned j = 0; j < 2; j++) {
+            int64_t t = (int64_t)0x5a8279 * (sources[0] + sources[j + 1]) -
+                        (INT64_C(1) << 22);
+            fronts[j] = (uint64_t)t & 0x7fffff;
+            if ((seed >> j) & 1) {
+                fronts[j] -= 0x800000;
+            }
+        }
+        int32_t words[5] = { fronts[0], sources[0], fronts[1], sources[1],
+                             sources[2] };
+        for (unsigned ch = 0; ch < 5; ch++) {
+            input[ch][i] = (uint32_t)words[ch] & 0xffffff;
+        }
+    }
+    failed |= check(ep_mix_frame_hle(input, &frame), "EP tie frame rejected");
+    hash = UINT64_C(14695981039346656037);
+    for (unsigned ch = 0; ch < 2; ch++) {
+        for (unsigned i = 0; i < 256; i++) {
+            for (unsigned b = 0; b < 4; b++) {
+                hash = (hash ^ ((frame.mixed[ch][i] >> (8 * b)) & 0xff)) *
+                       UINT64_C(1099511628211);
+            }
+        }
+    }
+    failed |= check(hash == UINT64_C(0x2bb9e797bc27af01),
+                    "EP rounding ties differ from JIT");
 
     memset(output, 0x5a, sizeof(output));
     memcpy(unchanged, output, sizeof(output));

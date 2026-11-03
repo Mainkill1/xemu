@@ -48,7 +48,8 @@ control and makes no claim about the rest of the GP or EP program.
 ``XEMU_EP_MIX_SHADOW=1`` enables a separate EP diagnostic for one identified
 program and loaded overlay. It collects the observed scratch inputs and the
 FIFO output into private storage and compares a guarded five-channel stereo
-prediction with the DSP output. Unknown program/overlay identities, changed
+prediction with the DSP output and the input/mixed XRAM buffers. Unknown
+program/overlay identities, changed
 programs and unexpected I/O sequences are excluded. It counts matched and
 nonzero frames and individual matching/mismatching samples. The prediction
 is not used for playback and does not cover other EP state or side effects.

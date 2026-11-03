@@ -19,10 +19,15 @@ static inline int64_t ep_mix_floor_shift(int64_t value, unsigned bits)
 
 /* Private 5-channel to stereo prediction for one verified EP program and
  * overlay. The caller must verify both identities and the input ordering. */
-static inline bool ep_mix_hle(const uint32_t input[5][256],
-                              uint8_t output[1024])
+typedef struct EPMixFrame {
+    uint32_t mixed[2][256];
+    uint8_t pcm[1024];
+} EPMixFrame;
+
+static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
+                                    EPMixFrame *output)
 {
-    uint8_t result[1024];
+    EPMixFrame result;
     if (!input || !output) {
         return false;
     }
@@ -38,17 +43,31 @@ static inline bool ep_mix_hle(const uint32_t input[5][256],
             int32_t front = samples[ch ? 2 : 0];
             int32_t surround = samples[ch ? 4 : 3];
             int64_t sum = (int64_t)front * 0x7fffff +
-                          ((int64_t)samples[1] + surround) * 0x5a8279 +
-                          (INT64_C(1) << 22);
-            int64_t q23 = ep_mix_floor_shift(sum, 23);
+                          ((int64_t)samples[1] + surround) * 0x5a8279;
+            int64_t q23 = ep_mix_floor_shift(sum + (INT64_C(1) << 22), 23);
+            if (((uint64_t)sum & 0x7fffff) == 0x400000 && q23 % 2 != 0) {
+                q23--;
+            }
             q23 = q23 < -0x800000 ? -0x800000 : q23 > 0x7fffff ? 0x7fffff : q23;
+            result.mixed[ch][i] = (uint32_t)q23 & 0xffffff;
             uint16_t sample = (uint16_t)ep_mix_floor_shift(q23, 8);
             unsigned offset = 4 * i + 2 * ch;
-            result[offset] = sample;
-            result[offset + 1] = sample >> 8;
+            result.pcm[offset] = sample;
+            result.pcm[offset + 1] = sample >> 8;
         }
     }
-    memcpy(output, result, sizeof(result));
+    *output = result;
+    return true;
+}
+
+static inline bool ep_mix_hle(const uint32_t input[5][256],
+                              uint8_t output[1024])
+{
+    EPMixFrame frame;
+    if (!output || !ep_mix_frame_hle(input, &frame)) {
+        return false;
+    }
+    memcpy(output, frame.pcm, sizeof(frame.pcm));
     return true;
 }
 #endif

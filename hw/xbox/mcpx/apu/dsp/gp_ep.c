@@ -35,10 +35,12 @@ static const int16_t ep_silence[256][2] = { 0 };
 typedef struct EPMixObserver {
     EPMixShadow shadow;
     DSPJitState before, after;
-    uint64_t frames, backend_skips;
+    uint64_t frames, backend_skips, unknown_program, bad_overlay;
+    uint64_t unexpected_scratch, unexpected_fifo, incomplete;
+    char last_program_digest[65];
 } EPMixObserver;
 
-static bool ep_mix_program_known(const uint32_t *pram, bool after)
+static bool ep_mix_program_known(const uint32_t *pram, bool after, char *digest_out)
 {
     uint32_t canonical[DSP_PRAM_SIZE];
     for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
@@ -46,6 +48,9 @@ static bool ep_mix_program_known(const uint32_t *pram, bool after)
     }
     g_autofree char *digest = g_compute_checksum_for_data(
         G_CHECKSUM_SHA256, (const uint8_t *)canonical, sizeof(canonical));
+    if (digest_out) {
+        g_strlcpy(digest_out, digest, 65);
+    }
     bool post = !strcmp(digest,
         "584ba1148b0fbdc7610fe004b4cb858405356538a4f8d67cf8c3734eb5bd1aec");
     return post || (!after && !strcmp(digest,
@@ -60,10 +65,17 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " invalidated=%" PRIu64 " matched_frames=%" PRIu64
             " nonzero_matched_frames=%" PRIu64 " mismatched_frames=%" PRIu64
             " matched_samples=%" PRIu64 " mismatched_samples=%" PRIu64
-            " backend_skips=%" PRIu64 "\n", o->frames, s->attempted,
+            " matched_words=%" PRIu64 " mismatched_words=%" PRIu64
+            " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
+            " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
+            " unexpected_fifo=%" PRIu64 " incomplete=%" PRIu64
+            " last_program_sha256=%s\n", o->frames, s->attempted,
             s->eligible, s->skipped, s->invalidated, s->matched,
             s->nonzero_matched, s->mismatched, s->matched_samples,
-            s->mismatched_samples, o->backend_skips);
+            s->mismatched_samples, s->matched_words, s->mismatched_words,
+            o->backend_skips, o->unknown_program, o->bad_overlay,
+            o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
+            o->last_program_digest);
 }
 
 static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime)
@@ -78,7 +90,10 @@ static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime
         o->backend_skips++;
         return;
     }
-    ep_mix_shadow_begin(&o->shadow, ep_mix_program_known(o->before.pram, false));
+    bool known = ep_mix_program_known(o->before.pram, false,
+                                      o->last_program_digest);
+    o->unknown_program += !known;
+    ep_mix_shadow_begin(&o->shadow, known);
 }
 
 static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
@@ -87,8 +102,10 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
         return;
     }
     bool valid = dsp_jit_get_native_state(dsp, &o->after);
-    ep_mix_shadow_finish(&o->shadow,
-                         valid && ep_mix_program_known(o->after.pram, true));
+    uint64_t skipped_before = o->shadow.skipped;
+    ep_mix_shadow_finish(&o->shadow, valid ? o->after.xram : NULL,
+                         valid && ep_mix_program_known(o->after.pram, true, NULL));
+    o->incomplete += o->shadow.skipped - skipped_before;
 }
 
 static void ep_mix_observer_scratch(EPMixObserver *o, uint32_t addr,
@@ -98,17 +115,26 @@ static void ep_mix_observer_scratch(EPMixObserver *o, uint32_t addr,
         return;
     }
     if (dir) {
+        o->unexpected_scratch++;
         ep_mix_shadow_reject(&o->shadow);
         return;
     }
     bool known = false;
-    if (!o->shadow.stage && len == 804) {
+    bool checking_overlay = !o->shadow.stage && len == 804;
+    if (checking_overlay) {
         g_autofree char *digest = g_compute_checksum_for_data(
             G_CHECKSUM_SHA256, ptr, len);
         known = !strcmp(digest,
             "68da34164ce85698200097ee113446181ee6381aacc3a499ea1ca5c5d058a9d3");
     }
     ep_mix_shadow_read(&o->shadow, addr, ptr, len, known);
+    if (!o->shadow.armed) {
+        if (checking_overlay && !known) {
+            o->bad_overlay++;
+        } else {
+            o->unexpected_scratch++;
+        }
+    }
 }
 
 typedef struct GPProgramObserver {
@@ -389,6 +415,9 @@ static void ep_fifo_rw(void *opaque, uint8_t *ptr, unsigned int index,
             ep_mix_shadow_write(&d->ep.mix_observer->shadow, index, ptr, len);
         } else {
             ep_mix_shadow_reject(&d->ep.mix_observer->shadow);
+        }
+        if (!d->ep.mix_observer->shadow.armed) {
+            d->ep.mix_observer->unexpected_fifo++;
         }
     }
     uint32_t base;

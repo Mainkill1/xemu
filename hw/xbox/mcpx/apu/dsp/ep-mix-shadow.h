@@ -18,6 +18,7 @@ typedef struct EPMixShadow {
     uint64_t attempted, eligible, skipped, invalidated;
     uint64_t matched, nonzero_matched, mismatched;
     uint64_t matched_samples, mismatched_samples;
+    uint64_t matched_words, mismatched_words;
 } EPMixShadow;
 
 /* The caller checks the program identity before starting a comparison. */
@@ -90,27 +91,39 @@ static inline void ep_mix_shadow_write(EPMixShadow *s, unsigned fifo_index,
     s->stage = 7;
 }
 
-static inline void ep_mix_shadow_finish(EPMixShadow *s,
+static inline void ep_mix_shadow_finish(EPMixShadow *s, const uint32_t *xram,
                                         bool program_after_known)
 {
     if (!s || !s->armed)
         return;
     s->armed = false;
-    if (!program_after_known) {
+    if (!program_after_known || !xram) {
         s->invalidated++;
         return;
     }
-    uint8_t expected[1024];
-    if (s->stage != 7 || !ep_mix_hle(s->input, expected)) {
+    EPMixFrame expected;
+    if (s->stage != 7 || !ep_mix_frame_hle(s->input, &expected)) {
         s->skipped++;
         return;
     }
     s->eligible++;
     bool nonzero = false, matches = true;
+    for (unsigned ch = 0; ch < 7; ch++) {
+        for (unsigned i = 0; i < 256; i++) {
+            uint32_t word =
+                ch < 5 ? s->input[ch][i] : expected.mixed[ch - 5][i];
+            if (word == xram[ch * 256 + i]) {
+                s->matched_words++;
+            } else {
+                s->mismatched_words++;
+                matches = false;
+            }
+        }
+    }
     for (unsigned i = 0; i < 512; i++) {
-        bool same = expected[2 * i] == s->actual[2 * i] &&
-                    expected[2 * i + 1] == s->actual[2 * i + 1];
-        nonzero |= expected[2 * i] != 0 || expected[2 * i + 1] != 0;
+        bool same = expected.pcm[2 * i] == s->actual[2 * i] &&
+                    expected.pcm[2 * i + 1] == s->actual[2 * i + 1];
+        nonzero |= expected.pcm[2 * i] != 0 || expected.pcm[2 * i + 1] != 0;
         if (same)
             s->matched_samples++;
         else {
