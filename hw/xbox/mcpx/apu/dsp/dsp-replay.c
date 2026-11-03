@@ -783,6 +783,57 @@ DSPReplayNativeResult dsp_replay_native_dma_sequence(DSPState *dsp,
     return DSP_REPLAY_NATIVE_DONE;
 }
 
+DSPReplayNativeResult
+dsp_replay_native_dma_stopfreeze(DSPState *dsp, const DSPJitState *before,
+                                 DSPJitState *scratch, bool preserve_cache,
+                                 Error **errp)
+{
+    static const uint32_t words[8] = {
+        0x08f496, 2, 0x0cd624, 0, 0x08f496, 3, 0x0cd603, 0,
+    };
+    if (!dsp || !before || !scratch || before == scratch) {
+        return DSP_REPLAY_NATIVE_SKIPPED;
+    }
+    const Dsp56300State *cpu = &before->cpu;
+    uint32_t pc = cpu->pc;
+    if (pc > DSP_PRAM_SIZE - ARRAY_SIZE(words) ||
+        memcmp(before->pram + pc, words, sizeof(words)) || cpu->pc_on_rep ||
+        cpu->loop_rep || cpu->halt_requested || cpu->power_state ||
+        cpu->interrupts.pending_bits[0] || cpu->interrupts.pending_bits[1] ||
+        cpu->interrupts.pipeline_stage || cpu->interrupts.state ||
+        cpu->interrupts.ipl_to_raise ||
+        ((cpu->registers[DSP_REG_SR] & (1U << DSP_SR_LF)) &&
+         cpu->registers[DSP_REG_LA] >= pc &&
+         cpu->registers[DSP_REG_LA] < pc + ARRAY_SIZE(words)) ||
+        dsp->dma.control != DMA_CONTROL_RUNNING ||
+        dsp->dma.dma_read_count != 1 || dsp->dma.eol || dsp->dma.error) {
+        return DSP_REPLAY_NATIVE_SKIPPED;
+    }
+    /* Stopping clears RUNNING before the DMA engine is invoked; freezing the
+     * stopped controller likewise cannot initiate a transfer. */
+    write_peripheral(dsp, 0xffffd6, DMA_CONTROL_ACTION_STOP);
+    uint32_t stopped = read_peripheral(dsp, 0xffffd6);
+    write_peripheral(dsp, 0xffffd6, DMA_CONTROL_ACTION_FREEZE);
+    uint32_t frozen = read_peripheral(dsp, 0xffffd6);
+    if ((stopped & DMA_CONTROL_RUNNING) || !(frozen & DMA_CONTROL_FROZEN)) {
+        error_setg(errp,
+                   "Native DMA stop/freeze observed unexpected control state");
+        return DSP_REPLAY_NATIVE_FAILED;
+    }
+    *scratch = *before;
+    scratch->cpu.pc = pc + ARRAY_SIZE(words);
+    scratch->cpu.pc_advance = 2;
+    scratch->cpu.cycle_count = cpu->cycle_count + 16;
+    bool restored = preserve_cache ?
+                        dsp_jit_set_native_data_state(dsp, scratch) :
+                        dsp_jit_set_native_state(dsp, scratch);
+    if (!restored) {
+        error_setg(errp, "Native DMA stop/freeze could not restore CPU state");
+        return DSP_REPLAY_NATIVE_FAILED;
+    }
+    return DSP_REPLAY_NATIVE_DONE;
+}
+
 bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
                               bool preserve_cache, DSPGPReplayStats *stats,
                               Error **errp)
@@ -822,6 +873,30 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         if (!dsp_jit_get_native_state(dsp, state)) {
             error_setg(&cursor.error, "GP replay state unavailable");
             break;
+        }
+        bool stopfreeze_pc = state->cpu.pc == 0x10a || state->cpu.pc == 0x8d1 ||
+                             state->cpu.pc == 0x9c1 || state->cpu.pc == 0xa3d ||
+                             state->cpu.pc == 0xab9 || state->cpu.pc == 0xb35;
+        if (enable_native && stopfreeze_pc &&
+            !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram))) {
+            Error *native_error = NULL;
+            DSPReplayNativeResult result = dsp_replay_native_dma_stopfreeze(
+                dsp, state, next, preserve_cache, &native_error);
+            if (native_error) {
+                if (cursor.error) {
+                    error_free(native_error);
+                } else {
+                    cursor.error = native_error;
+                }
+            }
+            if (result == DSP_REPLAY_NATIVE_FAILED || cursor.error) {
+                break;
+            }
+            if (result == DSP_REPLAY_NATIVE_DONE) {
+                executed.dma_stopfreeze_calls++;
+                executed.native_cycles += 16;
+                continue;
+            }
         }
         bool sequence_pc = state->cpu.pc == 0x118 || state->cpu.pc == 0x8df ||
                            state->cpu.pc == 0x9cf || state->cpu.pc == 0xa4b ||
@@ -980,7 +1055,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         !executed.meter_calls && !executed.filter_calls &&
         !executed.mac_calls && !executed.delay_calls &&
         !executed.decimate_calls && !executed.gain_calls &&
-        !executed.dma_start_calls && !executed.dma_sequence_calls) {
+        !executed.dma_start_calls && !executed.dma_sequence_calls &&
+        !executed.dma_stopfreeze_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }

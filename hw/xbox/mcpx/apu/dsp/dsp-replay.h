@@ -57,12 +57,17 @@ DSPReplayNativeResult dsp_replay_native_dma_sequence(DSPState *dsp,
                                                      DSPJitState *scratch,
                                                      bool preserve_cache,
                                                      Error **errp);
+DSPReplayNativeResult
+dsp_replay_native_dma_stopfreeze(DSPState *dsp, const DSPJitState *before,
+                                 DSPJitState *scratch, bool preserve_cache,
+                                 Error **errp);
 typedef struct DSPGPReplayStats {
     uint64_t feedback_calls, mix2_calls, add_calls, matrix_calls, meter_calls;
     uint64_t filter_calls, filter_nonzero_calls, mac_calls, delay_calls;
     uint64_t decimate_calls, gain_calls, dma_start_calls,
         dma_start_transactions;
-    uint64_t dma_sequence_calls, dma_sequence_transactions;
+    uint64_t dma_sequence_calls, dma_sequence_transactions,
+        dma_stopfreeze_calls;
     uint64_t dsp_steps, native_cycles;
 } DSPGPReplayStats;
 /* Offline stepped replay; excludes run-loop cycle budget from comparison. */

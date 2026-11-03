@@ -32,6 +32,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
                                .dma_start_transactions = 99,
                                .dma_sequence_calls = 99,
                                .dma_sequence_transactions = 99,
+                               .dma_stopfreeze_calls = 99,
                                .filter_nonzero_calls = 99,
                                .dsp_steps = 99,
                                .native_cycles = 99 };
@@ -54,6 +55,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.dma_start_transactions, ==, 0);
     g_assert_cmpuint(stats.dma_sequence_calls, ==, 0);
     g_assert_cmpuint(stats.dma_sequence_transactions, ==, 0);
+    g_assert_cmpuint(stats.dma_stopfreeze_calls, ==, 0);
     g_assert_cmpuint(stats.filter_nonzero_calls, ==, 0);
     g_assert_cmpuint(stats.dsp_steps, ==, 0);
     g_assert_cmpuint(stats.native_cycles, ==, 0);
@@ -725,6 +727,77 @@ static void test_native_dma_sequence_self_modify(void)
     dsp_destroy(dsp);
 }
 
+static void test_native_dma_stopfreeze(void)
+{
+    /* Independently assembled: set next block; stop/poll; freeze/poll. */
+    static const uint32_t program[] = {
+        0x08f494, 0x40, 0x08f496, 2, 0x0cd624, 0, 0x08f496, 3, 0x0cd603, 0, 0,
+    };
+    TestIO native_io = { 0 }, control_io = { 0 };
+    DSPState *native = make_dsp(&native_io, true);
+    DSPState *control = make_dsp(&control_io, true);
+    for (unsigned i = 0; i < ARRAY_SIZE(program); i++) {
+        dsp_write_memory(native, 'P', i, program[i]);
+        dsp_write_memory(control, 'P', i, program[i]);
+    }
+    dsp_step(native);
+    dsp_step(control);
+    native->dma.control = control->dma.control = DMA_CONTROL_RUNNING;
+    native->dma.dma_read_count = control->dma.dma_read_count = 1;
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *scratch = g_new0(DSPJitState, 1);
+    g_autofree DSPReplaySnapshot *before = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *expected = g_new0(DSPReplaySnapshot, 1);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    g_assert_true(dsp_replay_take_snapshot(native, before));
+    Error *err = NULL;
+    state->pram[4] ^= 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_stopfreeze(native, state, scratch, true, &err),
+        ==, DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    state->cpu.interrupts.pending_bits[0] = 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_stopfreeze(native, state, scratch, true, &err),
+        ==, DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    state->cpu.registers[DSP_REG_SR] |= 1U << DSP_SR_LF;
+    state->cpu.registers[DSP_REG_LA] = state->cpu.pc + 3;
+    g_assert_cmpint(
+        dsp_replay_native_dma_stopfreeze(native, state, scratch, true, &err),
+        ==, DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    native->dma.eol = true;
+    g_assert_cmpint(
+        dsp_replay_native_dma_stopfreeze(native, state, scratch, true, &err),
+        ==, DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    native->dma.eol = false;
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_cmpint(
+        dsp_replay_native_dma_stopfreeze(native, state, scratch, true, &err),
+        ==, DSP_REPLAY_NATIVE_DONE);
+    g_assert_null(err);
+    for (unsigned i = 0; i < 4; i++) {
+        dsp_step(control);
+    }
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    g_assert_true(dsp_replay_take_snapshot(control, expected));
+    assert_snapshot_equal(expected, actual);
+    g_assert_cmpuint(native_io.reads, ==, 0);
+    g_assert_cmpuint(native_io.writes, ==, 0);
+    g_assert_cmpuint(native_io.fifos, ==, 0);
+    dsp_destroy(native);
+    dsp_destroy(control);
+}
+
 static void test_dma_replay(void)
 {
     TestIO io = { 0 };
@@ -1191,6 +1264,7 @@ int __wrap_main(int argc, char **argv)
             ",\"native_mix2_calls\":%" PRIu64 ",\"native_add_calls\":%" PRIu64
             ",\"native_matrix_calls\":%" PRIu64
             ",\"native_meter_calls\":%" PRIu64
+            ",\"native_dma_stopfreeze_calls\":%" PRIu64
             ",\"native_dma_sequence_calls\":%" PRIu64
             ",\"native_dma_sequence_transactions\":%" PRIu64
             ",\"native_dma_start_calls\":%" PRIu64
@@ -1209,12 +1283,12 @@ int __wrap_main(int argc, char **argv)
             data && data->after.jit.cpu.halt_requested ? "true" : "false",
             data && data->realtime ? "true" : "false", stats.feedback_calls,
             stats.mix2_calls, stats.add_calls, stats.matrix_calls,
-            stats.meter_calls, stats.dma_sequence_calls,
-            stats.dma_sequence_transactions, stats.dma_start_calls,
-            stats.dma_start_transactions, stats.gain_calls,
-            stats.decimate_calls, stats.delay_calls, stats.mac_calls,
-            stats.filter_calls, stats.filter_nonzero_calls, stats.dsp_steps,
-            stats.native_cycles);
+            stats.meter_calls, stats.dma_stopfreeze_calls,
+            stats.dma_sequence_calls, stats.dma_sequence_transactions,
+            stats.dma_start_calls, stats.dma_start_transactions,
+            stats.gain_calls, stats.decimate_calls, stats.delay_calls,
+            stats.mac_calls, stats.filter_calls, stats.filter_nonzero_calls,
+            stats.dsp_steps, stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);
@@ -1240,6 +1314,8 @@ int __wrap_main(int argc, char **argv)
                     test_native_dma_sequence);
     g_test_add_func("/mcpx-apu/dsp-replay/native-dma-sequence-self-modify",
                     test_native_dma_sequence_self_modify);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-dma-stopfreeze",
+                    test_native_dma_stopfreeze);
     g_test_add_func("/mcpx-apu/dsp-replay/native-dma-start",
                     test_native_dma_start);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
