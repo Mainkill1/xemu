@@ -89,7 +89,10 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
         }
     }
     for (unsigned ch = 0; ch < 2; ch++) {
-        result.rms[ch] = ep_mix_isqrt(squares[ch] / 256);
+        /* The identified DSP routine wraps on the maximum negative frame. */
+        result.rms[ch] = squares[ch] == (UINT64_C(1) << 54) ?
+                             0 :
+                             ep_mix_isqrt(squares[ch] / 256);
     }
     result.right_energy = squares[1] / 128;
     *output = result;

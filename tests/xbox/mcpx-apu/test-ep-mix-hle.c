@@ -79,6 +79,8 @@ int main(void)
     failed |= check(ep_mix_frame_hle(input, &frame), "negative frame rejected");
     failed |= check(frame.right_energy == (UINT64_C(1) << 47),
                     "saturated energy differs from JIT");
+    failed |= check(frame.rms[0] == 0 && frame.rms[1] == 0,
+                    "full negative saturation RMS differs from JIT");
     uint32_t before_regs[64], expected_regs[64];
     for (unsigned i = 0; i < 64; i++) {
         before_regs[i] = i;
