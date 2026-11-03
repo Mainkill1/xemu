@@ -4679,6 +4679,10 @@ foreach target : target_dirs
       files('tests/xbox/mcpx-apu/test-ep-native-input.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
     test('test-xbox-ep-native-input', ep_native_input_test, suite: ['unit'])
+    ep_native_sge_test = executable('test-xbox-ep-native-sge',
+      files('tests/xbox/mcpx-apu/test-ep-native-sge.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-ep-native-sge', ep_native_sge_test, suite: ['unit'])
     audio_engine_instance_test = executable('test-xbox-audio-engine-instance',
       files('tests/xbox/mcpx-apu/test-audio-engine-instance.c'),
       c_args: c_args, dependencies: arch_deps + [sdl],
