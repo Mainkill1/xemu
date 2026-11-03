@@ -23,6 +23,11 @@ int main(void)
         0x00fbad, 0xd27f67, 0x0cc8b1, 0xde5c12, 0x18ab3b, 0xea40cf,
         0x2490cb, 0xf626ae, 0x3076c7, 0x020cb5,
     };
+    static const uint32_t negative_gain_expected[16] = {
+        0x1819fd, 0xafc8ac, 0x2fad02, 0xab7685, 0x394d71, 0xae1da9,
+        0x3f713b, 0xb28320, 0x44b5db, 0xb7582b, 0x49c2b1, 0xbc491c,
+        0x4ec194, 0xc14106, 0x53bcfa, 0xc63aae,
+    };
     uint32_t input[16], output[16], before[16], state;
     int failed = 0;
     for (unsigned i = 0; i < 16; i++) {
@@ -34,6 +39,16 @@ int main(void)
     failed |= check(memcmp(output, expected, sizeof(expected)) == 0 &&
                         state == expected[15],
                     "feedback output differs from JIT oracle");
+    for (unsigned i = 0; i < 16; i++) {
+        input[i] = ((i * 434940 + 11828) & 0x7fffff) ^ ((i & 1) ? 0x800000 : 0);
+    }
+    failed |= check(
+        gp_feedback_hle(input, 0xd00000, 0xc00000, 0x480000, output, &state),
+        "negative feedback gain was rejected");
+    failed |=
+        check(memcmp(output, negative_gain_expected, sizeof(output)) == 0 &&
+                  state == negative_gain_expected[15],
+              "negative feedback gain differs from JIT oracle");
     memset(output, 0x5a, sizeof(output));
     memcpy(before, output, sizeof(output));
     state = 123;
