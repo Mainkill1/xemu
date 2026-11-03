@@ -191,5 +191,32 @@ int main(void)
                     "five-output route did not match");
     failed |= check(shadow.nonzero_matched == 10,
                     "silent routes were counted as nonzero");
+
+    prepare_xram(xram);
+    for (unsigned route = 0; route < 4; route++) {
+        unsigned base = 1122 + route * 39;
+        xram[base + 8] = 8388607;
+        xram[base + 13] = 2540;
+        xram[base + 16] = 2;
+        memcpy(xram + 0xf60 + route * 32, samples, sizeof(samples));
+    }
+    failed |= check(gp_decimate_shadow_prepare(&shadow, xram),
+                    "transfer ending at ring boundary was rejected");
+    for (unsigned route = 0; route < 4; route++) {
+        unsigned base = 1122 + route * 39;
+        uint8_t bytes[20];
+        for (unsigned i = 0; i < 5; i++) {
+            write_word(bytes + i * 4, expected_five[i]);
+        }
+        gp_decimate_shadow_write(&shadow, 0x10000 + route * 0x1000 + 2540,
+                                 bytes, sizeof(bytes));
+        memcpy(xram + 0xf60 + route * 32, expected_five, sizeof(expected_five));
+        xram[base + 11] = 5;
+        xram[base + 13] = 0;
+        xram[base + 16] = 4;
+    }
+    gp_decimate_shadow_finish(&shadow, xram, true);
+    failed |= check(shadow.matched == 15 && shadow.mismatched == 5,
+                    "exact ring-boundary writeback did not match");
     return failed ? 1 : 0;
 }
