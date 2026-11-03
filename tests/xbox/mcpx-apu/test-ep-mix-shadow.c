@@ -57,6 +57,18 @@ int main(void)
     }
     failed |= check(ep_mix_identity_word(2, 0xff123456) == 0x123456,
                     "stable program word was not retained as 24-bit data");
+    failed |= check(
+        ep_mix_digest_known(
+            "5471f7867c55afea5765c5c3e21065a6f456dc5aab2103a146f06b1d07b1a118"),
+        "original EP digest rejected");
+    failed |= check(
+        ep_mix_digest_known(
+            "b4e7bcc65856da0dcbffe792ed3965c74f50ebb549e359622bdf911428f40c36"),
+        "captured alternate EP digest rejected");
+    failed |= check(!ep_mix_digest_known(NULL) && !ep_mix_digest_known("") &&
+                        !ep_mix_digest_known("b4e7bcc65856da0dcbffe792ed3965c74"
+                                             "f50ebb549e359622bdf911428f40c37"),
+                    "unrecognized EP digest accepted");
     for (unsigned ch = 0; ch < 5; ch++) {
         for (unsigned i = 0; i < 256; i++) {
             input[ch][i] = (i * (ch + 1) * 101) & 0xffffff;

@@ -3,6 +3,17 @@
 #define XEMU_EP_MIX_IDENTITY_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+
+/* These exact digests are recognized for shadow/replay comparison only. */
+static inline bool ep_mix_digest_known(const char *digest)
+{
+    return digest && (!strcmp(digest, "5471f7867c55afea5765c5c3e21065a6f456dc5a"
+                                      "ab2103a146f06b1d07b1a118") ||
+                      !strcmp(digest, "b4e7bcc65856da0dcbffe792ed3965c74f50ebb5"
+                                      "49e359622bdf911428f40c36"));
+}
 
 /* These P-memory words changed between the captured pre/post states. This
  * masked identity is valid only for non-serving comparisons; it does not

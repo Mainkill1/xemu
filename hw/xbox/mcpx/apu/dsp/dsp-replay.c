@@ -718,9 +718,7 @@ static bool native_ep_replay_projection(DSPReplayCase *d, DSPReplaySnapshot *a,
             cpu_to_le32(ep_mix_identity_word(i, d->before.jit.pram[i]));
     program = g_compute_checksum_for_data(
         G_CHECKSUM_SHA256, (uint8_t *)canonical, sizeof(canonical));
-    if (strcmp(
-            program,
-            "5471f7867c55afea5765c5c3e21065a6f456dc5aab2103a146f06b1d07b1a118"))
+    if (!ep_mix_digest_known(program))
         goto reject;
     if (d->io->len != (phase == 0 ? 8 : 7))
         goto reject;

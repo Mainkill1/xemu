@@ -107,8 +107,7 @@ static bool ep_mix_program_known(const uint32_t *pram, char *digest_out)
     if (digest_out) {
         g_strlcpy(digest_out, digest, 65);
     }
-    return !strcmp(digest,
-        "5471f7867c55afea5765c5c3e21065a6f456dc5aab2103a146f06b1d07b1a118");
+    return ep_mix_digest_known(digest);
 }
 
 static void ep_mix_observer_report(const EPMixObserver *o)
