@@ -49,8 +49,10 @@ control and makes no claim about the rest of the GP or EP program.
 program and loaded overlay. It collects the observed scratch inputs and the
 FIFO output into private storage and compares a guarded five-channel stereo
 prediction with the DSP output, input/mixed XRAM buffers and signal meters. Unknown
-program/overlay identities, changed
-programs and unexpected I/O sequences are excluded. It counts matched and
+program/overlay identities, changed programs and unexpected I/O sequences are
+excluded. Its diagnostic identity masks eight P-memory words observed changing
+within a captured frame; this is not a guard suitable for serving native output.
+It counts matched and
 nonzero frames and individual matching/mismatching samples. The prediction
 is not used for playback and does not cover other EP state or side effects.
 

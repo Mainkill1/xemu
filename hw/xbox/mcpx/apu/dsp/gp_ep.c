@@ -28,6 +28,7 @@
 #include "gp-decimate-shadow.h"
 #include "gp-filter-frame-shadow.h"
 #include "ep-mix-shadow.h"
+#include "ep-mix-identity.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -40,21 +41,19 @@ typedef struct EPMixObserver {
     char last_program_digest[65];
 } EPMixObserver;
 
-static bool ep_mix_program_known(const uint32_t *pram, bool after, char *digest_out)
+static bool ep_mix_program_known(const uint32_t *pram, char *digest_out)
 {
     uint32_t canonical[DSP_PRAM_SIZE];
     for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
-        canonical[i] = cpu_to_le32(pram[i] & 0xffffff);
+        canonical[i] = cpu_to_le32(ep_mix_identity_word(i, pram[i]));
     }
     g_autofree char *digest = g_compute_checksum_for_data(
         G_CHECKSUM_SHA256, (const uint8_t *)canonical, sizeof(canonical));
     if (digest_out) {
         g_strlcpy(digest_out, digest, 65);
     }
-    bool post = !strcmp(digest,
-        "584ba1148b0fbdc7610fe004b4cb858405356538a4f8d67cf8c3734eb5bd1aec");
-    return post || (!after && !strcmp(digest,
-        "2d6877c2c9e2c870a092a06f32798664062b6db36155871f7d3d7f437366c632"));
+    return !strcmp(digest,
+        "5471f7867c55afea5765c5c3e21065a6f456dc5aab2103a146f06b1d07b1a118");
 }
 
 static void ep_mix_observer_report(const EPMixObserver *o)
@@ -69,7 +68,7 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
             " unexpected_fifo=%" PRIu64 " incomplete=%" PRIu64
-            " last_program_sha256=%s\n", o->frames, s->attempted,
+            " last_masked_program_sha256=%s\n", o->frames, s->attempted,
             s->eligible, s->skipped, s->invalidated, s->matched,
             s->nonzero_matched, s->mismatched, s->matched_samples,
             s->mismatched_samples, s->matched_words, s->mismatched_words,
@@ -90,7 +89,7 @@ static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime
         o->backend_skips++;
         return;
     }
-    bool known = ep_mix_program_known(o->before.pram, false,
+    bool known = ep_mix_program_known(o->before.pram,
                                       o->last_program_digest);
     o->unknown_program += !known;
     ep_mix_shadow_begin(&o->shadow, known);
@@ -104,7 +103,7 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
     bool valid = dsp_jit_get_native_state(dsp, &o->after);
     uint64_t skipped_before = o->shadow.skipped;
     ep_mix_shadow_finish(&o->shadow, valid ? o->after.xram : NULL,
-                         valid && ep_mix_program_known(o->after.pram, true, NULL));
+                         valid && ep_mix_program_known(o->after.pram, NULL));
     o->incomplete += o->shadow.skipped - skipped_before;
 }
 
