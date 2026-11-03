@@ -4677,6 +4677,11 @@ foreach target : target_dirs
       include_directories: target_inc, c_args: c_args,
       dependencies: [dsp56300_emu_ffi], build_by_default: false)
     test('test-xbox-gp-add-project', gp_add_project_test, suite: ['unit'])
+    gp_matrix_project_test = executable('test-xbox-gp-matrix-project',
+      files('tests/xbox/mcpx-apu/test-gp-matrix-project.c'),
+      include_directories: target_inc, c_args: c_args,
+      dependencies: [dsp56300_emu_ffi], build_by_default: false)
+    test('test-xbox-gp-matrix-project', gp_matrix_project_test, suite: ['unit'])
     gp_feedback_project_test = executable('test-xbox-gp-feedback-project',
       files('tests/xbox/mcpx-apu/test-gp-feedback-project.c'),
       include_directories: target_inc, c_args: c_args,

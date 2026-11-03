@@ -21,6 +21,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     DSPGPReplayStats stats = { .feedback_calls = 99,
                                .mix2_calls = 99,
                                .add_calls = 99,
+                               .matrix_calls = 99,
                                .dsp_steps = 99,
                                .native_cycles = 99 };
     data->is_gp = true;
@@ -31,6 +32,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.feedback_calls, ==, 0);
     g_assert_cmpuint(stats.mix2_calls, ==, 0);
     g_assert_cmpuint(stats.add_calls, ==, 0);
+    g_assert_cmpuint(stats.matrix_calls, ==, 0);
     g_assert_cmpuint(stats.dsp_steps, ==, 0);
     g_assert_cmpuint(stats.native_cycles, ==, 0);
     error_free(err);
@@ -996,7 +998,8 @@ int __wrap_main(int argc, char **argv)
                "\"before_cycles\":%u,\"before_halted\":%s,\"halted\":%s,"
                "\"realtime\":%s,\"native_feedback_calls\":%" PRIu64
                ",\"native_mix2_calls\":%" PRIu64
-               ",\"native_add_calls\":%" PRIu64 ",\"dsp_steps\":%" PRIu64
+               ",\"native_add_calls\":%" PRIu64
+               ",\"native_matrix_calls\":%" PRIu64 ",\"dsp_steps\":%" PRIu64
                ",\"native_cycles\":%" PRIu64 "}\n",
                matched ? "true" : "false",
                data ? (data->is_gp ? "GP" : "EP") : "", data ? data->calls : 0,
@@ -1005,8 +1008,8 @@ int __wrap_main(int argc, char **argv)
                data && data->before.jit.cpu.halt_requested ? "true" : "false",
                data && data->after.jit.cpu.halt_requested ? "true" : "false",
                data && data->realtime ? "true" : "false", stats.feedback_calls,
-               stats.mix2_calls, stats.add_calls, stats.dsp_steps,
-               stats.native_cycles);
+               stats.mix2_calls, stats.add_calls, stats.matrix_calls,
+               stats.dsp_steps, stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);

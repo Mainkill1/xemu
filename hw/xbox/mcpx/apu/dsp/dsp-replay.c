@@ -12,6 +12,7 @@
 #include "gp-feedback-project.h"
 #include "gp-mix2-project.h"
 #include "gp-add-project.h"
+#include "gp-matrix-project.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
 #include "ep-native-project.h"
@@ -713,7 +714,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         bool stable =
             enable_native &&
             (state->cpu.pc == 0x788 || state->cpu.pc == 0x761 ||
-             state->cpu.pc == 0x4a0) &&
+             state->cpu.pc == 0x4a0 || state->cpu.pc == 0x6a2) &&
             !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram));
         bool feedback = stable && state->cpu.pc == 0x788 &&
                         gp_feedback_project(state, next);
@@ -721,7 +722,9 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             stable && state->cpu.pc == 0x761 && gp_mix2_project(state, next);
         bool add =
             stable && state->cpu.pc == 0x4a0 && gp_add_project(state, next);
-        if (feedback || mix2 || add) {
+        bool matrix =
+            stable && state->cpu.pc == 0x6a2 && gp_matrix_project(state, next);
+        if (feedback || mix2 || add || matrix) {
             bool restored = preserve_cache ?
                                 dsp_jit_set_native_data_state(dsp, next) :
                                 dsp_jit_set_native_state(dsp, next);
@@ -732,9 +735,11 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             executed.feedback_calls += feedback;
             executed.mix2_calls += mix2;
             executed.add_calls += add;
+            executed.matrix_calls += matrix;
             executed.native_cycles += feedback ? GP_FEEDBACK_PROJECT_CYCLES :
                                       mix2     ? GP_MIX2_PROJECT_CYCLES :
-                                                 GP_ADD_PROJECT_CYCLES;
+                                      add      ? GP_ADD_PROJECT_CYCLES :
+                                                 GP_MATRIX_PROJECT_CYCLES;
         } else {
             dsp_step(dsp);
             executed.dsp_steps++;
@@ -752,7 +757,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
                    "GP feedback replay did not consume all transactions");
     }
     if (!cursor.error && enable_native && !executed.feedback_calls &&
-        !executed.mix2_calls && !executed.add_calls) {
+        !executed.mix2_calls && !executed.add_calls && !executed.matrix_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }
