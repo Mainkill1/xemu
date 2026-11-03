@@ -123,9 +123,10 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         cpu->registers[DSP_REG_LA] != entry + 0x3e) {
         return false;
     }
+    /* The recognized filter body does not use these matching offsets.
+     * Limit the fast path to the range observed in replay qualification. */
     bool matched_steps =
-        (cpu->registers[DSP_REG_N0 + 3] == 1 ||
-         cpu->registers[DSP_REG_N0 + 3] == 4) &&
+        cpu->registers[DSP_REG_N0 + 3] <= 10 &&
         cpu->registers[DSP_REG_N0 + 4] == cpu->registers[DSP_REG_N0 + 3];
     for (unsigned i = 0; i < 8; i++) {
         if (cpu->registers[DSP_REG_M0 + i] != 0xffffff ||
