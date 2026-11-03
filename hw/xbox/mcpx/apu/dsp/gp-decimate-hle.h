@@ -6,15 +6,15 @@
 #include <stdint.h>
 #include <string.h>
 
-/* Candidate for one observed 32-sample GP route. The qualified phases yield
- * exactly six outputs. Unsupported inputs leave all caller outputs untouched.
+/* Candidate for one observed 32-sample GP route. Qualified phases yield five
+ * or six outputs. Unsupported inputs leave all caller outputs untouched.
  */
 static inline bool gp_decimate_hle(const uint32_t input[32], uint32_t gain,
                                    unsigned phase, uint32_t output[6],
                                    unsigned *count, unsigned *next_phase)
 {
     if (!input || !output || !count || !next_phase || gain > 0xffffff ||
-        (phase != 5 && phase != 6)) {
+        phase < 1 || phase > 6) {
         return false;
     }
 
@@ -43,10 +43,10 @@ static inline bool gp_decimate_hle(const uint32_t input[32], uint32_t gain,
         }
         phase++;
     }
-    if (produced != 6) {
+    if (produced < 5 || produced > 6) {
         return false;
     }
-    memcpy(output, result, sizeof(result));
+    memcpy(output, result, produced * sizeof(*result));
     *count = produced;
     *next_phase = phase;
     return true;

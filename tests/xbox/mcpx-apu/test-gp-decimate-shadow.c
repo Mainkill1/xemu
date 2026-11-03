@@ -148,5 +148,41 @@ int main(void)
     gp_decimate_shadow_finish(&shadow, xram, true);
     failed |= check(shadow.matched == 7 && shadow.mismatched == 5,
                     "incorrect phase or DMA offset was admitted");
+
+    static const uint32_t expected_five[5] = {
+        0x19a862, 0xc7a55a, 0xf15d15, 0x25d073, 0x19b066,
+    };
+    uint32_t seed = 1, samples[32];
+    for (unsigned i = 0; i < 32; i++) {
+        seed ^= seed << 13;
+        seed ^= seed >> 17;
+        seed ^= seed << 5;
+        samples[i] = ((seed % 1000001) - 500000) & 0xffffff;
+    }
+    prepare_xram(xram);
+    for (unsigned route = 0; route < 4; route++) {
+        unsigned base = 1122 + route * 39;
+        xram[base + 8] = 8388607;
+        xram[base + 16] = 2;
+        memcpy(xram + 0xf60 + route * 32, samples, sizeof(samples));
+    }
+    failed |= check(gp_decimate_shadow_prepare(&shadow, xram),
+                    "five-output route was rejected");
+    for (unsigned route = 0; route < 4; route++) {
+        unsigned base = 1122 + route * 39;
+        uint8_t bytes[20];
+        for (unsigned i = 0; i < 5; i++) {
+            write_word(bytes + i * 4, expected_five[i]);
+        }
+        gp_decimate_shadow_write(&shadow, 0x10000 + route * 0x1000 + 2112,
+                                 bytes, sizeof(bytes));
+        memcpy(xram + 0xf60 + route * 32, expected_five, sizeof(expected_five));
+        xram[base + 11] = 5;
+        xram[base + 13] = 2132;
+        xram[base + 16] = 4;
+    }
+    gp_decimate_shadow_finish(&shadow, xram, true);
+    failed |= check(shadow.matched == 11 && shadow.mismatched == 5,
+                    "five-output route did not match");
     return failed ? 1 : 0;
 }
