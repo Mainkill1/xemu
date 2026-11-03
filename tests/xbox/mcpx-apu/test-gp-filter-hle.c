@@ -64,6 +64,42 @@ static Fixture *new_fixture(uint32_t input)
     return f;
 }
 
+static void test_final_iteration(void)
+{
+    Fixture *f = new_fixture(3);
+    f->cpu.registers[DSP_REG_LC] = 1;
+    f->cpu.registers[DSP_REG_R2] = 0x157f;
+    f->cpu.registers[DSP_REG_R3] = 0xd7f;
+    f->cpu.stack[0][4] = f->cpu.registers[DSP_REG_SSH];
+    f->cpu.stack[1][4] = f->cpu.registers[DSP_REG_SSL];
+    f->cpu.stack[0][3] = 0;
+    f->cpu.stack[1][3] = 0;
+    g_assert_true(gp_filter_hle_finish_verified(&f->cpu, f->x, f->y));
+    g_assert_cmpuint(f->cpu.pc, ==, 0x1c4);
+    g_assert_cmpuint(f->cpu.cycle_count, ==, 107);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_SP], ==, 2);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_LC], ==, 0);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_SR] & (1U << DSP_SR_LF), ==, 0);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_R2], ==, 0x1580);
+    g_assert_cmpuint(f->cpu.registers[DSP_REG_R3], ==, 0xd80);
+    g_assert_cmpuint(f->x[0xd7f], ==, 12);
+    g_free(f);
+}
+
+static void test_final_reject(void)
+{
+    Fixture *f = new_fixture(3);
+    f->cpu.registers[DSP_REG_LC] = 1;
+    f->cpu.registers[DSP_REG_R2] = 0x157f;
+    f->cpu.registers[DSP_REG_R3] = 0xd7f;
+    /* A mismatched saved loop stack must never commit partial output. */
+    Fixture *before = g_memdup2(f, sizeof(*f));
+    g_assert_false(gp_filter_hle_finish_verified(&f->cpu, f->x, f->y));
+    g_assert_cmpmem(f, sizeof(*f), before, sizeof(*before));
+    g_free(before);
+    g_free(f);
+}
+
 static void test_identity(gconstpointer opaque)
 {
     Fixture *f = new_fixture(3);
@@ -349,6 +385,9 @@ int __wrap_main(int argc, char **argv)
                          GUINT_TO_POINTER(0), test_limit);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/negative-limit",
                          GUINT_TO_POINTER(1), test_limit);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/final-iteration",
+                    test_final_iteration);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/final-reject", test_final_reject);
     g_test_add_func("/mcpx-apu/gp-filter-hle/budget", test_budget);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/positive-normalization",
                          GUINT_TO_POINTER(0), test_normalization);

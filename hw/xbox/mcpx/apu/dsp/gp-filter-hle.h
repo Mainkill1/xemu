@@ -19,4 +19,8 @@ bool gp_filter_hle_try_run(GPFilterHLE *hle, Dsp56300State *cpu, uint32_t *xram,
 bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
                                 uint32_t *yram, int cycles);
 
+/* Offline projection of one final DO iteration; budget is unchanged. */
+bool gp_filter_hle_finish_verified(Dsp56300State *cpu, uint32_t *xram,
+                                   uint32_t *yram);
+
 #endif

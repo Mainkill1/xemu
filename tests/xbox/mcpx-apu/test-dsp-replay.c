@@ -24,6 +24,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
                                .matrix_calls = 99,
                                .meter_calls = 99,
                                .filter_calls = 99,
+                               .filter_final_calls = 99,
                                .mac_calls = 99,
                                .delay_calls = 99,
                                .decimate_calls = 99,
@@ -47,6 +48,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.matrix_calls, ==, 0);
     g_assert_cmpuint(stats.meter_calls, ==, 0);
     g_assert_cmpuint(stats.filter_calls, ==, 0);
+    g_assert_cmpuint(stats.filter_final_calls, ==, 0);
     g_assert_cmpuint(stats.mac_calls, ==, 0);
     g_assert_cmpuint(stats.delay_calls, ==, 0);
     g_assert_cmpuint(stats.decimate_calls, ==, 0);
@@ -1273,6 +1275,7 @@ int __wrap_main(int argc, char **argv)
             ",\"native_decimate_calls\":%" PRIu64
             ",\"native_delay_calls\":%" PRIu64 ",\"native_mac_calls\":%" PRIu64
             ",\"native_filter_calls\":%" PRIu64
+            ",\"native_filter_final_calls\":%" PRIu64
             ",\"native_filter_nonzero_calls\":%" PRIu64
             ",\"dsp_steps\":%" PRIu64 ",\"native_cycles\":%" PRIu64 "}\n",
             matched ? "true" : "false", data ? (data->is_gp ? "GP" : "EP") : "",
@@ -1287,8 +1290,8 @@ int __wrap_main(int argc, char **argv)
             stats.dma_sequence_calls, stats.dma_sequence_transactions,
             stats.dma_start_calls, stats.dma_start_transactions,
             stats.gain_calls, stats.decimate_calls, stats.delay_calls,
-            stats.mac_calls, stats.filter_calls, stats.filter_nonzero_calls,
-            stats.dsp_steps, stats.native_cycles);
+            stats.mac_calls, stats.filter_calls, stats.filter_final_calls,
+            stats.filter_nonzero_calls, stats.dsp_steps, stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);

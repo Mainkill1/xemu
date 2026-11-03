@@ -63,7 +63,8 @@ dsp_replay_native_dma_stopfreeze(DSPState *dsp, const DSPJitState *before,
                                  Error **errp);
 typedef struct DSPGPReplayStats {
     uint64_t feedback_calls, mix2_calls, add_calls, matrix_calls, meter_calls;
-    uint64_t filter_calls, filter_nonzero_calls, mac_calls, delay_calls;
+    uint64_t filter_calls, filter_final_calls, filter_nonzero_calls, mac_calls,
+        delay_calls;
     uint64_t decimate_calls, gain_calls, dma_start_calls,
         dma_start_transactions;
     uint64_t dma_sequence_calls, dma_sequence_transactions,

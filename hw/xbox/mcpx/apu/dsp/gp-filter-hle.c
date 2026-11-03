@@ -96,8 +96,8 @@ static int64_t section_sum(const int32_t *c, int32_t input, const int32_t *h)
     return sum;
 }
 
-bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
-                                uint32_t *yram, int cycles)
+static bool gp_filter_hle_run_internal(Dsp56300State *cpu, uint32_t *xram,
+                                       uint32_t *yram, int cycles, bool finish)
 {
     static const uint32_t offsets[8] = { 16, 16, 16, 2, 2, 0, 0, 0 };
     unsigned entry = 0;
@@ -111,12 +111,12 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         }
     }
     if (!entry || cycles != 1000 || cpu->cycle_budget > 0 ||
-        cpu->cycle_budget < -106 || cpu->pc_advance != (tail ? 0 : 1) ||
-        cpu->pc_on_rep || cpu->loop_rep || cpu->halt_requested ||
-        cpu->power_state || cpu->interrupts.pending_bits[0] ||
-        cpu->interrupts.pending_bits[1] || cpu->interrupts.pipeline_stage ||
-        cpu->interrupts.state || cpu->interrupts.ipl_to_raise ||
-        cpu->registers[DSP_REG_OMR] != 0x300 ||
+        cpu->cycle_budget < (finish ? -893 : -106) ||
+        cpu->pc_advance != (tail ? 0 : 1) || cpu->pc_on_rep || cpu->loop_rep ||
+        cpu->halt_requested || cpu->power_state ||
+        cpu->interrupts.pending_bits[0] || cpu->interrupts.pending_bits[1] ||
+        cpu->interrupts.pipeline_stage || cpu->interrupts.state ||
+        cpu->interrupts.ipl_to_raise || cpu->registers[DSP_REG_OMR] != 0x300 ||
         (cpu->registers[DSP_REG_SR] & ~0x3f) != 0xc083c0 ||
         (cpu->registers[DSP_REG_SR] & 0x23) != 0 ||
         cpu->registers[DSP_REG_SSH] != entry ||
@@ -138,7 +138,8 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
     unsigned count = cpu->registers[DSP_REG_LC];
     unsigned base = cpu->registers[DSP_REG_R5];
     unsigned state = cpu->registers[DSP_REG_R4];
-    if (count < 2 || count > 32 || base > DSP_XRAM_SIZE - 19 ||
+    if (count < (finish ? 1 : 2) || count > 32 ||
+        (finish && (count != 1 || tail)) || base > DSP_XRAM_SIZE - 19 ||
         state > DSP_YRAM_SIZE - 8 || cpu->registers[DSP_REG_R0] != base + 18 ||
         xram[base] != 0xc000 || xram[base + 2] != state ||
         xram[base + 3] != 8 || xram[base + 4] != 1) {
@@ -152,13 +153,20 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         return false;
     }
 
-    /* Leave the final hardware DO iteration and stack restoration to the JIT.
-     */
+    unsigned sp = cpu->registers[DSP_REG_SP];
+    if (finish && (sp < 2 || sp > 15 ||
+                   cpu->registers[DSP_REG_SSH] != cpu->stack[0][sp] ||
+                   cpu->registers[DSP_REG_SSL] != cpu->stack[1][sp] ||
+                   !(cpu->registers[DSP_REG_SR] & (1U << DSP_SR_LF)))) {
+        return false;
+    }
+    /* The live slice leaves the final DO iteration to the DSP. */
     int budget = cpu->cycle_budget + cycles;
     unsigned available =
-        tail ? FILTER_TAIL_CYCLES +
-                   (count - 2) * (FILTER_BODY_CYCLES + FILTER_TAIL_CYCLES) :
-               (count - 1) * (FILTER_BODY_CYCLES + FILTER_TAIL_CYCLES);
+        finish ? FILTER_BODY_CYCLES + FILTER_TAIL_CYCLES :
+        tail   ? FILTER_TAIL_CYCLES +
+                     (count - 2) * (FILTER_BODY_CYCLES + FILTER_TAIL_CYCLES) :
+                 (count - 1) * (FILTER_BODY_CYCLES + FILTER_TAIL_CYCLES);
     if (budget > available) {
         return false;
     }
@@ -198,7 +206,20 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
             next.registers[DSP_REG_R3]++;
             count--;
             next.registers[DSP_REG_LC] = count;
-            next.pc = entry;
+            if (finish && count == 0) {
+                uint32_t loop_flag = 1U << DSP_SR_LF;
+                next.registers[DSP_REG_SR] =
+                    (next.registers[DSP_REG_SR] & ~loop_flag) |
+                    (cpu->stack[1][sp] & loop_flag);
+                next.registers[DSP_REG_SP] = sp - 2;
+                next.registers[DSP_REG_SSH] = cpu->stack[0][sp - 2];
+                next.registers[DSP_REG_SSL] = cpu->stack[1][sp - 2];
+                next.registers[DSP_REG_LA] = cpu->stack[0][sp - 1];
+                next.registers[DSP_REG_LC] = cpu->stack[1][sp - 1];
+                next.pc = entry + 0x3f;
+            } else {
+                next.pc = entry;
+            }
             next.pc_advance = 1;
             next.cycle_count += FILTER_TAIL_CYCLES;
             next.cycle_budget -= FILTER_TAIL_CYCLES;
@@ -260,6 +281,25 @@ bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
         yram[state + i] = word24(history[i]);
     }
     xram[base + 18] = temporary;
+    *cpu = next;
+    return true;
+}
+
+bool gp_filter_hle_run_verified(Dsp56300State *cpu, uint32_t *xram,
+                                uint32_t *yram, int cycles)
+{
+    return gp_filter_hle_run_internal(cpu, xram, yram, cycles, false);
+}
+
+bool gp_filter_hle_finish_verified(Dsp56300State *cpu, uint32_t *xram,
+                                   uint32_t *yram)
+{
+    Dsp56300State next = *cpu;
+    next.cycle_budget = -893;
+    if (!gp_filter_hle_run_internal(&next, xram, yram, 1000, true)) {
+        return false;
+    }
+    next.cycle_budget = cpu->cycle_budget;
     *cpu = next;
     return true;
 }

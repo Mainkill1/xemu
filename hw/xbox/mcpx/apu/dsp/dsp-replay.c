@@ -986,10 +986,15 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             stable && state->cpu.pc == 0x493 && gp_gain_project(state, next);
         bool filter = false;
         bool filter_nonzero = false;
+        bool filter_final = false;
         if (stable && filter_pc) {
             *next = *state;
             next->cpu.cycle_budget = 0;
-            filter = gp_filter_hle_run_verified(&next->cpu, next->xram,
+            filter_final = state->cpu.registers[DSP_REG_LC] == 1 &&
+                           gp_filter_hle_finish_verified(&next->cpu, next->xram,
+                                                         next->yram);
+            filter = filter_final ||
+                     gp_filter_hle_run_verified(&next->cpu, next->xram,
                                                 next->yram, 1000);
             next->cpu.cycle_budget = state->cpu.cycle_budget;
             if (filter) {
@@ -1020,6 +1025,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             executed.matrix_calls += matrix;
             executed.meter_calls += meter;
             executed.filter_calls += filter;
+            executed.filter_final_calls += filter_final;
             executed.mac_calls += mac;
             executed.delay_calls += delay;
             executed.decimate_calls += decimate;
