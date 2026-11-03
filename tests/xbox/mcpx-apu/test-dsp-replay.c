@@ -14,6 +14,20 @@
 static char *test_directory;
 static const char *test_executable;
 
+static void test_gp_feedback_replay_rejects_unknown(void)
+{
+    DSPReplayCase *data = dsp_replay_case_new();
+    Error *err = NULL;
+    uint64_t native_calls = 99;
+    data->is_gp = true;
+    data->realtime = true;
+    data->calls = 1;
+    g_assert_false(dsp_replay_verify_gp_feedback(data, &native_calls, &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    dsp_replay_case_free(data);
+}
+
 static void test_native_ep_entry_guard(void)
 {
     g_autofree DSPReplaySnapshot *s = g_new0(DSPReplaySnapshot, 1);
@@ -924,16 +938,23 @@ int __wrap_main(int argc, char **argv)
 {
     module_call_init(MODULE_INIT_QOM);
     if (argc == 3 && (!strcmp(argv[1], "--replay") ||
+                      !strcmp(argv[1], "--replay-gp-feedback") ||
                       !strcmp(argv[1], "--replay-native-ep") ||
                       !strcmp(argv[1], "--native-ep-guard"))) {
         Error *err = NULL;
         DSPReplayCase *data = dsp_replay_load_case(argv[2], &err);
         bool native = !strcmp(argv[1], "--replay-native-ep");
+        bool feedback = !strcmp(argv[1], "--replay-gp-feedback");
         bool guard = !strcmp(argv[1], "--native-ep-guard");
-        bool matched = data && (guard ? (!data->is_gp && data->realtime &&
-                                         ep_native_entry_guard(&data->before)) :
-                                native ? dsp_replay_verify_native_ep(data, &err) :
-                                         dsp_replay_verify_case(data, &err));
+        uint64_t native_calls = 0;
+        bool matched =
+            data &&
+            (guard ? (!data->is_gp && data->realtime &&
+                      ep_native_entry_guard(&data->before)) :
+             feedback ?
+                     dsp_replay_verify_gp_feedback(data, &native_calls, &err) :
+             native ? dsp_replay_verify_native_ep(data, &err) :
+                      dsp_replay_verify_case(data, &err));
         g_autofree char *program = NULL;
         uint64_t payload = 0;
         if (data) {
@@ -950,17 +971,18 @@ int __wrap_main(int argc, char **argv)
                 payload += g_bytes_get_size(io->bytes);
             }
         }
-        printf("{\"matched\":%s,\"processor\":\"%s\",\"calls\":%u,\"transactions\":%u,"
+        printf("{\"matched\":%s,\"processor\":\"%s\",\"calls\":%u,"
+               "\"transactions\":%u,"
                "\"program_sha256\":\"%s\",\"payload_bytes\":%" PRIu64 ","
                "\"before_cycles\":%u,\"before_halted\":%s,\"halted\":%s,"
-               "\"realtime\":%s}\n",
-               matched ? "true" : "false", data ? (data->is_gp ? "GP" : "EP") : "",
-               data ? data->calls : 0,
+               "\"realtime\":%s,\"native_feedback_calls\":%" PRIu64 "}\n",
+               matched ? "true" : "false",
+               data ? (data->is_gp ? "GP" : "EP") : "", data ? data->calls : 0,
                data ? data->io->len : 0, program ? program : "", payload,
                data ? data->before.jit.cpu.cycle_count : 0,
                data && data->before.jit.cpu.halt_requested ? "true" : "false",
                data && data->after.jit.cpu.halt_requested ? "true" : "false",
-               data && data->realtime ? "true" : "false");
+               data && data->realtime ? "true" : "false", native_calls);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);
@@ -973,6 +995,8 @@ int __wrap_main(int argc, char **argv)
     test_directory = g_dir_make_tmp("xemu-dsp-replay-tests-XXXXXX", NULL);
     g_assert_nonnull(test_directory);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
+    g_test_add_func("/mcpx-apu/dsp-replay/gp-feedback-unknown",
+                    test_gp_feedback_replay_rejects_unknown);
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-projection", test_native_ep_projection);
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-entry-guard", test_native_ep_entry_guard);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-excluded-program", test_ep_excluded_program_capture);

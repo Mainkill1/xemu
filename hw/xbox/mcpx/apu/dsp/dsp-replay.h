@@ -40,6 +40,9 @@ void dsp_replay_case_free(DSPReplayCase *data);
 bool dsp_replay_save_case(const char *path, DSPReplayCase *data, Error **errp);
 DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
+/* Offline stepped replay; excludes run-loop cycle budget from comparison. */
+bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
+                                   Error **errp);
 /* Offline comparison only; this does not authorize serving native output. */
 bool dsp_replay_verify_native_ep(DSPReplayCase *data, Error **errp);
 bool dsp_replay_take_snapshot(DSPState *dsp, DSPReplaySnapshot *snapshot);

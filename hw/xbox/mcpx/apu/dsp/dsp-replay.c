@@ -9,6 +9,7 @@
 #include "dsp_internal.h"
 #include "dsp-replay.h"
 #include "ep-mix-hle.h"
+#include "gp-feedback-project.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
 #include "ep-native-project.h"
@@ -665,6 +666,101 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
     }
     g_free(actual);
     return matched;
+}
+
+bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
+                                   Error **errp)
+{
+    if (native_calls) {
+        *native_calls = 0;
+    }
+    if (!valid_case(data, errp)) {
+        return false;
+    }
+    if (!data->is_gp || !data->realtime) {
+        error_setg(errp, "GP feedback replay requires a realtime GP capture");
+        return false;
+    }
+    GChecksum *checksum = g_checksum_new(G_CHECKSUM_SHA256);
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        uint32_t word = cpu_to_le32(data->before.jit.pram[i] & 0xffffff);
+        g_checksum_update(checksum, (const uint8_t *)&word, sizeof(word));
+    }
+    bool recognized = !strcmp(
+        g_checksum_get_string(checksum),
+        "f7c1b74d7ff1493a3c52fd2ca032fe744d96fabf56b6dd93de22114c793e525b");
+    g_checksum_free(checksum);
+    if (!recognized) {
+        error_setg(errp, "Unknown GP feedback program");
+        return false;
+    }
+    ReplayCursor cursor = { .data = data };
+    DSPState *dsp = dsp_init(&cursor, replay_scratch, replay_fifo, true);
+    dsp_set_engine(dsp, true);
+    restore_snapshot(dsp, &data->before);
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *next = g_new0(DSPJitState, 1);
+    uint64_t executed = 0;
+    unsigned steps;
+    for (steps = 0; steps < 1000000 && !dsp_get_halt_requested(dsp); steps++) {
+        if (!dsp_jit_get_native_state(dsp, state)) {
+            error_setg(&cursor.error, "GP replay state unavailable");
+            break;
+        }
+        if (state->cpu.pc == 0x788 &&
+            !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram)) &&
+            gp_feedback_project(state, next)) {
+            if (!dsp_jit_set_native_state(dsp, next)) {
+                error_setg(&cursor.error, "GP replay state restore failed");
+                break;
+            }
+            executed++;
+        } else {
+            dsp_step(dsp);
+        }
+        if (cursor.error) {
+            break;
+        }
+    }
+    if (!cursor.error && !dsp_get_halt_requested(dsp)) {
+        error_setg(&cursor.error,
+                   "GP feedback replay did not halt within step limit");
+    }
+    if (!cursor.error && cursor.position != data->io->len) {
+        error_setg(&cursor.error,
+                   "GP feedback replay did not consume all transactions");
+    }
+    if (!cursor.error && !executed) {
+        error_setg(&cursor.error,
+                   "GP feedback replay executed no native calls");
+    }
+    g_autofree DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
+    if (!cursor.error && !dsp_replay_take_snapshot(dsp, actual)) {
+        error_setg(&cursor.error, "GP replay final state unavailable");
+    }
+    dsp_destroy(dsp);
+    if (native_calls) {
+        *native_calls = executed;
+    }
+    if (cursor.error) {
+        error_propagate(errp, cursor.error);
+        return false;
+    }
+    for (const VMStateField *field = snapshot_vmstate.fields; field->name;
+         field++) {
+        if (!strcmp(field->name, "jit.cpu.cycle_budget")) {
+            continue; /* dsp_step does not use the run-loop budget. */
+        }
+        size_t count = field->flags & VMS_ARRAY ? field->num : 1;
+        if (memcmp((uint8_t *)actual + field->offset,
+                   (uint8_t *)&data->after + field->offset,
+                   field->size * count)) {
+            error_setg(errp, "GP feedback replay post-state differs at %s",
+                       field->name);
+            return false;
+        }
+    }
+    return true;
 }
 
 typedef struct NativeEPReplayCursor {
