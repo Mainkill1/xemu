@@ -41,6 +41,7 @@ typedef struct EPMixFrame {
     uint32_t mixed[2][256];
     uint32_t peak[2], rms[2];
     uint8_t pcm[1024];
+    bool negative_clip;
 } EPMixFrame;
 
 static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
@@ -49,6 +50,7 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
     EPMixFrame result;
     uint64_t squares[2] = { 0, 0 };
     result.peak[0] = result.peak[1] = 0;
+    result.negative_clip = false;
     if (!input || !output) {
         return false;
     }
@@ -69,6 +71,7 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
             if (((uint64_t)sum & 0x7fffff) == 0x400000 && q23 % 2 != 0) {
                 q23--;
             }
+            result.negative_clip |= q23 < -0x800000;
             q23 = q23 < -0x800000 ? -0x800000 : q23 > 0x7fffff ? 0x7fffff : q23;
             result.mixed[ch][i] = (uint32_t)q23 & 0xffffff;
             uint32_t magnitude = q23 < 0 ? -q23 : q23;
@@ -89,6 +92,14 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
     }
     *output = result;
     return true;
+}
+
+/* Observed for one identified program; diagnostic only, not a DSP rule. */
+static inline uint32_t ep_mix_shadow_status(uint32_t before,
+                                            const EPMixFrame *frame)
+{
+    return (before & ~UINT32_C(0x3f)) | 0x10 |
+           (frame->negative_clip ? 0x40 : 0);
 }
 
 static inline bool ep_mix_hle(const uint32_t input[5][256],

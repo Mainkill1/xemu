@@ -55,6 +55,30 @@ int main(void)
                         frame.rms[0] == 0x18b6eb && frame.rms[1] == 0x18b536,
                     "EP signal meters differ from synthetic JIT output");
 
+    /* JIT-derived status observations for this program, not a hardware spec. */
+    memset(input, 0, sizeof(input));
+    failed |= check(ep_mix_frame_hle(input, &frame), "silent frame rejected");
+    failed |= check(ep_mix_shadow_status(0xc003bf, &frame) == 0xc00390,
+                    "silent status prediction differs from JIT");
+    failed |= check(ep_mix_shadow_status(0xc003ff, &frame) == 0xc003d0,
+                    "sticky limit flag was lost");
+    for (unsigned ch = 0; ch < 5; ch++) {
+        for (unsigned i = 0; i < 256; i++) {
+            input[ch][i] = 0x7fffff;
+        }
+    }
+    failed |= check(ep_mix_frame_hle(input, &frame), "positive frame rejected");
+    failed |= check(ep_mix_shadow_status(0xc00390, &frame) == 0xc00390,
+                    "positive clipping status differs from JIT");
+    for (unsigned ch = 0; ch < 5; ch++) {
+        for (unsigned i = 0; i < 256; i++) {
+            input[ch][i] = 0x800000;
+        }
+    }
+    failed |= check(ep_mix_frame_hle(input, &frame), "negative frame rejected");
+    failed |= check(ep_mix_shadow_status(0xc00390, &frame) == 0xc003d0,
+                    "negative clipping status differs from JIT");
+
     /* Each channel sum lands exactly halfway between two 24-bit values. */
     for (unsigned i = 0; i < 256; i++) {
         uint32_t seed = 1 ^ (i * UINT32_C(0x9e3779b9));
