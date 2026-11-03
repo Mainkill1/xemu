@@ -55,6 +55,8 @@ typedef struct JitBackend {
     uint64_t meter_hle_calls;
     uint64_t delay_hle_calls;
     bool block_hle_enabled;
+    bool block_diag_entered;
+    bool block_diag_provider_started;
     uint64_t block_hle_native_calls;
     uint64_t block_hle_guest_cycles;
     DSPJitState *gp_before, *gp_after;
@@ -113,6 +115,12 @@ static bool dsp_jit_run_block_hle(DSPState *dsp, Dsp56300State *cpu, int cycles)
         return false;
     }
     bool may_dispatch = false;
+    if (be->filter_hle_stats && !be->block_diag_entered) {
+        be->block_diag_entered = true;
+        fprintf(stderr,
+                "GP block HLE diagnostic: enter pc=%06x budget=%" PRId64 "\n",
+                cpu->pc, budget);
+    }
     while (budget > 0 && !cpu->halt_requested) {
         unsigned cost = 0;
         switch (cpu->pc) {
@@ -232,8 +240,21 @@ static bool dsp_jit_run_block_hle(DSPState *dsp, Dsp56300State *cpu, int cycles)
         uint32_t previous_cycles = cpu->cycle_count;
         cpu->cycle_budget = 0;
         dsp56300_set_state(be->jit, cpu);
+        bool log_provider =
+            be->filter_hle_stats && !be->block_diag_provider_started;
+        if (log_provider) {
+            be->block_diag_provider_started = true;
+            fprintf(stderr, "GP block HLE diagnostic: provider start pc=%06x\n",
+                    cpu->pc);
+        }
         dsp56300_run(be->jit, 1);
         dsp56300_get_state(be->jit, cpu);
+        if (log_provider) {
+            fprintf(stderr,
+                    "GP block HLE diagnostic: provider returned pc=%06x "
+                    "cycles=%u\n",
+                    cpu->pc, cpu->cycle_count - previous_cycles);
+        }
         uint32_t consumed = cpu->cycle_count - previous_cycles;
         may_dispatch = true;
         if (!consumed) {
