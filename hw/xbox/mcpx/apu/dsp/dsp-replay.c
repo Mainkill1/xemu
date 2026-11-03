@@ -16,6 +16,7 @@
 #include "gp-meter-project.h"
 #include "gp-mac-project.h"
 #include "gp-delay-project.h"
+#include "gp-decimate-project.h"
 #include "gp-filter-hle.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
@@ -723,7 +724,9 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             (state->cpu.pc == 0x788 || state->cpu.pc == 0x761 ||
              state->cpu.pc == 0x4a0 || state->cpu.pc == 0x6a2 ||
              state->cpu.pc == 0x431 || state->cpu.pc == 0x49b ||
-             state->cpu.pc == 0x944 || filter_pc) &&
+             state->cpu.pc == 0x944 || state->cpu.pc == 0x986 ||
+             state->cpu.pc == 0xa02 || state->cpu.pc == 0xa7e ||
+             state->cpu.pc == 0xafa || filter_pc) &&
             !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram));
         bool feedback = stable && state->cpu.pc == 0x788 &&
                         gp_feedback_project(state, next);
@@ -739,6 +742,10 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             stable && state->cpu.pc == 0x49b && gp_mac_project(state, next);
         bool delay =
             stable && state->cpu.pc == 0x944 && gp_delay_project(state, next);
+        bool decimate = stable &&
+                        (state->cpu.pc == 0x986 || state->cpu.pc == 0xa02 ||
+                         state->cpu.pc == 0xa7e || state->cpu.pc == 0xafa) &&
+                        gp_decimate_project(state, next);
         bool filter = false;
         bool filter_nonzero = false;
         if (stable && filter_pc) {
@@ -761,7 +768,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             }
         }
         if (feedback || mix2 || add || matrix || meter || filter || mac ||
-            delay) {
+            delay || decimate) {
             bool restored = preserve_cache ?
                                 dsp_jit_set_native_data_state(dsp, next) :
                                 dsp_jit_set_native_state(dsp, next);
@@ -777,6 +784,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             executed.filter_calls += filter;
             executed.mac_calls += mac;
             executed.delay_calls += delay;
+            executed.decimate_calls += decimate;
             executed.filter_nonzero_calls += filter_nonzero;
             executed.native_cycles += feedback ? GP_FEEDBACK_PROJECT_CYCLES :
                                       mix2     ? GP_MIX2_PROJECT_CYCLES :
@@ -805,7 +813,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
     if (!cursor.error && enable_native && !executed.feedback_calls &&
         !executed.mix2_calls && !executed.add_calls && !executed.matrix_calls &&
         !executed.meter_calls && !executed.filter_calls &&
-        !executed.mac_calls) {
+        !executed.mac_calls && !executed.delay_calls &&
+        !executed.decimate_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }

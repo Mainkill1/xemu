@@ -26,6 +26,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
                                .filter_calls = 99,
                                .mac_calls = 99,
                                .delay_calls = 99,
+                               .decimate_calls = 99,
                                .filter_nonzero_calls = 99,
                                .dsp_steps = 99,
                                .native_cycles = 99 };
@@ -42,6 +43,7 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.filter_calls, ==, 0);
     g_assert_cmpuint(stats.mac_calls, ==, 0);
     g_assert_cmpuint(stats.delay_calls, ==, 0);
+    g_assert_cmpuint(stats.decimate_calls, ==, 0);
     g_assert_cmpuint(stats.filter_nonzero_calls, ==, 0);
     g_assert_cmpuint(stats.dsp_steps, ==, 0);
     g_assert_cmpuint(stats.native_cycles, ==, 0);
@@ -1011,6 +1013,7 @@ int __wrap_main(int argc, char **argv)
             ",\"native_mix2_calls\":%" PRIu64 ",\"native_add_calls\":%" PRIu64
             ",\"native_matrix_calls\":%" PRIu64
             ",\"native_meter_calls\":%" PRIu64
+            ",\"native_decimate_calls\":%" PRIu64
             ",\"native_delay_calls\":%" PRIu64 ",\"native_mac_calls\":%" PRIu64
             ",\"native_filter_calls\":%" PRIu64
             ",\"native_filter_nonzero_calls\":%" PRIu64
@@ -1023,9 +1026,9 @@ int __wrap_main(int argc, char **argv)
             data && data->after.jit.cpu.halt_requested ? "true" : "false",
             data && data->realtime ? "true" : "false", stats.feedback_calls,
             stats.mix2_calls, stats.add_calls, stats.matrix_calls,
-            stats.meter_calls, stats.delay_calls, stats.mac_calls,
-            stats.filter_calls, stats.filter_nonzero_calls, stats.dsp_steps,
-            stats.native_cycles);
+            stats.meter_calls, stats.decimate_calls, stats.delay_calls,
+            stats.mac_calls, stats.filter_calls, stats.filter_nonzero_calls,
+            stats.dsp_steps, stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);
