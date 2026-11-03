@@ -1020,7 +1020,8 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
         d->gp.program_observer->decimate_enabled = decimate_enabled;
         d->gp.program_observer->filter_enabled = filter_enabled;
     }
-    bool native_enabled = ep_native && !strcmp(ep_native, "1");
+    bool native_enabled = d->audio_engine == AUDIO_ENGINE_HLE ||
+                          (ep_native && !strcmp(ep_native, "1"));
     if ((ep_shadow && !strcmp(ep_shadow, "1")) || native_enabled) {
         d->ep.mix_observer = g_new0(EPMixObserver, 1);
         d->ep.mix_observer->native_requested = native_enabled;

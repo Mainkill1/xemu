@@ -246,9 +246,7 @@ static void se_frame(MCPXAPUState *d)
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
 
     mcpx_apu_vp_frame(d, mixbins);
-    if (d->audio_engine != AUDIO_ENGINE_HLE) {
-        mcpx_apu_dsp_frame(d, mixbins);
-    }
+    mcpx_apu_dsp_frame(d, mixbins);
     mcpx_apu_monitor_frame(d);
 
     d->ep_frame_div++;

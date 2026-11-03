@@ -15,7 +15,8 @@ static inline AudioEnginePolicy audio_engine_policy(int engine, bool dsp,
         return (AudioEnginePolicy){ true, true, false };
     }
     if (engine == AUDIO_ENGINE_HLE) {
-        return (AudioEnginePolicy){ false, jit, true };
+        /* Native stages need the complete frame and a JIT fallback. */
+        return (AudioEnginePolicy){ true, true, false };
     }
     return (AudioEnginePolicy){ dsp, jit, false };
 }

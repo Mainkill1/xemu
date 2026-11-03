@@ -13,7 +13,7 @@ int main(void)
             AudioEnginePolicy forced = audio_engine_policy(1, dsp, jit);
             assert(forced.realtime_dsp && forced.jit && !forced.bypass_dsp);
             AudioEnginePolicy hle = audio_engine_policy(2, dsp, jit);
-            assert(!hle.realtime_dsp && hle.bypass_dsp);
+            assert(hle.realtime_dsp && hle.jit && !hle.bypass_dsp);
             AudioEnginePolicy invalid = audio_engine_policy(99, dsp, jit);
             assert(invalid.realtime_dsp == legacy.realtime_dsp);
             assert(invalid.jit == legacy.jit && !invalid.bypass_dsp);
