@@ -58,6 +58,9 @@ static void test_native_ep_entry_guard(void)
     s->jit.pram[0x1a6] ^= 4;
     g_assert_false(ep_native_entry_guard(s));
     s->jit.pram[0x1a6] ^= 4;
+    s->jit.xram[0x701] = 1;
+    g_assert_false(ep_native_entry_guard(s));
+    s->jit.xram[0x701] = 0;
     s->jit.cpu.stack[1][1] ^= 1;
     g_assert_false(ep_native_entry_guard(s));
 }
@@ -190,6 +193,31 @@ static void test_capture_ep_frame(void)
     g_unsetenv("XEMU_EP_REPLAY_PATH");
     g_unsetenv("XEMU_EP_REPLAY_DELAY_MS");
     g_unlink(path);
+}
+
+static void test_native_ep_unknown_fallback(void)
+{
+    MCPXAPUState *d = g_new0(MCPXAPUState, 1);
+    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    g_setenv("XEMU_EP_NATIVE_EXPERIMENT", "1", true);
+    g_config.audio.use_dsp = true;
+    g_config.audio.use_dsp_jit = true;
+    d->audio_engine = AUDIO_ENGINE_JIT;
+    mcpx_apu_dsp_init(d);
+    g_assert_nonnull(d->ep.mix_observer);
+    d->ep.regs[NV_PAPU_EPRST] = 3;
+    d->ep.realtime = true;
+    dsp_write_memory(d->ep.dsp, 'P', 0, 0x08f484);
+    dsp_write_memory(d->ep.dsp, 'P', 1, 1);
+    dsp_write_memory(d->ep.dsp, 'P', 2, 0);
+    mcpx_apu_dsp_frame(d, bins);
+    g_assert_true(dsp_get_halt_requested(d->ep.dsp));
+    g_assert_cmpuint(dsp_get_cycle_count(d->ep.dsp), >, 0);
+    mcpx_apu_dsp_finalize(d);
+    dsp_destroy(d->gp.dsp);
+    dsp_destroy(d->ep.dsp);
+    g_free(d);
+    g_unsetenv("XEMU_EP_NATIVE_EXPERIMENT");
 }
 
 static void test_capture_both_frames(void)
@@ -949,6 +977,7 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-entry-guard", test_native_ep_entry_guard);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-excluded-program", test_ep_excluded_program_capture);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-ep-unknown-fallback", test_native_ep_unknown_fallback);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);

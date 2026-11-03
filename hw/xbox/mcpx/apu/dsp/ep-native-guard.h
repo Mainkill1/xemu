@@ -52,6 +52,11 @@ static inline bool ep_native_entry_guard(const DSPReplaySnapshot *s)
             return false;
         }
     }
+    for (unsigned i = 0; i < 4; i++) {
+        if (s->jit.pram[0x1ab + i] != s->jit.xram[0x701 + i]) {
+            return false;
+        }
+    }
     for (unsigned i = 0; i < 16; i++) {
         uint32_t pc = i >= 1 && i <= 5 ? stack_pc[i - 1] : 0;
         uint32_t sr = i == 1           ? (phase == 0 ? 0xc00394 : 0xc00399) :

@@ -35,6 +35,7 @@
 #include "ep-native-sge.h"
 #include "ep-native-fifo.h"
 #include "ep-native-guard.h"
+#include "ep-native-policy.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -51,6 +52,9 @@ typedef struct EPMixObserver {
     uint64_t fifo_preflight_passed, fifo_preflight_skipped;
     uint64_t fifo_cursor_matched, fifo_cursor_mismatched;
     uint64_t entry_guard_passed, entry_guard_rejected;
+    bool entry_accepted, native_requested;
+    uint64_t native_served, native_nonzero, native_fallback;
+    uint64_t native_cursor_mismatched;
     char projection_field[96];
     uint64_t frames, backend_skips, unknown_program, bad_overlay;
     uint64_t unexpected_scratch, unexpected_fifo, incomplete;
@@ -129,6 +133,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " fifo_preflight_passed=%" PRIu64 " fifo_preflight_skipped=%" PRIu64
             " fifo_cursor_matched=%" PRIu64 " fifo_cursor_mismatched=%" PRIu64
             " entry_guard_passed=%" PRIu64 " entry_guard_rejected=%" PRIu64
+            " native_served=%" PRIu64 " native_nonzero=%" PRIu64
+            " native_fallback=%" PRIu64 " native_cursor_mismatched=%" PRIu64
             " last_projection_field=%s"
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
@@ -147,6 +153,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             o->fifo_preflight_passed, o->fifo_preflight_skipped,
             o->fifo_cursor_matched, o->fifo_cursor_mismatched,
             o->entry_guard_passed, o->entry_guard_rejected,
+            o->native_served, o->native_nonzero, o->native_fallback,
+            o->native_cursor_mismatched,
             o->projection_field[0] ? o->projection_field : "none",
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
@@ -162,6 +170,7 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
     o->preinput_ready = false;
     o->projection_ready = false;
     o->fifo_prepared = false;
+    o->entry_accepted = false;
     if (++o->frames % 10000 == 0) {
         ep_mix_observer_report(o);
     }
@@ -174,9 +183,9 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
     o->unknown_program += !known;
     ep_mix_shadow_begin(&o->shadow, known, o->before.jit.pram);
     if (o->shadow.armed) {
-        bool accepted = ep_native_entry_guard(&o->before);
-        o->entry_guard_passed += accepted;
-        o->entry_guard_rejected += !accepted;
+        o->entry_accepted = ep_native_entry_guard(&o->before);
+        o->entry_guard_passed += o->entry_accepted;
+        o->entry_guard_rejected += !o->entry_accepted;
     }
     if (o->shadow.armed && d->ram && d->ram_ptr) {
         EPNativeScratchView view = {
@@ -661,6 +670,39 @@ static void ep_fifo_rw(void *opaque, uint8_t *ptr, unsigned int index,
     SET_MASK(d->regs[cur_reg], NV_PAPU_GPOFCUR0_VALUE, cur);
 }
 
+/* Experimental partial EP route. Unknown programs and unprepared frames
+ * remain on the DSP; this is not the full HLE engine. */
+static bool ep_native_try_execute(MCPXAPUState *d, DSPReplay *capture)
+{
+    EPMixObserver *o = d->ep.mix_observer;
+    if (!o || !o->native_requested) {
+        return false;
+    }
+    if (!ep_native_can_execute(o->native_requested, d->ep.realtime,
+                               o->shadow.armed, o->entry_accepted,
+                               o->projection_ready, o->fifo_prepared,
+                               capture != NULL) ||
+        !dsp_jit_set_native_state(d->ep.dsp, &o->projected.jit)) {
+        o->native_fallback++;
+        return false;
+    }
+
+    d->ep.dsp->interrupts = o->projected.interrupts;
+    d->ep.dsp->save_cycles = o->projected.save_cycles;
+    o->shadow.armed = false;
+    ep_fifo_rw(d, o->projected_pcm, 0, sizeof(o->projected_pcm), true);
+    uint32_t current = GET_MASK(d->regs[NV_PAPU_EPOFCUR0],
+                                NV_PAPU_GPOFCUR0_VALUE);
+    o->native_cursor_mismatched += current != o->fifo_next;
+    bool nonzero = false;
+    for (unsigned i = 0; i < sizeof(o->projected_pcm); i++) {
+        nonzero |= o->projected_pcm[i] != 0;
+    }
+    o->native_served++;
+    o->native_nonzero += nonzero;
+    return true;
+}
+
 static void proc_rst_write(DSPState *dsp, uint32_t oldval, uint32_t val)
 {
     if (!(val & NV_PAPU_GPRST_GPRST) || !(val & NV_PAPU_GPRST_GPDSPRST)) {
@@ -935,13 +977,15 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
             uint64_t calls = 0;
             ep_mix_observer_begin(d->ep.mix_observer, d, d->ep.dsp,
                                   d->ep.realtime);
-            do {
-                dsp_run(d->ep.dsp, 1000);
-                if (capture || d->ep.mix_observer) {
-                    calls++;
-                }
-            } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
-            ep_mix_observer_end(d->ep.mix_observer, d, d->ep.dsp, calls);
+            if (!ep_native_try_execute(d, capture)) {
+                do {
+                    dsp_run(d->ep.dsp, 1000);
+                    if (capture || d->ep.mix_observer) {
+                        calls++;
+                    }
+                } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
+                ep_mix_observer_end(d->ep.mix_observer, d, d->ep.dsp, calls);
+            }
             if (capture) {
                 Error *err = NULL;
                 if (!dsp_replay_end(capture, calls, &err)) {
@@ -966,6 +1010,7 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
     const char *shadow = g_getenv("XEMU_GP_DECIMATE_SHADOW");
     const char *filter_shadow = g_getenv("XEMU_GP_FILTER_FRAME_SHADOW");
     const char *ep_shadow = g_getenv("XEMU_EP_MIX_SHADOW");
+    const char *ep_native = g_getenv("XEMU_EP_NATIVE_EXPERIMENT");
     bool decimate_enabled = shadow && !strcmp(shadow, "1");
     bool filter_enabled = filter_shadow && !strcmp(filter_shadow, "1");
     if (decimate_enabled || filter_enabled) {
@@ -973,8 +1018,10 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
         d->gp.program_observer->decimate_enabled = decimate_enabled;
         d->gp.program_observer->filter_enabled = filter_enabled;
     }
-    if (ep_shadow && !strcmp(ep_shadow, "1")) {
+    bool native_enabled = ep_native && !strcmp(ep_native, "1");
+    if ((ep_shadow && !strcmp(ep_shadow, "1")) || native_enabled) {
         d->ep.mix_observer = g_new0(EPMixObserver, 1);
+        d->ep.mix_observer->native_requested = native_enabled;
     }
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;

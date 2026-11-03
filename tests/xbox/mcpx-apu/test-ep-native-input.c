@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "hw/xbox/mcpx/apu/dsp/ep-native-input.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-policy.h"
 
 typedef struct Fixture {
     unsigned reads, validations, fail_read, fail_validation;
@@ -58,6 +59,16 @@ static bool mock_validate(void *opaque, const uint8_t *data, size_t len)
 
 int main(void)
 {
+    if (!ep_native_can_execute(true, true, true, true, true, true, false))
+        return 20;
+    if (ep_native_can_execute(false, true, true, true, true, true, false) ||
+        ep_native_can_execute(true, false, true, true, true, true, false) ||
+        ep_native_can_execute(true, true, false, true, true, true, false) ||
+        ep_native_can_execute(true, true, true, false, true, true, false) ||
+        ep_native_can_execute(true, true, true, true, false, true, false) ||
+        ep_native_can_execute(true, true, true, true, true, false, false) ||
+        ep_native_can_execute(true, true, true, true, true, true, true))
+        return 21;
     uint32_t input[5][256], saved[5][256];
     Fixture f = {
         .fail_read = 99, .fail_validation = 99, .phase = 0, .slot = 0x100
