@@ -26,41 +26,57 @@
 #include "dsp-replay.h"
 #include "dsp-jit-state.h"
 #include "gp-decimate-shadow.h"
+#include "gp-filter-frame-shadow.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
 
-typedef struct GPDecimateObserver {
+typedef struct GPProgramObserver {
     GPDecimateShadow shadow;
+    GPFilterFrameShadow filter_shadow;
     DSPJitState before, after;
     uint32_t program[DSP_PRAM_SIZE];
     uint64_t frames, backend_skips, program_skips;
-    bool program_valid, recognized;
-} GPDecimateObserver;
+    bool program_valid, recognized, decimate_enabled, filter_enabled;
+} GPProgramObserver;
 
-static void gp_decimate_observer_report(const GPDecimateObserver *o)
+static void gp_program_observer_report(const GPProgramObserver *o)
 {
-    fprintf(stderr, "GP decimate shadow: frames=%" PRIu64
-            " attempted=%" PRIu64 " eligible=%" PRIu64
-            " skipped=%" PRIu64 " invalidated=%" PRIu64
-            " matched_routes=%" PRIu64 " nonzero_matched_routes=%" PRIu64
-            " mismatched_routes=%" PRIu64
-            " writes=%" PRIu64 " backend_skips=%" PRIu64
-            " program_skips=%" PRIu64 "\n", o->frames,
-            o->shadow.attempted, o->shadow.eligible, o->shadow.skipped,
-            o->shadow.invalidated, o->shadow.matched, o->shadow.nonzero_matched,
-            o->shadow.mismatched,
-            o->shadow.writes, o->backend_skips, o->program_skips);
+    if (o->decimate_enabled) {
+        fprintf(stderr, "GP decimate shadow: frames=%" PRIu64
+                " attempted=%" PRIu64 " eligible=%" PRIu64
+                " skipped=%" PRIu64 " invalidated=%" PRIu64
+                " matched_routes=%" PRIu64 " nonzero_matched_routes=%" PRIu64
+                " mismatched_routes=%" PRIu64
+                " writes=%" PRIu64 " backend_skips=%" PRIu64
+                " program_skips=%" PRIu64 "\n", o->frames,
+                o->shadow.attempted, o->shadow.eligible, o->shadow.skipped,
+                o->shadow.invalidated, o->shadow.matched,
+                o->shadow.nonzero_matched, o->shadow.mismatched,
+                o->shadow.writes, o->backend_skips, o->program_skips);
+    }
+    if (o->filter_enabled) {
+        const GPFilterFrameShadow *s = &o->filter_shadow;
+        fprintf(stderr, "GP filter-frame shadow: frames=%" PRIu64
+                " attempted=%" PRIu64 " eligible=%" PRIu64
+                " skipped=%" PRIu64 " invalidated=%" PRIu64
+                " matched_channels=%" PRIu64 " nonzero_matched_channels=%" PRIu64
+                " mismatched_channels=%" PRIu64 " backend_skips=%" PRIu64
+                " program_skips=%" PRIu64 "\n", o->frames, s->attempted,
+                s->eligible, s->skipped, s->invalidated, s->matched,
+                s->nonzero_matched, s->mismatched, o->backend_skips,
+                o->program_skips);
+    }
 }
 
-static void gp_decimate_observer_begin(GPDecimateObserver *o, DSPState *dsp,
-                                       bool realtime)
+static void gp_program_observer_begin(GPProgramObserver *o, DSPState *dsp,
+                                      bool realtime)
 {
     if (!o) {
         return;
     }
     if (++o->frames % 10000 == 0) {
-        gp_decimate_observer_report(o);
+        gp_program_observer_report(o);
     }
     if (!realtime || !dsp_jit_get_native_state(dsp, &o->before)) {
         o->backend_skips++;
@@ -83,18 +99,27 @@ static void gp_decimate_observer_begin(GPDecimateObserver *o, DSPState *dsp,
         o->program_skips++;
         return;
     }
-    gp_decimate_shadow_prepare(&o->shadow, o->before.xram);
+    if (o->decimate_enabled) {
+        gp_decimate_shadow_prepare(&o->shadow, o->before.xram);
+    }
+    if (o->filter_enabled) {
+        gp_filter_frame_shadow_prepare(&o->filter_shadow, o->before.xram,
+                                       o->before.yram);
+    }
 }
 
-static void gp_decimate_observer_end(GPDecimateObserver *o, DSPState *dsp)
+static void gp_program_observer_end(GPProgramObserver *o, DSPState *dsp)
 {
-    if (!o || !o->shadow.armed) {
+    if (!o || (!o->shadow.armed && !o->filter_shadow.armed)) {
         return;
     }
     bool valid = dsp_jit_get_native_state(dsp, &o->after);
     bool stable = valid && !memcmp(o->before.pram, o->after.pram,
-                                    sizeof(o->before.pram));
+                                   sizeof(o->before.pram));
     gp_decimate_shadow_finish(&o->shadow, valid ? o->after.xram : NULL, stable);
+    gp_filter_frame_shadow_finish(&o->filter_shadow,
+                                  valid ? o->after.xram : NULL,
+                                  valid ? o->after.yram : NULL, stable);
 }
 
 void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
@@ -168,8 +193,8 @@ static void gp_scratch_rw(void *opaque, uint8_t *ptr, uint32_t addr, size_t len,
                           bool dir)
 {
     MCPXAPUState *d = opaque;
-    if (dir && d->gp.decimate_observer) {
-        gp_decimate_shadow_write(&d->gp.decimate_observer->shadow, addr, ptr,
+    if (dir && d->gp.program_observer) {
+        gp_decimate_shadow_write(&d->gp.program_observer->shadow, addr, ptr,
                                  len);
     }
     // fprintf(stderr, "GP %s scratch 0x%x bytes (0x%x words) at %x (0x%x words)\n", dir ? "writing to" : "reading from", len, len/4, addr, addr/4);
@@ -547,8 +572,8 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
         DSPReplay *capture = dsp_replay_begin(d->gp.dsp, d->gp.realtime);
         uint64_t calls = 0;
 
-        gp_decimate_observer_begin(d->gp.decimate_observer, d->gp.dsp,
-                                   d->gp.realtime);
+        gp_program_observer_begin(d->gp.program_observer, d->gp.dsp,
+                                  d->gp.realtime);
 
         do {
             dsp_run(d->gp.dsp, 1000);
@@ -556,7 +581,7 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
                 calls++;
             }
         } while (!dsp_get_halt_requested(d->gp.dsp) && d->gp.realtime);
-        gp_decimate_observer_end(d->gp.decimate_observer, d->gp.dsp);
+        gp_program_observer_end(d->gp.program_observer, d->gp.dsp);
         g_dbg.gp.cycles = dsp_get_cycle_count(d->gp.dsp);
         if (profile) {
             int64_t elapsed_ns =
@@ -615,8 +640,13 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
 void mcpx_apu_dsp_init(MCPXAPUState *d)
 {
     const char *shadow = g_getenv("XEMU_GP_DECIMATE_SHADOW");
-    if (shadow && !strcmp(shadow, "1")) {
-        d->gp.decimate_observer = g_new0(GPDecimateObserver, 1);
+    const char *filter_shadow = g_getenv("XEMU_GP_FILTER_FRAME_SHADOW");
+    bool decimate_enabled = shadow && !strcmp(shadow, "1");
+    bool filter_enabled = filter_shadow && !strcmp(filter_shadow, "1");
+    if (decimate_enabled || filter_enabled) {
+        d->gp.program_observer = g_new0(GPProgramObserver, 1);
+        d->gp.program_observer->decimate_enabled = decimate_enabled;
+        d->gp.program_observer->filter_enabled = filter_enabled;
     }
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;
@@ -637,10 +667,10 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
 
 void mcpx_apu_dsp_finalize(MCPXAPUState *d)
 {
-    GPDecimateObserver *o = d->gp.decimate_observer;
+    GPProgramObserver *o = d->gp.program_observer;
     if (o) {
-        gp_decimate_observer_report(o);
+        gp_program_observer_report(o);
         g_free(o);
-        d->gp.decimate_observer = NULL;
+        d->gp.program_observer = NULL;
     }
 }

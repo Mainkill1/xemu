@@ -39,6 +39,12 @@ programs are excluded and counted; HLE audio
 does not consume these predictions. This diagnostic does not establish Xbox
 hardware accuracy, complete game audio, or a performance improvement.
 
+``XEMU_GP_FILTER_FRAME_SHADOW=1`` separately compares eight candidate
+two-section filter outputs and their histories with the same identified GP
+program after the JIT frame completes. It counts matched channels with
+nonzero output separately. This opt-in diagnostic also leaves the DSP in
+control and makes no claim about the rest of the GP or EP program.
+
 The intended future implementation must cover real guest DSP programs and
 their state, effects, DMA and IRQ behavior. Use independently verified program
 contracts and shadow comparisons; do not treat this direct-path prototype as

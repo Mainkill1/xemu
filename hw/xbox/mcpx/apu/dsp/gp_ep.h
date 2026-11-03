@@ -32,7 +32,7 @@ typedef struct MCPXAPUState MCPXAPUState;
 
 typedef struct MCPXAPUGPState {
     bool realtime;
-    struct GPDecimateObserver *decimate_observer;
+    struct GPProgramObserver *program_observer;
     MemoryRegion mmio;
     DSPState *dsp;
     uint32_t regs[0x10000];
