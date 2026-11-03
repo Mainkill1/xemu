@@ -30,6 +30,8 @@ static void test_gp_feedback_replay_rejects_unknown(void)
                                .gain_calls = 99,
                                .dma_start_calls = 99,
                                .dma_start_transactions = 99,
+                               .dma_sequence_calls = 99,
+                               .dma_sequence_transactions = 99,
                                .filter_nonzero_calls = 99,
                                .dsp_steps = 99,
                                .native_cycles = 99 };
@@ -50,6 +52,8 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.gain_calls, ==, 0);
     g_assert_cmpuint(stats.dma_start_calls, ==, 0);
     g_assert_cmpuint(stats.dma_start_transactions, ==, 0);
+    g_assert_cmpuint(stats.dma_sequence_calls, ==, 0);
+    g_assert_cmpuint(stats.dma_sequence_transactions, ==, 0);
     g_assert_cmpuint(stats.filter_nonzero_calls, ==, 0);
     g_assert_cmpuint(stats.dsp_steps, ==, 0);
     g_assert_cmpuint(stats.native_cycles, ==, 0);
@@ -614,6 +618,113 @@ static void test_native_dma_start(void)
     dsp_destroy(control);
 }
 
+static void test_native_dma_sequence(void)
+{
+    /* Independently assembled: set next block; unfreeze and poll; start and
+     * poll. */
+    static const uint32_t program[] = {
+        0x08f494, 0x40, 0x08f496, 4, 0x0cd623, 0, 0x08f496, 1, 0x0cd604, 0, 0,
+    };
+    TestIO native_io = { 0 }, control_io = { 0 };
+    DSPState *native = make_dsp(&native_io, true);
+    DSPState *control = make_dsp(&control_io, true);
+    for (unsigned i = 0; i < ARRAY_SIZE(program); i++) {
+        dsp_write_memory(native, 'P', i, program[i]);
+        dsp_write_memory(control, 'P', i, program[i]);
+    }
+    dsp_step(native);
+    dsp_step(control);
+    native->dma.control = control->dma.control = 0x28;
+    native->dma.dma_read_count = control->dma.dma_read_count = 1;
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *scratch = g_new0(DSPJitState, 1);
+    g_autofree DSPReplaySnapshot *before = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *expected = g_new0(DSPReplaySnapshot, 1);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    g_assert_true(dsp_replay_take_snapshot(native, before));
+    Error *err = NULL;
+    state->pram[4] ^= 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_cmpuint(native_io.reads, ==, 0);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    state->cpu.interrupts.pending_bits[0] = 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    state->cpu.registers[DSP_REG_SR] |= 1U << DSP_SR_LF;
+    state->cpu.registers[DSP_REG_LA] = state->cpu.pc + 3;
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    native->dma.eol = true;
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    native->dma.eol = false;
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_cmpuint(native_io.reads, ==, 0);
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_DONE);
+    g_assert_null(err);
+    for (unsigned i = 0; i < 4; i++) {
+        dsp_step(control);
+    }
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    g_assert_true(dsp_replay_take_snapshot(control, expected));
+    assert_snapshot_equal(expected, actual);
+    g_assert_cmpuint(native_io.reads, ==, 1);
+    g_assert_cmpuint(native_io.writes, ==, 1);
+    g_assert_cmpuint(native_io.fifos, ==, 1);
+    g_assert_cmpmem(native_io.output, sizeof(native_io.output),
+                    control_io.output, sizeof(control_io.output));
+    dsp_destroy(native);
+    dsp_destroy(control);
+}
+
+static void test_native_dma_sequence_self_modify(void)
+{
+    static const uint32_t program[] = {
+        0x08f494, 0x40, 0x08f496, 4, 0x0cd623, 0, 0x08f496, 1, 0x0cd604, 0, 0,
+    };
+    TestIO io = { 0 };
+    DSPState *dsp = make_dsp(&io, true);
+    for (unsigned i = 0; i < ARRAY_SIZE(program); i++) {
+        dsp_write_memory(dsp, 'P', i, program[i]);
+    }
+    /* One scratch-read node overwrites the final polling opcode in PRAM. */
+    dsp_write_memory(dsp, 'X', 0x40, 0x4000);
+    dsp_write_memory(dsp, 'X', 0x42, 1);
+    dsp_write_memory(dsp, 'X', 0x43, 0x2808);
+    dsp_step(dsp);
+    dsp->dma.control = 0x28;
+    dsp->dma.dma_read_count = 1;
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *scratch = g_new0(DSPJitState, 1);
+    g_assert_true(dsp_jit_get_native_state(dsp, state));
+    Error *err = NULL;
+    g_assert_cmpint(
+        dsp_replay_native_dma_sequence(dsp, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_FAILED);
+    g_assert_nonnull(err);
+    error_free(err);
+    g_assert_cmpuint(io.reads, ==, 1);
+    g_assert_cmphex(dsp_read_memory(dsp, 'P', 8), !=, program[8]);
+    dsp_destroy(dsp);
+}
+
 static void test_dma_replay(void)
 {
     TestIO io = { 0 };
@@ -1080,6 +1191,8 @@ int __wrap_main(int argc, char **argv)
             ",\"native_mix2_calls\":%" PRIu64 ",\"native_add_calls\":%" PRIu64
             ",\"native_matrix_calls\":%" PRIu64
             ",\"native_meter_calls\":%" PRIu64
+            ",\"native_dma_sequence_calls\":%" PRIu64
+            ",\"native_dma_sequence_transactions\":%" PRIu64
             ",\"native_dma_start_calls\":%" PRIu64
             ",\"native_dma_start_transactions\":%" PRIu64
             ",\"native_gain_calls\":%" PRIu64
@@ -1096,7 +1209,8 @@ int __wrap_main(int argc, char **argv)
             data && data->after.jit.cpu.halt_requested ? "true" : "false",
             data && data->realtime ? "true" : "false", stats.feedback_calls,
             stats.mix2_calls, stats.add_calls, stats.matrix_calls,
-            stats.meter_calls, stats.dma_start_calls,
+            stats.meter_calls, stats.dma_sequence_calls,
+            stats.dma_sequence_transactions, stats.dma_start_calls,
             stats.dma_start_transactions, stats.gain_calls,
             stats.decimate_calls, stats.delay_calls, stats.mac_calls,
             stats.filter_calls, stats.filter_nonzero_calls, stats.dsp_steps,
@@ -1122,6 +1236,10 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-unknown-fallback", test_native_ep_unknown_fallback);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-dma-sequence",
+                    test_native_dma_sequence);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-dma-sequence-self-modify",
+                    test_native_dma_sequence_self_modify);
     g_test_add_func("/mcpx-apu/dsp-replay/native-dma-start",
                     test_native_dma_start);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
