@@ -29,6 +29,9 @@
 #include "gp-filter-frame-shadow.h"
 #include "ep-mix-shadow.h"
 #include "ep-mix-identity.h"
+#include "ep-native-input.h"
+#include "ep-native-ram.h"
+#include "ep-native-sge.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -41,8 +44,44 @@ typedef struct EPMixObserver {
     uint64_t status_matched, status_mismatched;
     uint64_t stack_matched, stack_mismatched;
     uint64_t registers_matched, registers_mismatched;
+    uint32_t preinput[5][256];
+    bool preinput_ready;
+    uint64_t preinput_prepared, preinput_skipped;
+    uint64_t preinput_matched, preinput_mismatched;
     char last_program_digest[65];
 } EPMixObserver;
+
+typedef struct EPNativeScratchView {
+    EPNativeRAMView ram;
+    uint64_t ram_size, sge_base;
+    uint32_t max_sge;
+} EPNativeScratchView;
+
+static bool ep_native_shadow_scratch_read(void *opaque, uint32_t address,
+                                          uint8_t *output, size_t length)
+{
+    EPNativeScratchView *view = opaque;
+    return ep_native_sge_read(&view->ram, ep_native_ram_read, view->ram_size,
+                              view->sge_base, view->max_sge, address, output,
+                              length);
+}
+
+static bool ep_mix_overlay_known(void *opaque, const uint8_t *bytes,
+                                 size_t length)
+{
+    (void)opaque;
+    const char *expected = length == 96 ?
+        "9494761d6c24f15823888f78fe0e25f081005183f5d492b626003724d916b582" :
+        length == 804 ?
+        "68da34164ce85698200097ee113446181ee6381aacc3a499ea1ca5c5d058a9d3" :
+        NULL;
+    if (!expected) {
+        return false;
+    }
+    g_autofree char *digest =
+        g_compute_checksum_for_data(G_CHECKSUM_SHA256, bytes, length);
+    return !strcmp(digest, expected);
+}
 
 static bool ep_mix_program_known(const uint32_t *pram, char *digest_out)
 {
@@ -72,6 +111,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " status_matched=%" PRIu64 " status_mismatched=%" PRIu64
             " stack_matched=%" PRIu64 " stack_mismatched=%" PRIu64
             " registers_matched=%" PRIu64 " registers_mismatched=%" PRIu64
+            " preinput_prepared=%" PRIu64 " preinput_skipped=%" PRIu64
+            " preinput_matched=%" PRIu64 " preinput_mismatched=%" PRIu64
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
             " unexpected_fifo=%" PRIu64 " incomplete=%" PRIu64
@@ -83,16 +124,20 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             o->status_matched, o->status_mismatched,
             o->stack_matched, o->stack_mismatched,
             o->registers_matched, o->registers_mismatched,
+            o->preinput_prepared, o->preinput_skipped,
+            o->preinput_matched, o->preinput_mismatched,
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
             o->last_program_digest);
 }
 
-static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime)
+static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
+                                  DSPState *dsp, bool realtime)
 {
     if (!o) {
         return;
     }
+    o->preinput_ready = false;
     if (++o->frames % 10000 == 0) {
         ep_mix_observer_report(o);
     }
@@ -104,6 +149,19 @@ static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime
                                       o->last_program_digest);
     o->unknown_program += !known;
     ep_mix_shadow_begin(&o->shadow, known, o->before.pram);
+    if (o->shadow.armed && d->ram && d->ram_ptr) {
+        EPNativeScratchView view = {
+            .ram = { .as = &address_space_memory, .ram = d->ram },
+            .ram_size = memory_region_size(d->ram),
+            .sge_base = d->regs[NV_PAPU_EPSADDR],
+            .max_sge = d->regs[NV_PAPU_EPSMAXSGE],
+        };
+        o->preinput_ready = ep_native_prepare_input(
+            &view, ep_native_shadow_scratch_read, ep_mix_overlay_known,
+            o->shadow.before_phase, o->shadow.before_slot, o->preinput);
+        o->preinput_prepared += o->preinput_ready;
+        o->preinput_skipped += !o->preinput_ready;
+    }
 }
 
 static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
@@ -118,6 +176,13 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
                          valid ? o->after.pram : NULL,
                          valid && ep_mix_program_known(o->after.pram, NULL));
     if (o->shadow.eligible != eligible_before) {
+        if (o->preinput_ready) {
+            if (!memcmp(o->preinput, o->shadow.input, sizeof(o->preinput))) {
+                o->preinput_matched++;
+            } else {
+                o->preinput_mismatched++;
+            }
+        }
         EPMixFrame prediction;
         if (ep_mix_frame_hle(o->shadow.input, &prediction)) {
             uint32_t expected = ep_mix_shadow_status(
@@ -789,7 +854,8 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
             dsp_set_cycle_count(d->ep.dsp, 0);
             DSPReplay *capture = dsp_replay_begin(d->ep.dsp, d->ep.realtime);
             uint64_t calls = 0;
-            ep_mix_observer_begin(d->ep.mix_observer, d->ep.dsp, d->ep.realtime);
+            ep_mix_observer_begin(d->ep.mix_observer, d, d->ep.dsp,
+                                  d->ep.realtime);
             do {
                 dsp_run(d->ep.dsp, 1000);
                 if (capture) {

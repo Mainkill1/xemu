@@ -37,9 +37,76 @@ static void tracked_cache_destroy(MemoryRegionCache *cache)
 #undef address_space_cache_init
 #undef address_space_cache_destroy
 #include "hw/xbox/mcpx/apu/vp/adpcm.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-ram.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-sge.h"
 
 static MemoryRegion table, ram_table, old_bank, new_bank;
 static MemoryRegion tail_bank, io_bank, other_table;
+static unsigned native_mmio_reads;
+
+static uint64_t native_mmio_read(void *opaque, hwaddr addr, unsigned size)
+{
+    native_mmio_reads++;
+    return 0;
+}
+
+static const MemoryRegionOps native_mmio_ops = {
+    .read = native_mmio_read,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+};
+
+static void test_native_ep_ram(void)
+{
+    MemoryRegion root, ram, overlay, alias;
+    AddressSpace as;
+    uint8_t output[16];
+    memory_region_init(&root, NULL, "test-native-root", UINT64_MAX);
+    memory_region_init_ram(&ram, NULL, "test-native-ram", 0x4000, &error_fatal);
+    memory_region_add_subregion(&root, 0, &ram);
+    memory_region_init_alias(&alias, NULL, "test-native-alias", &ram, 0,
+                             0x1000);
+    memory_region_add_subregion(&root, 0x4000, &alias);
+    memory_region_init_io(&overlay, NULL, &native_mmio_ops, NULL,
+                          "test-native-mmio", 0x100);
+    memory_region_add_subregion_overlap(&root, 0x1000, &overlay, 1);
+    address_space_init(&as, &root, "test-native-as");
+    uint8_t *bytes = memory_region_get_ram_ptr(&ram);
+    for (unsigned i = 0; i < sizeof(output); i++)
+        bytes[0x100 + i] = i;
+    EPNativeRAMView view = { .as = &as, .ram = &ram };
+    g_assert_true(ep_native_ram_read(&view, 0x100, output, sizeof(output)));
+    for (unsigned i = 0; i < sizeof(output); i++)
+        g_assert_cmpuint(output[i], ==, i);
+    stl_le_p(bytes + 0x200, 0x2000);
+    for (unsigned i = 0; i < sizeof(output); i++)
+        bytes[0x2200 + i] = i + 1;
+    g_assert_true(ep_native_sge_read(&view, ep_native_ram_read, 0x4000, 0x200,
+                                     0, 0x200, output, sizeof(output)));
+    for (unsigned i = 0; i < sizeof(output); i++)
+        g_assert_cmpuint(output[i], ==, i + 1);
+    memset(output, 0x5a, sizeof(output));
+    native_mmio_reads = 0;
+    stl_le_p(bytes + 0x200, 0x1000);
+    g_assert_false(ep_native_sge_read(&view, ep_native_ram_read, 0x4000, 0x200,
+                                      0, 0, output, sizeof(output)));
+    g_assert_false(ep_native_ram_read(&view, 0x1000, output, sizeof(output)));
+    g_assert_false(ep_native_ram_read(&view, 0xff8, output, sizeof(output)));
+    g_assert_false(ep_native_ram_read(&view, 0x4000, output, sizeof(output)));
+    g_assert_false(ep_native_ram_read(&view, 0x9000, output, sizeof(output)));
+    g_assert_cmpuint(native_mmio_reads, ==, 0);
+    for (unsigned i = 0; i < sizeof(output); i++)
+        g_assert_cmpuint(output[i], ==, 0x5a);
+    address_space_destroy(&as);
+    drain_call_rcu();
+    memory_region_del_subregion(&root, &overlay);
+    memory_region_del_subregion(&root, &alias);
+    memory_region_del_subregion(&root, &ram);
+    drain_call_rcu();
+    memory_region_destroy(&overlay);
+    memory_region_destroy(&alias);
+    memory_region_destroy(&ram);
+    memory_region_destroy(&root);
+}
 static unsigned descriptor_reads;
 static bool remap_enabled;
 static uint32_t table_base = 0x1000;
@@ -783,6 +850,7 @@ int __wrap_main(int argc, char **argv)
     object_property_add_new_container(OBJECT(current_machine), "unattached");
     cpu_exec_init_all();
     initialize_memory();
+    g_test_add_func("/mcpx-apu/sample-memory/native-ep-ram", test_native_ep_ram);
     if (reader_benchmark) {
         return run_reader_benchmark(argv[2], words, blocks);
     }
