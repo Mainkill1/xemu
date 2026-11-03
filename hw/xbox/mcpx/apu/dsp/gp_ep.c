@@ -30,6 +30,7 @@
 #include "ep-mix-shadow.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
+#include "ep-native-project.h"
 #include "ep-native-ram.h"
 #include "ep-native-sge.h"
 #include "trace.h"
@@ -38,7 +39,12 @@ static const int16_t ep_silence[256][2] = { 0 };
 
 typedef struct EPMixObserver {
     EPMixShadow shadow;
-    DSPJitState before, after;
+    DSPReplaySnapshot before, after, projected;
+    uint8_t projected_pcm[1024];
+    uint32_t projected_calls;
+    bool projection_ready;
+    uint64_t projection_matched, projection_mismatched;
+    char projection_field[96];
     uint64_t frames, backend_skips, unknown_program, bad_overlay;
     uint64_t unexpected_scratch, unexpected_fifo, incomplete;
     uint64_t status_matched, status_mismatched;
@@ -113,6 +119,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " registers_matched=%" PRIu64 " registers_mismatched=%" PRIu64
             " preinput_prepared=%" PRIu64 " preinput_skipped=%" PRIu64
             " preinput_matched=%" PRIu64 " preinput_mismatched=%" PRIu64
+            " projection_matched=%" PRIu64 " projection_mismatched=%" PRIu64
+            " last_projection_field=%s"
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
             " unexpected_fifo=%" PRIu64 " incomplete=%" PRIu64
@@ -126,6 +134,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             o->registers_matched, o->registers_mismatched,
             o->preinput_prepared, o->preinput_skipped,
             o->preinput_matched, o->preinput_mismatched,
+            o->projection_matched, o->projection_mismatched,
+            o->projection_field[0] ? o->projection_field : "none",
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
             o->last_program_digest);
@@ -138,17 +148,18 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
         return;
     }
     o->preinput_ready = false;
+    o->projection_ready = false;
     if (++o->frames % 10000 == 0) {
         ep_mix_observer_report(o);
     }
-    if (!realtime || !dsp_jit_get_native_state(dsp, &o->before)) {
+    if (!realtime || !dsp_replay_take_snapshot(dsp, &o->before)) {
         o->backend_skips++;
         return;
     }
-    bool known = ep_mix_program_known(o->before.pram,
+    bool known = ep_mix_program_known(o->before.jit.pram,
                                       o->last_program_digest);
     o->unknown_program += !known;
-    ep_mix_shadow_begin(&o->shadow, known, o->before.pram);
+    ep_mix_shadow_begin(&o->shadow, known, o->before.jit.pram);
     if (o->shadow.armed && d->ram && d->ram_ptr) {
         EPNativeScratchView view = {
             .ram = { .as = &address_space_memory, .ram = d->ram },
@@ -161,21 +172,48 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
             o->shadow.before_phase, o->shadow.before_slot, o->preinput);
         o->preinput_prepared += o->preinput_ready;
         o->preinput_skipped += !o->preinput_ready;
+        if (o->preinput_ready) {
+            o->projection_ready = ep_native_project_frame(
+                &o->before, o->preinput, &o->projected, o->projected_pcm,
+                &o->projected_calls);
+        }
     }
 }
 
-static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
+static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp,
+                                uint64_t calls)
 {
     if (!o || !o->shadow.armed) {
         return;
     }
-    bool valid = dsp_jit_get_native_state(dsp, &o->after);
+    bool valid = dsp_replay_take_snapshot(dsp, &o->after);
     uint64_t skipped_before = o->shadow.skipped;
     uint64_t eligible_before = o->shadow.eligible;
-    ep_mix_shadow_finish(&o->shadow, valid ? o->after.xram : NULL,
-                         valid ? o->after.pram : NULL,
-                         valid && ep_mix_program_known(o->after.pram, NULL));
+    ep_mix_shadow_finish(&o->shadow, valid ? o->after.jit.xram : NULL,
+                         valid ? o->after.jit.pram : NULL,
+                         valid && ep_mix_program_known(o->after.jit.pram, NULL));
     if (o->shadow.eligible != eligible_before) {
+        if (o->projection_ready) {
+            const char *field = NULL;
+            bool same = dsp_replay_snapshot_equal(&o->projected, &o->after,
+                                                   &field);
+            if (same && o->projected_calls != calls) {
+                same = false;
+                field = "calls";
+            }
+            if (same && memcmp(o->projected_pcm, o->shadow.actual,
+                               sizeof(o->projected_pcm))) {
+                same = false;
+                field = "fifo";
+            }
+            if (same) {
+                o->projection_matched++;
+            } else {
+                o->projection_mismatched++;
+                g_strlcpy(o->projection_field, field ? field : "unknown",
+                          sizeof(o->projection_field));
+            }
+        }
         if (o->preinput_ready) {
             if (!memcmp(o->preinput, o->shadow.input, sizeof(o->preinput))) {
                 o->preinput_matched++;
@@ -186,29 +224,29 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
         EPMixFrame prediction;
         if (ep_mix_frame_hle(o->shadow.input, &prediction)) {
             uint32_t expected = ep_mix_shadow_status(
-                o->before.cpu.registers[DSP_REG_SR], &prediction);
-            if (expected == o->after.cpu.registers[DSP_REG_SR]) {
+                o->before.jit.cpu.registers[DSP_REG_SR], &prediction);
+            if (expected == o->after.jit.cpu.registers[DSP_REG_SR]) {
                 o->status_matched++;
             } else {
                 o->status_mismatched++;
             }
             uint32_t expected_stack[2][16];
-            ep_mix_shadow_stack(o->before.cpu.stack, o->shadow.before_phase,
+            ep_mix_shadow_stack(o->before.jit.cpu.stack, o->shadow.before_phase,
                                 expected, expected_stack);
-            if (!memcmp(expected_stack, o->after.cpu.stack,
+            if (!memcmp(expected_stack, o->after.jit.cpu.stack,
                         sizeof(expected_stack))) {
                 o->stack_matched++;
             } else {
                 o->stack_mismatched++;
             }
             uint32_t expected_regs[64];
-            ep_mix_shadow_registers(o->before.cpu.registers,
+            ep_mix_shadow_registers(o->before.jit.cpu.registers,
                                     o->shadow.before_counter,
                                     o->shadow.before_slot,
-                                    o->before.cpu.stack[0][0],
-                                    o->before.cpu.stack[1][0], &prediction,
+                                    o->before.jit.cpu.stack[0][0],
+                                    o->before.jit.cpu.stack[1][0], &prediction,
                                     expected_regs);
-            if (!memcmp(expected_regs, o->after.cpu.registers,
+            if (!memcmp(expected_regs, o->after.jit.cpu.registers,
                         sizeof(expected_regs))) {
                 o->registers_matched++;
             } else {
@@ -858,11 +896,11 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
                                   d->ep.realtime);
             do {
                 dsp_run(d->ep.dsp, 1000);
-                if (capture) {
+                if (capture || d->ep.mix_observer) {
                     calls++;
                 }
             } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
-            ep_mix_observer_end(d->ep.mix_observer, d->ep.dsp);
+            ep_mix_observer_end(d->ep.mix_observer, d->ep.dsp, calls);
             if (capture) {
                 Error *err = NULL;
                 if (!dsp_replay_end(capture, calls, &err)) {

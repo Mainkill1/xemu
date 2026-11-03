@@ -35,6 +35,13 @@ static void test_native_ep_projection(void)
     g_assert_cmpuint(after->jit.xram[0x900], ==, 0x123456);
     g_assert_cmpuint(before->interrupts, ==, 2);
     g_assert_cmpuint(after->interrupts, ==, 0);
+    const char *field = NULL;
+    g_assert_true(dsp_replay_snapshot_equal(after, after, &field));
+    g_assert_null(field);
+    g_autofree DSPReplaySnapshot *changed = g_memdup2(after, sizeof(*after));
+    changed->jit.xram[0] ^= 1;
+    g_assert_false(dsp_replay_snapshot_equal(after, changed, &field));
+    g_assert_cmpstr(field, ==, "jit.xram");
     for (unsigned i = 0; i < sizeof(pcm); i++) {
         g_assert_cmpuint(pcm[i], ==, 0);
     }

@@ -42,6 +42,10 @@ DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
 /* Offline comparison only; this does not authorize serving native output. */
 bool dsp_replay_verify_native_ep(DSPReplayCase *data, Error **errp);
+bool dsp_replay_take_snapshot(DSPState *dsp, DSPReplaySnapshot *snapshot);
+bool dsp_replay_snapshot_equal(const DSPReplaySnapshot *a,
+                               const DSPReplaySnapshot *b,
+                               const char **different_field);
 
 /* All recorder operations run on the owning APU thread under its lock. */
 bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,

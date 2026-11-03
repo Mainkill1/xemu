@@ -290,8 +290,11 @@ fail:
     return NULL;
 }
 
-static bool take_snapshot(DSPState *dsp, DSPReplaySnapshot *s)
+bool dsp_replay_take_snapshot(DSPState *dsp, DSPReplaySnapshot *s)
 {
+    if (!dsp || !s) {
+        return false;
+    }
     memset(s, 0, sizeof(*s));
     if (!dsp_jit_get_native_state(dsp, &s->jit)) {
         return false;
@@ -307,6 +310,31 @@ static bool take_snapshot(DSPState *dsp, DSPReplaySnapshot *s)
         .error = dsp->dma.error,
         .eol = dsp->dma.eol,
     };
+    return true;
+}
+
+bool dsp_replay_snapshot_equal(const DSPReplaySnapshot *a,
+                               const DSPReplaySnapshot *b,
+                               const char **different_field)
+{
+    if (different_field) {
+        *different_field = NULL;
+    }
+    if (!a || !b) {
+        return false;
+    }
+    for (const VMStateField *field = snapshot_vmstate.fields; field->name;
+         field++) {
+        size_t count = field->flags & VMS_ARRAY ? field->num : 1;
+        size_t length = field->size * count;
+        if (memcmp((const uint8_t *)a + field->offset,
+                   (const uint8_t *)b + field->offset, length)) {
+            if (different_field) {
+                *different_field = field->name;
+            }
+            return false;
+        }
+    }
     return true;
 }
 
@@ -468,7 +496,7 @@ DSPReplay *dsp_replay_begin(DSPState *dsp, bool realtime)
     }
     r->data = dsp_replay_case_new();
     r->data->is_gp = dsp->is_gp;
-    if (!take_snapshot(dsp, &r->data->before)) {
+    if (!dsp_replay_take_snapshot(dsp, &r->data->before)) {
         error_report("DSP replay capture no longer has a JIT backend");
         dsp_replay_cleanup(dsp);
         return NULL;
@@ -490,7 +518,7 @@ bool dsp_replay_end(DSPReplay *r, uint64_t calls, Error **errp)
     bool ok = false;
     restore_callbacks(r);
     if (r->failed || !calls || calls > DSP_REPLAY_MAX_CALLS ||
-        !take_snapshot(dsp, &r->data->after)) {
+        !dsp_replay_take_snapshot(dsp, &r->data->after)) {
         error_setg(errp, "DSP replay capture incomplete or exceeds limits");
     } else {
         r->data->calls = calls;
@@ -579,7 +607,7 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
         error_setg(&cursor.error, "DSP replay did not consume all transactions");
     }
     DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
-    take_snapshot(dsp, actual);
+    dsp_replay_take_snapshot(dsp, actual);
     dsp_destroy(dsp);
     if (cursor.error) {
         error_propagate(errp, cursor.error);
