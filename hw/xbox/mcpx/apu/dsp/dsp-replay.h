@@ -30,7 +30,7 @@ typedef struct DSPReplayIO {
 typedef struct DSPReplayCase {
     DSPReplaySnapshot before, after;
     uint32_t calls;
-    bool realtime;
+    bool realtime, is_gp;
     GPtrArray *io;
 } DSPReplayCase;
 

@@ -4,6 +4,7 @@
 #include "qobject/qdict.h"
 #include "qobject/qjson.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "hw/xbox/mcpx/apu/audio-engine-policy.h"
 #include <glib/gstdio.h>
 #include "hw/xbox/mcpx/apu/dsp/dsp-replay.h"
 
@@ -50,6 +51,84 @@ static void test_capture_frame(void)
     g_rmdir(directory);
 }
 
+static void test_capture_ep_frame(void)
+{
+    g_autofree char *path = g_build_filename(test_directory, "ep-frame.bin", NULL);
+    MCPXAPUState *d = g_new0(MCPXAPUState, 1);
+    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    g_setenv("XEMU_EP_REPLAY_PATH", path, true);
+    g_setenv("XEMU_EP_REPLAY_DELAY_MS", "0", true);
+    g_config.audio.use_dsp = true;
+    g_config.audio.use_dsp_jit = false;
+    d->audio_engine = AUDIO_ENGINE_JIT;
+    mcpx_apu_dsp_init(d);
+    d->ep.regs[NV_PAPU_EPRST] = 3;
+    d->ep.realtime = true;
+    dsp_write_memory(d->ep.dsp, 'P', 0, 0x08f484);
+    dsp_write_memory(d->ep.dsp, 'P', 1, 1);
+    dsp_write_memory(d->ep.dsp, 'P', 2, 0);
+    d->ep_frame_div = 1;
+    mcpx_apu_dsp_frame(d, bins);
+    g_assert_false(g_file_test(path, G_FILE_TEST_EXISTS));
+    d->ep_frame_div = 8;
+    mcpx_apu_dsp_frame(d, bins);
+    g_assert_true(dsp_get_halt_requested(d->ep.dsp));
+    g_assert_true(g_file_test(path, G_FILE_TEST_IS_REGULAR));
+    Error *err = NULL;
+    DSPReplayCase *data = dsp_replay_load_case(path, &err);
+    g_assert_null(err);
+    g_assert_nonnull(data);
+    g_assert_false(data->is_gp);
+    g_assert_true(dsp_replay_verify_case(data, &err));
+    g_assert_null(err);
+    dsp_replay_case_free(data);
+    dsp_destroy(d->gp.dsp);
+    dsp_destroy(d->ep.dsp);
+    g_free(d);
+    g_unsetenv("XEMU_EP_REPLAY_PATH");
+    g_unsetenv("XEMU_EP_REPLAY_DELAY_MS");
+    g_unlink(path);
+}
+
+static void test_capture_both_frames(void)
+{
+    g_autofree char *gp_path = g_build_filename(test_directory, "both-gp.bin", NULL);
+    g_autofree char *ep_path = g_build_filename(test_directory, "both-ep.bin", NULL);
+    MCPXAPUState *d = g_new0(MCPXAPUState, 1);
+    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    g_setenv("XEMU_GP_REPLAY_PATH", gp_path, true);
+    g_setenv("XEMU_EP_REPLAY_PATH", ep_path, true);
+    g_config.audio.use_dsp = true;
+    g_config.audio.use_dsp_jit = true;
+    mcpx_apu_dsp_init(d);
+    d->gp.regs[NV_PAPU_GPRST] = 3;
+    d->ep.regs[NV_PAPU_EPRST] = 3;
+    d->gp.realtime = d->ep.realtime = true;
+    DSPState *processors[] = { d->gp.dsp, d->ep.dsp };
+    for (unsigned i = 0; i < 2; i++) {
+        dsp_write_memory(processors[i], 'P', 0, 0x08f484);
+        dsp_write_memory(processors[i], 'P', 1, 1);
+        dsp_write_memory(processors[i], 'P', 2, 0);
+    }
+    mcpx_apu_dsp_frame(d, bins);
+    const char *paths[] = { gp_path, ep_path };
+    for (unsigned i = 0; i < 2; i++) {
+        Error *err = NULL;
+        DSPReplayCase *data = dsp_replay_load_case(paths[i], &err);
+        g_assert_null(err);
+        g_assert_nonnull(data);
+        g_assert_cmpint(data->is_gp, ==, i == 0);
+        g_assert_true(dsp_replay_verify_case(data, &err));
+        g_assert_null(err);
+        dsp_replay_case_free(data);
+        dsp_destroy(processors[i]);
+        g_unlink(paths[i]);
+    }
+    g_free(d);
+    g_unsetenv("XEMU_GP_REPLAY_PATH");
+    g_unsetenv("XEMU_EP_REPLAY_PATH");
+}
+
 
 typedef struct TestIO {
     unsigned reads, writes, fifos;
@@ -82,7 +161,7 @@ static void fifo_io(void *opaque, uint8_t *ptr, unsigned index, size_t len,
     io->fifos++;
 }
 
-static DSPState *make_dsp(TestIO *io, bool dma)
+static DSPState *make_dsp_unit(TestIO *io, bool dma, bool is_gp)
 {
     /*
      * Independently assembled: movep #$40,x:<<$ffffd4;
@@ -91,7 +170,7 @@ static DSPState *make_dsp(TestIO *io, bool dma)
     static const uint32_t program[] = { 0x08f494, 0x40, 0x08f496, 1,
                                         0x08f484, 1,    0 };
     g_config.audio.use_dsp_jit = true;
-    DSPState *dsp = dsp_init(io, scratch_io, fifo_io, true);
+    DSPState *dsp = dsp_init(io, scratch_io, fifo_io, is_gp);
     if (dma) {
         for (unsigned i = 0; i < ARRAY_SIZE(program); i++) {
             dsp_write_memory(dsp, 'P', i, program[i]);
@@ -116,6 +195,11 @@ static DSPState *make_dsp(TestIO *io, bool dma)
     dsp_set_halt_requested(dsp, false);
     dsp_set_cycle_count(dsp, 0);
     return dsp;
+}
+
+static DSPState *make_dsp(TestIO *io, bool dma)
+{
+    return make_dsp_unit(io, dma, true);
 }
 
 static unsigned run_dsp(DSPState *dsp)
@@ -156,6 +240,7 @@ static void test_dma_replay(void)
     DSPReplayCase *data = dsp_replay_load_case(path, &err);
     g_assert_nonnull(data);
     g_assert_null(err);
+    g_assert_true(data->is_gp);
     g_assert_cmpuint(data->io->len, ==, 3);
     g_assert_cmpuint(dsp->dma.dma_read_count, ==, 0);
     g_assert_cmphex(dsp->dma.control, ==, DMA_CONTROL_RUNNING);
@@ -194,6 +279,7 @@ static void test_dma_replay(void)
     QDict *reply = qobject_to(QDict, object);
     g_assert_nonnull(reply);
     g_assert_true(qdict_get_bool(reply, "matched"));
+    g_assert_cmpstr(qdict_get_str(reply, "processor"), ==, "GP");
     g_assert_cmpint(qdict_get_int(reply, "transactions"), ==, 3);
     g_assert_cmpint(qdict_get_int(reply, "before_cycles"), ==, 0);
     g_assert_false(qdict_get_bool(reply, "before_halted"));
@@ -251,6 +337,64 @@ static void test_dma_replay(void)
     changed[0] ^= 1;
     g_bytes_unref(last->bytes);
     last->bytes = g_bytes_new_take(changed, len);
+    g_assert_false(dsp_replay_verify_case(data, &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    dsp_replay_case_free(data);
+    dsp_destroy(dsp);
+    g_unlink(path);
+}
+
+static void test_ep_dma_replay(void)
+{
+    TestIO io = { 0 };
+    DSPState *dsp = make_dsp_unit(&io, true, false);
+    g_autofree char *path = g_build_filename(test_directory, "ep-dma.bin", NULL);
+    Error *err = NULL;
+    g_assert_true(dsp_replay_configure(dsp, path, 0, &err));
+    DSPReplay *capture = dsp_replay_begin(dsp, true);
+    g_assert_nonnull(capture);
+    unsigned calls = run_dsp(dsp);
+    g_assert_true(dsp_replay_end(capture, calls, &err));
+    g_assert_null(err);
+    g_assert_cmpuint(io.reads, ==, 1);
+    g_assert_cmpuint(io.writes, ==, 1);
+    g_assert_cmpuint(io.fifos, ==, 1);
+    g_assert_true(dsp->dma.rw_opaque == &io);
+    g_assert_true(dsp->dma.scratch_rw == scratch_io);
+    g_assert_true(dsp->dma.fifo_rw == fifo_io);
+    DSPReplayCase *data = dsp_replay_load_case(path, &err);
+    g_assert_nonnull(data);
+    g_assert_null(err);
+    g_assert_false(data->is_gp);
+    g_assert_cmpuint(data->io->len, ==, 3);
+    g_assert_true(dsp_replay_verify_case(data, &err));
+    g_assert_null(err);
+    gchar *output = NULL, *errors = NULL;
+    gint status;
+    gchar replay_option[] = "--replay";
+    gchar *arguments[] = { (gchar *)test_executable, replay_option, path, NULL };
+    g_assert_true(g_spawn_sync(NULL, arguments, NULL, 0, NULL, NULL, &output,
+                               &errors, &status, NULL));
+    g_assert_cmpint(status, ==, 0);
+    QObject *object = qobject_from_json(output, &err);
+    g_assert_null(err);
+    QDict *reply = qobject_to(QDict, object);
+    g_assert_nonnull(reply);
+    g_assert_true(qdict_get_bool(reply, "matched"));
+    g_assert_cmpstr(qdict_get_str(reply, "processor"), ==, "EP");
+    qobject_unref(object);
+    g_free(output);
+    g_free(errors);
+    DSPReplayIO *fifo = g_ptr_array_index(data->io, 2);
+    g_assert_true(fifo->fifo);
+    gsize len;
+    const uint8_t *bytes = g_bytes_get_data(fifo->bytes, &len);
+    uint8_t *corrupt = g_memdup2(bytes, len);
+    g_assert_cmpuint(len, >, 0);
+    corrupt[0] ^= 1;
+    g_bytes_unref(fifo->bytes);
+    fifo->bytes = g_bytes_new_take(corrupt, len);
     g_assert_false(dsp_replay_verify_case(data, &err));
     g_assert_nonnull(err);
     error_free(err);
@@ -507,11 +651,12 @@ int __wrap_main(int argc, char **argv)
                 payload += g_bytes_get_size(io->bytes);
             }
         }
-        printf("{\"matched\":%s,\"calls\":%u,\"transactions\":%u,"
+        printf("{\"matched\":%s,\"processor\":\"%s\",\"calls\":%u,\"transactions\":%u,"
                "\"program_sha256\":\"%s\",\"payload_bytes\":%" PRIu64 ","
                "\"before_cycles\":%u,\"before_halted\":%s,\"halted\":%s,"
                "\"realtime\":%s}\n",
-               matched ? "true" : "false", data ? data->calls : 0,
+               matched ? "true" : "false", data ? (data->is_gp ? "GP" : "EP") : "",
+               data ? data->calls : 0,
                data ? data->io->len : 0, program ? program : "", payload,
                data ? data->before.jit.cpu.cycle_count : 0,
                data && data->before.jit.cpu.halt_requested ? "true" : "false",
@@ -529,7 +674,10 @@ int __wrap_main(int argc, char **argv)
     test_directory = g_dir_make_tmp("xemu-dsp-replay-tests-XXXXXX", NULL);
     g_assert_nonnull(test_directory);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
+    g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
+    g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
+    g_test_add_func("/mcpx-apu/dsp-replay/ep-dma", test_ep_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/codec", test_codec);
     g_test_add_func("/mcpx-apu/dsp-replay/disabled-delay-backend",
                     test_disabled_delay_backend);

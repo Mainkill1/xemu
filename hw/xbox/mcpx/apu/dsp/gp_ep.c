@@ -622,9 +622,21 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
             dsp_start_frame(d->ep.dsp);
             dsp_set_halt_requested(d->ep.dsp, false);
             dsp_set_cycle_count(d->ep.dsp, 0);
+            DSPReplay *capture = dsp_replay_begin(d->ep.dsp, d->ep.realtime);
+            uint64_t calls = 0;
             do {
                 dsp_run(d->ep.dsp, 1000);
+                if (capture) {
+                    calls++;
+                }
             } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
+            if (capture) {
+                Error *err = NULL;
+                if (!dsp_replay_end(capture, calls, &err)) {
+                    error_prepend(&err, "EP replay capture: ");
+                    error_report_err(err);
+                }
+            }
             g_dbg.ep.cycles = dsp_get_cycle_count(d->ep.dsp);
             if (profile) {
                 int64_t elapsed_ns =
@@ -651,7 +663,6 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;
     d->gp.dsp = dsp_init(d, gp_scratch_rw, gp_fifo_rw, true);
-    dsp_replay_init(d->gp.dsp);
     dsp_set_halt_requested(d->gp.dsp, false);
     dsp_set_cycle_count(d->gp.dsp, 0);
 
@@ -663,6 +674,8 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
      * use the full audio pipeline or not.
      */
     mcpx_apu_update_dsp_preference(d);
+    dsp_replay_init(d->gp.dsp);
+    dsp_replay_init(d->ep.dsp);
 }
 
 void mcpx_apu_dsp_finalize(MCPXAPUState *d)
