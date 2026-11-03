@@ -42,6 +42,15 @@ bool gp_filter_hle_try_run(GPFilterHLE *hle, Dsp56300State *cpu, uint32_t *xram,
     if (phase != 0 && phase != 0x3b) {
         return false;
     }
+    return gp_filter_hle_program_known(hle, pram) &&
+           gp_filter_hle_run_verified(cpu, xram, yram, cycles);
+}
+
+bool gp_filter_hle_program_known(GPFilterHLE *hle, const uint32_t *pram)
+{
+    if (!hle || !pram) {
+        return false;
+    }
     /* Full comparison also detects writes performed by the DSP itself. */
     if (!hle->valid || memcmp(hle->program, pram, sizeof(hle->program))) {
         uint32_t canonical[DSP_PRAM_SIZE];
@@ -55,8 +64,7 @@ bool gp_filter_hle_try_run(GPFilterHLE *hle, Dsp56300State *cpu, uint32_t *xram,
         memcpy(hle->program, pram, sizeof(hle->program));
         hle->valid = true;
     }
-    return hle->recognized &&
-           gp_filter_hle_run_verified(cpu, xram, yram, cycles);
+    return hle->recognized;
 }
 
 static int32_t signed24(uint32_t v)

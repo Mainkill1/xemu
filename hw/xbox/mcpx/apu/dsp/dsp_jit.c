@@ -22,6 +22,7 @@
 #include "dsp_internal.h"
 #include "dsp-jit-state.h"
 #include "gp-filter-hle.h"
+#include "gp-meter-project.h"
 #include "debug.h"
 #include "trace.h"
 
@@ -46,6 +47,8 @@ typedef struct JitBackend {
     bool filter_hle_stats;
     uint64_t filter_hle_calls;
     uint64_t filter_hle_samples;
+    uint64_t meter_hle_calls;
+    DSPJitState *meter_before, *meter_after;
 } JitBackend;
 
 static JitBackend *jit_be(DSPState *dsp)
@@ -122,6 +125,34 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
             cpu.registers[DSP_REG_R2] - start_input,
             cpu.cycle_count - start_cycles);
         return;
+    }
+    /* The rest of this meter loop is small enough to finish within one
+     * slice. Preserve remaining budget for the JIT and retain its cache. */
+    unsigned meter_count = cpu.registers[DSP_REG_LC];
+    int64_t remaining = (int64_t)cpu.cycle_budget + cycles;
+    if (dsp->gp_filter_hle_requested && be->filter_hle_ready &&
+        cpu.pc == 0x433 && meter_count >= 1 && meter_count <= 32 &&
+        remaining > (int64_t)meter_count * 11 && remaining <= INT32_MAX &&
+        gp_filter_hle_program_known(be->filter_hle, be->pram)) {
+        if (!be->meter_before) {
+            be->meter_before = g_new0(DSPJitState, 1);
+            be->meter_after = g_new0(DSPJitState, 1);
+        }
+        be->meter_before->cpu = cpu;
+        memcpy(be->meter_before->xram, be->xram,
+               sizeof(be->meter_before->xram));
+        if (gp_meter_slice_project(be->meter_before, be->meter_after)) {
+            be->meter_after->cpu.cycle_budget = remaining - meter_count * 11;
+            memcpy(be->xram, be->meter_after->xram,
+                   sizeof(be->meter_after->xram));
+            dsp56300_set_state(be->jit, &be->meter_after->cpu);
+            if (be->filter_hle_stats && ++be->meter_hle_calls == 1) {
+                fprintf(stderr, "GP meter HLE: calls=1\n");
+            }
+            dsp56300_run(be->jit, 0);
+            be->filter_hle_ready = true;
+            return;
+        }
     }
     /* A real block clears provider control state absent from the FFI image. */
     bool ready = cpu.pc < DSP_PRAM_SIZE &&
@@ -420,10 +451,12 @@ static void dsp_jit_finalize(DSPState *dsp)
     if (dsp->is_gp && be->filter_hle_stats) {
         fprintf(stderr,
                 "GP filter HLE: enabled=%d calls=%" PRIu64 " samples=%" PRIu64
-                "\n",
+                " meter_calls=%" PRIu64 "\n",
                 be->filter_hle != NULL, be->filter_hle_calls,
-                be->filter_hle_samples);
+                be->filter_hle_samples, be->meter_hle_calls);
     }
+    g_free(be->meter_before);
+    g_free(be->meter_after);
     gp_filter_hle_free(be->filter_hle);
     dsp56300_destroy(be->jit);
     g_free(be->xram);
