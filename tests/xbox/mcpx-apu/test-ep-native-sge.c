@@ -4,6 +4,7 @@
 #include <string.h>
 #include "hw/xbox/mcpx/apu/dsp/ep-native-input.h"
 #include "hw/xbox/mcpx/apu/dsp/ep-native-sge.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-fifo.h"
 
 typedef struct Memory {
     uint8_t bytes[0x40000];
@@ -94,5 +95,21 @@ int main(void)
         input[4][255] != 0x400ff) {
         return 8;
     }
+    uint32_t next = 0xdeadbeef;
+    if (!ep_native_fifo_preflight(&m, read_physical, sizeof(m.bytes), 0x100,
+                                  0x13, 0x10000, 0x10400, 0x10300, 512,
+                                  &next) ||
+        next != 0x10100)
+        return 9;
+    next = 0xdeadbeef;
+    if (ep_native_fifo_preflight(&m, read_physical, sizeof(m.bytes), 0x100,
+                                 0x13, 0x10000, 0x10000, 0x10000, 512, &next) ||
+        next != 0xdeadbeef)
+        return 10;
+    m.fail = true;
+    if (ep_native_fifo_preflight(&m, read_physical, sizeof(m.bytes), 0x100,
+                                 0x13, 0x10000, 0x10400, 0x10300, 512, &next) ||
+        next != 0xdeadbeef)
+        return 11;
     return 0;
 }

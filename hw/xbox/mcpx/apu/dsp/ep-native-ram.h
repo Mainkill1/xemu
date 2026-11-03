@@ -13,13 +13,15 @@ typedef struct EPNativeRAMView {
 /* The APU's existing scratch path indexes its RAM backing by physical
  * address. Reject aliases, overlays, and ranges that resolve differently,
  * without invoking any device read callbacks. The caller owns APU locking. */
-static inline bool ep_native_ram_read(void *opaque, uint64_t address,
-                                      uint8_t *output, size_t length)
+static inline bool ep_native_ram_access(void *opaque, uint64_t address,
+                                        uint8_t *output, size_t length,
+                                        bool for_write)
 {
     EPNativeRAMView *view = opaque;
     if (!view || !view->as || !view->ram || !output ||
         !memory_region_is_ram(view->ram) ||
-        memory_region_is_ram_device(view->ram)) {
+        memory_region_is_ram_device(view->ram) ||
+        (for_write && memory_region_is_rom(view->ram))) {
         return false;
     }
     uint64_t ram_size = memory_region_size(view->ram);
@@ -33,7 +35,7 @@ static inline bool ep_native_ram_read(void *opaque, uint64_t address,
     hwaddr offset = 0, mapped_length = length;
     MemoryRegion *region =
         address_space_translate(view->as, address, &offset, &mapped_length,
-                                false, MEMTXATTRS_UNSPECIFIED);
+                                for_write, MEMTXATTRS_UNSPECIFIED);
     if (region != view->ram || offset != address || mapped_length < length) {
         return false;
     }
@@ -43,5 +45,18 @@ static inline bool ep_native_ram_read(void *opaque, uint64_t address,
     }
     memcpy(output, ram + offset, length);
     return true;
+}
+
+static inline bool ep_native_ram_read(void *opaque, uint64_t address,
+                                      uint8_t *output, size_t length)
+{
+    return ep_native_ram_access(opaque, address, output, length, false);
+}
+
+/* Validate a potential write while reading the RAM into private storage. */
+static inline bool ep_native_ram_write_probe(void *opaque, uint64_t address,
+                                             uint8_t *output, size_t length)
+{
+    return ep_native_ram_access(opaque, address, output, length, true);
 }
 #endif

@@ -75,8 +75,13 @@ static void test_native_ep_ram(void)
         bytes[0x100 + i] = i;
     EPNativeRAMView view = { .as = &as, .ram = &ram };
     g_assert_true(ep_native_ram_read(&view, 0x100, output, sizeof(output)));
+    g_assert_true(ep_native_ram_write_probe(&view, 0x100, output, sizeof(output)));
     for (unsigned i = 0; i < sizeof(output); i++)
         g_assert_cmpuint(output[i], ==, i);
+    memory_region_set_readonly(&ram, true);
+    g_assert_false(ep_native_ram_write_probe(&view, 0x100, output, sizeof(output)));
+    g_assert_true(ep_native_ram_read(&view, 0x100, output, sizeof(output)));
+    memory_region_set_readonly(&ram, false);
     stl_le_p(bytes + 0x200, 0x2000);
     for (unsigned i = 0; i < sizeof(output); i++)
         bytes[0x2200 + i] = i + 1;
@@ -90,6 +95,8 @@ static void test_native_ep_ram(void)
     g_assert_false(ep_native_sge_read(&view, ep_native_ram_read, 0x4000, 0x200,
                                       0, 0, output, sizeof(output)));
     g_assert_false(ep_native_ram_read(&view, 0x1000, output, sizeof(output)));
+    g_assert_false(ep_native_ram_write_probe(&view, 0x1000, output,
+                                              sizeof(output)));
     g_assert_false(ep_native_ram_read(&view, 0xff8, output, sizeof(output)));
     g_assert_false(ep_native_ram_read(&view, 0x4000, output, sizeof(output)));
     g_assert_false(ep_native_ram_read(&view, 0x9000, output, sizeof(output)));

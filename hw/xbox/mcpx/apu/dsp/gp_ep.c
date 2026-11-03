@@ -33,6 +33,7 @@
 #include "ep-native-project.h"
 #include "ep-native-ram.h"
 #include "ep-native-sge.h"
+#include "ep-native-fifo.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -44,6 +45,10 @@ typedef struct EPMixObserver {
     uint32_t projected_calls;
     bool projection_ready;
     uint64_t projection_matched, projection_mismatched;
+    bool fifo_prepared;
+    uint32_t fifo_next;
+    uint64_t fifo_preflight_passed, fifo_preflight_skipped;
+    uint64_t fifo_cursor_matched, fifo_cursor_mismatched;
     char projection_field[96];
     uint64_t frames, backend_skips, unknown_program, bad_overlay;
     uint64_t unexpected_scratch, unexpected_fifo, incomplete;
@@ -120,6 +125,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " preinput_prepared=%" PRIu64 " preinput_skipped=%" PRIu64
             " preinput_matched=%" PRIu64 " preinput_mismatched=%" PRIu64
             " projection_matched=%" PRIu64 " projection_mismatched=%" PRIu64
+            " fifo_preflight_passed=%" PRIu64 " fifo_preflight_skipped=%" PRIu64
+            " fifo_cursor_matched=%" PRIu64 " fifo_cursor_mismatched=%" PRIu64
             " last_projection_field=%s"
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
@@ -135,6 +142,8 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             o->preinput_prepared, o->preinput_skipped,
             o->preinput_matched, o->preinput_mismatched,
             o->projection_matched, o->projection_mismatched,
+            o->fifo_preflight_passed, o->fifo_preflight_skipped,
+            o->fifo_cursor_matched, o->fifo_cursor_mismatched,
             o->projection_field[0] ? o->projection_field : "none",
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
@@ -149,6 +158,7 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
     }
     o->preinput_ready = false;
     o->projection_ready = false;
+    o->fifo_prepared = false;
     if (++o->frames % 10000 == 0) {
         ep_mix_observer_report(o);
     }
@@ -176,11 +186,25 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
             o->projection_ready = ep_native_project_frame(
                 &o->before, o->preinput, &o->projected, o->projected_pcm,
                 &o->projected_calls);
+            if (o->projection_ready) {
+                uint32_t base = GET_MASK(d->regs[NV_PAPU_EPOFBASE0],
+                                         NV_PAPU_GPOFBASE0_VALUE);
+                uint32_t end = GET_MASK(d->regs[NV_PAPU_EPOFEND0],
+                                        NV_PAPU_GPOFEND0_VALUE);
+                uint32_t current = GET_MASK(d->regs[NV_PAPU_EPOFCUR0],
+                                            NV_PAPU_GPOFCUR0_VALUE);
+                o->fifo_prepared = ep_native_fifo_preflight(
+                    &view.ram, ep_native_ram_write_probe, view.ram_size,
+                    d->regs[NV_PAPU_EPFADDR], d->regs[NV_PAPU_EPFMAXSGE],
+                    base, end, current, sizeof(o->projected_pcm), &o->fifo_next);
+                o->fifo_preflight_passed += o->fifo_prepared;
+                o->fifo_preflight_skipped += !o->fifo_prepared;
+            }
         }
     }
 }
 
-static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp,
+static void ep_mix_observer_end(EPMixObserver *o, MCPXAPUState *d, DSPState *dsp,
                                 uint64_t calls)
 {
     if (!o || !o->shadow.armed) {
@@ -193,6 +217,15 @@ static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp,
                          valid ? o->after.jit.pram : NULL,
                          valid && ep_mix_program_known(o->after.jit.pram, NULL));
     if (o->shadow.eligible != eligible_before) {
+        if (o->fifo_prepared) {
+            uint32_t current = GET_MASK(d->regs[NV_PAPU_EPOFCUR0],
+                                        NV_PAPU_GPOFCUR0_VALUE);
+            if (current == o->fifo_next) {
+                o->fifo_cursor_matched++;
+            } else {
+                o->fifo_cursor_mismatched++;
+            }
+        }
         if (o->projection_ready) {
             const char *field = NULL;
             bool same = dsp_replay_snapshot_equal(&o->projected, &o->after,
@@ -900,7 +933,7 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
                     calls++;
                 }
             } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
-            ep_mix_observer_end(d->ep.mix_observer, d->ep.dsp, calls);
+            ep_mix_observer_end(d->ep.mix_observer, d, d->ep.dsp, calls);
             if (capture) {
                 Error *err = NULL;
                 if (!dsp_replay_end(capture, calls, &err)) {
