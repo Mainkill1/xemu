@@ -8,9 +8,58 @@
 #include <glib/gstdio.h>
 #include "hw/xbox/mcpx/apu/dsp/dsp-replay.h"
 #include "hw/xbox/mcpx/apu/dsp/ep-native-project.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-guard.h"
 
 static char *test_directory;
 static const char *test_executable;
+
+static void test_native_ep_entry_guard(void)
+{
+    g_autofree DSPReplaySnapshot *s = g_new0(DSPReplaySnapshot, 1);
+    uint32_t fixed[64] = {
+        [4] = 0xacda0,   [5] = 1,         [13] = 1,        [16] = 0x300,
+        [18] = 0x117,    [20] = 0x1a2,    [21] = 0x1a6,    [22] = 0x700,
+        [24] = 4,        [26] = 11,       [29] = 1,        [32] = 0xffffff,
+        [33] = 0xffffff, [34] = 0xffffff, [35] = 0xffffff, [36] = 0xffffff,
+        [37] = 0xffffff, [38] = 0xffffff, [39] = 0xffffff, [42] = 0xbe0,
+        [56] = 0x20,     [57] = 0xc00390, [58] = 0x100300,
+    };
+    memcpy(s->jit.cpu.registers, fixed, sizeof(fixed));
+    s->jit.cpu.pc = 48;
+    s->jit.cpu.pc_advance = 2;
+    s->jit.cpu.interrupts.vector_addr = 0xffff;
+    s->jit.cpu.interrupts.saved_pc = 0xffff;
+    memset(s->jit.cpu.interrupts.ipl, -1, sizeof(s->jit.cpu.interrupts.ipl));
+    s->jit.cpu.interrupts.ipl[0] = s->jit.cpu.interrupts.ipl[1] = 3;
+    s->jit.cpu.interrupts.ipl[2] = s->jit.cpu.interrupts.ipl[4] = 3;
+    s->interrupts = 2;
+    s->dma.control = 16;
+    s->dma.start_block = 16384;
+    s->dma.next_block = 16802;
+    s->dma.dma_read_count = 1;
+    s->jit.pram[1] = 5;
+    s->jit.pram[0x116] = 0x100;
+    s->jit.pram[0x1a6] = 0x12000;
+    uint32_t stack_pc[5] = { 182, 968, 0, 485, 750 };
+    uint32_t stack_sr[5] = { 0xc00399, 0xc00394, 0, 0xc00394, 0xc00390 };
+    memcpy(&s->jit.cpu.stack[0][1], stack_pc, sizeof(stack_pc));
+    memcpy(&s->jit.cpu.stack[1][1], stack_sr, sizeof(stack_sr));
+    g_assert_true(ep_native_entry_guard(s));
+    s->jit.cpu.pc ^= 1;
+    g_assert_false(ep_native_entry_guard(s));
+    s->jit.cpu.pc ^= 1;
+    s->jit.cpu.registers[4] ^= 1;
+    g_assert_false(ep_native_entry_guard(s));
+    s->jit.cpu.registers[4] ^= 1;
+    s->jit.cpu.interrupts.pending_bits[0] = 1;
+    g_assert_false(ep_native_entry_guard(s));
+    s->jit.cpu.interrupts.pending_bits[0] = 0;
+    s->jit.pram[0x1a6] ^= 4;
+    g_assert_false(ep_native_entry_guard(s));
+    s->jit.pram[0x1a6] ^= 4;
+    s->jit.cpu.stack[1][1] ^= 1;
+    g_assert_false(ep_native_entry_guard(s));
+}
 
 static void test_native_ep_projection(void)
 {
@@ -802,11 +851,15 @@ int __wrap_main(int argc, char **argv)
 {
     module_call_init(MODULE_INIT_QOM);
     if (argc == 3 && (!strcmp(argv[1], "--replay") ||
-                      !strcmp(argv[1], "--replay-native-ep"))) {
+                      !strcmp(argv[1], "--replay-native-ep") ||
+                      !strcmp(argv[1], "--native-ep-guard"))) {
         Error *err = NULL;
         DSPReplayCase *data = dsp_replay_load_case(argv[2], &err);
         bool native = !strcmp(argv[1], "--replay-native-ep");
-        bool matched = data && (native ? dsp_replay_verify_native_ep(data, &err) :
+        bool guard = !strcmp(argv[1], "--native-ep-guard");
+        bool matched = data && (guard ? (!data->is_gp && data->realtime &&
+                                         ep_native_entry_guard(&data->before)) :
+                                native ? dsp_replay_verify_native_ep(data, &err) :
                                          dsp_replay_verify_case(data, &err));
         g_autofree char *program = NULL;
         uint64_t payload = 0;
@@ -848,6 +901,7 @@ int __wrap_main(int argc, char **argv)
     g_assert_nonnull(test_directory);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-projection", test_native_ep_projection);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-ep-entry-guard", test_native_ep_entry_guard);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);

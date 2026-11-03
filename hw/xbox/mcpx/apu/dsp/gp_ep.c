@@ -34,6 +34,7 @@
 #include "ep-native-ram.h"
 #include "ep-native-sge.h"
 #include "ep-native-fifo.h"
+#include "ep-native-guard.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
@@ -49,6 +50,7 @@ typedef struct EPMixObserver {
     uint32_t fifo_next;
     uint64_t fifo_preflight_passed, fifo_preflight_skipped;
     uint64_t fifo_cursor_matched, fifo_cursor_mismatched;
+    uint64_t entry_guard_passed, entry_guard_rejected;
     char projection_field[96];
     uint64_t frames, backend_skips, unknown_program, bad_overlay;
     uint64_t unexpected_scratch, unexpected_fifo, incomplete;
@@ -127,6 +129,7 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             " projection_matched=%" PRIu64 " projection_mismatched=%" PRIu64
             " fifo_preflight_passed=%" PRIu64 " fifo_preflight_skipped=%" PRIu64
             " fifo_cursor_matched=%" PRIu64 " fifo_cursor_mismatched=%" PRIu64
+            " entry_guard_passed=%" PRIu64 " entry_guard_rejected=%" PRIu64
             " last_projection_field=%s"
             " backend_skips=%" PRIu64 " unknown_program=%" PRIu64
             " bad_overlay=%" PRIu64 " unexpected_scratch=%" PRIu64
@@ -144,6 +147,7 @@ static void ep_mix_observer_report(const EPMixObserver *o)
             o->projection_matched, o->projection_mismatched,
             o->fifo_preflight_passed, o->fifo_preflight_skipped,
             o->fifo_cursor_matched, o->fifo_cursor_mismatched,
+            o->entry_guard_passed, o->entry_guard_rejected,
             o->projection_field[0] ? o->projection_field : "none",
             o->backend_skips, o->unknown_program, o->bad_overlay,
             o->unexpected_scratch, o->unexpected_fifo, o->incomplete,
@@ -170,6 +174,11 @@ static void ep_mix_observer_begin(EPMixObserver *o, MCPXAPUState *d,
                                       o->last_program_digest);
     o->unknown_program += !known;
     ep_mix_shadow_begin(&o->shadow, known, o->before.jit.pram);
+    if (o->shadow.armed) {
+        bool accepted = ep_native_entry_guard(&o->before);
+        o->entry_guard_passed += accepted;
+        o->entry_guard_rejected += !accepted;
+    }
     if (o->shadow.armed && d->ram && d->ram_ptr) {
         EPNativeScratchView view = {
             .ram = { .as = &address_space_memory, .ram = d->ram },
