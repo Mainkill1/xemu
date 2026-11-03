@@ -40,6 +40,8 @@ void dsp_replay_case_free(DSPReplayCase *data);
 bool dsp_replay_save_case(const char *path, DSPReplayCase *data, Error **errp);
 DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
+/* Offline comparison only; this does not authorize serving native output. */
+bool dsp_replay_verify_native_ep(DSPReplayCase *data, Error **errp);
 
 /* All recorder operations run on the owning APU thread under its lock. */
 bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,

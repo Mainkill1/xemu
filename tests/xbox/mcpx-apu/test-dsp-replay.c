@@ -81,6 +81,11 @@ static void test_capture_ep_frame(void)
     g_assert_false(data->is_gp);
     g_assert_true(dsp_replay_verify_case(data, &err));
     g_assert_null(err);
+    /* This public test program is not the identified native EP route. */
+    g_assert_false(dsp_replay_verify_native_ep(data, &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    err = NULL;
     dsp_replay_case_free(data);
     dsp_destroy(d->gp.dsp);
     dsp_destroy(d->ep.dsp);
@@ -749,10 +754,13 @@ int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
     module_call_init(MODULE_INIT_QOM);
-    if (argc == 3 && strcmp(argv[1], "--replay") == 0) {
+    if (argc == 3 && (!strcmp(argv[1], "--replay") ||
+                      !strcmp(argv[1], "--replay-native-ep"))) {
         Error *err = NULL;
         DSPReplayCase *data = dsp_replay_load_case(argv[2], &err);
-        bool matched = data && dsp_replay_verify_case(data, &err);
+        bool native = !strcmp(argv[1], "--replay-native-ep");
+        bool matched = data && (native ? dsp_replay_verify_native_ep(data, &err) :
+                                         dsp_replay_verify_case(data, &err));
         g_autofree char *program = NULL;
         uint64_t payload = 0;
         if (data) {
