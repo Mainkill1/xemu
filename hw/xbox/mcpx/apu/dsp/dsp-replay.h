@@ -40,10 +40,23 @@ void dsp_replay_case_free(DSPReplayCase *data);
 bool dsp_replay_save_case(const char *path, DSPReplayCase *data, Error **errp);
 DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
+typedef enum DSPReplayNativeResult {
+    DSP_REPLAY_NATIVE_SKIPPED,
+    DSP_REPLAY_NATIVE_DONE,
+    DSP_REPLAY_NATIVE_FAILED,
+} DSPReplayNativeResult;
+/* Offline-only helper: caller owns the quiesced DSP and verifies the program.
+ */
+DSPReplayNativeResult dsp_replay_native_dma_start(DSPState *dsp,
+                                                  const DSPJitState *before,
+                                                  DSPJitState *scratch,
+                                                  bool preserve_cache,
+                                                  Error **errp);
 typedef struct DSPGPReplayStats {
     uint64_t feedback_calls, mix2_calls, add_calls, matrix_calls, meter_calls;
     uint64_t filter_calls, filter_nonzero_calls, mac_calls, delay_calls;
-    uint64_t decimate_calls, gain_calls;
+    uint64_t decimate_calls, gain_calls, dma_start_calls,
+        dma_start_transactions;
     uint64_t dsp_steps, native_cycles;
 } DSPGPReplayStats;
 /* Offline stepped replay; excludes run-loop cycle budget from comparison. */

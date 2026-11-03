@@ -28,6 +28,8 @@ static void test_gp_feedback_replay_rejects_unknown(void)
                                .delay_calls = 99,
                                .decimate_calls = 99,
                                .gain_calls = 99,
+                               .dma_start_calls = 99,
+                               .dma_start_transactions = 99,
                                .filter_nonzero_calls = 99,
                                .dsp_steps = 99,
                                .native_cycles = 99 };
@@ -46,6 +48,8 @@ static void test_gp_feedback_replay_rejects_unknown(void)
     g_assert_cmpuint(stats.delay_calls, ==, 0);
     g_assert_cmpuint(stats.decimate_calls, ==, 0);
     g_assert_cmpuint(stats.gain_calls, ==, 0);
+    g_assert_cmpuint(stats.dma_start_calls, ==, 0);
+    g_assert_cmpuint(stats.dma_start_transactions, ==, 0);
     g_assert_cmpuint(stats.filter_nonzero_calls, ==, 0);
     g_assert_cmpuint(stats.dsp_steps, ==, 0);
     g_assert_cmpuint(stats.native_cycles, ==, 0);
@@ -549,6 +553,67 @@ static void test_ep_sequence_existing_file(void)
 
 static void assert_snapshot_equal(DSPReplaySnapshot *a, DSPReplaySnapshot *b);
 
+static void test_native_dma_start(void)
+{
+    TestIO native_io = { 0 }, control_io = { 0 };
+    DSPState *native = make_dsp(&native_io, true);
+    DSPState *control = make_dsp(&control_io, true);
+    dsp_step(native);
+    dsp_step(control);
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_autofree DSPJitState *scratch = g_new0(DSPJitState, 1);
+    g_autofree DSPReplaySnapshot *before = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *actual = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *expected = g_new0(DSPReplaySnapshot, 1);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    g_assert_cmphex(state->cpu.pc, ==, 2);
+    g_assert_true(dsp_replay_take_snapshot(native, before));
+    uint32_t opcode = state->pram[2];
+    state->pram[2] = 0;
+    Error *err = NULL;
+    g_assert_cmpint(
+        dsp_replay_native_dma_start(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_cmpuint(native_io.reads, ==, 0);
+    state->pram[2] = opcode;
+    state->cpu.interrupts.pending_bits[0] = 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_start(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    state->cpu.interrupts.pending_bits[0] = 0;
+    state->cpu.registers[DSP_REG_SR] |= 1U << DSP_SR_LF;
+    state->cpu.registers[DSP_REG_LA] = state->cpu.pc + 1;
+    g_assert_cmpint(
+        dsp_replay_native_dma_start(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_SKIPPED);
+    g_assert_null(err);
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    assert_snapshot_equal(before, actual);
+    g_assert_true(dsp_jit_get_native_state(native, state));
+    g_assert_cmpint(
+        dsp_replay_native_dma_start(native, state, scratch, true, &err), ==,
+        DSP_REPLAY_NATIVE_DONE);
+    g_assert_null(err);
+    dsp_step(control);
+    g_assert_true(dsp_replay_take_snapshot(native, actual));
+    g_assert_true(dsp_replay_take_snapshot(control, expected));
+    assert_snapshot_equal(expected, actual);
+    g_assert_cmpuint(native_io.reads, ==, control_io.reads);
+    g_assert_cmpuint(native_io.writes, ==, control_io.writes);
+    g_assert_cmpuint(native_io.fifos, ==, control_io.fifos);
+    g_assert_cmpmem(native_io.output, sizeof(native_io.output),
+                    control_io.output, sizeof(control_io.output));
+    g_assert_cmpuint(native_io.reads, ==, 1);
+    g_assert_cmpuint(native_io.writes, ==, 1);
+    g_assert_cmpuint(native_io.fifos, ==, 1);
+    dsp_destroy(native);
+    dsp_destroy(control);
+}
+
 static void test_dma_replay(void)
 {
     TestIO io = { 0 };
@@ -1014,7 +1079,10 @@ int __wrap_main(int argc, char **argv)
             "\"realtime\":%s,\"native_feedback_calls\":%" PRIu64
             ",\"native_mix2_calls\":%" PRIu64 ",\"native_add_calls\":%" PRIu64
             ",\"native_matrix_calls\":%" PRIu64
-            ",\"native_meter_calls\":%" PRIu64 ",\"native_gain_calls\":%" PRIu64
+            ",\"native_meter_calls\":%" PRIu64
+            ",\"native_dma_start_calls\":%" PRIu64
+            ",\"native_dma_start_transactions\":%" PRIu64
+            ",\"native_gain_calls\":%" PRIu64
             ",\"native_decimate_calls\":%" PRIu64
             ",\"native_delay_calls\":%" PRIu64 ",\"native_mac_calls\":%" PRIu64
             ",\"native_filter_calls\":%" PRIu64
@@ -1028,9 +1096,11 @@ int __wrap_main(int argc, char **argv)
             data && data->after.jit.cpu.halt_requested ? "true" : "false",
             data && data->realtime ? "true" : "false", stats.feedback_calls,
             stats.mix2_calls, stats.add_calls, stats.matrix_calls,
-            stats.meter_calls, stats.gain_calls, stats.decimate_calls,
-            stats.delay_calls, stats.mac_calls, stats.filter_calls,
-            stats.filter_nonzero_calls, stats.dsp_steps, stats.native_cycles);
+            stats.meter_calls, stats.dma_start_calls,
+            stats.dma_start_transactions, stats.gain_calls,
+            stats.decimate_calls, stats.delay_calls, stats.mac_calls,
+            stats.filter_calls, stats.filter_nonzero_calls, stats.dsp_steps,
+            stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);
@@ -1052,6 +1122,8 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-unknown-fallback", test_native_ep_unknown_fallback);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-dma-start",
+                    test_native_dma_start);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-dma", test_ep_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-frame-sequence", test_ep_frame_sequence);

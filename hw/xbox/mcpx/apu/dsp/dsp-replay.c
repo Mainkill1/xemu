@@ -9,6 +9,7 @@
 #include "dsp_internal.h"
 #include "dsp-replay.h"
 #include "ep-mix-hle.h"
+#include "dsp_internal.h"
 #include "gp-feedback-project.h"
 #include "gp-mix2-project.h"
 #include "gp-add-project.h"
@@ -677,6 +678,47 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
     return matched;
 }
 
+DSPReplayNativeResult dsp_replay_native_dma_start(DSPState *dsp,
+                                                  const DSPJitState *before,
+                                                  DSPJitState *scratch,
+                                                  bool preserve_cache,
+                                                  Error **errp)
+{
+    if (!dsp || !before || !scratch || before == scratch) {
+        return DSP_REPLAY_NATIVE_SKIPPED;
+    }
+    const Dsp56300State *cpu = &before->cpu;
+    uint32_t pc = cpu->pc;
+    if (pc >= DSP_PRAM_SIZE - 1 || before->pram[pc] != 0x08f496 ||
+        before->pram[pc + 1] != 1 || cpu->pc_on_rep || cpu->loop_rep ||
+        cpu->halt_requested || cpu->power_state ||
+        cpu->interrupts.pending_bits[0] || cpu->interrupts.pending_bits[1] ||
+        cpu->interrupts.pipeline_stage || cpu->interrupts.state ||
+        cpu->interrupts.ipl_to_raise ||
+        ((cpu->registers[DSP_REG_SR] & (1U << DSP_SR_LF)) &&
+         cpu->registers[DSP_REG_LA] == pc + 1)) {
+        return DSP_REPLAY_NATIVE_SKIPPED;
+    }
+    /* DMA can update guest memory and PRAM. Fetch the state again after the
+     * transfer so a state restore cannot overwrite those side effects. */
+    write_peripheral(dsp, 0xffffd6, 1);
+    if (!dsp_jit_get_native_state(dsp, scratch)) {
+        error_setg(errp, "Native DMA could not read post-transfer state");
+        return DSP_REPLAY_NATIVE_FAILED;
+    }
+    scratch->cpu.pc = pc + 2;
+    scratch->cpu.pc_advance = 2;
+    scratch->cpu.cycle_count = cpu->cycle_count + 3;
+    bool restored = preserve_cache ?
+                        dsp_jit_set_native_data_state(dsp, scratch) :
+                        dsp_jit_set_native_state(dsp, scratch);
+    if (!restored) {
+        error_setg(errp, "Native DMA could not restore post-transfer state");
+        return DSP_REPLAY_NATIVE_FAILED;
+    }
+    return DSP_REPLAY_NATIVE_DONE;
+}
+
 bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
                               bool preserve_cache, DSPGPReplayStats *stats,
                               Error **errp)
@@ -716,6 +758,33 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         if (!dsp_jit_get_native_state(dsp, state)) {
             error_setg(&cursor.error, "GP replay state unavailable");
             break;
+        }
+        bool dma_pc = state->cpu.pc == 0x11c || state->cpu.pc == 0x8e3 ||
+                      state->cpu.pc == 0x9d3 || state->cpu.pc == 0xa4f ||
+                      state->cpu.pc == 0xacb || state->cpu.pc == 0xb47;
+        if (enable_native && dma_pc &&
+            !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram))) {
+            unsigned previous_io = cursor.position;
+            Error *native_error = NULL;
+            DSPReplayNativeResult result = dsp_replay_native_dma_start(
+                dsp, state, next, preserve_cache, &native_error);
+            if (native_error) {
+                if (cursor.error) {
+                    error_free(native_error);
+                } else {
+                    cursor.error = native_error;
+                }
+            }
+            if (result == DSP_REPLAY_NATIVE_FAILED || cursor.error) {
+                break;
+            }
+            if (result == DSP_REPLAY_NATIVE_DONE) {
+                executed.dma_start_calls++;
+                executed.dma_start_transactions +=
+                    cursor.position - previous_io;
+                executed.native_cycles += 3;
+                continue;
+            }
         }
         bool filter_pc = state->cpu.pc >= 0x185 && state->cpu.pc <= 0x413 &&
                          ((state->cpu.pc - 0x185) % 0x55 == 0 ||
@@ -819,7 +888,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
         !executed.mix2_calls && !executed.add_calls && !executed.matrix_calls &&
         !executed.meter_calls && !executed.filter_calls &&
         !executed.mac_calls && !executed.delay_calls &&
-        !executed.decimate_calls && !executed.gain_calls) {
+        !executed.decimate_calls && !executed.gain_calls &&
+        !executed.dma_start_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }
