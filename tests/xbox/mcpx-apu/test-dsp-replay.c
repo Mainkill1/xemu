@@ -212,6 +212,88 @@ static unsigned run_dsp(DSPState *dsp)
     return calls;
 }
 
+static void test_ep_frame_sequence(void)
+{
+    TestIO io = { 0 };
+    DSPState *dsp = make_dsp_unit(&io, false, false);
+    g_autofree char *base = g_build_filename(test_directory, "ep-sequence", NULL);
+    Error *err = NULL;
+    g_assert_false(dsp_replay_configure_sequence(dsp, base, 0, 0, &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    err = NULL;
+    g_assert_false(dsp_replay_configure_sequence(dsp, base, 0, 65, &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    err = NULL;
+    g_assert_true(dsp_replay_configure_sequence(dsp, base, 0, 3, &err));
+    for (unsigned i = 0; i < 3; i++) {
+        if (i) {
+            dsp_reset(dsp);
+            dsp_write_memory(dsp, 'P', 0, 0x08f484);
+            dsp_write_memory(dsp, 'P', 1, 1);
+            dsp_start_frame(dsp);
+            dsp_set_halt_requested(dsp, false);
+            dsp_set_cycle_count(dsp, 0);
+        }
+        DSPReplay *capture = dsp_replay_begin(dsp, true);
+        g_assert_nonnull(capture);
+        unsigned calls = run_dsp(dsp);
+        g_assert_true(dsp_replay_end(capture, calls, &err));
+        g_assert_null(err);
+        g_assert_cmpint(dsp->replay != NULL, ==, i < 2);
+        g_autofree char *path = g_strdup_printf("%s.%04u", base, i);
+        DSPReplayCase *data = dsp_replay_load_case(path, &err);
+        g_assert_null(err);
+        g_assert_nonnull(data);
+        g_assert_false(data->is_gp);
+        g_assert_true(dsp_replay_verify_case(data, &err));
+        g_assert_null(err);
+        dsp_replay_case_free(data);
+        g_unlink(path);
+    }
+    g_assert_null(dsp_replay_begin(dsp, true));
+    dsp_destroy(dsp);
+}
+
+static void test_ep_sequence_existing_file(void)
+{
+    TestIO io = { 0 };
+    DSPState *dsp = make_dsp_unit(&io, false, false);
+    g_autofree char *base = g_build_filename(test_directory, "ep-conflict", NULL);
+    g_autofree char *first = g_strdup_printf("%s.0000", base);
+    g_autofree char *second = g_strdup_printf("%s.0001", base);
+    Error *err = NULL;
+    g_assert_true(g_file_set_contents(second, "preserve", 8, NULL));
+    g_assert_true(dsp_replay_configure_sequence(dsp, base, 0, 2, &err));
+    DSPReplay *capture = dsp_replay_begin(dsp, true);
+    g_assert_nonnull(capture);
+    g_assert_true(dsp_replay_end(capture, run_dsp(dsp), &err));
+    g_assert_true(g_file_test(first, G_FILE_TEST_IS_REGULAR));
+    dsp_reset(dsp);
+    dsp_write_memory(dsp, 'P', 0, 0x08f484);
+    dsp_write_memory(dsp, 'P', 1, 1);
+    dsp_start_frame(dsp);
+    dsp_set_halt_requested(dsp, false);
+    dsp_set_cycle_count(dsp, 0);
+    capture = dsp_replay_begin(dsp, true);
+    g_assert_nonnull(capture);
+    g_assert_false(dsp_replay_end(capture, run_dsp(dsp), &err));
+    g_assert_nonnull(err);
+    error_free(err);
+    g_assert_null(dsp->replay);
+    g_assert_true(dsp->dma.rw_opaque == &io);
+    g_assert_true(dsp->dma.scratch_rw == scratch_io);
+    g_assert_true(dsp->dma.fifo_rw == fifo_io);
+    g_autofree char *contents = NULL;
+    gsize length;
+    g_assert_true(g_file_get_contents(second, &contents, &length, NULL));
+    g_assert_cmpmem(contents, length, "preserve", 8);
+    dsp_destroy(dsp);
+    g_unlink(first);
+    g_unlink(second);
+}
+
 static void assert_snapshot_equal(DSPReplaySnapshot *a, DSPReplaySnapshot *b);
 
 static void test_dma_replay(void)
@@ -678,6 +760,8 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-dma", test_ep_dma_replay);
+    g_test_add_func("/mcpx-apu/dsp-replay/ep-frame-sequence", test_ep_frame_sequence);
+    g_test_add_func("/mcpx-apu/dsp-replay/ep-sequence-existing-file", test_ep_sequence_existing_file);
     g_test_add_func("/mcpx-apu/dsp-replay/codec", test_codec);
     g_test_add_func("/mcpx-apu/dsp-replay/disabled-delay-backend",
                     test_disabled_delay_backend);

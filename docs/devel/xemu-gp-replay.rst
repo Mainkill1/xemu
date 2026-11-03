@@ -30,7 +30,11 @@ capture both processors during the same run.
 The delay is host milliseconds after DSP initialization, in the range 0 through
 86400000; its default is zero. The first subsequent invocation of the selected
 processor is recorded. EP executes every eighth audio frame when enabled.
-There is one attempt per configured instance. An absent path disables recording.
+The default is one attempt per configured instance. To record a bounded
+sequence, set ``XEMU_GP_REPLAY_COUNT`` or ``XEMU_EP_REPLAY_COUNT`` from 1 to
+64. When the count exceeds one, the path is a prefix and recordings are named
+``<path>.0000``, ``<path>.0001``, and so on. A failed frame stops the sequence;
+earlier recordings remain available. An absent path disables recording.
 Output creation is exclusive, with mode 0600: use a fresh path. Capture errors
 are reported to stderr. Recordings contain game program, state and audio data;
 retain them as private test inputs rather than committing them to source.

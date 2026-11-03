@@ -330,24 +330,34 @@ struct DSPReplay {
     dsp_scratch_rw_func scratch;
     dsp_fifo_rw_func fifo;
     size_t bytes;
+    uint32_t requested, completed;
     bool active, failed;
 };
 
-bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,
-                          Error **errp)
+bool dsp_replay_configure_sequence(DSPState *dsp, const char *path,
+                                   uint32_t delay_ms, uint32_t count,
+                                   Error **errp)
 {
     if (dsp->ops != &jit_dsp_ops || dsp->replay || !path ||
-        !*path || delay_ms > REPLAY_MAX_DELAY_MS) {
+        !*path || delay_ms > REPLAY_MAX_DELAY_MS || !count ||
+        count > DSP_REPLAY_MAX_FRAMES) {
         error_setg(errp,
-                   "DSP replay requires an unarmed JIT and valid path/delay");
+                   "DSP replay requires an unarmed JIT and valid path/delay/count");
         return false;
     }
     DSPReplay *r = g_new0(DSPReplay, 1);
     r->dsp = dsp;
     r->path = g_strdup(path);
     r->deadline_us = g_get_monotonic_time() + (int64_t)delay_ms * 1000;
+    r->requested = count;
     dsp->replay = r;
     return true;
+}
+
+bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,
+                          Error **errp)
+{
+    return dsp_replay_configure_sequence(dsp, path, delay_ms, 1, errp);
 }
 
 void dsp_replay_init(DSPState *dsp)
@@ -356,7 +366,9 @@ void dsp_replay_init(DSPState *dsp)
                                              "XEMU_EP_REPLAY_PATH");
     const char *delay = g_getenv(dsp->is_gp ? "XEMU_GP_REPLAY_DELAY_MS" :
                                               "XEMU_EP_REPLAY_DELAY_MS");
-    uint64_t ms = 0;
+    const char *count = g_getenv(dsp->is_gp ? "XEMU_GP_REPLAY_COUNT" :
+                                              "XEMU_EP_REPLAY_COUNT");
+    uint64_t ms = 0, frames = 1;
     Error *err = NULL;
     if (!path || !*path) {
         return;
@@ -366,7 +378,12 @@ void dsp_replay_init(DSPState *dsp)
         error_report("Invalid %s replay delay", dsp->is_gp ? "GP" : "EP");
         return;
     }
-    if (!dsp_replay_configure(dsp, path, ms, &err)) {
+    if (count && (qemu_strtou64(count, NULL, 10, &frames) < 0 || !frames ||
+                  frames > DSP_REPLAY_MAX_FRAMES)) {
+        error_report("Invalid %s replay count", dsp->is_gp ? "GP" : "EP");
+        return;
+    }
+    if (!dsp_replay_configure_sequence(dsp, path, ms, frames, &err)) {
         error_report_err(err);
     }
 }
@@ -473,7 +490,16 @@ bool dsp_replay_end(DSPReplay *r, uint64_t calls, Error **errp)
         error_setg(errp, "DSP replay capture incomplete or exceeds limits");
     } else {
         r->data->calls = calls;
-        ok = dsp_replay_save_case(r->path, r->data, errp);
+        g_autofree char *numbered = r->requested > 1 ?
+            g_strdup_printf("%s.%04u", r->path, r->completed) : NULL;
+        ok = dsp_replay_save_case(numbered ? numbered : r->path, r->data, errp);
+    }
+    if (ok && ++r->completed < r->requested) {
+        dsp_replay_case_free(r->data);
+        r->data = NULL;
+        r->bytes = 0;
+        r->failed = false;
+        return true;
     }
     dsp_replay_cleanup(dsp);
     return ok;

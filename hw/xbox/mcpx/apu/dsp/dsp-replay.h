@@ -8,6 +8,7 @@
 #define DSP_REPLAY_MAX_IO 4096
 #define DSP_REPLAY_MAX_BYTES (1024 * 1024)
 #define DSP_REPLAY_MAX_CALLS 65536
+#define DSP_REPLAY_MAX_FRAMES 64
 
 typedef struct DSPReplayDMA {
     uint32_t configuration, control, start_block, next_block, dma_read_count;
@@ -43,6 +44,9 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
 /* All recorder operations run on the owning APU thread under its lock. */
 bool dsp_replay_configure(DSPState *dsp, const char *path, uint32_t delay_ms,
                           Error **errp);
+bool dsp_replay_configure_sequence(DSPState *dsp, const char *path,
+                                   uint32_t delay_ms, uint32_t count,
+                                   Error **errp);
 void dsp_replay_init(DSPState *dsp);
 void dsp_replay_cleanup(DSPState *dsp);
 DSPReplay *dsp_replay_begin(DSPState *dsp, bool realtime);
