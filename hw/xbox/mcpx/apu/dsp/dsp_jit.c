@@ -158,7 +158,6 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
      * fits this slice; failure leaves the live state untouched. */
     if (dsp->gp_filter_hle_requested && be->filter_hle_ready &&
         cpu.pc == 0x95e && remaining > 16 && remaining <= INT32_MAX &&
-        gp_delay_slice_fits(&cpu, be->xram, remaining) &&
         gp_filter_hle_program_known(be->filter_hle, be->pram)) {
         if (!be->gp_before) {
             be->gp_before = g_new0(DSPJitState, 1);
