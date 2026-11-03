@@ -344,6 +344,28 @@ static void test_backend_fallback(void)
     g_unsetenv("XEMU_GP_FILTER_HLE");
 }
 
+static void test_block_unknown_fallback(void)
+{
+    g_unsetenv("XEMU_GP_FILTER_HLE");
+    g_setenv("XEMU_GP_BLOCK_HLE", "1", true);
+    g_config.audio.use_dsp_jit = true;
+    DSPState *dsp = dsp_init(NULL, unexpected_scratch, unexpected_fifo, true);
+    dsp_request_gp_filter_hle(dsp);
+    for (unsigned pass = 0; pass < 2; pass++) {
+        dsp_reset(dsp);
+        dsp_write_memory(dsp, 'P', 0, 0x08f484);
+        dsp_write_memory(dsp, 'P', 1, 1);
+        dsp_write_memory(dsp, 'P', 2, pass);
+        dsp_set_halt_requested(dsp, false);
+        ffi_runs = 0;
+        dsp_run(dsp, 1000);
+        g_assert_true(dsp_get_halt_requested(dsp));
+        g_assert_cmpuint(ffi_runs, ==, 1);
+    }
+    dsp_destroy(dsp);
+    g_unsetenv("XEMU_GP_BLOCK_HLE");
+}
+
 static void test_captured_frame(void)
 {
     const char *path = g_getenv("XEMU_GP_FILTER_HLE_TEST_CAPTURE");
@@ -352,6 +374,7 @@ static void test_captured_frame(void)
         return;
     }
     g_unsetenv("XEMU_GP_FILTER_HLE");
+    g_unsetenv("XEMU_GP_BLOCK_HLE");
     g_config.audio.use_dsp_jit = false;
     Error *err = NULL;
     DSPReplayCase *data = dsp_replay_load_case(path, &err);
@@ -363,6 +386,29 @@ static void test_captured_frame(void)
     /* Agreement alone could pass with every call falling back to the JIT. */
     g_assert_cmpuint(ffi_runs, <, data->calls);
     dsp_replay_case_free(data);
+}
+
+static void test_captured_block_frame(void)
+{
+    const char *path = g_getenv("XEMU_GP_FILTER_HLE_TEST_CAPTURE");
+    if (!path) {
+        g_test_skip("A private recognized GP frame is required");
+        return;
+    }
+    g_unsetenv("XEMU_GP_FILTER_HLE");
+    g_setenv("XEMU_GP_BLOCK_HLE", "1", true);
+    g_config.audio.use_dsp_jit = false;
+    Error *err = NULL;
+    DSPReplayCase *data = dsp_replay_load_case(path, &err);
+    g_assert_null(err);
+    g_assert_nonnull(data);
+    ffi_runs = 0;
+    g_assert_true(dsp_replay_verify_case_with_gp_filter(data, &err));
+    g_assert_null(err);
+    /* Per-block fallback proves the experiment actually ran. */
+    g_assert_cmpuint(ffi_runs, >, data->calls);
+    dsp_replay_case_free(data);
+    g_unsetenv("XEMU_GP_BLOCK_HLE");
 }
 
 int __wrap_main(int argc, char **argv);
@@ -396,8 +442,12 @@ int __wrap_main(int argc, char **argv)
                     test_unknown_program);
     g_test_add_func("/mcpx-apu/gp-filter-hle/backend-fallback",
                     test_backend_fallback);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/block-unknown-fallback",
+                    test_block_unknown_fallback);
     g_test_add_func("/mcpx-apu/gp-filter-hle/captured-frame",
                     test_captured_frame);
+    g_test_add_func("/mcpx-apu/gp-filter-hle/captured-block-frame",
+                    test_captured_block_frame);
     for (unsigned i = 0; i < 24; i++) {
         g_autofree char *name =
             g_strdup_printf("/mcpx-apu/gp-filter-hle/reject-%u", i);

@@ -23,6 +23,10 @@
 #include "dsp-jit-state.h"
 #include "gp-filter-hle.h"
 #include "gp-meter-project.h"
+#include "gp-feedback-project.h"
+#include "gp-mix2-project.h"
+#include "gp-add-project.h"
+#include "gp-gain-project.h"
 #include "gp-delay-slice-project.h"
 #include "debug.h"
 #include "trace.h"
@@ -50,6 +54,9 @@ typedef struct JitBackend {
     uint64_t filter_hle_samples;
     uint64_t meter_hle_calls;
     uint64_t delay_hle_calls;
+    bool block_hle_enabled;
+    uint64_t block_hle_native_calls;
+    uint64_t block_hle_guest_cycles;
     DSPJitState *gp_before, *gp_after;
 } JitBackend;
 
@@ -94,6 +101,164 @@ static void dsp_jit_step(DSPState *dsp)
     JitBackend *be = jit_be(dsp);
     dsp56300_step(be->jit);
     be->filter_hle_ready = false;
+}
+
+/* Experimental block-boundary dispatcher. Program identity and every native
+ * operation remain guarded; unrecognized states execute a provider block. */
+static bool dsp_jit_run_block_hle(DSPState *dsp, Dsp56300State *cpu, int cycles)
+{
+    JitBackend *be = jit_be(dsp);
+    int64_t budget = (int64_t)cpu->cycle_budget + cycles;
+    if (budget < INT32_MIN || budget > INT32_MAX) {
+        return false;
+    }
+    bool may_dispatch = false;
+    while (budget > 0 && !cpu->halt_requested) {
+        unsigned cost = 0;
+        switch (cpu->pc) {
+        case 0x788:
+            cost = GP_FEEDBACK_PROJECT_CYCLES;
+            break;
+        case 0x761:
+            cost = GP_MIX2_PROJECT_CYCLES;
+            break;
+        case 0x4a0:
+            cost = GP_ADD_PROJECT_CYCLES;
+            break;
+        case 0x431:
+            cost = GP_METER_PROJECT_CYCLES;
+            break;
+        case 0x493:
+            cost = GP_GAIN_PROJECT_CYCLES;
+            break;
+        case 0x433:
+            cost = cpu->registers[DSP_REG_LC] * 11;
+            break;
+        case 0x95e:
+            cost = 1;
+            break;
+        }
+        bool filter_pc =
+            cpu->pc >= 0x185 && cpu->pc <= 0x413 &&
+            ((cpu->pc - 0x185) % 0x55 == 0 || (cpu->pc - 0x185) % 0x55 == 0x3b);
+        bool filter_finish = filter_pc && (cpu->pc - 0x185) % 0x55 == 0 &&
+                             cpu->registers[DSP_REG_LC] == 1;
+        bool filter_slice =
+            filter_pc && budget >= 894 && budget <= 1000 && !filter_finish;
+        if (filter_finish)
+            cost = 107;
+        if (filter_slice)
+            cost = 1;
+        if (may_dispatch && cost && budget > cost &&
+            gp_filter_hle_program_known(be->filter_hle, be->pram)) {
+            if (!be->gp_before) {
+                be->gp_before = g_new0(DSPJitState, 1);
+                be->gp_after = g_new0(DSPJitState, 1);
+            }
+            be->gp_before->cpu = *cpu;
+            memcpy(be->gp_before->xram, be->xram, sizeof(be->gp_before->xram));
+            bool projected = false;
+            if (filter_finish || filter_slice) {
+                memcpy(be->gp_before->yram, be->yram,
+                       sizeof(be->gp_before->yram));
+                *be->gp_after = *be->gp_before;
+                if (filter_finish) {
+                    projected = gp_filter_hle_finish_verified(
+                        &be->gp_after->cpu, be->gp_after->xram,
+                        be->gp_after->yram);
+                } else {
+                    be->gp_after->cpu.cycle_budget = budget - 1000;
+                    projected = gp_filter_hle_run_verified(
+                        &be->gp_after->cpu, be->gp_after->xram,
+                        be->gp_after->yram, 1000);
+                }
+                if (projected)
+                    cost = be->gp_after->cpu.cycle_count - cpu->cycle_count;
+            } else {
+                switch (cpu->pc) {
+                case 0x788:
+                    projected =
+                        gp_feedback_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x761:
+                    projected = gp_mix2_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x4a0:
+                    projected = gp_add_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x431:
+                    projected = gp_meter_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x493:
+                    projected = gp_gain_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x433:
+                    projected =
+                        gp_meter_slice_project(be->gp_before, be->gp_after);
+                    break;
+                case 0x95e:
+                    projected =
+                        gp_delay_slice_project(be->gp_before, be->gp_after);
+                    if (projected)
+                        cost = be->gp_after->cpu.cycle_count - cpu->cycle_count;
+                    break;
+                }
+            }
+            if (projected && (budget > cost || filter_slice)) {
+                memcpy(be->xram, be->gp_after->xram,
+                       sizeof(be->gp_after->xram));
+                if (filter_finish || filter_slice) {
+                    memcpy(be->yram, be->gp_after->yram,
+                           sizeof(be->gp_after->yram));
+                }
+                *cpu = be->gp_after->cpu;
+                budget -= cost;
+                if (be->filter_hle_stats) {
+                    be->block_hle_native_calls++;
+                    be->block_hle_guest_cycles += cost;
+                    if (be->block_hle_native_calls == 1 ||
+                        be->block_hle_native_calls % 10000 == 0) {
+                        fprintf(stderr,
+                                "GP block HLE: calls=%" PRIu64
+                                " guest_cycles=%" PRIu64 "\n",
+                                be->block_hle_native_calls,
+                                be->block_hle_guest_cycles);
+                    }
+                }
+                may_dispatch = false;
+                continue;
+            }
+        }
+        uint32_t previous_cycles = cpu->cycle_count;
+        cpu->cycle_budget = 0;
+        dsp56300_set_state(be->jit, cpu);
+        dsp56300_run(be->jit, 1);
+        dsp56300_get_state(be->jit, cpu);
+        uint32_t consumed = cpu->cycle_count - previous_cycles;
+        may_dispatch = true;
+        if (!consumed) {
+            /* Preserve provider STOP/WAIT semantics without guessing. */
+            cpu->cycle_budget = budget;
+            dsp56300_set_state(be->jit, cpu);
+            dsp56300_run(be->jit, 0);
+            be->filter_hle_ready = true;
+            return true;
+        }
+        budget -= consumed;
+        if (budget < INT32_MIN) {
+            /* A block has already run; finish with the provider rather than
+             * replaying this slice if its 32-bit budget wraps. */
+            cpu->cycle_budget = (int32_t)(uint32_t)budget;
+            dsp56300_set_state(be->jit, cpu);
+            dsp56300_run(be->jit, 0);
+            be->filter_hle_ready = false;
+            return true;
+        }
+    }
+    cpu->cycle_budget = budget;
+    dsp56300_set_state(be->jit, cpu);
+    be->filter_hle_ready = may_dispatch;
+    return true;
 }
 
 static void dsp_jit_run(DSPState *dsp, int cycles)
@@ -180,6 +345,11 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
                 return;
             }
         }
+    }
+    if (dsp->gp_filter_hle_requested && be->block_hle_enabled &&
+        gp_filter_hle_program_known(be->filter_hle, be->pram) &&
+        dsp_jit_run_block_hle(dsp, &cpu, cycles)) {
+        return;
     }
     /* A real block clears provider control state absent from the FFI image. */
     bool ready = cpu.pc < DSP_PRAM_SIZE &&
@@ -439,6 +609,7 @@ static JitBackend *dsp_create_jit_backend(DSPState *dsp)
 
     be->filter_hle_stats =
         g_strcmp0(g_getenv("XEMU_GP_FILTER_HLE_STATS"), "1") == 0;
+    be->block_hle_enabled = g_strcmp0(g_getenv("XEMU_GP_BLOCK_HLE"), "1") == 0;
     be->jit = dsp56300_create(&info);
     return be;
 }
@@ -478,10 +649,12 @@ static void dsp_jit_finalize(DSPState *dsp)
     if (dsp->is_gp && be->filter_hle_stats) {
         fprintf(stderr,
                 "GP filter HLE: enabled=%d calls=%" PRIu64 " samples=%" PRIu64
-                " meter_calls=%" PRIu64 " delay_calls=%" PRIu64 "\n",
+                " meter_calls=%" PRIu64 " delay_calls=%" PRIu64
+                " block_calls=%" PRIu64 " block_guest_cycles=%" PRIu64 "\n",
                 be->filter_hle != NULL, be->filter_hle_calls,
                 be->filter_hle_samples, be->meter_hle_calls,
-                be->delay_hle_calls);
+                be->delay_hle_calls, be->block_hle_native_calls,
+                be->block_hle_guest_cycles);
     }
     g_free(be->gp_before);
     g_free(be->gp_after);
