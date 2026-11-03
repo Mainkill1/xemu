@@ -58,6 +58,7 @@ int main(void)
     /* JIT-derived status observations for this program, not a hardware spec. */
     memset(input, 0, sizeof(input));
     failed |= check(ep_mix_frame_hle(input, &frame), "silent frame rejected");
+    failed |= check(frame.right_energy == 0, "silent energy differs from JIT");
     failed |= check(ep_mix_shadow_status(0xc003bf, &frame) == 0xc00390,
                     "silent status prediction differs from JIT");
     failed |= check(ep_mix_shadow_status(0xc003ff, &frame) == 0xc003d0,
@@ -76,6 +77,22 @@ int main(void)
         }
     }
     failed |= check(ep_mix_frame_hle(input, &frame), "negative frame rejected");
+    failed |= check(frame.right_energy == (UINT64_C(1) << 47),
+                    "saturated energy differs from JIT");
+    uint32_t before_regs[64], expected_regs[64];
+    for (unsigned i = 0; i < 64; i++) {
+        before_regs[i] = i;
+    }
+    before_regs[57] = 0xc00390;
+    ep_mix_shadow_registers(before_regs, 0xffffff, 0x100, 0x510000, 0x510100,
+                            &frame, expected_regs);
+    failed |= check(expected_regs[6] == 0 && expected_regs[7] == 0x800000 &&
+                        expected_regs[12] == 0 && expected_regs[17] == 0x100 &&
+                        expected_regs[57] == 0xc003d0 &&
+                        expected_regs[60] == 0x510000 &&
+                        expected_regs[61] == 0x510100 &&
+                        expected_regs[18] == before_regs[18],
+                    "EP register prediction differs from JIT");
     failed |= check(ep_mix_shadow_status(0xc00390, &frame) == 0xc003d0,
                     "negative clipping status differs from JIT");
 

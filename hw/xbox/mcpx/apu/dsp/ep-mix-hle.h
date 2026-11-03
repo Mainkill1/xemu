@@ -40,6 +40,7 @@ static inline uint32_t ep_mix_isqrt(uint64_t value)
 typedef struct EPMixFrame {
     uint32_t mixed[2][256];
     uint32_t peak[2], rms[2];
+    uint64_t right_energy;
     uint8_t pcm[1024];
     bool negative_clip;
 } EPMixFrame;
@@ -90,6 +91,7 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
     for (unsigned ch = 0; ch < 2; ch++) {
         result.rms[ch] = ep_mix_isqrt(squares[ch] / 256);
     }
+    result.right_energy = squares[1] / 128;
     *output = result;
     return true;
 }
@@ -100,6 +102,24 @@ static inline uint32_t ep_mix_shadow_status(uint32_t before,
 {
     return (before & ~UINT32_C(0x3f)) | 0x10 |
            (frame->negative_clip ? 0x40 : 0);
+}
+
+/* Register indices follow the DSP56300 native state used by replay. */
+static inline void ep_mix_shadow_registers(const uint32_t before[64],
+                                           uint32_t counter, uint32_t slot,
+                                           uint32_t stack_top_pc,
+                                           uint32_t stack_top_status,
+                                           const EPMixFrame *frame,
+                                           uint32_t after[64])
+{
+    memcpy(after, before, sizeof(uint32_t) * 64);
+    after[6] = frame->right_energy & 0xffffff;
+    after[7] = (frame->right_energy >> 24) & 0xffffff;
+    after[12] = (counter + 1) & 0xffffff;
+    after[17] = slot;
+    after[57] = ep_mix_shadow_status(before[57], frame);
+    after[60] = stack_top_pc;
+    after[61] = stack_top_status;
 }
 
 /* Stack projection for the identified EP program, used only by the shadow. */
