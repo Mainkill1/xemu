@@ -10,6 +10,7 @@
 #include "dsp-replay.h"
 #include "ep-mix-hle.h"
 #include "gp-feedback-project.h"
+#include "gp-mix2-project.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
 #include "ep-native-project.h"
@@ -668,11 +669,11 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
     return matched;
 }
 
-bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
-                                   Error **errp)
+bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
+                              DSPGPReplayStats *stats, Error **errp)
 {
-    if (native_calls) {
-        *native_calls = 0;
+    if (stats) {
+        *stats = (DSPGPReplayStats){ 0 };
     }
     if (!valid_case(data, errp)) {
         return false;
@@ -700,23 +701,33 @@ bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
     restore_snapshot(dsp, &data->before);
     g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
     g_autofree DSPJitState *next = g_new0(DSPJitState, 1);
-    uint64_t executed = 0;
+    DSPGPReplayStats executed = { 0 };
     unsigned steps;
     for (steps = 0; steps < 1000000 && !dsp_get_halt_requested(dsp); steps++) {
         if (!dsp_jit_get_native_state(dsp, state)) {
             error_setg(&cursor.error, "GP replay state unavailable");
             break;
         }
-        if (state->cpu.pc == 0x788 &&
-            !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram)) &&
-            gp_feedback_project(state, next)) {
+        bool stable =
+            enable_native &&
+            (state->cpu.pc == 0x788 || state->cpu.pc == 0x761) &&
+            !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram));
+        bool feedback = stable && state->cpu.pc == 0x788 &&
+                        gp_feedback_project(state, next);
+        bool mix2 =
+            stable && state->cpu.pc == 0x761 && gp_mix2_project(state, next);
+        if (feedback || mix2) {
             if (!dsp_jit_set_native_state(dsp, next)) {
                 error_setg(&cursor.error, "GP replay state restore failed");
                 break;
             }
-            executed++;
+            executed.feedback_calls += feedback;
+            executed.mix2_calls += mix2;
+            executed.native_cycles +=
+                feedback ? GP_FEEDBACK_PROJECT_CYCLES : GP_MIX2_PROJECT_CYCLES;
         } else {
             dsp_step(dsp);
+            executed.dsp_steps++;
         }
         if (cursor.error) {
             break;
@@ -730,7 +741,8 @@ bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
         error_setg(&cursor.error,
                    "GP feedback replay did not consume all transactions");
     }
-    if (!cursor.error && !executed) {
+    if (!cursor.error && enable_native && !executed.feedback_calls &&
+        !executed.mix2_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }
@@ -739,8 +751,8 @@ bool dsp_replay_verify_gp_feedback(DSPReplayCase *data, uint64_t *native_calls,
         error_setg(&cursor.error, "GP replay final state unavailable");
     }
     dsp_destroy(dsp);
-    if (native_calls) {
-        *native_calls = executed;
+    if (stats) {
+        *stats = executed;
     }
     if (cursor.error) {
         error_propagate(errp, cursor.error);

@@ -5,6 +5,8 @@
 #include "dsp-jit-state.h"
 #include "gp-feedback-hle.h"
 
+#define GP_FEEDBACK_PROJECT_CYCLES 137
+
 /* Offline, instruction-stepped projection. The caller must recognize the
  * exact program; this does not model a run-loop cycle budget or perform RTS. */
 static inline bool gp_feedback_project(const DSPJitState *before,
@@ -52,7 +54,7 @@ static inline bool gp_feedback_project(const DSPJitState *before,
     next.xram[x1] = final_state;
     next.cpu.pc = 0x792;
     next.cpu.pc_advance = 1;
-    next.cpu.cycle_count += 137;
+    next.cpu.cycle_count += GP_FEEDBACK_PROJECT_CYCLES;
     next.cpu.registers[DSP_REG_X0] = output[14];
     next.cpu.registers[DSP_REG_X1] = before->xram[x0 + 15];
     next.cpu.registers[DSP_REG_Y0] = before->xram[x1 + 1];

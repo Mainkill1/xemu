@@ -18,11 +18,22 @@ static void test_gp_feedback_replay_rejects_unknown(void)
 {
     DSPReplayCase *data = dsp_replay_case_new();
     Error *err = NULL;
-    uint64_t native_calls = 99;
+    DSPGPReplayStats stats = { .feedback_calls = 99,
+                               .mix2_calls = 99,
+                               .dsp_steps = 99,
+                               .native_cycles = 99 };
     data->is_gp = true;
     data->realtime = true;
     data->calls = 1;
-    g_assert_false(dsp_replay_verify_gp_feedback(data, &native_calls, &err));
+    g_assert_false(dsp_replay_verify_gp_hle(data, true, &stats, &err));
+    g_assert_nonnull(err);
+    g_assert_cmpuint(stats.feedback_calls, ==, 0);
+    g_assert_cmpuint(stats.mix2_calls, ==, 0);
+    g_assert_cmpuint(stats.dsp_steps, ==, 0);
+    g_assert_cmpuint(stats.native_cycles, ==, 0);
+    error_free(err);
+    err = NULL;
+    g_assert_false(dsp_replay_verify_gp_hle(data, false, &stats, &err));
     g_assert_nonnull(err);
     error_free(err);
     dsp_replay_case_free(data);
@@ -937,22 +948,26 @@ int __wrap_main(int argc, char **argv);
 int __wrap_main(int argc, char **argv)
 {
     module_call_init(MODULE_INIT_QOM);
-    if (argc == 3 && (!strcmp(argv[1], "--replay") ||
-                      !strcmp(argv[1], "--replay-gp-feedback") ||
-                      !strcmp(argv[1], "--replay-native-ep") ||
-                      !strcmp(argv[1], "--native-ep-guard"))) {
+    if (argc == 3 &&
+        (!strcmp(argv[1], "--replay") || !strcmp(argv[1], "--replay-gp-step") ||
+         !strcmp(argv[1], "--replay-gp-hle") ||
+         !strcmp(argv[1], "--replay-gp-feedback") ||
+         !strcmp(argv[1], "--replay-native-ep") ||
+         !strcmp(argv[1], "--native-ep-guard"))) {
         Error *err = NULL;
         DSPReplayCase *data = dsp_replay_load_case(argv[2], &err);
         bool native = !strcmp(argv[1], "--replay-native-ep");
-        bool feedback = !strcmp(argv[1], "--replay-gp-feedback");
+        bool stepped = !strcmp(argv[1], "--replay-gp-step");
+        bool feedback = !strcmp(argv[1], "--replay-gp-feedback") ||
+                        !strcmp(argv[1], "--replay-gp-hle");
         bool guard = !strcmp(argv[1], "--native-ep-guard");
-        uint64_t native_calls = 0;
+        DSPGPReplayStats stats = { 0 };
         bool matched =
             data &&
             (guard ? (!data->is_gp && data->realtime &&
                       ep_native_entry_guard(&data->before)) :
-             feedback ?
-                     dsp_replay_verify_gp_feedback(data, &native_calls, &err) :
+             (feedback || stepped) ?
+                     dsp_replay_verify_gp_hle(data, feedback, &stats, &err) :
              native ? dsp_replay_verify_native_ep(data, &err) :
                       dsp_replay_verify_case(data, &err));
         g_autofree char *program = NULL;
@@ -975,14 +990,17 @@ int __wrap_main(int argc, char **argv)
                "\"transactions\":%u,"
                "\"program_sha256\":\"%s\",\"payload_bytes\":%" PRIu64 ","
                "\"before_cycles\":%u,\"before_halted\":%s,\"halted\":%s,"
-               "\"realtime\":%s,\"native_feedback_calls\":%" PRIu64 "}\n",
+               "\"realtime\":%s,\"native_feedback_calls\":%" PRIu64
+               ",\"native_mix2_calls\":%" PRIu64 ",\"dsp_steps\":%" PRIu64
+               ",\"native_cycles\":%" PRIu64 "}\n",
                matched ? "true" : "false",
                data ? (data->is_gp ? "GP" : "EP") : "", data ? data->calls : 0,
                data ? data->io->len : 0, program ? program : "", payload,
                data ? data->before.jit.cpu.cycle_count : 0,
                data && data->before.jit.cpu.halt_requested ? "true" : "false",
                data && data->after.jit.cpu.halt_requested ? "true" : "false",
-               data && data->realtime ? "true" : "false", native_calls);
+               data && data->realtime ? "true" : "false", stats.feedback_calls,
+               stats.mix2_calls, stats.dsp_steps, stats.native_cycles);
         if (err) {
             fprintf(stderr, "%s\n", error_get_pretty(err));
             error_free(err);
