@@ -4675,6 +4675,10 @@ foreach target : target_dirs
       files('tests/xbox/mcpx-apu/test-ep-mix-shadow.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
     test('test-xbox-ep-mix-shadow', ep_mix_shadow_test, suite: ['unit'])
+    ep_native_input_test = executable('test-xbox-ep-native-input',
+      files('tests/xbox/mcpx-apu/test-ep-native-input.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-ep-native-input', ep_native_input_test, suite: ['unit'])
     audio_engine_instance_test = executable('test-xbox-audio-engine-instance',
       files('tests/xbox/mcpx-apu/test-audio-engine-instance.c'),
       c_args: c_args, dependencies: arch_deps + [sdl],
