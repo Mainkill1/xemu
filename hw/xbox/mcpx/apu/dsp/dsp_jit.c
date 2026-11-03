@@ -23,6 +23,7 @@
 #include "dsp-jit-state.h"
 #include "gp-filter-hle.h"
 #include "gp-meter-project.h"
+#include "gp-delay-slice-project.h"
 #include "debug.h"
 #include "trace.h"
 
@@ -48,7 +49,8 @@ typedef struct JitBackend {
     uint64_t filter_hle_calls;
     uint64_t filter_hle_samples;
     uint64_t meter_hle_calls;
-    DSPJitState *meter_before, *meter_after;
+    uint64_t delay_hle_calls;
+    DSPJitState *gp_before, *gp_after;
 } JitBackend;
 
 static JitBackend *jit_be(DSPState *dsp)
@@ -134,24 +136,49 @@ static void dsp_jit_run(DSPState *dsp, int cycles)
         cpu.pc == 0x433 && meter_count >= 1 && meter_count <= 32 &&
         remaining > (int64_t)meter_count * 11 && remaining <= INT32_MAX &&
         gp_filter_hle_program_known(be->filter_hle, be->pram)) {
-        if (!be->meter_before) {
-            be->meter_before = g_new0(DSPJitState, 1);
-            be->meter_after = g_new0(DSPJitState, 1);
+        if (!be->gp_before) {
+            be->gp_before = g_new0(DSPJitState, 1);
+            be->gp_after = g_new0(DSPJitState, 1);
         }
-        be->meter_before->cpu = cpu;
-        memcpy(be->meter_before->xram, be->xram,
-               sizeof(be->meter_before->xram));
-        if (gp_meter_slice_project(be->meter_before, be->meter_after)) {
-            be->meter_after->cpu.cycle_budget = remaining - meter_count * 11;
-            memcpy(be->xram, be->meter_after->xram,
-                   sizeof(be->meter_after->xram));
-            dsp56300_set_state(be->jit, &be->meter_after->cpu);
+        be->gp_before->cpu = cpu;
+        memcpy(be->gp_before->xram, be->xram, sizeof(be->gp_before->xram));
+        if (gp_meter_slice_project(be->gp_before, be->gp_after)) {
+            be->gp_after->cpu.cycle_budget = remaining - meter_count * 11;
+            memcpy(be->xram, be->gp_after->xram, sizeof(be->gp_after->xram));
+            dsp56300_set_state(be->jit, &be->gp_after->cpu);
             if (be->filter_hle_stats && ++be->meter_hle_calls == 1) {
                 fprintf(stderr, "GP meter HLE: calls=1\n");
             }
             dsp56300_run(be->jit, 0);
             be->filter_hle_ready = true;
             return;
+        }
+    }
+    /* Project the remaining delay loop only when the entire continuation
+     * fits this slice; failure leaves the live state untouched. */
+    if (dsp->gp_filter_hle_requested && be->filter_hle_ready &&
+        cpu.pc == 0x95e && remaining > 16 && remaining <= INT32_MAX &&
+        gp_filter_hle_program_known(be->filter_hle, be->pram)) {
+        if (!be->gp_before) {
+            be->gp_before = g_new0(DSPJitState, 1);
+            be->gp_after = g_new0(DSPJitState, 1);
+        }
+        be->gp_before->cpu = cpu;
+        memcpy(be->gp_before->xram, be->xram, sizeof(be->gp_before->xram));
+        if (gp_delay_slice_project(be->gp_before, be->gp_after)) {
+            uint32_t cost = be->gp_after->cpu.cycle_count - cpu.cycle_count;
+            if (remaining > cost) {
+                be->gp_after->cpu.cycle_budget = remaining - cost;
+                memcpy(be->xram, be->gp_after->xram,
+                       sizeof(be->gp_after->xram));
+                dsp56300_set_state(be->jit, &be->gp_after->cpu);
+                if (be->filter_hle_stats && ++be->delay_hle_calls == 1) {
+                    fprintf(stderr, "GP delay HLE: calls=1\n");
+                }
+                dsp56300_run(be->jit, 0);
+                be->filter_hle_ready = true;
+                return;
+            }
         }
     }
     /* A real block clears provider control state absent from the FFI image. */
@@ -451,12 +478,13 @@ static void dsp_jit_finalize(DSPState *dsp)
     if (dsp->is_gp && be->filter_hle_stats) {
         fprintf(stderr,
                 "GP filter HLE: enabled=%d calls=%" PRIu64 " samples=%" PRIu64
-                " meter_calls=%" PRIu64 "\n",
+                " meter_calls=%" PRIu64 " delay_calls=%" PRIu64 "\n",
                 be->filter_hle != NULL, be->filter_hle_calls,
-                be->filter_hle_samples, be->meter_hle_calls);
+                be->filter_hle_samples, be->meter_hle_calls,
+                be->delay_hle_calls);
     }
-    g_free(be->meter_before);
-    g_free(be->meter_after);
+    g_free(be->gp_before);
+    g_free(be->gp_after);
     gp_filter_hle_free(be->filter_hle);
     dsp56300_destroy(be->jit);
     g_free(be->xram);
