@@ -364,6 +364,7 @@ struct DSPReplay {
     size_t bytes;
     uint32_t requested, completed;
     bool active, failed;
+    char excluded_ep_digest[65];
 };
 
 bool dsp_replay_configure_sequence(DSPState *dsp, const char *path,
@@ -400,6 +401,8 @@ void dsp_replay_init(DSPState *dsp)
                                               "XEMU_EP_REPLAY_DELAY_MS");
     const char *count = g_getenv(dsp->is_gp ? "XEMU_GP_REPLAY_COUNT" :
                                               "XEMU_EP_REPLAY_COUNT");
+    const char *excluded = dsp->is_gp ? NULL :
+        g_getenv("XEMU_EP_REPLAY_EXCLUDE_SHA256");
     uint64_t ms = 0, frames = 1;
     Error *err = NULL;
     if (!path || !*path) {
@@ -415,8 +418,24 @@ void dsp_replay_init(DSPState *dsp)
         error_report("Invalid %s replay count", dsp->is_gp ? "GP" : "EP");
         return;
     }
+    if (excluded) {
+        if (strlen(excluded) != 64) {
+            error_report("Invalid EP replay excluded program digest");
+            return;
+        }
+        for (unsigned i = 0; i < 64; i++) {
+            if (!g_ascii_isxdigit(excluded[i])) {
+                error_report("Invalid EP replay excluded program digest");
+                return;
+            }
+        }
+    }
     if (!dsp_replay_configure_sequence(dsp, path, ms, frames, &err)) {
         error_report_err(err);
+    } else if (excluded) {
+        for (unsigned i = 0; i < 64; i++) {
+            dsp->replay->excluded_ep_digest[i] = g_ascii_tolower(excluded[i]);
+        }
     }
 }
 
@@ -500,6 +519,20 @@ DSPReplay *dsp_replay_begin(DSPState *dsp, bool realtime)
         error_report("DSP replay capture no longer has a JIT backend");
         dsp_replay_cleanup(dsp);
         return NULL;
+    }
+    if (r->excluded_ep_digest[0] && !r->completed) {
+        uint32_t words[DSP_PRAM_SIZE];
+        for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+            words[i] = cpu_to_le32(ep_mix_identity_word(
+                i, r->data->before.jit.pram[i]));
+        }
+        g_autofree char *digest = g_compute_checksum_for_data(
+            G_CHECKSUM_SHA256, (const uint8_t *)words, sizeof(words));
+        if (!strcmp(digest, r->excluded_ep_digest)) {
+            dsp_replay_case_free(r->data);
+            r->data = NULL;
+            return NULL;
+        }
     }
     r->data->realtime = realtime;
     r->original_opaque = dsp->dma.rw_opaque;

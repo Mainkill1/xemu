@@ -9,6 +9,7 @@
 #include "hw/xbox/mcpx/apu/dsp/dsp-replay.h"
 #include "hw/xbox/mcpx/apu/dsp/ep-native-project.h"
 #include "hw/xbox/mcpx/apu/dsp/ep-native-guard.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-mix-identity.h"
 
 static char *test_directory;
 static const char *test_executable;
@@ -337,6 +338,50 @@ static DSPState *make_dsp_unit(TestIO *io, bool dma, bool is_gp)
 static DSPState *make_dsp(TestIO *io, bool dma)
 {
     return make_dsp_unit(io, dma, true);
+}
+
+static void test_ep_excluded_program_capture(void)
+{
+    TestIO io = { 0 };
+    DSPState *dsp = make_dsp_unit(&io, false, false);
+    g_autofree DSPJitState *state = g_new0(DSPJitState, 1);
+    g_assert_true(dsp_jit_get_native_state(dsp, state));
+    GChecksum *sum = g_checksum_new(G_CHECKSUM_SHA256);
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        uint32_t word = cpu_to_le32(ep_mix_identity_word(i, state->pram[i]));
+        g_checksum_update(sum, (const uint8_t *)&word, sizeof(word));
+    }
+    g_autofree char *digest = g_strdup(g_checksum_get_string(sum));
+    g_checksum_free(sum);
+    g_autofree char *base = g_build_filename(test_directory, "ep-excluded", NULL);
+    g_autofree char *first = g_strdup_printf("%s.0000", base);
+    g_autofree char *second = g_strdup_printf("%s.0001", base);
+    g_setenv("XEMU_EP_REPLAY_PATH", base, true);
+    g_setenv("XEMU_EP_REPLAY_COUNT", "2", true);
+    g_setenv("XEMU_EP_REPLAY_EXCLUDE_SHA256", digest, true);
+    dsp_replay_init(dsp);
+    g_assert_null(dsp_replay_begin(dsp, true));
+    dsp_write_memory(dsp, 'P', 1, 7); /* Masked program state. */
+    g_assert_null(dsp_replay_begin(dsp, true));
+    dsp_write_memory(dsp, 'P', 2, 1); /* Changes the filtered identity. */
+    DSPReplay *capture = dsp_replay_begin(dsp, true);
+    g_assert_nonnull(capture);
+    Error *err = NULL;
+    g_assert_true(dsp_replay_end(capture, 1, &err));
+    g_assert_null(err);
+    dsp_write_memory(dsp, 'P', 2, 0); /* Preserve consecutive capture. */
+    capture = dsp_replay_begin(dsp, true);
+    g_assert_nonnull(capture);
+    g_assert_true(dsp_replay_end(capture, 1, &err));
+    g_assert_null(err);
+    g_assert_true(g_file_test(first, G_FILE_TEST_IS_REGULAR));
+    g_assert_true(g_file_test(second, G_FILE_TEST_IS_REGULAR));
+    dsp_destroy(dsp);
+    g_unsetenv("XEMU_EP_REPLAY_PATH");
+    g_unsetenv("XEMU_EP_REPLAY_COUNT");
+    g_unsetenv("XEMU_EP_REPLAY_EXCLUDE_SHA256");
+    g_unlink(first);
+    g_unlink(second);
 }
 
 static unsigned run_dsp(DSPState *dsp)
@@ -902,6 +947,7 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-projection", test_native_ep_projection);
     g_test_add_func("/mcpx-apu/dsp-replay/native-ep-entry-guard", test_native_ep_entry_guard);
+    g_test_add_func("/mcpx-apu/dsp-replay/ep-excluded-program", test_ep_excluded_program_capture);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);
