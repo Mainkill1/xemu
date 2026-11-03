@@ -629,13 +629,17 @@ static void replay_fifo(void *opaque, uint8_t *ptr, unsigned index, size_t len,
     replay_io(opaque, true, dir, index, ptr, len);
 }
 
-bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
+static bool dsp_replay_verify_case_internal(DSPReplayCase *data, Error **errp,
+                                            bool request_gp_filter)
 {
     if (!valid_case(data, errp)) {
         return false;
     }
     ReplayCursor cursor = { .data = data };
     DSPState *dsp = dsp_init(&cursor, replay_scratch, replay_fifo, data->is_gp);
+    if (request_gp_filter) {
+        dsp_request_gp_filter_hle(dsp);
+    }
     dsp_set_engine(dsp, true);
     restore_snapshot(dsp, &data->before);
     for (unsigned i = 0; i < data->calls; i++) {
@@ -678,6 +682,16 @@ bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
     }
     g_free(actual);
     return matched;
+}
+
+bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp)
+{
+    return dsp_replay_verify_case_internal(data, errp, false);
+}
+
+bool dsp_replay_verify_case_with_gp_filter(DSPReplayCase *data, Error **errp)
+{
+    return dsp_replay_verify_case_internal(data, errp, true);
 }
 
 DSPReplayNativeResult dsp_replay_native_dma_start(DSPState *dsp,

@@ -351,19 +351,18 @@ static void test_captured_frame(void)
         g_test_skip("A private recognized GP frame is required");
         return;
     }
-    g_setenv("XEMU_GP_FILTER_HLE", "1", true);
-    g_config.audio.use_dsp_jit = true;
+    g_unsetenv("XEMU_GP_FILTER_HLE");
+    g_config.audio.use_dsp_jit = false;
     Error *err = NULL;
     DSPReplayCase *data = dsp_replay_load_case(path, &err);
     g_assert_null(err);
     g_assert_nonnull(data);
     ffi_runs = 0;
-    g_assert_true(dsp_replay_verify_case(data, &err));
+    g_assert_true(dsp_replay_verify_case_with_gp_filter(data, &err));
     g_assert_null(err);
     /* Agreement alone could pass with every call falling back to the JIT. */
     g_assert_cmpuint(ffi_runs, <, data->calls);
     dsp_replay_case_free(data);
-    g_unsetenv("XEMU_GP_FILTER_HLE");
 }
 
 int __wrap_main(int argc, char **argv);

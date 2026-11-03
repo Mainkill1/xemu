@@ -40,6 +40,8 @@ void dsp_replay_case_free(DSPReplayCase *data);
 bool dsp_replay_save_case(const char *path, DSPReplayCase *data, Error **errp);
 DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
+/* Exercise the per-instance GP filter request in sliced replay. */
+bool dsp_replay_verify_case_with_gp_filter(DSPReplayCase *data, Error **errp);
 typedef enum DSPReplayNativeResult {
     DSP_REPLAY_NATIVE_SKIPPED,
     DSP_REPLAY_NATIVE_DONE,
