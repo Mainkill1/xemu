@@ -354,12 +354,14 @@ static void gp_program_observer_report(const GPProgramObserver *o)
                 " attempted=%" PRIu64 " eligible=%" PRIu64
                 " skipped=%" PRIu64 " invalidated=%" PRIu64
                 " matched_routes=%" PRIu64 " nonzero_matched_routes=%" PRIu64
+                " wrapped_matched_routes=%" PRIu64
                 " mismatched_routes=%" PRIu64
                 " writes=%" PRIu64 " backend_skips=%" PRIu64
                 " program_skips=%" PRIu64 "\n", o->frames,
                 o->shadow.attempted, o->shadow.eligible, o->shadow.skipped,
                 o->shadow.invalidated, o->shadow.matched,
-                o->shadow.nonzero_matched, o->shadow.mismatched,
+                o->shadow.nonzero_matched, o->shadow.wrapped_matched,
+                o->shadow.mismatched,
                 o->shadow.writes, o->backend_skips, o->program_skips);
     }
     if (o->filter_enabled) {

@@ -19,7 +19,7 @@ typedef struct GPDecimateShadowRoute {
 typedef struct GPDecimateShadow {
     GPDecimateShadowRoute route[4];
     uint64_t attempted, eligible, skipped, invalidated;
-    uint64_t matched, nonzero_matched, mismatched, writes;
+    uint64_t matched, nonzero_matched, wrapped_matched, mismatched, writes;
     bool armed;
 } GPDecimateShadow;
 
@@ -151,6 +151,7 @@ static inline void gp_decimate_shadow_finish(GPDecimateShadow *s,
                          r->count * sizeof(*r->expected)) == 0;
         if (ok) {
             s->matched++;
+            s->wrapped_matched += r->segments > 1;
             for (unsigned i = 0; i < r->count; i++) {
                 if (r->expected[i] != 0) {
                     s->nonzero_matched++;

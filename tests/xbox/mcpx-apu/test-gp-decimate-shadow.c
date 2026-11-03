@@ -194,6 +194,8 @@ int main(void)
     gp_decimate_shadow_finish(&shadow, xram, true);
     failed |= check(shadow.matched == 9 && shadow.mismatched == 3,
                     "wrapped writes did not match");
+    failed |= check(shadow.wrapped_matched == 4,
+                    "matched wrapped routes were not counted");
     for (unsigned mode = 0; mode < 4; mode++) {
         failed |= check_wrapped_negative(mode);
     }
