@@ -15,6 +15,7 @@
 #include "gp-matrix-project.h"
 #include "gp-meter-project.h"
 #include "gp-mac-project.h"
+#include "gp-delay-project.h"
 #include "gp-filter-hle.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
@@ -721,7 +722,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             enable_native &&
             (state->cpu.pc == 0x788 || state->cpu.pc == 0x761 ||
              state->cpu.pc == 0x4a0 || state->cpu.pc == 0x6a2 ||
-             state->cpu.pc == 0x431 || state->cpu.pc == 0x49b || filter_pc) &&
+             state->cpu.pc == 0x431 || state->cpu.pc == 0x49b ||
+             state->cpu.pc == 0x944 || filter_pc) &&
             !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram));
         bool feedback = stable && state->cpu.pc == 0x788 &&
                         gp_feedback_project(state, next);
@@ -735,6 +737,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             stable && state->cpu.pc == 0x431 && gp_meter_project(state, next);
         bool mac =
             stable && state->cpu.pc == 0x49b && gp_mac_project(state, next);
+        bool delay =
+            stable && state->cpu.pc == 0x944 && gp_delay_project(state, next);
         bool filter = false;
         bool filter_nonzero = false;
         if (stable && filter_pc) {
@@ -756,7 +760,8 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
                 }
             }
         }
-        if (feedback || mix2 || add || matrix || meter || filter || mac) {
+        if (feedback || mix2 || add || matrix || meter || filter || mac ||
+            delay) {
             bool restored = preserve_cache ?
                                 dsp_jit_set_native_data_state(dsp, next) :
                                 dsp_jit_set_native_state(dsp, next);
@@ -771,6 +776,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             executed.meter_calls += meter;
             executed.filter_calls += filter;
             executed.mac_calls += mac;
+            executed.delay_calls += delay;
             executed.filter_nonzero_calls += filter_nonzero;
             executed.native_cycles += feedback ? GP_FEEDBACK_PROJECT_CYCLES :
                                       mix2     ? GP_MIX2_PROJECT_CYCLES :

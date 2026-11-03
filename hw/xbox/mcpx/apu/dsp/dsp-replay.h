@@ -42,7 +42,7 @@ DSPReplayCase *dsp_replay_load_case(const char *path, Error **errp);
 bool dsp_replay_verify_case(DSPReplayCase *data, Error **errp);
 typedef struct DSPGPReplayStats {
     uint64_t feedback_calls, mix2_calls, add_calls, matrix_calls, meter_calls;
-    uint64_t filter_calls, filter_nonzero_calls, mac_calls;
+    uint64_t filter_calls, filter_nonzero_calls, mac_calls, delay_calls;
     uint64_t dsp_steps, native_cycles;
 } DSPGPReplayStats;
 /* Offline stepped replay; excludes run-loop cycle budget from comparison. */

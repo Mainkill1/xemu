@@ -4687,6 +4687,11 @@ foreach target : target_dirs
       include_directories: target_inc, c_args: c_args,
       dependencies: [dsp56300_emu_ffi], build_by_default: false)
     test('test-xbox-gp-meter-project', gp_meter_project_test, suite: ['unit'])
+    gp_delay_project_test = executable('test-xbox-gp-delay-project',
+      files('tests/xbox/mcpx-apu/test-gp-delay-project.c'),
+      include_directories: target_inc, c_args: c_args,
+      dependencies: [dsp56300_emu_ffi], build_by_default: false)
+    test('test-xbox-gp-delay-project', gp_delay_project_test, suite: ['unit'])
     gp_mac_project_test = executable('test-xbox-gp-mac-project',
       files('tests/xbox/mcpx-apu/test-gp-mac-project.c'),
       include_directories: target_inc, c_args: c_args,
