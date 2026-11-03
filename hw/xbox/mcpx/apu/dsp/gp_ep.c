@@ -43,11 +43,13 @@ static void gp_decimate_observer_report(const GPDecimateObserver *o)
     fprintf(stderr, "GP decimate shadow: frames=%" PRIu64
             " attempted=%" PRIu64 " eligible=%" PRIu64
             " skipped=%" PRIu64 " invalidated=%" PRIu64
-            " matched_routes=%" PRIu64 " mismatched_routes=%" PRIu64
+            " matched_routes=%" PRIu64 " nonzero_matched_routes=%" PRIu64
+            " mismatched_routes=%" PRIu64
             " writes=%" PRIu64 " backend_skips=%" PRIu64
             " program_skips=%" PRIu64 "\n", o->frames,
             o->shadow.attempted, o->shadow.eligible, o->shadow.skipped,
-            o->shadow.invalidated, o->shadow.matched, o->shadow.mismatched,
+            o->shadow.invalidated, o->shadow.matched, o->shadow.nonzero_matched,
+            o->shadow.mismatched,
             o->shadow.writes, o->backend_skips, o->program_skips);
 }
 

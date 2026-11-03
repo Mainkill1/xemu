@@ -111,6 +111,8 @@ int main(void)
     gp_decimate_shadow_finish(&shadow, xram, true);
     failed |= check(shadow.matched == 4 && shadow.mismatched == 0,
                     "matching routes were not admitted");
+    failed |= check(shadow.nonzero_matched == 4,
+                    "nonzero matched routes were not counted");
 
     prepare_xram(xram);
     failed |= check(gp_decimate_shadow_prepare(&shadow, xram),
@@ -162,7 +164,7 @@ int main(void)
     prepare_xram(xram);
     for (unsigned route = 0; route < 4; route++) {
         unsigned base = 1122 + route * 39;
-        xram[base + 8] = 8388607;
+        xram[base + 8] = route == 3 ? 0 : 8388607;
         xram[base + 16] = 2;
         memcpy(xram + 0xf60 + route * 32, samples, sizeof(samples));
     }
@@ -172,11 +174,14 @@ int main(void)
         unsigned base = 1122 + route * 39;
         uint8_t bytes[20];
         for (unsigned i = 0; i < 5; i++) {
-            write_word(bytes + i * 4, expected_five[i]);
+            write_word(bytes + i * 4, route == 3 ? 0 : expected_five[i]);
         }
         gp_decimate_shadow_write(&shadow, 0x10000 + route * 0x1000 + 2112,
                                  bytes, sizeof(bytes));
         memcpy(xram + 0xf60 + route * 32, expected_five, sizeof(expected_five));
+        if (route == 3) {
+            memset(xram + 0xf60 + route * 32, 0, sizeof(expected_five));
+        }
         xram[base + 11] = 5;
         xram[base + 13] = 2132;
         xram[base + 16] = 4;
@@ -184,5 +189,7 @@ int main(void)
     gp_decimate_shadow_finish(&shadow, xram, true);
     failed |= check(shadow.matched == 11 && shadow.mismatched == 5,
                     "five-output route did not match");
+    failed |= check(shadow.nonzero_matched == 10,
+                    "silent routes were counted as nonzero");
     return failed ? 1 : 0;
 }

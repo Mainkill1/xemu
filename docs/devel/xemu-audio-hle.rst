@@ -33,8 +33,9 @@ With the JIT engine, ``XEMU_GP_DECIMATE_SHADOW=1`` enables a read-only
 diagnostic for four decimation routes of one identified GP program. It
 calculates private predictions before running the original DSP and compares
 their samples, scratch writes, descriptor offsets and phases afterward. It
-prints frame and route counts periodically and on normal device teardown. Unknown programs,
-unsupported states and changed programs are excluded and counted; HLE audio
+prints frame, route and nonzero matched-route counts periodically and on
+normal device teardown. Unknown programs, unsupported states and changed
+programs are excluded and counted; HLE audio
 does not consume these predictions. This diagnostic does not establish Xbox
 hardware accuracy, complete game audio, or a performance improvement.
 
