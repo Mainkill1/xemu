@@ -10,10 +10,10 @@
 #include "gp-decimate-hle.h"
 
 typedef struct GPDecimateShadowRoute {
-    uint32_t address, destination, base, next_offset;
+    uint32_t address[2], length[2], destination, base, next_offset;
     uint32_t expected[6];
-    unsigned count, next_phase;
-    bool seen, bad;
+    unsigned count, next_phase, segments, seen;
+    bool bad;
 } GPDecimateShadowRoute;
 
 typedef struct GPDecimateShadow {
@@ -58,23 +58,37 @@ static inline bool gp_decimate_shadow_prepare(GPDecimateShadow *s,
             return false;
         }
         unsigned length = count * 4;
-        if (scratch_size - offset < length || address + length > UINT32_MAX) {
+        unsigned first =
+            scratch_size - offset < length ? scratch_size - offset : length;
+        unsigned second = length - first;
+        if (address + first > UINT32_MAX ||
+            (uint64_t)scratch_base + second > UINT32_MAX) {
             s->skipped++;
             return false;
         }
-        candidate[route].address = address;
+        candidate[route].address[0] = address;
+        candidate[route].length[0] = first;
+        candidate[route].address[1] = scratch_base;
+        candidate[route].length[1] = second;
+        candidate[route].segments = second ? 2 : 1;
         candidate[route].destination = destination;
         candidate[route].base = base;
         candidate[route].next_offset =
-            offset + length == scratch_size ? 0 : offset + length;
+            second ? second :
+                     (offset + first == scratch_size ? 0 : offset + first);
         candidate[route].count = count;
         candidate[route].next_phase = next;
         for (unsigned prior = 0; prior < route; prior++) {
-            uint64_t p = candidate[prior].address;
-            if (address < p + candidate[prior].count * 4 &&
-                p < address + length) {
-                s->skipped++;
-                return false;
+            for (unsigned i = 0; i < candidate[route].segments; i++) {
+                uint64_t a = candidate[route].address[i];
+                for (unsigned j = 0; j < candidate[prior].segments; j++) {
+                    uint64_t p = candidate[prior].address[j];
+                    if (a < p + candidate[prior].length[j] &&
+                        p < a + candidate[route].length[i]) {
+                        s->skipped++;
+                        return false;
+                    }
+                }
             }
         }
     }
@@ -93,22 +107,24 @@ static inline void gp_decimate_shadow_write(GPDecimateShadow *s, uint32_t addr,
     uint64_t end = (uint64_t)addr + len;
     for (unsigned route = 0; route < 4; route++) {
         GPDecimateShadowRoute *r = &s->route[route];
-        unsigned length = r->count * 4;
-        if ((uint64_t)addr >= (uint64_t)r->address + length ||
-            end <= r->address) {
-            continue;
-        }
-        if (addr != r->address || len != length || r->seen) {
-            r->bad = true;
-            continue;
-        }
-        r->seen = true;
-        s->writes++;
-        for (unsigned i = 0; i < r->count; i++) {
-            const uint8_t *p = bytes + i * 4;
-            uint32_t actual = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
-                              (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
-            r->bad |= actual != r->expected[i];
+        for (unsigned segment = 0; segment < r->segments; segment++) {
+            uint64_t start = r->address[segment];
+            if ((uint64_t)addr >= start + r->length[segment] || end <= start) {
+                continue;
+            }
+            if (addr != start || len != r->length[segment] ||
+                r->seen != segment) {
+                r->bad = true;
+                continue;
+            }
+            r->seen++;
+            s->writes++;
+            unsigned offset = segment ? r->length[0] : 0;
+            for (unsigned i = 0; i < len; i++) {
+                unsigned pos = offset + i;
+                uint8_t expected = r->expected[pos / 4] >> (8 * (pos % 4));
+                r->bad |= bytes[i] != expected;
+            }
         }
     }
 }
@@ -127,7 +143,8 @@ static inline void gp_decimate_shadow_finish(GPDecimateShadow *s,
     }
     for (unsigned route = 0; route < 4; route++) {
         GPDecimateShadowRoute *r = &s->route[route];
-        bool ok = r->seen && !r->bad && xram[r->base + 11] == r->count &&
+        bool ok = r->seen == r->segments && !r->bad &&
+                  xram[r->base + 11] == r->count &&
                   xram[r->base + 13] == r->next_offset &&
                   xram[r->base + 16] == r->next_phase &&
                   memcmp(xram + r->destination, r->expected,

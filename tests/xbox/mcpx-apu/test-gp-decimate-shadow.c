@@ -94,6 +94,52 @@ static void complete_xram(uint32_t xram[4096])
     }
 }
 
+static int check_wrapped_negative(unsigned mode)
+{
+    static const uint32_t expected[6] = {
+        0x1c643d, 0x0c3540, 0x20bb12, 0x0b7c15, 0x079f8f, 0x0a4022,
+    };
+    GPDecimateShadow shadow = { 0 };
+    uint32_t xram[4096];
+    uint8_t bytes[24];
+    prepare_xram(xram);
+    for (unsigned route = 0; route < 4; route++) {
+        xram[1122 + route * 39 + 13] = 2550;
+    }
+    if (!gp_decimate_shadow_prepare(&shadow, xram)) {
+        return check(false, "negative-control setup was rejected");
+    }
+    for (unsigned i = 0; i < 6; i++) {
+        write_word(bytes + 4 * i, expected[i]);
+    }
+    for (unsigned route = 0; route < 4; route++) {
+        uint32_t scratch = 0x10000 + route * 0x1000;
+        if (route == 0 && mode == 0) {
+            gp_decimate_shadow_write(&shadow, scratch, bytes + 10, 14);
+        }
+        gp_decimate_shadow_write(&shadow, scratch + 2550, bytes, 10);
+        if (route == 0 && mode == 1) {
+            gp_decimate_shadow_write(&shadow, scratch + 2550, bytes, 10);
+        }
+        if (route == 0 && mode == 2) {
+            bytes[10] ^= 1;
+        }
+        if (route != 0 || mode != 3) {
+            gp_decimate_shadow_write(&shadow, scratch, bytes + 10, 14);
+        }
+        if (route == 0 && mode == 2) {
+            bytes[10] ^= 1;
+        }
+    }
+    complete_xram(xram);
+    for (unsigned route = 0; route < 4; route++) {
+        xram[1122 + route * 39 + 13] = 14;
+    }
+    gp_decimate_shadow_finish(&shadow, xram, true);
+    return check(shadow.matched == 3 && shadow.mismatched == 1,
+                 "invalid wrapped transfer was accepted");
+}
+
 int main(void)
 {
     GPDecimateShadow shadow = { 0 };
@@ -124,16 +170,52 @@ int main(void)
                     "corrupt, missing or duplicate writes were not rejected");
 
     prepare_xram(xram);
-    xram[1122 + 13] = 2550;
+    for (unsigned route = 0; route < 4; route++) {
+        xram[1122 + route * 39 + 13] = 2550;
+    }
+    failed |= check(gp_decimate_shadow_prepare(&shadow, xram),
+                    "wrapped write was rejected");
+    for (unsigned route = 0; route < 4; route++) {
+        static const uint32_t expected[6] = {
+            0x1c643d, 0x0c3540, 0x20bb12, 0x0b7c15, 0x079f8f, 0x0a4022,
+        };
+        uint8_t bytes[24];
+        for (unsigned i = 0; i < 6; i++) {
+            write_word(bytes + i * 4, expected[i]);
+        }
+        uint32_t scratch = 0x10000 + route * 0x1000;
+        gp_decimate_shadow_write(&shadow, scratch + 2550, bytes, 10);
+        gp_decimate_shadow_write(&shadow, scratch, bytes + 10, 14);
+    }
+    complete_xram(xram);
+    for (unsigned route = 0; route < 4; route++) {
+        xram[1122 + route * 39 + 13] = 14;
+    }
+    gp_decimate_shadow_finish(&shadow, xram, true);
+    failed |= check(shadow.matched == 9 && shadow.mismatched == 3,
+                    "wrapped writes did not match");
+    for (unsigned mode = 0; mode < 4; mode++) {
+        failed |= check_wrapped_negative(mode);
+    }
+    prepare_xram(xram);
+    xram[1122] = UINT32_MAX - 10;
+    xram[1122 + 14] = xram[1122];
     failed |= check(!gp_decimate_shadow_prepare(&shadow, xram),
-                    "wrapped write was admitted");
+                    "overflowing scratch address was admitted");
+    prepare_xram(xram);
+    xram[1122 + 13] = 2550;
+    xram[1122 + 39] = xram[1122];
+    xram[1122 + 39 + 14] = xram[1122];
+    xram[1122 + 39 + 13] = 0;
+    failed |= check(!gp_decimate_shadow_prepare(&shadow, xram),
+                    "overlapping wrapped routes were admitted");
     prepare_xram(xram);
     failed |= check(gp_decimate_shadow_prepare(&shadow, xram),
                     "third state rejected");
     feed_writes(&shadow, -1, -1, -1);
     complete_xram(xram);
     gp_decimate_shadow_finish(&shadow, xram, false);
-    failed |= check(shadow.invalidated == 1 && shadow.matched == 5,
+    failed |= check(shadow.invalidated == 1 && shadow.matched == 9,
                     "changed program was incorrectly admitted");
 
     prepare_xram(xram);
@@ -148,7 +230,7 @@ int main(void)
     xram[1122 + 13]++;
     xram[1122 + 39 + 16]++;
     gp_decimate_shadow_finish(&shadow, xram, true);
-    failed |= check(shadow.matched == 7 && shadow.mismatched == 5,
+    failed |= check(shadow.matched == 11 && shadow.mismatched == 5,
                     "incorrect phase or DMA offset was admitted");
 
     static const uint32_t expected_five[5] = {
@@ -187,9 +269,9 @@ int main(void)
         xram[base + 16] = 4;
     }
     gp_decimate_shadow_finish(&shadow, xram, true);
-    failed |= check(shadow.matched == 11 && shadow.mismatched == 5,
+    failed |= check(shadow.matched == 15 && shadow.mismatched == 5,
                     "five-output route did not match");
-    failed |= check(shadow.nonzero_matched == 10,
+    failed |= check(shadow.nonzero_matched == 14,
                     "silent routes were counted as nonzero");
 
     prepare_xram(xram);
@@ -216,7 +298,7 @@ int main(void)
         xram[base + 16] = 4;
     }
     gp_decimate_shadow_finish(&shadow, xram, true);
-    failed |= check(shadow.matched == 15 && shadow.mismatched == 5,
+    failed |= check(shadow.matched == 19 && shadow.mismatched == 5,
                     "exact ring-boundary writeback did not match");
     return failed ? 1 : 0;
 }
