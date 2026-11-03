@@ -14,6 +14,7 @@
 #include "gp-add-project.h"
 #include "gp-matrix-project.h"
 #include "gp-meter-project.h"
+#include "gp-filter-hle.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
 #include "ep-native-project.h"
@@ -712,11 +713,14 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             error_setg(&cursor.error, "GP replay state unavailable");
             break;
         }
+        bool filter_pc = state->cpu.pc >= 0x185 && state->cpu.pc <= 0x413 &&
+                         ((state->cpu.pc - 0x185) % 0x55 == 0 ||
+                          (state->cpu.pc - 0x185) % 0x55 == 0x3b);
         bool stable =
             enable_native &&
             (state->cpu.pc == 0x788 || state->cpu.pc == 0x761 ||
              state->cpu.pc == 0x4a0 || state->cpu.pc == 0x6a2 ||
-             state->cpu.pc == 0x431) &&
+             state->cpu.pc == 0x431 || filter_pc) &&
             !memcmp(state->pram, data->before.jit.pram, sizeof(state->pram));
         bool feedback = stable && state->cpu.pc == 0x788 &&
                         gp_feedback_project(state, next);
@@ -728,7 +732,28 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             stable && state->cpu.pc == 0x6a2 && gp_matrix_project(state, next);
         bool meter =
             stable && state->cpu.pc == 0x431 && gp_meter_project(state, next);
-        if (feedback || mix2 || add || matrix || meter) {
+        bool filter = false;
+        bool filter_nonzero = false;
+        if (stable && filter_pc) {
+            *next = *state;
+            next->cpu.cycle_budget = 0;
+            filter = gp_filter_hle_run_verified(&next->cpu, next->xram,
+                                                next->yram, 1000);
+            next->cpu.cycle_budget = state->cpu.cycle_budget;
+            if (filter) {
+                unsigned start = state->cpu.registers[DSP_REG_R3];
+                unsigned end = next->cpu.registers[DSP_REG_R3];
+                if (start <= end && end <= DSP_XRAM_SIZE) {
+                    for (unsigned i = start; i < end; i++) {
+                        filter_nonzero |= next->xram[i] != 0;
+                    }
+                }
+                if ((next->cpu.pc - 0x185) % 0x55 == 0x3b) {
+                    filter_nonzero |= next->cpu.registers[DSP_REG_A1] != 0;
+                }
+            }
+        }
+        if (feedback || mix2 || add || matrix || meter || filter) {
             bool restored = preserve_cache ?
                                 dsp_jit_set_native_data_state(dsp, next) :
                                 dsp_jit_set_native_state(dsp, next);
@@ -741,11 +766,16 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
             executed.add_calls += add;
             executed.matrix_calls += matrix;
             executed.meter_calls += meter;
-            executed.native_cycles += feedback ? GP_FEEDBACK_PROJECT_CYCLES :
-                                      mix2     ? GP_MIX2_PROJECT_CYCLES :
-                                      add      ? GP_ADD_PROJECT_CYCLES :
-                                      matrix   ? GP_MATRIX_PROJECT_CYCLES :
-                                                 GP_METER_PROJECT_CYCLES;
+            executed.filter_calls += filter;
+            executed.filter_nonzero_calls += filter_nonzero;
+            executed.native_cycles +=
+                feedback ? GP_FEEDBACK_PROJECT_CYCLES :
+                mix2     ? GP_MIX2_PROJECT_CYCLES :
+                add      ? GP_ADD_PROJECT_CYCLES :
+                matrix   ? GP_MATRIX_PROJECT_CYCLES :
+                meter    ? GP_METER_PROJECT_CYCLES :
+                           (uint32_t)(next->cpu.cycle_count -
+                                      state->cpu.cycle_count);
         } else {
             dsp_step(dsp);
             executed.dsp_steps++;
@@ -764,7 +794,7 @@ bool dsp_replay_verify_gp_hle(DSPReplayCase *data, bool enable_native,
     }
     if (!cursor.error && enable_native && !executed.feedback_calls &&
         !executed.mix2_calls && !executed.add_calls && !executed.matrix_calls &&
-        !executed.meter_calls) {
+        !executed.meter_calls && !executed.filter_calls) {
         error_setg(&cursor.error,
                    "GP feedback replay executed no native calls");
     }

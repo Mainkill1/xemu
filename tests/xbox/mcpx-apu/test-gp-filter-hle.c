@@ -235,6 +235,10 @@ static void test_reject(gconstpointer opaque)
         f->cpu.registers[DSP_REG_N0 + 3] = 0;
         f->cpu.registers[DSP_REG_N0 + 4] = 0;
         break;
+    case 23:
+        f->cpu.registers[DSP_REG_N0 + 3] = 4;
+        f->cpu.registers[DSP_REG_N0 + 4] = 1;
+        break;
     default:
         g_assert_not_reached();
     }
@@ -335,6 +339,8 @@ int __wrap_main(int argc, char **argv)
                          GUINT_TO_POINTER(2), test_identity);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/unit-steps",
                          GUINT_TO_POINTER(1), test_identity);
+    g_test_add_data_func("/mcpx-apu/gp-filter-hle/four-steps",
+                         GUINT_TO_POINTER(4), test_identity);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/positive-limit",
                          GUINT_TO_POINTER(0), test_limit);
     g_test_add_data_func("/mcpx-apu/gp-filter-hle/negative-limit",
@@ -350,7 +356,7 @@ int __wrap_main(int argc, char **argv)
                     test_backend_fallback);
     g_test_add_func("/mcpx-apu/gp-filter-hle/captured-frame",
                     test_captured_frame);
-    for (unsigned i = 0; i < 23; i++) {
+    for (unsigned i = 0; i < 24; i++) {
         g_autofree char *name =
             g_strdup_printf("/mcpx-apu/gp-filter-hle/reject-%u", i);
         g_test_add_data_func(name, GUINT_TO_POINTER(i), test_reject);
