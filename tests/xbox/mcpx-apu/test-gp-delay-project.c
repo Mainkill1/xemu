@@ -136,6 +136,13 @@ static int run_slice_case(unsigned variant)
         before.xram[i] = (i * 71 + variant * 101) & 0xffff;
     before.xram[0x304] = variant < 32 ? 2 : 0;
     before.xram[0x33f] = 0x200000;
+    int expected_cost = variant < 32 ? 722 : 782;
+    if (gp_delay_slice_fits(cpu, before.xram, expected_cost) ||
+        !gp_delay_slice_fits(cpu, before.xram, expected_cost + 1) ||
+        gp_delay_slice_fits(cpu, before.xram, -1)) {
+        fprintf(stderr, "delay slice budget boundary is incorrect\n");
+        return 1;
+    }
     if (!gp_delay_slice_project(&before, &after) || after.cpu.pc != 0x96c ||
         after.cpu.cycle_count != (variant < 32 ? 39978 : 40038) ||
         after.cpu.cycle_budget != -21 ||

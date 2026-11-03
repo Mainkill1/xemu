@@ -218,6 +218,32 @@ static inline bool gp_delay_tail_project(const DSPJitState *before,
     return true;
 }
 
+/* Reject slices that cannot contain the continuation before copying state.
+ * A tail output may update the control word, so leave aliases to the DSP. */
+static inline bool gp_delay_slice_fits(const Dsp56300State *cpu,
+                                       const uint32_t *xram, int64_t budget)
+{
+    const uint32_t *r = cpu->registers;
+    unsigned count = r[DSP_REG_LC], phase = r[DSP_REG_N3];
+    uint32_t base = r[DSP_REG_R5];
+    if (!count || count > 32 || phase > 10 || r[DSP_REG_N4] != phase ||
+        base > DSP_XRAM_SIZE - 64 || xram[base + 4] > 0xffffff) {
+        return false;
+    }
+    GPDelayRange left, right;
+    if (!gp_delay_range(r[DSP_REG_R6], 1, &left) ||
+        !gp_delay_range(r[DSP_REG_R7], 1, &right) || left.start == base + 4 ||
+        right.start == base + 4) {
+        return false;
+    }
+    unsigned next_phase = (phase + 1) % 11;
+    unsigned iterations = count - 1;
+    bool wet = xram[base + 4] & 2;
+    unsigned cost = 16 + (next_phase == 0) + iterations * (wet ? 47 : 51) +
+                    (next_phase + iterations) / 11;
+    return budget > cost;
+}
+
 /* Caller verifies program identity; both transitions are transactional. */
 static inline bool gp_delay_slice_project(const DSPJitState *before,
                                           DSPJitState *after)
