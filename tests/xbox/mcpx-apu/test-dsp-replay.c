@@ -7,9 +7,49 @@
 #include "hw/xbox/mcpx/apu/audio-engine-policy.h"
 #include <glib/gstdio.h>
 #include "hw/xbox/mcpx/apu/dsp/dsp-replay.h"
+#include "hw/xbox/mcpx/apu/dsp/ep-native-project.h"
 
 static char *test_directory;
 static const char *test_executable;
+
+static void test_native_ep_projection(void)
+{
+    g_autofree DSPReplaySnapshot *before = g_new0(DSPReplaySnapshot, 1);
+    g_autofree DSPReplaySnapshot *after = g_new0(DSPReplaySnapshot, 1);
+    uint32_t input[5][256] = { 0 };
+    uint8_t pcm[1024];
+    uint32_t calls = 0;
+    before->jit.pram[1] = 5;
+    before->jit.pram[7] = 0xffffff;
+    before->jit.pram[0x116] = 0x100;
+    before->jit.cpu.cycle_budget = 587;
+    before->jit.xram[0x900] = 0x123456;
+    before->interrupts = 2;
+    g_assert_true(ep_native_project_frame(before, input, after, pcm, &calls));
+    g_assert_cmpuint(calls, ==, 8);
+    g_assert_cmpuint(after->jit.cpu.cycle_count, ==, 8589);
+    g_assert_cmpint(after->jit.cpu.cycle_budget, ==, -2);
+    g_assert_cmpuint(after->jit.pram[1], ==, 0);
+    g_assert_cmpuint(after->jit.pram[7], ==, 0);
+    g_assert_cmpuint(after->jit.pram[0x116], ==, 0);
+    g_assert_cmpuint(after->jit.xram[0x900], ==, 0x123456);
+    g_assert_cmpuint(before->interrupts, ==, 2);
+    g_assert_cmpuint(after->interrupts, ==, 0);
+    for (unsigned i = 0; i < sizeof(pcm); i++) {
+        g_assert_cmpuint(pcm[i], ==, 0);
+    }
+    memset(after, 0x5a, sizeof(*after));
+    memset(pcm, 0x5a, sizeof(pcm));
+    g_autofree DSPReplaySnapshot *unchanged = g_memdup2(after, sizeof(*after));
+    calls = 123;
+    input[0][0] = 0x1000000;
+    g_assert_false(ep_native_project_frame(before, input, after, pcm, &calls));
+    g_assert_cmpmem(after, sizeof(*after), unchanged, sizeof(*unchanged));
+    for (unsigned i = 0; i < sizeof(pcm); i++) {
+        g_assert_cmpuint(pcm[i], ==, 0x5a);
+    }
+    g_assert_cmpuint(calls, ==, 123);
+}
 
 static void test_capture_frame(void)
 {
@@ -800,6 +840,7 @@ int __wrap_main(int argc, char **argv)
     test_directory = g_dir_make_tmp("xemu-dsp-replay-tests-XXXXXX", NULL);
     g_assert_nonnull(test_directory);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
+    g_test_add_func("/mcpx-apu/dsp-replay/native-ep-projection", test_native_ep_projection);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);

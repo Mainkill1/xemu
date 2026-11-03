@@ -11,6 +11,7 @@
 #include "ep-mix-hle.h"
 #include "ep-mix-identity.h"
 #include "ep-native-input.h"
+#include "ep-native-project.h"
 
 #define REPLAY_MAGIC_GP UINT64_C(0x58475046524d3031) /* XGPFRM01 */
 #define REPLAY_MAGIC_EP UINT64_C(0x58455046524d3031) /* XEPFRM01 */
@@ -644,8 +645,9 @@ static bool native_ep_replay_projection(DSPReplayCase *d, DSPReplaySnapshot *a,
                                         Error **errp)
 {
     uint32_t phase = d->before.jit.pram[1], slot = d->before.jit.pram[0x116];
-    uint32_t canonical[DSP_PRAM_SIZE], input[5][256], regs[64], stack[2][16];
-    EPMixFrame frame;
+    uint32_t canonical[DSP_PRAM_SIZE], input[5][256];
+    uint8_t pcm[1024];
+    uint32_t predicted_calls;
     unsigned n = 0;
     g_autofree char *program = NULL;
     if (d->is_gp || !d->realtime || phase >= 6 || (slot != 0 && slot != 0x100))
@@ -666,51 +668,17 @@ static bool native_ep_replay_projection(DSPReplayCase *d, DSPReplaySnapshot *a,
                                  native_ep_overlay_check, phase, slot, input))
         goto reject;
     n = cursor.position;
-    if (!ep_mix_frame_hle(input, &frame))
+    if (!ep_native_project_frame(&d->before, input, a, pcm, &predicted_calls) ||
+        predicted_calls != d->calls) {
         goto reject;
-    {
-        DSPReplayIO *io = g_ptr_array_index(d->io, n++);
-        gsize len;
-        const uint8_t *bytes = g_bytes_get_data(io->bytes, &len);
-        if (!io->fifo || !io->dir || io->address || len != 1024 ||
-            memcmp(bytes, frame.pcm, 1024))
-            goto reject;
     }
-    *a = d->before;
-    for (unsigned ch = 0; ch < 5; ch++)
-        memcpy(a->jit.xram + ch * 256, input[ch], sizeof(input[ch]));
-    for (unsigned ch = 0; ch < 2; ch++)
-        memcpy(a->jit.xram + (ch + 5) * 256, frame.mixed[ch],
-               sizeof(frame.mixed[ch]));
-    a->jit.xram[0x701] = frame.peak[0];
-    a->jit.xram[0x702] = frame.peak[1];
-    a->jit.xram[0x703] = frame.rms[0];
-    a->jit.xram[0x704] = frame.rms[1];
-    a->jit.pram[1] = (phase + 1) % 6;
-    a->jit.pram[7] = (a->jit.pram[7] + 1) & 0xffffff;
-    a->jit.pram[0x116] = slot ^ 0x100;
-    a->jit.pram[0x1a6] = 0x12000 + slot * 4;
-    a->jit.pram[0x1ab] = frame.peak[0];
-    a->jit.pram[0x1ac] = frame.peak[1];
-    a->jit.pram[0x1ad] = frame.rms[0];
-    a->jit.pram[0x1ae] = frame.rms[1];
-    ep_mix_shadow_registers(d->before.jit.cpu.registers, d->before.jit.pram[7],
-                            slot, d->before.jit.cpu.stack[0][0],
-                            d->before.jit.cpu.stack[1][0], &frame, regs);
-    ep_mix_shadow_stack(d->before.jit.cpu.stack, phase, regs[57], stack);
-    memcpy(a->jit.cpu.registers, regs, sizeof(regs));
-    memcpy(a->jit.cpu.stack, stack, sizeof(stack));
-    uint32_t predicted_cycles, predicted_calls;
-    int32_t predicted_budget;
-    if (!ep_mix_shadow_timing(phase, a->jit.cpu.cycle_budget, &predicted_cycles,
-                              &predicted_calls, &predicted_budget))
+    DSPReplayIO *io = g_ptr_array_index(d->io, n);
+    gsize len;
+    const uint8_t *bytes = g_bytes_get_data(io->bytes, &len);
+    if (!io->fifo || !io->dir || io->address || len != sizeof(pcm) ||
+        memcmp(bytes, pcm, sizeof(pcm))) {
         goto reject;
-    if (predicted_calls != d->calls)
-        goto reject;
-    a->jit.cpu.cycle_count = predicted_cycles;
-    a->jit.cpu.cycle_budget = predicted_budget;
-    a->jit.cpu.halt_requested = true;
-    a->interrupts = 0;
+    }
     return true;
 reject:
     error_setg(errp, "native EP replay rejected program, state or I/O");
