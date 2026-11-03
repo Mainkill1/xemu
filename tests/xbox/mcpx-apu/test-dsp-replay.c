@@ -129,6 +129,42 @@ static void test_capture_both_frames(void)
     g_unsetenv("XEMU_EP_REPLAY_PATH");
 }
 
+static void test_capture_ep_sequence_environment(void)
+{
+    g_autofree char *base = g_build_filename(test_directory, "ep-env-sequence", NULL);
+    MCPXAPUState *d = g_new0(MCPXAPUState, 1);
+    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+    g_setenv("XEMU_EP_REPLAY_PATH", base, true);
+    g_setenv("XEMU_EP_REPLAY_COUNT", "2", true);
+    g_config.audio.use_dsp = true;
+    g_config.audio.use_dsp_jit = true;
+    mcpx_apu_dsp_init(d);
+    d->ep.regs[NV_PAPU_EPRST] = 3;
+    d->ep.realtime = true;
+    for (unsigned i = 0; i < 2; i++) {
+        dsp_reset(d->ep.dsp);
+        dsp_write_memory(d->ep.dsp, 'P', 0, 0x08f484);
+        dsp_write_memory(d->ep.dsp, 'P', 1, 1);
+        mcpx_apu_dsp_frame(d, bins);
+        g_autofree char *path = g_strdup_printf("%s.%04u", base, i);
+        Error *err = NULL;
+        DSPReplayCase *data = dsp_replay_load_case(path, &err);
+        g_assert_null(err);
+        g_assert_nonnull(data);
+        g_assert_false(data->is_gp);
+        g_assert_true(dsp_replay_verify_case(data, &err));
+        g_assert_null(err);
+        dsp_replay_case_free(data);
+        g_unlink(path);
+    }
+    g_assert_null(d->ep.dsp->replay);
+    dsp_destroy(d->gp.dsp);
+    dsp_destroy(d->ep.dsp);
+    g_free(d);
+    g_unsetenv("XEMU_EP_REPLAY_PATH");
+    g_unsetenv("XEMU_EP_REPLAY_COUNT");
+}
+
 
 typedef struct TestIO {
     unsigned reads, writes, fifos;
@@ -758,6 +794,7 @@ int __wrap_main(int argc, char **argv)
     g_test_add_func("/mcpx-apu/dsp-replay/capture-frame", test_capture_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-frame", test_capture_ep_frame);
     g_test_add_func("/mcpx-apu/dsp-replay/capture-both-frames", test_capture_both_frames);
+    g_test_add_func("/mcpx-apu/dsp-replay/capture-ep-sequence-env", test_capture_ep_sequence_environment);
     g_test_add_func("/mcpx-apu/dsp-replay/dma", test_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-dma", test_ep_dma_replay);
     g_test_add_func("/mcpx-apu/dsp-replay/ep-frame-sequence", test_ep_frame_sequence);
