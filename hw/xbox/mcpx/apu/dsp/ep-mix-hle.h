@@ -107,6 +107,29 @@ static inline uint32_t ep_mix_shadow_status(uint32_t before,
            (frame->negative_clip ? 0x40 : 0);
 }
 
+/* Recorded timing for this program and the current JIT's 1000-cycle slices.
+ * Diagnostic only: this is not a general DSP scheduler. */
+static inline bool ep_mix_shadow_timing(unsigned phase, int32_t before_budget,
+                                        uint32_t *cycles_out,
+                                        uint32_t *calls_out,
+                                        int32_t *budget_out)
+{
+    if (phase >= 6 || !cycles_out || !calls_out || !budget_out) {
+        return false;
+    }
+    uint32_t cycles = phase == 0 ? 8783 : 8589;
+    int64_t needed = (int64_t)cycles - 2 - before_budget;
+    int64_t calls = needed > 0 ? (needed + 999) / 1000 : 1;
+    int64_t budget = (int64_t)before_budget + calls * 1000 - cycles;
+    if (calls > 65536 || budget < INT32_MIN || budget > INT32_MAX) {
+        return false;
+    }
+    *cycles_out = cycles;
+    *calls_out = calls;
+    *budget_out = budget;
+    return true;
+}
+
 /* Register indices follow the DSP56300 native state used by replay. */
 static inline void ep_mix_shadow_registers(const uint32_t before[64],
                                            uint32_t counter, uint32_t slot,

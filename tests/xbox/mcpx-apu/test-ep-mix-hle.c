@@ -20,6 +20,37 @@ int main(void)
     uint32_t input[5][256] = { 0 };
     uint8_t output[1024], unchanged[1024];
     int failed = 0;
+    int32_t budget_after = 123;
+    uint32_t calls = 123, cycles = 123;
+    failed |=
+        check(ep_mix_shadow_timing(5, 587, &cycles, &calls, &budget_after) &&
+                  cycles == 8589 && calls == 8 && budget_after == -2,
+              "normal-phase final instruction boundary differs from JIT");
+    failed |=
+        check(ep_mix_shadow_timing(5, 586, &cycles, &calls, &budget_after) &&
+                  calls == 9 && budget_after == 997,
+              "normal-phase preceding budget differs from JIT");
+    failed |=
+        check(ep_mix_shadow_timing(0, 781, &cycles, &calls, &budget_after) &&
+                  cycles == 8783 && calls == 8 && budget_after == -2,
+              "periodic-phase final instruction boundary differs from JIT");
+    failed |=
+        check(ep_mix_shadow_timing(0, 780, &cycles, &calls, &budget_after) &&
+                  calls == 9 && budget_after == 997,
+              "periodic-phase preceding budget differs from JIT");
+    cycles = calls = 123;
+    budget_after = 123;
+    failed |=
+        check(!ep_mix_shadow_timing(6, 0, &cycles, &calls, &budget_after) &&
+                  cycles == 123 && calls == 123 && budget_after == 123,
+              "invalid timing phase modified outputs");
+    failed |= check(
+        !ep_mix_shadow_timing(1, INT32_MIN, &cycles, &calls, &budget_after) &&
+            cycles == 123 && calls == 123 && budget_after == 123,
+        "excessive timing slices modified outputs");
+    failed |= check(!ep_mix_shadow_timing(1, 0, NULL, &calls, &budget_after) &&
+                        calls == 123 && budget_after == 123,
+                    "null timing output modified other outputs");
     /* Synthetic inputs were also fed to the captured EP JIT program. */
     for (unsigned ch = 0; ch < 5; ch++) {
         uint32_t seed = 1 ^ ((ch + 2) * UINT32_C(0x9e3779b9));
