@@ -52,22 +52,26 @@ int main(void)
     failed |= check(ep_mix_frame_hle(input, &frame), "frame prediction failed");
     memcpy(after_xram, input, sizeof(input));
     memcpy(after_xram + 0x500, frame.mixed, sizeof(frame.mixed));
+    memcpy(after_xram + 0x701, frame.peak, sizeof(frame.peak));
+    memcpy(after_xram + 0x703, frame.rms, sizeof(frame.rms));
     ep_mix_shadow_begin(&shadow, true);
     feed(&shadow, input, actual, true, false);
     ep_mix_shadow_finish(&shadow, after_xram, true);
     failed |=
         check(shadow.matched == 1 && shadow.nonzero_matched == 1 &&
                   shadow.mismatched == 0 && shadow.matched_samples == 512 &&
-                  shadow.matched_words == 1792,
+                  shadow.matched_words == 1796,
               "matching EP output rejected");
     ep_mix_shadow_begin(&shadow, true);
     feed(&shadow, input, actual, true, true);
     after_xram[0x500] ^= 1;
+    after_xram[0x703] ^= 1;
     ep_mix_shadow_finish(&shadow, after_xram, true);
     after_xram[0x500] ^= 1;
+    after_xram[0x703] ^= 1;
     failed |= check(shadow.matched == 1 && shadow.mismatched == 1 &&
                         shadow.mismatched_samples == 1 &&
-                        shadow.mismatched_words == 1,
+                        shadow.mismatched_words == 2,
                     "corrupted EP output admitted");
     ep_mix_shadow_begin(&shadow, true);
     feed(&shadow, input, actual, false, false);

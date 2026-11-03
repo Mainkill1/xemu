@@ -51,6 +51,9 @@ int main(void)
     }
     failed |= check(hash == UINT64_C(0xf1289de92c1dc857),
                     "EP mixed XRAM differs from synthetic JIT output");
+    failed |= check(frame.peak[0] == 0x40dc3f && frame.peak[1] == 0x3f2f19 &&
+                        frame.rms[0] == 0x18b6eb && frame.rms[1] == 0x18b536,
+                    "EP signal meters differ from synthetic JIT output");
 
     /* Each channel sum lands exactly halfway between two 24-bit values. */
     for (unsigned i = 0; i < 256; i++) {
@@ -89,6 +92,9 @@ int main(void)
     }
     failed |= check(hash == UINT64_C(0x2bb9e797bc27af01),
                     "EP rounding ties differ from JIT");
+    failed |= check(frame.peak[0] == 0x7fffff && frame.peak[1] == 0x7fffff &&
+                        frame.rms[0] == 0x472bf7 && frame.rms[1] == 0x45c113,
+                    "EP saturated signal meters differ from JIT");
 
     memset(output, 0x5a, sizeof(output));
     memcpy(unchanged, output, sizeof(output));

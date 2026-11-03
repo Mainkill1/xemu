@@ -17,10 +17,29 @@ static inline int64_t ep_mix_floor_shift(int64_t value, unsigned bits)
                         -((-value + ((int64_t)1 << bits) - 1) >> bits);
 }
 
+static inline uint32_t ep_mix_isqrt(uint64_t value)
+{
+    uint64_t result = 0, bit = UINT64_C(1) << 62;
+    while (bit > value) {
+        bit >>= 2;
+    }
+    while (bit) {
+        if (value >= result + bit) {
+            value -= result + bit;
+            result = (result >> 1) + bit;
+        } else {
+            result >>= 1;
+        }
+        bit >>= 2;
+    }
+    return result;
+}
+
 /* Private 5-channel to stereo prediction for one verified EP program and
  * overlay. The caller must verify both identities and the input ordering. */
 typedef struct EPMixFrame {
     uint32_t mixed[2][256];
+    uint32_t peak[2], rms[2];
     uint8_t pcm[1024];
 } EPMixFrame;
 
@@ -28,6 +47,8 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
                                     EPMixFrame *output)
 {
     EPMixFrame result;
+    uint64_t squares[2] = { 0, 0 };
+    result.peak[0] = result.peak[1] = 0;
     if (!input || !output) {
         return false;
     }
@@ -50,11 +71,21 @@ static inline bool ep_mix_frame_hle(const uint32_t input[5][256],
             }
             q23 = q23 < -0x800000 ? -0x800000 : q23 > 0x7fffff ? 0x7fffff : q23;
             result.mixed[ch][i] = (uint32_t)q23 & 0xffffff;
+            uint32_t magnitude = q23 < 0 ? -q23 : q23;
+            magnitude = magnitude > 0x7fffff ? 0x7fffff : magnitude;
+            if (magnitude > result.peak[ch]) {
+                result.peak[ch] = magnitude;
+            }
+            /* 256 squared 24-bit samples fit within 54 bits. */
+            squares[ch] += q23 * q23;
             uint16_t sample = (uint16_t)ep_mix_floor_shift(q23, 8);
             unsigned offset = 4 * i + 2 * ch;
             result.pcm[offset] = sample;
             result.pcm[offset + 1] = sample >> 8;
         }
+    }
+    for (unsigned ch = 0; ch < 2; ch++) {
+        result.rms[ch] = ep_mix_isqrt(squares[ch] / 256);
     }
     *output = result;
     return true;

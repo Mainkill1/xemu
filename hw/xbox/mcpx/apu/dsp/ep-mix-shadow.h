@@ -120,6 +120,18 @@ static inline void ep_mix_shadow_finish(EPMixShadow *s, const uint32_t *xram,
             }
         }
     }
+    for (unsigned ch = 0; ch < 2; ch++) {
+        uint32_t words[2] = { expected.peak[ch], expected.rms[ch] };
+        unsigned addresses[2] = { 0x701 + ch, 0x703 + ch };
+        for (unsigned i = 0; i < 2; i++) {
+            if (words[i] == xram[addresses[i]]) {
+                s->matched_words++;
+            } else {
+                s->mismatched_words++;
+                matches = false;
+            }
+        }
+    }
     for (unsigned i = 0; i < 512; i++) {
         bool same = expected.pcm[2 * i] == s->actual[2 * i] &&
                     expected.pcm[2 * i + 1] == s->actual[2 * i + 1];
