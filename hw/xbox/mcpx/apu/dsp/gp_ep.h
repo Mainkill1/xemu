@@ -40,6 +40,7 @@ typedef struct MCPXAPUGPState {
 
 typedef struct MCPXAPUEPState {
     bool realtime;
+    struct EPMixObserver *mix_observer;
     MemoryRegion mmio;
     DSPState *dsp;
     uint32_t regs[0x10000];

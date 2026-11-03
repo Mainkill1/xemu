@@ -27,9 +27,89 @@
 #include "dsp-jit-state.h"
 #include "gp-decimate-shadow.h"
 #include "gp-filter-frame-shadow.h"
+#include "ep-mix-shadow.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
+
+typedef struct EPMixObserver {
+    EPMixShadow shadow;
+    DSPJitState before, after;
+    uint64_t frames, backend_skips;
+} EPMixObserver;
+
+static bool ep_mix_program_known(const uint32_t *pram, bool after)
+{
+    uint32_t canonical[DSP_PRAM_SIZE];
+    for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+        canonical[i] = cpu_to_le32(pram[i] & 0xffffff);
+    }
+    g_autofree char *digest = g_compute_checksum_for_data(
+        G_CHECKSUM_SHA256, (const uint8_t *)canonical, sizeof(canonical));
+    bool post = !strcmp(digest,
+        "584ba1148b0fbdc7610fe004b4cb858405356538a4f8d67cf8c3734eb5bd1aec");
+    return post || (!after && !strcmp(digest,
+        "2d6877c2c9e2c870a092a06f32798664062b6db36155871f7d3d7f437366c632"));
+}
+
+static void ep_mix_observer_report(const EPMixObserver *o)
+{
+    const EPMixShadow *s = &o->shadow;
+    fprintf(stderr, "EP mix shadow: frames=%" PRIu64 " attempted=%" PRIu64
+            " eligible=%" PRIu64 " skipped=%" PRIu64
+            " invalidated=%" PRIu64 " matched_frames=%" PRIu64
+            " nonzero_matched_frames=%" PRIu64 " mismatched_frames=%" PRIu64
+            " matched_samples=%" PRIu64 " mismatched_samples=%" PRIu64
+            " backend_skips=%" PRIu64 "\n", o->frames, s->attempted,
+            s->eligible, s->skipped, s->invalidated, s->matched,
+            s->nonzero_matched, s->mismatched, s->matched_samples,
+            s->mismatched_samples, o->backend_skips);
+}
+
+static void ep_mix_observer_begin(EPMixObserver *o, DSPState *dsp, bool realtime)
+{
+    if (!o) {
+        return;
+    }
+    if (++o->frames % 10000 == 0) {
+        ep_mix_observer_report(o);
+    }
+    if (!realtime || !dsp_jit_get_native_state(dsp, &o->before)) {
+        o->backend_skips++;
+        return;
+    }
+    ep_mix_shadow_begin(&o->shadow, ep_mix_program_known(o->before.pram, false));
+}
+
+static void ep_mix_observer_end(EPMixObserver *o, DSPState *dsp)
+{
+    if (!o || !o->shadow.armed) {
+        return;
+    }
+    bool valid = dsp_jit_get_native_state(dsp, &o->after);
+    ep_mix_shadow_finish(&o->shadow,
+                         valid && ep_mix_program_known(o->after.pram, true));
+}
+
+static void ep_mix_observer_scratch(EPMixObserver *o, uint32_t addr,
+                                    const uint8_t *ptr, size_t len, bool dir)
+{
+    if (!o || !o->shadow.armed) {
+        return;
+    }
+    if (dir) {
+        ep_mix_shadow_reject(&o->shadow);
+        return;
+    }
+    bool known = false;
+    if (!o->shadow.stage && len == 804) {
+        g_autofree char *digest = g_compute_checksum_for_data(
+            G_CHECKSUM_SHA256, ptr, len);
+        known = !strcmp(digest,
+            "68da34164ce85698200097ee113446181ee6381aacc3a499ea1ca5c5d058a9d3");
+    }
+    ep_mix_shadow_read(&o->shadow, addr, ptr, len, known);
+}
 
 typedef struct GPProgramObserver {
     GPDecimateShadow shadow;
@@ -209,6 +289,7 @@ static void ep_scratch_rw(void *opaque, uint8_t *ptr, uint32_t addr, size_t len,
     // fprintf(stderr, "EP %s scratch 0x%x bytes (0x%x words) at %x (0x%x words)\n", dir ? "writing to" : "reading from", len, len/4, addr, addr/4);
     scatter_gather_rw(d, d->regs[NV_PAPU_EPSADDR], d->regs[NV_PAPU_EPSMAXSGE],
                       ptr, addr, len, dir);
+    ep_mix_observer_scratch(d->ep.mix_observer, addr, ptr, len, dir);
 }
 
 static uint32_t circular_scatter_gather_rw(MCPXAPUState *d, hwaddr sge_base,
@@ -303,6 +384,13 @@ static void ep_fifo_rw(void *opaque, uint8_t *ptr, unsigned int index,
                        size_t len, bool dir)
 {
     MCPXAPUState *d = opaque;
+    if (d->ep.mix_observer && d->ep.mix_observer->shadow.armed) {
+        if (dir) {
+            ep_mix_shadow_write(&d->ep.mix_observer->shadow, index, ptr, len);
+        } else {
+            ep_mix_shadow_reject(&d->ep.mix_observer->shadow);
+        }
+    }
     uint32_t base;
     uint32_t end;
     hwaddr cur_reg;
@@ -624,12 +712,14 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
             dsp_set_cycle_count(d->ep.dsp, 0);
             DSPReplay *capture = dsp_replay_begin(d->ep.dsp, d->ep.realtime);
             uint64_t calls = 0;
+            ep_mix_observer_begin(d->ep.mix_observer, d->ep.dsp, d->ep.realtime);
             do {
                 dsp_run(d->ep.dsp, 1000);
                 if (capture) {
                     calls++;
                 }
             } while (!dsp_get_halt_requested(d->ep.dsp) && d->ep.realtime);
+            ep_mix_observer_end(d->ep.mix_observer, d->ep.dsp);
             if (capture) {
                 Error *err = NULL;
                 if (!dsp_replay_end(capture, calls, &err)) {
@@ -653,12 +743,16 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
 {
     const char *shadow = g_getenv("XEMU_GP_DECIMATE_SHADOW");
     const char *filter_shadow = g_getenv("XEMU_GP_FILTER_FRAME_SHADOW");
+    const char *ep_shadow = g_getenv("XEMU_EP_MIX_SHADOW");
     bool decimate_enabled = shadow && !strcmp(shadow, "1");
     bool filter_enabled = filter_shadow && !strcmp(filter_shadow, "1");
     if (decimate_enabled || filter_enabled) {
         d->gp.program_observer = g_new0(GPProgramObserver, 1);
         d->gp.program_observer->decimate_enabled = decimate_enabled;
         d->gp.program_observer->filter_enabled = filter_enabled;
+    }
+    if (ep_shadow && !strcmp(ep_shadow, "1")) {
+        d->ep.mix_observer = g_new0(EPMixObserver, 1);
     }
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;
@@ -685,5 +779,11 @@ void mcpx_apu_dsp_finalize(MCPXAPUState *d)
         gp_program_observer_report(o);
         g_free(o);
         d->gp.program_observer = NULL;
+    }
+    EPMixObserver *ep = d->ep.mix_observer;
+    if (ep) {
+        ep_mix_observer_report(ep);
+        g_free(ep);
+        d->ep.mix_observer = NULL;
     }
 }
