@@ -4659,6 +4659,10 @@ foreach target : target_dirs
       files('tests/xbox/mcpx-apu/test-gp-decimate-hle.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
     test('test-xbox-gp-decimate-hle', gp_decimate_hle_test, suite: ['unit'])
+    gp_feedback_hle_test = executable('test-xbox-gp-feedback-hle',
+      files('tests/xbox/mcpx-apu/test-gp-feedback-hle.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-gp-feedback-hle', gp_feedback_hle_test, suite: ['unit'])
     gp_decimate_shadow_test = executable('test-xbox-gp-decimate-shadow',
       files('tests/xbox/mcpx-apu/test-gp-decimate-shadow.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
