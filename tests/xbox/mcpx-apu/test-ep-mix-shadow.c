@@ -41,6 +41,9 @@ int main(void)
     uint32_t input[5][256] = { 0 };
     uint8_t actual[1024];
     uint32_t after_xram[4096] = { 0 };
+    uint32_t before_pram[4096] = { 0 }, after_pram[4096] = { 0 };
+    before_pram[1] = 5;
+    before_pram[0x116] = 0x100;
     EPMixFrame frame;
     EPMixShadow shadow = { 0 };
     int failed = 0;
@@ -65,52 +68,91 @@ int main(void)
     memcpy(after_xram + 0x500, frame.mixed, sizeof(frame.mixed));
     memcpy(after_xram + 0x701, frame.peak, sizeof(frame.peak));
     memcpy(after_xram + 0x703, frame.rms, sizeof(frame.rms));
-    ep_mix_shadow_begin(&shadow, true);
+    after_pram[7] = 1;
+    after_pram[0x1a6] = 0x12000;
+    memcpy(after_pram + 0x1ab, frame.peak, sizeof(frame.peak));
+    memcpy(after_pram + 0x1ad, frame.rms, sizeof(frame.rms));
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     feed(&shadow, input, actual, true, false);
-    ep_mix_shadow_finish(&shadow, after_xram, true);
-    failed |=
-        check(shadow.matched == 1 && shadow.nonzero_matched == 1 &&
-                  shadow.mismatched == 0 && shadow.matched_samples == 512 &&
-                  shadow.matched_words == 1796,
-              "matching EP output rejected");
-    ep_mix_shadow_begin(&shadow, true);
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
+    failed |= check(
+        shadow.matched == 1 && shadow.nonzero_matched == 1 &&
+            shadow.mismatched == 0 && shadow.matched_samples == 512 &&
+            shadow.matched_words == 1796 && shadow.matched_pram_words == 8,
+        "matching EP output rejected");
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     feed(&shadow, input, actual, true, true);
     after_xram[0x500] ^= 1;
     after_xram[0x703] ^= 1;
-    ep_mix_shadow_finish(&shadow, after_xram, true);
+    after_pram[7] ^= 1;
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
     after_xram[0x500] ^= 1;
     after_xram[0x703] ^= 1;
+    after_pram[7] ^= 1;
     failed |= check(shadow.matched == 1 && shadow.mismatched == 1 &&
                         shadow.mismatched_samples == 1 &&
-                        shadow.mismatched_words == 2,
+                        shadow.mismatched_words == 2 &&
+                        shadow.mismatched_pram_words == 1,
                     "corrupted EP output admitted");
-    ep_mix_shadow_begin(&shadow, true);
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     feed(&shadow, input, actual, false, false);
-    ep_mix_shadow_finish(&shadow, after_xram, true);
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
     failed |= check(shadow.skipped == 1, "unknown overlay admitted");
-    ep_mix_shadow_begin(&shadow, false);
+    ep_mix_shadow_begin(&shadow, false, before_pram);
     failed |= check(shadow.skipped == 2, "unknown program admitted");
-    ep_mix_shadow_begin(&shadow, true);
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     feed(&shadow, input, actual, true, false);
-    ep_mix_shadow_finish(&shadow, after_xram, false);
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, false);
     failed |= check(shadow.invalidated == 1 && shadow.matched == 1,
                     "changed program admitted");
-    ep_mix_shadow_begin(&shadow, true);
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     uint8_t overlay[804] = { 0 };
     ep_mix_shadow_read(&shadow, 0, overlay, sizeof(overlay), true);
     uint8_t bad_input[1024] = { 0 };
     ep_mix_shadow_read(&shadow, 0x10000, bad_input, sizeof(bad_input), false);
     ep_mix_shadow_read(&shadow, 0x10001, bad_input, sizeof(bad_input), false);
-    ep_mix_shadow_finish(&shadow, after_xram, true);
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
     failed |=
         check(shadow.skipped == 3, "unexpected scratch ordering admitted");
+
+    before_pram[1] = 0;
+    before_pram[0x116] = 0;
+    after_pram[1] = 1;
+    after_pram[0x116] = 0x100;
+    ep_mix_shadow_begin(&shadow, true, before_pram);
+    uint8_t extra_overlay[96] = { 0 };
+    ep_mix_shadow_read(&shadow, 0x7000, extra_overlay, sizeof(extra_overlay),
+                       true);
+    feed(&shadow, input, actual, true, false);
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
+    failed |= check(shadow.matched == 2 && shadow.nonzero_matched == 2,
+                    "periodic EP overlay or program state did not match");
+
+    before_pram[1] = 5;
+    before_pram[0x116] = 0x100;
+    after_pram[1] = 0;
+    after_pram[0x116] = 0;
     memset(input, 0, sizeof(input));
     memset(actual, 0, sizeof(actual));
     memset(after_xram, 0, sizeof(after_xram));
-    ep_mix_shadow_begin(&shadow, true);
+    memset(after_pram + 0x1ab, 0, 4 * sizeof(*after_pram));
+    ep_mix_shadow_begin(&shadow, true, before_pram);
     feed(&shadow, input, actual, true, false);
-    ep_mix_shadow_finish(&shadow, after_xram, true);
-    failed |= check(shadow.matched == 2 && shadow.nonzero_matched == 1,
+    ep_mix_shadow_finish(&shadow, after_xram, after_pram, true);
+    failed |= check(shadow.matched == 3 && shadow.nonzero_matched == 2,
                     "silent EP frame counted as nonzero");
+
+    EPMixShadow rejected = { 0 };
+    before_pram[1] = 6;
+    ep_mix_shadow_begin(&rejected, true, before_pram);
+    before_pram[1] = 0;
+    before_pram[0x116] = 0x80;
+    ep_mix_shadow_begin(&rejected, true, before_pram);
+    before_pram[0x116] = 0;
+    ep_mix_shadow_begin(&rejected, true, before_pram);
+    ep_mix_shadow_read(&rejected, 0x7000, extra_overlay, sizeof(extra_overlay),
+                       false);
+    failed |= check(rejected.skipped == 3 && !rejected.armed,
+                    "invalid EP phase, slot, or extra overlay admitted");
     return failed ? 1 : 0;
 }

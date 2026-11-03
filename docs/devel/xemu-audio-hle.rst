@@ -46,9 +46,10 @@ nonzero output separately. This opt-in diagnostic also leaves the DSP in
 control and makes no claim about the rest of the GP or EP program.
 
 ``XEMU_EP_MIX_SHADOW=1`` enables a separate EP diagnostic for one identified
-program and loaded overlay. It collects the observed scratch inputs and the
+program and its observed overlays. It collects the observed scratch inputs and the
 FIFO output into private storage and compares a guarded five-channel stereo
-prediction with the DSP output, input/mixed XRAM buffers and signal meters. Unknown
+prediction with the DSP output, input/mixed XRAM buffers, signal meters and
+eight observed program-memory updates. Unknown
 program/overlay identities, changed programs and unexpected I/O sequences are
 excluded. Its diagnostic identity masks eight P-memory words observed changing
 within a captured frame; this is not a guard suitable for serving native output.

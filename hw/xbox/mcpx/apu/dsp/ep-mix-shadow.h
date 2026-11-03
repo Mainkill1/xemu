@@ -13,24 +13,34 @@ typedef struct EPMixShadow {
     uint32_t input[5][256];
     uint8_t actual[1024];
     uint32_t first_address;
+    uint32_t before_counter, before_phase, before_slot;
     unsigned stage;
-    bool armed;
+    bool armed, extra_seen;
     uint64_t attempted, eligible, skipped, invalidated;
     uint64_t matched, nonzero_matched, mismatched;
     uint64_t matched_samples, mismatched_samples;
     uint64_t matched_words, mismatched_words;
+    uint64_t matched_pram_words, mismatched_pram_words;
 } EPMixShadow;
 
 /* The caller checks the program identity before starting a comparison. */
-static inline void ep_mix_shadow_begin(EPMixShadow *s, bool program_known)
+static inline void ep_mix_shadow_begin(EPMixShadow *s, bool program_known,
+                                       const uint32_t *pram)
 {
     if (!s)
         return;
     s->attempted++;
     s->stage = 0;
-    s->armed = program_known;
-    if (!program_known)
+    s->extra_seen = false;
+    s->armed = program_known && pram && pram[1] < 6 &&
+               (pram[0x116] == 0 || pram[0x116] == 0x100);
+    if (!s->armed)
         s->skipped++;
+    else {
+        s->before_counter = pram[7] & 0xffffff;
+        s->before_phase = pram[1];
+        s->before_slot = pram[0x116];
+    }
 }
 
 static inline void ep_mix_shadow_reject(EPMixShadow *s)
@@ -39,8 +49,8 @@ static inline void ep_mix_shadow_reject(EPMixShadow *s)
     s->skipped++;
 }
 
-/* The first read is the verified DSP program overlay; the following reads
- * must be five complete channels in the observed scratch-ring order. */
+/* An optional periodic overlay precedes the verified mixer overlay. Five
+ * complete channels must then follow in the observed scratch-ring order. */
 static inline void ep_mix_shadow_read(EPMixShadow *s, uint32_t address,
                                       const uint8_t *bytes, size_t length,
                                       bool overlay_known)
@@ -52,6 +62,14 @@ static inline void ep_mix_shadow_read(EPMixShadow *s, uint32_t address,
         return;
     }
     if (!s->stage) {
+        if (s->before_phase == 0 && !s->extra_seen) {
+            if (length != 96 || !overlay_known) {
+                ep_mix_shadow_reject(s);
+                return;
+            }
+            s->extra_seen = true;
+            return;
+        }
         if (length != 804 || !overlay_known) {
             ep_mix_shadow_reject(s);
             return;
@@ -92,12 +110,13 @@ static inline void ep_mix_shadow_write(EPMixShadow *s, unsigned fifo_index,
 }
 
 static inline void ep_mix_shadow_finish(EPMixShadow *s, const uint32_t *xram,
+                                        const uint32_t *pram,
                                         bool program_after_known)
 {
     if (!s || !s->armed)
         return;
     s->armed = false;
-    if (!program_after_known || !xram) {
+    if (!program_after_known || !xram || !pram) {
         s->invalidated++;
         return;
     }
@@ -130,6 +149,22 @@ static inline void ep_mix_shadow_finish(EPMixShadow *s, const uint32_t *xram,
                 s->mismatched_words++;
                 matches = false;
             }
+        }
+    }
+    const unsigned pram_addresses[8] = { 1,     7,     0x116, 0x1a6,
+                                         0x1ab, 0x1ac, 0x1ad, 0x1ae };
+    const uint32_t pram_values[8] = {
+        (s->before_phase + 1) % 6, (s->before_counter + 1) & 0xffffff,
+        s->before_slot ^ 0x100,    s->first_address + 4 * 2048,
+        expected.peak[0],          expected.peak[1],
+        expected.rms[0],           expected.rms[1],
+    };
+    for (unsigned i = 0; i < 8; i++) {
+        if (pram[pram_addresses[i]] == pram_values[i]) {
+            s->matched_pram_words++;
+        } else {
+            s->mismatched_pram_words++;
+            matches = false;
         }
     }
     for (unsigned i = 0; i < 512; i++) {
