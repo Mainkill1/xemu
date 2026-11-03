@@ -472,6 +472,7 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
     bql_lock();
 
     qemu_thread_join(&d->apu_thread);
+    mcpx_apu_dsp_finalize(d);
     mcpx_apu_vp_finalize(d);
     mcpx_apu_monitor_finalize(d);
 }

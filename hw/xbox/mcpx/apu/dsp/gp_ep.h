@@ -32,6 +32,7 @@ typedef struct MCPXAPUState MCPXAPUState;
 
 typedef struct MCPXAPUGPState {
     bool realtime;
+    struct GPDecimateObserver *decimate_observer;
     MemoryRegion mmio;
     DSPState *dsp;
     uint32_t regs[0x10000];
@@ -48,6 +49,7 @@ extern const MemoryRegionOps gp_ops;
 extern const MemoryRegionOps ep_ops;
 
 void mcpx_apu_dsp_init(MCPXAPUState *d);
+void mcpx_apu_dsp_finalize(MCPXAPUState *d);
 void mcpx_apu_update_dsp_preference(MCPXAPUState *d);
 void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME]);
 

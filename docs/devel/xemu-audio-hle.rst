@@ -29,6 +29,15 @@ sentinels. A controlled GP-only variant applies asymmetric channel gain and
 permits a DSP JIT versus native front-mix comparison. See that fixture's
 README for commands, identities, expected failures and limitations.
 
+With the JIT engine, ``XEMU_GP_DECIMATE_SHADOW=1`` enables a read-only
+diagnostic for four decimation routes of one identified GP program. It
+calculates private predictions before running the original DSP and compares
+their samples, scratch writes, descriptor offsets and phases afterward. It
+prints frame and route counts periodically and on normal device teardown. Unknown programs,
+unsupported states and changed programs are excluded and counted; HLE audio
+does not consume these predictions. This diagnostic does not establish Xbox
+hardware accuracy, complete game audio, or a performance improvement.
+
 The intended future implementation must cover real guest DSP programs and
 their state, effects, DMA and IRQ behavior. Use independently verified program
 contracts and shadow comparisons; do not treat this direct-path prototype as

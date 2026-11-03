@@ -4655,6 +4655,14 @@ foreach target : target_dirs
       files('tests/xbox/mcpx-apu/test-audio-hle-mix.c'),
       include_directories: target_inc, c_args: c_args, build_by_default: false)
     test('test-xbox-audio-hle-mix', audio_hle_mix_test, suite: ['unit'])
+    gp_decimate_hle_test = executable('test-xbox-gp-decimate-hle',
+      files('tests/xbox/mcpx-apu/test-gp-decimate-hle.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-gp-decimate-hle', gp_decimate_hle_test, suite: ['unit'])
+    gp_decimate_shadow_test = executable('test-xbox-gp-decimate-shadow',
+      files('tests/xbox/mcpx-apu/test-gp-decimate-shadow.c'),
+      include_directories: target_inc, c_args: c_args, build_by_default: false)
+    test('test-xbox-gp-decimate-shadow', gp_decimate_shadow_test, suite: ['unit'])
     audio_engine_instance_test = executable('test-xbox-audio-engine-instance',
       files('tests/xbox/mcpx-apu/test-audio-engine-instance.c'),
       c_args: c_args, dependencies: arch_deps + [sdl],

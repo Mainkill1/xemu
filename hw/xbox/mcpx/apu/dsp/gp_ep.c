@@ -24,9 +24,76 @@
 #include "qemu/error-report.h"
 #include "qemu/timer.h"
 #include "dsp-replay.h"
+#include "dsp-jit-state.h"
+#include "gp-decimate-shadow.h"
 #include "trace.h"
 
 static const int16_t ep_silence[256][2] = { 0 };
+
+typedef struct GPDecimateObserver {
+    GPDecimateShadow shadow;
+    DSPJitState before, after;
+    uint32_t program[DSP_PRAM_SIZE];
+    uint64_t frames, backend_skips, program_skips;
+    bool program_valid, recognized;
+} GPDecimateObserver;
+
+static void gp_decimate_observer_report(const GPDecimateObserver *o)
+{
+    fprintf(stderr, "GP decimate shadow: frames=%" PRIu64
+            " attempted=%" PRIu64 " eligible=%" PRIu64
+            " skipped=%" PRIu64 " invalidated=%" PRIu64
+            " matched_routes=%" PRIu64 " mismatched_routes=%" PRIu64
+            " writes=%" PRIu64 " backend_skips=%" PRIu64
+            " program_skips=%" PRIu64 "\n", o->frames,
+            o->shadow.attempted, o->shadow.eligible, o->shadow.skipped,
+            o->shadow.invalidated, o->shadow.matched, o->shadow.mismatched,
+            o->shadow.writes, o->backend_skips, o->program_skips);
+}
+
+static void gp_decimate_observer_begin(GPDecimateObserver *o, DSPState *dsp,
+                                       bool realtime)
+{
+    if (!o) {
+        return;
+    }
+    if (++o->frames % 10000 == 0) {
+        gp_decimate_observer_report(o);
+    }
+    if (!realtime || !dsp_jit_get_native_state(dsp, &o->before)) {
+        o->backend_skips++;
+        return;
+    }
+    if (!o->program_valid ||
+        memcmp(o->program, o->before.pram, sizeof(o->program))) {
+        uint32_t canonical[DSP_PRAM_SIZE];
+        for (unsigned i = 0; i < DSP_PRAM_SIZE; i++) {
+            canonical[i] = cpu_to_le32(o->before.pram[i] & 0xffffff);
+        }
+        g_autofree char *digest = g_compute_checksum_for_data(
+            G_CHECKSUM_SHA256, (const uint8_t *)canonical, sizeof(canonical));
+        o->recognized = !strcmp(digest,
+            "f7c1b74d7ff1493a3c52fd2ca032fe744d96fabf56b6dd93de22114c793e525b");
+        memcpy(o->program, o->before.pram, sizeof(o->program));
+        o->program_valid = true;
+    }
+    if (!o->recognized) {
+        o->program_skips++;
+        return;
+    }
+    gp_decimate_shadow_prepare(&o->shadow, o->before.xram);
+}
+
+static void gp_decimate_observer_end(GPDecimateObserver *o, DSPState *dsp)
+{
+    if (!o || !o->shadow.armed) {
+        return;
+    }
+    bool valid = dsp_jit_get_native_state(dsp, &o->after);
+    bool stable = valid && !memcmp(o->before.pram, o->after.pram,
+                                    sizeof(o->before.pram));
+    gp_decimate_shadow_finish(&o->shadow, valid ? o->after.xram : NULL, stable);
+}
 
 void mcpx_apu_update_dsp_preference(MCPXAPUState *d)
 {
@@ -99,6 +166,10 @@ static void gp_scratch_rw(void *opaque, uint8_t *ptr, uint32_t addr, size_t len,
                           bool dir)
 {
     MCPXAPUState *d = opaque;
+    if (dir && d->gp.decimate_observer) {
+        gp_decimate_shadow_write(&d->gp.decimate_observer->shadow, addr, ptr,
+                                 len);
+    }
     // fprintf(stderr, "GP %s scratch 0x%x bytes (0x%x words) at %x (0x%x words)\n", dir ? "writing to" : "reading from", len, len/4, addr, addr/4);
     scatter_gather_rw(d, d->regs[NV_PAPU_GPSADDR], d->regs[NV_PAPU_GPSMAXSGE],
                       ptr, addr, len, dir);
@@ -474,12 +545,16 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
         DSPReplay *capture = dsp_replay_begin(d->gp.dsp, d->gp.realtime);
         uint64_t calls = 0;
 
+        gp_decimate_observer_begin(d->gp.decimate_observer, d->gp.dsp,
+                                   d->gp.realtime);
+
         do {
             dsp_run(d->gp.dsp, 1000);
             if (capture) {
                 calls++;
             }
         } while (!dsp_get_halt_requested(d->gp.dsp) && d->gp.realtime);
+        gp_decimate_observer_end(d->gp.decimate_observer, d->gp.dsp);
         g_dbg.gp.cycles = dsp_get_cycle_count(d->gp.dsp);
         if (profile) {
             int64_t elapsed_ns =
@@ -537,6 +612,10 @@ void mcpx_apu_dsp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_
 
 void mcpx_apu_dsp_init(MCPXAPUState *d)
 {
+    const char *shadow = g_getenv("XEMU_GP_DECIMATE_SHADOW");
+    if (shadow && !strcmp(shadow, "1")) {
+        d->gp.decimate_observer = g_new0(GPDecimateObserver, 1);
+    }
     d->last_dsp_preference = -1;
     d->last_jit_preference = -1;
     d->gp.dsp = dsp_init(d, gp_scratch_rw, gp_fifo_rw, true);
@@ -552,4 +631,14 @@ void mcpx_apu_dsp_init(MCPXAPUState *d)
      * use the full audio pipeline or not.
      */
     mcpx_apu_update_dsp_preference(d);
+}
+
+void mcpx_apu_dsp_finalize(MCPXAPUState *d)
+{
+    GPDecimateObserver *o = d->gp.decimate_observer;
+    if (o) {
+        gp_decimate_observer_report(o);
+        g_free(o);
+        d->gp.decimate_observer = NULL;
+    }
 }
